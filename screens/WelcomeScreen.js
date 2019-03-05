@@ -2,8 +2,16 @@
 
 import React from "react";
 
-import { View, Text } from "react-native";
+import styled from "styled-components";
 
-const WelcomeScreen = props => <Text>Welcome Screen</Text>;
+import { SafeAreaView, View, Text } from "react-native";
+
+// const WelcomeScr
+
+const WelcomeScreen = props => (
+  <SafeAreaView>
+    <Text>Welcome Screen</Text>
+  </SafeAreaView>
+);
 
 export default WelcomeScreen;
