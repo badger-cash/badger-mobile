@@ -8,6 +8,9 @@ export type Account = {
   privateKey: string // SAME FOR THIS.  ENCRYPTED WITHIN APP?
 };
 
+// transaction history
+// sent / received
+
 type Action = { type: string, payload: any };
 
 export type State = { all: Account[], active: ?number };

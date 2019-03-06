@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@expo/samples": "2.1.1",
-    "bitbox-sdk": "^5.0.1",
+    "bch-keyring-controller": "^0.2.2",
+    "big-number": "^2.0.0",
     "expo": "^32.0.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
@@ -21,6 +22,7 @@
     "react-redux": "^6.0.1",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
+    "slp-sdk": "^3.0.1",
     "styled-components": "^4.1.3"
   },
   "devDependencies": {
