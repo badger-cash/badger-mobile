@@ -15,7 +15,7 @@ type Action = { type: string, payload: any };
 
 export type State = { all: Account[], active: ?number };
 
-export const initialState: State = { all: [], active: null };
+export const initialState: State = { all: [{ name: "test" }], active: null };
 
 const addAccount = (state: State, payload: Account) => {
   return { all: [...state.all, payload], active: state.all.length - 1 };

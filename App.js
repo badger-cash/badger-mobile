@@ -1,15 +1,29 @@
+// @flow
+
 import React from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { AppLoading, Asset, Font, Icon } from "expo";
+import { Provider } from "react-redux";
+
 import AppNavigator from "./navigation/AppNavigator";
 
-export default class App extends React.Component {
+import { store } from "./data/store";
+
+type Props = {
+  skipLoadingScreen?: boolean
+};
+type State = {
+  isLoadingComplete: boolean
+};
+export default class App extends React.Component<Props, State> {
   state = {
     isLoadingComplete: false
   };
 
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
+    const { isLoadingComplete } = this.state;
+    const { skipLoadingScreen } = this.props;
+    if (!isLoadingComplete && !skipLoadingScreen) {
       return (
         <AppLoading
           startAsync={this._loadResourcesAsync}
@@ -19,10 +33,12 @@ export default class App extends React.Component {
       );
     } else {
       return (
-        <View style={styles.container}>
-          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
+        <Provider store={store}>
+          <View style={styles.container}>
+            {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+            <AppNavigator />
+          </View>
+        </Provider>
       );
     }
   }

@@ -5,8 +5,14 @@ import { Icon } from "expo";
 
 import Colors from "../constants/Colors";
 
-export default class TabBarIcon extends React.Component {
+type Props = {
+  focused: boolean,
+  name: string
+};
+
+export default class TabBarIcon extends React.PureComponent<Props> {
   render() {
+    const { name, focused } = this.props;
     return (
       <Icon.Ionicons
         name={this.props.name}

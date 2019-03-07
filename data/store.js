@@ -78,4 +78,4 @@ const store = createStore(
 // });
 
 // export { persistor };
-export default store;
+export { store };
