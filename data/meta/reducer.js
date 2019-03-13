@@ -10,6 +10,8 @@ export type State = {
   selectedTokenId: ?string
 };
 
+// token Metadata
+
 export const initialState: State = { selectedTokenId: null };
 
 const selectToken = (state: State, payload: string) => {

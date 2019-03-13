@@ -1,12 +1,18 @@
 // @flow
 
 import React from "react";
-import { SafeAreaView, Text, TextInput } from "react-native";
+import { SafeAreaView, Text, TextInput, Button } from "react-native";
 
 import { connect } from "react-redux";
 
+import { getAccount } from "../data/accounts/actions";
+
+// import { getAccount } from "../utils/keyring";
+
 type Props = {
-  accounts: string[]
+  accounts: string[],
+
+  createNewVaultAndKeychain: Function
 };
 type State = {
   password1: string,
@@ -20,10 +26,10 @@ class CreatePasswordScreen extends React.Component<Props, State> {
   };
 
   render() {
-    const { accounts } = this.props;
+    const { accounts, createNewVaultAndKeychain } = this.props;
     const { password1, password2 } = this.state;
 
-    console.log("accoujts");
+    console.log("accounts");
     console.log(accounts);
     return (
       <SafeAreaView>
@@ -48,6 +54,7 @@ class CreatePasswordScreen extends React.Component<Props, State> {
         ) : (
           <Text>No Match</Text>
         )}
+        <Button onPress={() => getAccount()} title="Create" />
       </SafeAreaView>
     );
   }
@@ -57,7 +64,9 @@ const mapStateToProps = state => ({
   accounts: state.accounts.all
 });
 
-const mapDispatchtoProps = {};
+const mapDispatchtoProps = {
+  getAccount
+};
 
 export default connect(
   mapStateToProps,

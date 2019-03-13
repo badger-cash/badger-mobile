@@ -9,6 +9,8 @@ import AppNavigator from "./navigation/AppNavigator";
 
 import { store } from "./data/store";
 
+// const Stream = require('stream-browserify');
+
 type Props = {
   skipLoadingScreen?: boolean
 };
