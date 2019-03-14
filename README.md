@@ -2,6 +2,9 @@
 
 > The world of Bitcoin Cash in your hands
 
+Early development.  Coming soon.
+
+
 ## Develop
 
 - `yarn install`
