@@ -23,11 +23,6 @@ export type Account = {
   privateKey: string // SAME FOR THIS.  ENCRYPTED WITHIN APP?
 };
 
-// addr
-// cashaddr
-// utxo
-// slp addr
-
 type ScriptSig = {
   hex: string,
   asm: string,

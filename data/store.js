@@ -17,8 +17,6 @@ import meta, {
   initialState as initialMetaState
 } from "./meta/reducer";
 
-// import RootStack from "../navigation/AppNavigator";
-
 export type FullState = {
   accounts: StateAccount,
   meta: StateMeta
@@ -28,8 +26,6 @@ const initialState: FullState = {
   accounts: initialAccountState,
   meta: initialMetaState
 };
-
-// const nav = createNavigationReducer(RootStack);
 
 const rootReducer = combineReducers({
   // nav,
@@ -73,9 +69,4 @@ const store = createStore(
   applyMiddleware(...middleware)
 );
 
-// const persistor = persistStore(store, null, () => {
-//   i18n.changeLanguage(store.getState().meta.locale);
-// });
-
-// export { persistor };
 export { store };
