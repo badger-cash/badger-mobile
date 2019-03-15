@@ -1,0 +1,26 @@
+{
+  "name": "react-native-randombytes",
+  "version": "3.5.2",
+  "summary": "randomBytes for react-native",
+  "homepage": "https://github.com/mvayngrib/react-native-randombytes",
+  "license": "ISC",
+  "authors": {
+    "{\"name\"=>\"Mark Vayngrib\", \"email\"=>\"mark.vayngrib@lablz.com\", \"url\"=>\"http://github.com/mvayngrib\"}": {
+      "name": "Mark Vayngrib",
+      "email": "mark.vayngrib@lablz.com",
+      "url": "http://github.com/mvayngrib"
+    }
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "source": {
+    "git": "git+https://github.com/mvayngrib/react-native-randombytes.git"
+  },
+  "source_files": "*.{h,m}",
+  "dependencies": {
+    "React": [
+
+    ]
+  }
+}
