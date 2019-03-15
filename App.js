@@ -9,7 +9,7 @@ const deriveAccount = (
   mnemonic = null,
   accountIndex = 0,
   childIndex = 0,
-  hdPathString = "m/44'/245'/0'"
+  hdPathString = "m/44'/245'"
 ) => {
   if (!mnemonic) {
     mnemonic = BITBOX.Mnemonic.generate(128);
@@ -21,7 +21,7 @@ const deriveAccount = (
 
   const child = BITBOX.HDNode.derivePath(
     rootNode,
-    `m/${accountIndex}'/0/${childIndex}`
+    `${accountIndex}'/0/${childIndex}`
   );
   const keypair = BITBOX.HDNode.toKeyPair(child);
   const address = BITBOX.ECPair.toCashAddress(keypair);
@@ -41,6 +41,7 @@ export default class App extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>Welcome to React Native????</Text>
+        <Text>{account.address}</Text>
         <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Text style={styles.instructions}>{instructions}</Text>
       </View>
