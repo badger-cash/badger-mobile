@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 
 
 import BITBOXSDK from 'bitbox-sdk'
-const BITBOX = new BITBOXSDK;
+const BITBOX = new BITBOXSDK();
 
 const deriveAccount = (
   mnemonic = null,
@@ -16,12 +16,12 @@ const deriveAccount = (
   }
 
   const seed = BITBOX.Mnemonic.toSeed(mnemonic);
-  const hdWallet = BITBOX.HDNode.fromSeed(seed, "mainnet");
+  const hdWallet = BITBOX.HDNode.fromSeed(seed); // "mainnet"
   const rootNode = BITBOX.HDNode.derivePath(hdWallet, hdPathString);
 
   const child = BITBOX.HDNode.derivePath(
-    this.root,
-    `/{accountIndex}'/0/${childIndex}`
+    rootNode,
+    `m/${accountIndex}'/0/${childIndex}`
   );
   const keypair = BITBOX.HDNode.toKeyPair(child);
   const address = BITBOX.ECPair.toCashAddress(keypair);
