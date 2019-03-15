@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "177CE12BD08F30C7977C4A62B5D71056"
+               BlueprintIdentifier = "BE86E31A4F9CAFE006A495E8F5D7C1C4"
                BuildableName = "libreact-native-randombytes.a"
                BlueprintName = "react-native-randombytes"
                ReferencedContainer = "container:Pods.xcodeproj">

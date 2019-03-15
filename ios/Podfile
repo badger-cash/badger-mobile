@@ -2,7 +2,7 @@ platform :ios, '10.0'
 
 require_relative '../node_modules/react-native-unimodules/cocoapods'
 
-target 'badger2' do
+target 'badgerMobile' do
   # Pods for badger2
   pod 'React', :path => '../node_modules/react-native', :subspecs => [
     'Core',
@@ -31,7 +31,7 @@ target 'badger2' do
 
   pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
 
-  target 'badger2Tests' do
+  target 'badgerMobileTests' do
     inherit! :search_paths
   end
 end

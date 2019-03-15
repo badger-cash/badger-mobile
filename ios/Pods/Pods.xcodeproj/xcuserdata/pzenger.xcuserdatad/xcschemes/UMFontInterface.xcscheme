@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B7F4F0917FBA292EA6A2ED5899AC7076"
+               BlueprintIdentifier = "68AE61264E83E586F084ADC1E36DC50F"
                BuildableName = "UMFontInterface"
                BlueprintName = "UMFontInterface"
                ReferencedContainer = "container:Pods.xcodeproj">

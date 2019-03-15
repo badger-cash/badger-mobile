@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>badger2 wallet</string>
+	<string>badgerMobile</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -56,27 +56,5 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Allow badger2 wallet to access your calendar</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Allow badger2 wallet to use the camera</string>
-	<key>NSContactsUsageDescription</key>
-	<string>Allow badger2 wallet experiences to access your contacts</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow badger2 wallet to use your location</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow badger2 wallet to use your location</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow badger2 wallet to use your location</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow badger2 wallet to access your microphone</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Allow badger2 wallet to access your device's accelerometer</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Give badger2 wallet periences permission to save photos</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give badger2 wallet periences permission to access your photos</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>Allow badger2 wallet to access your reminders</string>
 </dict>
 </plist>

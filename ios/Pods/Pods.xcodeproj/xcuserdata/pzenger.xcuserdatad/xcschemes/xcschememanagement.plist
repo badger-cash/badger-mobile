@@ -29,12 +29,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-badger2.xcscheme</key>
+		<key>Pods-badgerMobile.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-badger2Tests.xcscheme</key>
+		<key>Pods-badgerMobileTests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
