@@ -14,15 +14,16 @@ import styled from "styled-components";
 // import { H1 } from "../components/H1";
 // import { T } from "../components/T";
 
-// import BadgerIcon from "../assets/images/icon.png";
+import BadgerIcon from "../assets/images/icon.png";
 
-const StyledWrapper = styled(View)`
+const StyledWrapper = styled(SafeAreaView)`
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
   background-color: lime;
-  height: 500;
+  /* height: 500;
+  width: 500; */
 `;
 
 type Props = { navigation: { navigate: Function } };
@@ -38,8 +39,16 @@ class WelcomeScreen extends React.Component<Props, State> {
     return (
       <StyledWrapper>
         <Text>Badger Wallet!!</Text>
-        {/* <Image source={BadgerIcon} style={{ width: 200, height: 200 }} />
-        <T>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Text>Badger Wallet!!</Text>
+        <Image source={BadgerIcon} style={{ width: 200, height: 200 }} />
+        {/* <T>
           Badger is a secure identity vault for Bitcoin Cash. It allows you to
           hold bitcoin cash & tokens, and serves as your bridge to decentralized
           applications.

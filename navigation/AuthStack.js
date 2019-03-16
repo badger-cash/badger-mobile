@@ -14,7 +14,12 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 
 const AuthStack = createStackNavigator(
   {
-    welcome: WelcomeScreen
+    welcome: {
+      screen: WelcomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        title: `TEST Profile'`
+      })
+    }
     // termsOfUse: TermsOfUseScreen,
     // privacyNotice: PrivacyNoticeScreen,
     // unlock: UnlockScreen,
@@ -22,7 +27,7 @@ const AuthStack = createStackNavigator(
     // createPassword: CreatePasswordScreen
   },
   {
-    headerMode: "none"
+    headerMode: "screen"
     // initialRouteName: "welcome"
   }
 );
