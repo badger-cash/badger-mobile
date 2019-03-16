@@ -176,25 +176,25 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
-  EXConstants: 9fef2c937fa0c8e6182b26cfea29e9a27fbb3009
-  EXFileSystem: fc5260fcc461ad675ea1bb56a1d5be4c56e2b556
-  EXPermissions: 615f9e58b861a3a82bbf9784483c2fb34e75c751
+  EXConstants: a338ed187829ab25b8817f84cd84eecc13e64fd4
+  EXFileSystem: 18c9980f52e3bd6a28670c17e0d33a9c1584a336
+  EXPermissions: ce3e170052df9d496aa51e1c372080cb2508fb16
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   React: 34a405ead72252839fdc4afc1f972a7ed984af84
-  react-native-randombytes: 72fcf9b00ff80a28b7420d4c76286287c8ab9b0d
-  UMBarCodeScannerInterface: e5c8c1a9b1a3724169601da09ece11ba742fe574
-  UMCameraInterface: fab8201fb49679a4951dbee4bc9de43c4771207f
-  UMConstantsInterface: 661f05e74c4de53030b25e6a64e5e116eecf4bef
-  UMCore: b6639c3ac799f5021eed0dfadbdcda1b8b77553d
-  UMFaceDetectorInterface: 62dd9a54404ffe7de4bde798d34f7b3bf76b8cfa
-  UMFileSystemInterface: 49b65f732e7f5bf7fd08b1a064f153b11b2358de
-  UMFontInterface: 6b8f8dabb93044c90902144abdc7779848185c1f
-  UMImageLoaderInterface: 832d1a71f395a7b9288e8c5bb65c0a4377a41f1e
-  UMPermissionsInterface: 50a84c830ca47b26e21e51a2ce051e1b64807b44
-  UMReactNativeAdapter: 89811c2df570bb2606ed294561601fe63ab904ea
-  UMSensorsInterface: 4c21e6a34f142933b480c7fa5c8a03195a713b37
-  UMTaskManagerInterface: 4640d2fed78f46943d2e7fc37318b9749a0f8106
+  react-native-randombytes: aa2b5e8bf90a9c0402101c62ed7b145f02940e32
+  UMBarCodeScannerInterface: 53fd3cbf24fe5c58f3ba82ac8c27f0373fbf52fa
+  UMCameraInterface: d5a2727e76d6b47e3201f863102c055ddbcc6206
+  UMConstantsInterface: 800fb8f95fca9bb2c18ae554e4cb4df4383f6cbf
+  UMCore: c3266dbcd7530f90c63e99a22ee088f3cc323cf9
+  UMFaceDetectorInterface: 0a3116d1313f0a4ea5e8187dbaac8ebe23708135
+  UMFileSystemInterface: a726855fa018f4e76141bb0eab3c576d904286b2
+  UMFontInterface: d43144a9fd2139935623d03b5b617f2d37c4069a
+  UMImageLoaderInterface: c1c22fde92be958166ae6c133d7937a5fd1d8ef8
+  UMPermissionsInterface: 3c47ca68fbcd43286292d678fcb08a62f0189af0
+  UMReactNativeAdapter: 9bbf1462013bc16d7bc0fbdeb88fc0c9d3878c52
+  UMSensorsInterface: 136a828e73e4d69694cdd8d6203a99d38471b90e
+  UMTaskManagerInterface: f88793bd35248182e15591e0aa5b045132312be0
   yoga: 8fb47f180b19b0dadb285a09e4c74c8a41721d3a
 
 PODFILE CHECKSUM: eef36ca024f9e72c7e664bb4adc4676c170b2096
