@@ -31,6 +31,8 @@ target 'badgerMobile' do
 
   pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
 
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+
   target 'badgerMobileTests' do
     inherit! :search_paths
   end

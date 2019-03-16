@@ -1,8 +1,12 @@
+// @flow
+
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-
-
 import BITBOXSDK from 'bitbox-sdk'
+
+import { store } from "./data/store";
+
+
 const BITBOX = new BITBOXSDK();
 
 const deriveAccount = (
