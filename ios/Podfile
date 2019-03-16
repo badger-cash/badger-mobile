@@ -33,6 +33,8 @@ target 'badgerMobile' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+  pod 'react-native-async-storage', :path => '../node_modules/@react-native-community/async-storage'
+
   target 'badgerMobileTests' do
     inherit! :search_paths
   end

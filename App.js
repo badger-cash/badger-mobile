@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, StatusBar, View } from "react-native";
 import BITBOXSDK from "bitbox-sdk";
 import styled from "styled-components";
 import { Provider } from "react-redux";
@@ -52,17 +52,40 @@ const instructions = Platform.select({
 
 export default class App extends Component {
   render() {
-    const account = deriveAccount();
-    console.log("account derived");
+    // const { isLoadingComplete } = this.state;
+    // const { skipLoadingScreen } = this.props;
+    // if (!isLoadingComplete && !skipLoadingScreen) {
+    //   return (
+    //     <AppLoading
+    //       startAsync={this._loadResourcesAsync}
+    //       onError={this._handleLoadingError}
+    //       onFinish={this._handleFinishLoading}
+    //     />
+    //   );
+    // } else {
     return (
-      <Main>
-        <Text style={styles.welcome}>Welcome to React Native?</Text>
-        <Text>{account.address}</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </Main>
+      <Provider store={store}>
+        <View style={styles.container}>
+          {/* {Platform.OS === "ios" && <StatusBar barStyle="default" />} */}
+          {/* <Text>test test?</Text> */}
+          <AppNavigator />
+        </View>
+      </Provider>
     );
+    // }
   }
+  // render() {
+  //   const account = deriveAccount();
+  //   console.log("account derived");
+  //   return (
+  //     <Main>
+  //       <Text style={styles.welcome}>Welcome to React Native?</Text>
+  //       <Text>{account.address}</Text>
+  //       <Text style={styles.instructions}>To get started, edit App.js</Text>
+  //       <Text style={styles.instructions}>{instructions}</Text>
+  //     </Main>
+  //   );
+  // }
 }
 
 const styles = StyleSheet.create({

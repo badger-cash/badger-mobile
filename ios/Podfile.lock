@@ -184,8 +184,8 @@ SPEC CHECKSUMS:
   EXConstants: a338ed187829ab25b8817f84cd84eecc13e64fd4
   EXFileSystem: 18c9980f52e3bd6a28670c17e0d33a9c1584a336
   EXPermissions: ce3e170052df9d496aa51e1c372080cb2508fb16
-  Folly: ca03fba2cb343978620d4d5b0d53d1d2b5b1f5b8
-  glog: c56b26bc08b7a73f67cad63967571c90a12709e4
+  Folly: de497beb10f102453a1afa9edbf8cf8a251890de
+  glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   React: 34a405ead72252839fdc4afc1f972a7ed984af84
   react-native-randombytes: aa2b5e8bf90a9c0402101c62ed7b145f02940e32
   RNGestureHandler: b65d391f4f570178d657b99a16ec99d09b8656b0
