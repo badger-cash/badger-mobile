@@ -1,11 +1,20 @@
 // @flow
 
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
-import BITBOXSDK from 'bitbox-sdk'
+import React, { Component } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import BITBOXSDK from "bitbox-sdk";
+
+import styled from "styled-components";
 
 import { store } from "./data/store";
 
+const Main = styled(View)`
+  display: flex;
+  flex: 1;
+  background-color: red;
+  justify-content: center;
+  align-items: center;
+`;
 
 const BITBOX = new BITBOXSDK();
 
@@ -34,21 +43,23 @@ const deriveAccount = (
 };
 
 const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' + 'Shake or press menu button for dev menu',
+  ios: "Press Cmd+R to reload,\n" + "Cmd+D or shake for dev menu",
+  android:
+    "Double tap R on your keyboard to reload,\n" +
+    "Shake or press menu button for dev menu"
 });
 
 export default class App extends Component {
   render() {
     const account = deriveAccount();
-    console.log('account derived');
+    console.log("account derived");
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native????</Text>
+      <Main>
+        <Text style={styles.welcome}>Welcome to React Native</Text>
         <Text>{account.address}</Text>
         <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Text style={styles.instructions}>{instructions}</Text>
-      </View>
+      </Main>
     );
   }
 }
@@ -56,18 +67,18 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF"
   },
   welcome: {
     fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+    textAlign: "center",
+    margin: 10
   },
   instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    textAlign: "center",
+    color: "#333333",
+    marginBottom: 5
+  }
 });
