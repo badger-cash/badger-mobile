@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "56BD7A3FC4641A8646CD8C992AB95FD3"
+               BlueprintIdentifier = "6B70DFC9F4874292FE5DCDA954B0B1CD"
                BuildableName = "libUMReactNativeAdapter.a"
                BlueprintName = "UMReactNativeAdapter"
                ReferencedContainer = "container:Pods.xcodeproj">

@@ -3,9 +3,10 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import BITBOXSDK from "bitbox-sdk";
-
 import styled from "styled-components";
+import { Provider } from "react-redux";
 
+import AppNavigator from "./navigation/AppNavigator";
 import { store } from "./data/store";
 
 const Main = styled(View)`
@@ -55,7 +56,7 @@ export default class App extends Component {
     console.log("account derived");
     return (
       <Main>
-        <Text style={styles.welcome}>Welcome to React Native</Text>
+        <Text style={styles.welcome}>Welcome to React Native?</Text>
         <Text>{account.address}</Text>
         <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Text style={styles.instructions}>{instructions}</Text>

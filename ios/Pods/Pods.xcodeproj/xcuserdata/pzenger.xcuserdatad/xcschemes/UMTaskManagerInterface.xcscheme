@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F572222D5E9C09F020CAF81E5572B5AE"
+               BlueprintIdentifier = "DE5048C4513AD3B6A74BD2CE7C3D48A6"
                BuildableName = "UMTaskManagerInterface"
                BlueprintName = "UMTaskManagerInterface"
                ReferencedContainer = "container:Pods.xcodeproj">
