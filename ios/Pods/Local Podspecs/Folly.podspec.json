@@ -13,15 +13,9 @@
   },
   "module_name": "folly",
   "dependencies": {
-    "boost-for-react-native": [
-
-    ],
-    "DoubleConversion": [
-
-    ],
-    "glog": [
-
-    ]
+    "boost-for-react-native": [],
+    "DoubleConversion": [],
+    "glog": []
   },
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
   "source_files": [

@@ -19,19 +19,13 @@
   "pod_target_xcconfig": {
     "CLANG_CXX_LANGUAGE_STANDARD": "c++14"
   },
-  "preserve_paths": [
-    "package.json",
-    "LICENSE",
-    "LICENSE-docs"
-  ],
+  "preserve_paths": ["package.json", "LICENSE", "LICENSE-docs"],
   "cocoapods_version": ">= 1.2.0",
   "subspecs": [
     {
       "name": "Core",
       "dependencies": {
-        "yoga": [
-          "0.59.1.React"
-        ]
+        "yoga": ["0.59.1.React"]
       },
       "source_files": "React/**/*.{c,h,m,mm,S,cpp}",
       "exclude_files": [
@@ -68,18 +62,10 @@
     {
       "name": "CxxBridge",
       "dependencies": {
-        "Folly": [
-          "2018.10.22.00"
-        ],
-        "React/Core": [
-
-        ],
-        "React/cxxreact": [
-
-        ],
-        "React/jsiexecutor": [
-
-        ]
+        "Folly": ["2018.10.22.00"],
+        "React/Core": [],
+        "React/cxxreact": [],
+        "React/jsiexecutor": []
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "private_header_files": "React/Cxx*/*.h",
@@ -88,30 +74,17 @@
     {
       "name": "DevSupport",
       "dependencies": {
-        "React/Core": [
-
-        ],
-        "React/RCTWebSocket": [
-
-        ]
+        "React/Core": [],
+        "React/RCTWebSocket": []
       },
-      "source_files": [
-        "React/DevSupport/*",
-        "React/Inspector/*"
-      ]
+      "source_files": ["React/DevSupport/*", "React/Inspector/*"]
     },
     {
       "name": "RCTFabric",
       "dependencies": {
-        "Folly": [
-          "2018.10.22.00"
-        ],
-        "React/Core": [
-
-        ],
-        "React/fabric": [
-
-        ]
+        "Folly": ["2018.10.22.00"],
+        "React/Core": [],
+        "React/fabric": []
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "source_files": "React/Fabric/**/*.{c,h,m,mm,S,cpp}",
@@ -125,9 +98,7 @@
     {
       "name": "tvOS",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "React/**/RCTTV*.{h,m}"
     },
@@ -142,21 +113,11 @@
     {
       "name": "jsiexecutor",
       "dependencies": {
-        "React/cxxreact": [
-
-        ],
-        "React/jsi": [
-
-        ],
-        "Folly": [
-          "2018.10.22.00"
-        ],
-        "DoubleConversion": [
-
-        ],
-        "glog": [
-
-        ]
+        "React/cxxreact": [],
+        "React/jsi": [],
+        "Folly": ["2018.10.22.00"],
+        "DoubleConversion": [],
+        "glog": []
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "source_files": "ReactCommon/jsiexecutor/jsireact/*.{cpp,h}",
@@ -169,15 +130,9 @@
     {
       "name": "jsi",
       "dependencies": {
-        "Folly": [
-          "2018.10.22.00"
-        ],
-        "DoubleConversion": [
-
-        ],
-        "glog": [
-
-        ]
+        "Folly": ["2018.10.22.00"],
+        "DoubleConversion": [],
+        "glog": []
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "source_files": "ReactCommon/jsi/*.{cpp,h}",
@@ -198,21 +153,11 @@
     {
       "name": "cxxreact",
       "dependencies": {
-        "React/jsinspector": [
-
-        ],
-        "boost-for-react-native": [
-          "1.63.0"
-        ],
-        "Folly": [
-          "2018.10.22.00"
-        ],
-        "DoubleConversion": [
-
-        ],
-        "glog": [
-
-        ]
+        "React/jsinspector": [],
+        "boost-for-react-native": ["1.63.0"],
+        "Folly": ["2018.10.22.00"],
+        "DoubleConversion": [],
+        "glog": []
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "source_files": "ReactCommon/cxxreact/*.{cpp,h}",
@@ -228,9 +173,7 @@
         {
           "name": "activityindicator",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/activityindicator/**/*.{cpp,h}",
@@ -243,9 +186,7 @@
         {
           "name": "attributedstring",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/attributedstring/**/*.{cpp,h}",
@@ -258,9 +199,7 @@
         {
           "name": "core",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/core/**/*.{cpp,h}",
@@ -273,9 +212,7 @@
         {
           "name": "debug",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/debug/**/*.{cpp,h}",
@@ -288,9 +225,7 @@
         {
           "name": "graphics",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/graphics/**/*.{cpp,h}",
@@ -303,9 +238,7 @@
         {
           "name": "scrollview",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/scrollview/**/*.{cpp,h}",
@@ -318,9 +251,7 @@
         {
           "name": "text",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/text/**/*.{cpp,h}",
@@ -333,9 +264,7 @@
         {
           "name": "textlayoutmanager",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/textlayoutmanager/**/*.{cpp,h,mm}",
@@ -348,9 +277,7 @@
         {
           "name": "uimanager",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ]
+            "Folly": ["2018.10.22.00"]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/uimanager/**/*.{cpp,h}",
@@ -363,12 +290,8 @@
         {
           "name": "view",
           "dependencies": {
-            "Folly": [
-              "2018.10.22.00"
-            ],
-            "yoga": [
-
-            ]
+            "Folly": ["2018.10.22.00"],
+            "yoga": []
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
           "source_files": "ReactCommon/fabric/view/**/*.{cpp,h}",
@@ -383,9 +306,7 @@
     {
       "name": "RCTFabricSample",
       "dependencies": {
-        "Folly": [
-          "2018.10.22.00"
-        ]
+        "Folly": ["2018.10.22.00"]
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
       "source_files": "ReactCommon/fabric/sample/**/*.{cpp,h}",
@@ -398,27 +319,21 @@
     {
       "name": "ART",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/ART/**/*.{h,m}"
     },
     {
       "name": "RCTActionSheet",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/ActionSheetIOS/*.{h,m}"
     },
     {
       "name": "RCTAnimation",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/NativeAnimation/{Drivers/*,Nodes/*,*}.{h,m}",
       "header_dir": "RCTAnimation"
@@ -426,9 +341,7 @@
     {
       "name": "RCTBlob",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Blob/*.{h,m,mm}",
       "preserve_paths": "Libraries/Blob/*.js"
@@ -436,93 +349,67 @@
     {
       "name": "RCTCameraRoll",
       "dependencies": {
-        "React/Core": [
-
-        ],
-        "React/RCTImage": [
-
-        ]
+        "React/Core": [],
+        "React/RCTImage": []
       },
       "source_files": "Libraries/CameraRoll/*.{h,m}"
     },
     {
       "name": "RCTGeolocation",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Geolocation/*.{h,m}"
     },
     {
       "name": "RCTImage",
       "dependencies": {
-        "React/Core": [
-
-        ],
-        "React/RCTNetwork": [
-
-        ]
+        "React/Core": [],
+        "React/RCTNetwork": []
       },
       "source_files": "Libraries/Image/*.{h,m}"
     },
     {
       "name": "RCTNetwork",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Network/*.{h,m,mm}"
     },
     {
       "name": "RCTPushNotification",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/PushNotificationIOS/*.{h,m}"
     },
     {
       "name": "RCTSettings",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Settings/*.{h,m}"
     },
     {
       "name": "RCTText",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Text/**/*.{h,m}"
     },
     {
       "name": "RCTVibration",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/Vibration/*.{h,m}"
     },
     {
       "name": "RCTWebSocket",
       "dependencies": {
-        "React/Core": [
-
-        ],
-        "React/RCTBlob": [
-
-        ],
-        "React/fishhook": [
-
-        ]
+        "React/Core": [],
+        "React/RCTBlob": [],
+        "React/fishhook": []
       },
       "source_files": "Libraries/WebSocket/*.{h,m}"
     },
@@ -534,18 +421,14 @@
     {
       "name": "RCTLinkingIOS",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/LinkingIOS/*.{h,m}"
     },
     {
       "name": "RCTTest",
       "dependencies": {
-        "React/Core": [
-
-        ]
+        "React/Core": []
       },
       "source_files": "Libraries/RCTTest/**/*.{h,m}",
       "frameworks": "XCTest"
@@ -553,12 +436,8 @@
     {
       "name": "_ignore_me_subspec_for_linting_",
       "dependencies": {
-        "React/Core": [
-
-        ],
-        "React/CxxBridge": [
-
-        ]
+        "React/Core": [],
+        "React/CxxBridge": []
       }
     }
   ]

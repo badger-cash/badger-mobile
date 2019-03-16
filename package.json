@@ -5,7 +5,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm --hack"
+    "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm --hack",
+    "format": "pretty-quick"
   },
   "dependencies": {
     "big-number": "^2.0.0",

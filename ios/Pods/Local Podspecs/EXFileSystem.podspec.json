@@ -16,11 +16,7 @@
   "preserve_paths": "EXFileSystem/**/*.{h,m}",
   "requires_arc": true,
   "dependencies": {
-    "UMCore": [
-
-    ],
-    "UMFileSystemInterface": [
-
-    ]
+    "UMCore": [],
+    "UMFileSystemInterface": []
   }
 }

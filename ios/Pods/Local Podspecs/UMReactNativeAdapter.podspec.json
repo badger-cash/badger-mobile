@@ -16,14 +16,8 @@
   "preserve_paths": "UMReactNativeAdapter/**/*.{h,m}",
   "requires_arc": true,
   "dependencies": {
-    "React": [
-
-    ],
-    "UMCore": [
-
-    ],
-    "UMFontInterface": [
-
-    ]
+    "React": [],
+    "UMCore": [],
+    "UMFontInterface": []
   }
 }

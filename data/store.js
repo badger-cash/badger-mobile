@@ -28,7 +28,7 @@ import { createStore, combineReducers, applyMiddleware } from "redux";
 // };
 
 const rootReducer = combineReducers({
-  base: (state) => 'a'
+  base: state => "a"
   // nav,
   // accounts,
   // meta
@@ -62,7 +62,7 @@ const logger = ({ getState }) => {
 //   state => state.nav
 // );
 
-const initialState = { base: null}
+const initialState = { base: null };
 
 const middleware = [logger];
 
