@@ -8,12 +8,21 @@ import {
   Button,
   ActivityIndicator
 } from "react-native";
+import { connect } from "react-redux";
+
+import { hasMnemonic } from "../data/accounts/selectors";
 
 // Later - Add a way to add a password here for encryption instead of passing through.
 
-const CreateWalletScreen = ({ navigation }) => {
+type Props = {
+  navigation: { navigate: Function },
+  isCreated: boolean
+};
+const CreateWalletScreen = ({ navigation, isCreated }: Props) => {
   useEffect(() => {
-    navigation.navigate("walletDashboard");
+    if (isCreated) {
+      navigation.navigate("Home");
+    }
   });
   return (
     <SafeAreaView>
@@ -22,7 +31,10 @@ const CreateWalletScreen = ({ navigation }) => {
   );
 };
 
-// On load - Call a redux action to generate the new wallet, and save the wallet in the redux store.
-// Then redirect the page to the MainTabNavigator
+const mapStateToProps = state => ({ isCreated: hasMnemonic(state) });
+const mapDispatchToProps = {};
 
-export default CreateWalletScreen;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CreateWalletScreen);
