@@ -21,38 +21,34 @@ const StyledWrapper = styled(SafeAreaView)`
   align-items: center;
 `;
 
-type Props = { navigation: { navigate: Function }, theme: any };
-type State = { password: string };
+type Props = { navigation: { navigate: Function } };
 
-class WelcomeScreen extends React.Component<Props, State> {
-  render() {
-    const { navigation } = this.props;
-    return (
-      <StyledWrapper>
-        <Spacer />
-        <H1>Badger | Alpha</H1>
-        <Spacer />
-        <Image source={BadgerIcon} style={{ width: 150, height: 150 }} />
-        <Spacer />
-        <View style={{ flex: 1 }}>
-          <T style={{ textAlign: "center" }}>
-            Your gateway to the world of Bitcoin Cash (BCH) apps
-          </T>
-        </View>
+const WelcomeScreen = ({ navigation }: Props) => {
+  return (
+    <StyledWrapper>
+      <Spacer />
+      <H1>Badger | Alpha</H1>
+      <Spacer />
+      <Image source={BadgerIcon} style={{ width: 150, height: 150 }} />
+      <Spacer />
+      <View style={{ flex: 1 }}>
+        <T style={{ textAlign: "center" }}>
+          Your gateway to the world of Bitcoin Cash (BCH) apps
+        </T>
+      </View>
 
-        <View style={{ flex: 1 }}>
-          <Button
-            onPress={() => navigation.navigate("privacyNotice")}
-            title="Create new wallet"
-          />
-          <Button
-            onPress={() => navigation.navigate("restoreFromBackup")}
-            title="Restore from backup phrase"
-          />
-        </View>
-      </StyledWrapper>
-    );
-  }
-}
+      <View style={{ flex: 1 }}>
+        <Button
+          onPress={() => navigation.navigate("privacyNotice")}
+          title="Create new wallet"
+        />
+        <Button
+          onPress={() => navigation.navigate("restoreFromBackup")}
+          title="Restore from backup phrase"
+        />
+      </View>
+    </StyledWrapper>
+  );
+};
 
 export default WelcomeScreen;
