@@ -7,22 +7,28 @@ import {
   createBottomTabNavigator
 } from "react-navigation";
 
-// import TabBarIcon from "../components/TabBarIcon";
 import HomeScreen from "../screens/HomeScreen";
 
 const HomeStack = createStackNavigator({
-  Home: HomeScreen
+  walletDashboard: {
+    screen: HomeScreen,
+    navigationOptions: {
+      header: null,
+      tabBarLabel: "Home"
+      // tabBarIcon: ({ focused }) => (
+      //   <View>
+      //     <Text>Hello.</Text>
+      //   </View>
+      // )
+    },
+    tabBarOptions: {
+      activeTintColor: "tomato",
+      inactiveTintColor: "gray"
+    }
+  }
 });
-
-HomeStack.navigationOptions = {
-  tabBarLabel: "Home",
-  tabBarIcon: ({ focused }) => (
-    <View>
-      <Text>Hello.</Text>
-    </View>
-  )
-};
 
 export default createBottomTabNavigator({
   HomeStack
+  // ReceiveStack,
 });

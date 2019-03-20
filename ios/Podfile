@@ -35,6 +35,8 @@ target 'badgerMobile' do
 
   pod 'react-native-async-storage', :path => '../node_modules/@react-native-community/async-storage'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'badgerMobileTests' do
     inherit! :search_paths
   end
