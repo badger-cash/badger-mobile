@@ -1,14 +1,32 @@
 // @flow
 
 import React from "react";
+import styled from "styled-components";
+import { SafeAreaView, Text, Button } from "react-native";
 
-import { Text } from "react-native";
+import { H1, Spacer } from "../atoms";
 
-type Props = {};
+type Props = { navigation: any };
+
+const ScreenView = styled(SafeAreaView)`
+  align-items: center;
+`;
 
 class PrivacyNoticeScreen extends React.Component<Props> {
   render() {
-    return <Text>Privacy</Text>;
+    const { navigation } = this.props;
+    return (
+      <ScreenView>
+        <Spacer large />
+        <H1>Privacy Overview</H1>
+        <Spacer />
+        <Text>Privacy is important. We will respect yours.</Text>
+        <Button
+          onPress={() => navigation.navigate("acceptTermsOfUse")}
+          title="Accept"
+        />
+      </ScreenView>
+    );
   }
 }
 

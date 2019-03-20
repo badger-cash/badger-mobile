@@ -1,9 +1,6 @@
 // @flow
 
-import { store } from "../data/store";
-
 import BITBOXSDK from "bitbox-sdk";
-
 const BITBOX = new BITBOXSDK();
 
 const deriveAccount = (

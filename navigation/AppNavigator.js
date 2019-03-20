@@ -10,16 +10,17 @@ import {
 import MainTabNavigator from "./MainTabNavigator";
 import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthStack from "./AuthStack";
+// import TermsOfUseScreen from "../screens/TermsOfUseScreen";
 
 export default createAppContainer(
   createSwitchNavigator(
     {
-      AuthLoading: AuthLoadingScreen,
+      AuthLoadingCheck: AuthLoadingScreen,
       Main: MainTabNavigator,
-      Auth: AuthStack
+      AuthStack: AuthStack
     },
     {
-      initialRouteName: "AuthLoading"
+      initialRouteName: "AuthLoadingCheck"
     }
   )
 );

@@ -35,7 +35,7 @@ class AuthLoadingScreen extends React.Component<Props> {
 
     // Figure this out
     // debugger;
-    navigation.navigate(userToken ? "Main" : "Auth");
+    navigation.navigate(userToken ? "Main" : "AuthStack");
     // console.log(navigation)
   };
 
@@ -45,7 +45,6 @@ class AuthLoadingScreen extends React.Component<Props> {
       <View>
         <ActivityIndicator />
         <StatusBar barStyle="default" />
-        <Text>Hello world</Text>
       </View>
     );
   }
