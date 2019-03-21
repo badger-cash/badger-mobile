@@ -2,21 +2,11 @@
 
 import React from "react";
 import styled from "styled-components";
+import { Text, SafeAreaView } from "react-native";
 
 import { connect } from "react-redux";
 
 import { getAddressSelector } from "../data/accounts/selectors";
-
-import {
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  SafeAreaView
-} from "react-native";
 
 type Props = {
   address: string

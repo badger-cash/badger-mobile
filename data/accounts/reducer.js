@@ -129,19 +129,10 @@ const addAccount = (state: State, payload: { account: Account }) => {
   const { keypair, ...removedKeypair } = account;
   const { address } = removedKeypair;
 
-  console.log("in add Account");
-
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
     return state;
   }
-
-  console.log({
-    ...state,
-    byId: { ...state.byId, [address]: removedKeypair },
-    allIds: [...state.allIds, address],
-    activeId: address
-  });
 
   return {
     ...state,
