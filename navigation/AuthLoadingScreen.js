@@ -1,53 +1,30 @@
 // @flow
 
-import React from "react";
-import {
-  ActivityIndicator,
-  StatusBar,
-  StyleSheet,
-  View,
-  Text
-} from "react-native";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
 
-import AsyncStorage from "@react-native-community/async-storage";
+import { ActivityIndicator, StatusBar, View } from "react-native";
+import { hasMnemonicSelector } from "../data/accounts/selectors";
 
 type Props = {
-  navigation: { navigate: Function }
+  navigation: { navigate: Function },
+  hasMnemonic: boolean
 };
 
-class AuthLoadingScreen extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-    this._bootstrapAsync();
-  }
+const AuthLoadingScreen = ({ navigation, hasMnemonic }: Props) => {
+  useEffect(() => {
+    const targetScreen = hasMnemonic ? "Main" : "AuthStack";
+    navigation.navigate(targetScreen);
+  });
 
-  // Fetch the token from storage then navigate to our appropriate place
-  _bootstrapAsync = async () => {
-    const { navigation } = this.props;
+  return (
+    <View>
+      <ActivityIndicator />
+      <StatusBar barStyle="default" />
+    </View>
+  );
+};
 
-    // Probably load and decrypt the private key with a password.
-    // Then can add plausible deniability into decryption
+const mapStateToProps = state => ({ hasMnemonic: hasMnemonicSelector(state) });
 
-    const userToken = await AsyncStorage.getItem("userToken");
-
-    // This will switch to the App screen or Auth screen and this loading
-    // screen will be unmounted and thrown away.
-
-    // Figure this out
-    // debugger;
-    navigation.navigate(userToken ? "Main" : "AuthStack");
-    // console.log(navigation)
-  };
-
-  // Render any loading content that you like here
-  render() {
-    return (
-      <View>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
-      </View>
-    );
-  }
-}
-
-export default AuthLoadingScreen;
+export default connect(mapStateToProps)(AuthLoadingScreen);

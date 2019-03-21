@@ -1,6 +1,8 @@
 // @flow
 
 import { createStore, combineReducers, applyMiddleware } from "redux";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 // import { createNavigationReducer } from "react-navigation";
 
@@ -27,6 +29,12 @@ export type FullState = {
 //   meta: initialMetaState
 // };
 
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["accounts"]
+};
+
 const rootReducer = combineReducers({
   accounts: accountsReducer
   // nav,
@@ -34,14 +42,7 @@ const rootReducer = combineReducers({
   // meta
 });
 
-// const persistConfig = {
-//   timeout: 0, // The code base checks for falsy, so 0 disables
-//   key: "root",
-//   storage,
-//   whitelist: [accounts"]
-// };
-
-// const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const Logger = ({ getState }) => {
   return next => action => {
@@ -52,14 +53,18 @@ const Logger = ({ getState }) => {
   };
 };
 
-const initialState: FullState = { base: null, accounts: initialAccountState };
+const initialState: FullState = { accounts: initialAccountState };
 
 const middleware = [Logger, ReduxThunk];
 
-const store = createStore(
-  rootReducer,
-  initialState,
-  applyMiddleware(...middleware)
-);
+const getStore = () => {
+  const store = createStore(
+    persistedReducer,
+    initialState,
+    applyMiddleware(...middleware)
+  );
+  const persistor = persistStore(store);
+  return { store, persistor };
+};
 
-export { store };
+export { getStore };

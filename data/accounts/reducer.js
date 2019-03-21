@@ -124,7 +124,10 @@ export const initialState: State = { byId: {}, allIds: [], activeId: null };
 
 const addAccount = (state: State, payload: { account: Account }) => {
   const { account } = payload;
-  const { address, keypair, mnemonic } = account;
+
+  // TODO - Look into keypairs, cannot persist without serialization as they are not POJO.  Figure out which parts are needed to persist.
+  const { keypair, ...removedKeypair } = account;
+  const { address } = removedKeypair;
 
   console.log("in add Account");
 
@@ -133,9 +136,16 @@ const addAccount = (state: State, payload: { account: Account }) => {
     return state;
   }
 
+  console.log({
+    ...state,
+    byId: { ...state.byId, [address]: removedKeypair },
+    allIds: [...state.allIds, address],
+    activeId: address
+  });
+
   return {
     ...state,
-    byId: { ...state.byId, [address]: account },
+    byId: { ...state.byId, [address]: removedKeypair },
     allIds: [...state.allIds, address],
     activeId: address
   };
