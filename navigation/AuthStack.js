@@ -2,13 +2,12 @@
 
 import React from "react";
 
-import { createSwitchNavigator, createStackNavigator } from "react-navigation";
+import { createStackNavigator } from "react-navigation";
 
 import WelcomeScreen from "../screens/WelcomeScreen";
 import TermsOfUseScreen from "../screens/TermsOfUseScreen";
 import PrivacyNoticeScreen from "../screens/PrivacyNoticeScreen";
 import CreateWalletScreen from "../screens/CreateWalletScreen";
-// import CreatePasswordScreen from "../screens/CreatePasswordScreen";
 
 // import UnlockScreen from "../screens/UnlockScreen";
 import RestoreWalletScreen from "../screens/RestoreWalletScreen";
@@ -20,14 +19,13 @@ const AuthStack = createStackNavigator(
     },
     acceptTermsOfUse: { screen: TermsOfUseScreen },
     privacyNotice: { screen: PrivacyNoticeScreen },
-    createWallet: { screen: CreateWalletScreen },
+    createWallet: { screen: CreateWalletScreen }, // Create a password here also?
     // unlock: UnlockScreen,
     restoreFromBackup: { screen: RestoreWalletScreen }
-    // createPassword: CreatePasswordScreen
   },
   {
-    headerMode: "none"
-    // initialRouteName: "welcome"
+    headerMode: "none",
+    initialRouteName: "welcome"
   }
 );
 

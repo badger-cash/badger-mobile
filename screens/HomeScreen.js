@@ -14,7 +14,7 @@ type Props = {
 
 const HomeScreen = ({ address }: Props) => (
   <SafeAreaView>
-    <Text> Main wallet screen</Text>
+    <Text>Main wallet screen</Text>
     <Text>{address}</Text>
   </SafeAreaView>
 );

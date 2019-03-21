@@ -1,7 +1,6 @@
 // @flow
 
 import React from "react";
-import { Platform, View, Text } from "react-native";
 import {
   createStackNavigator,
   createBottomTabNavigator
@@ -14,33 +13,25 @@ const HomeStack = createStackNavigator({
   WalletDashboard: {
     screen: HomeScreen,
     navigationOptions: {
-      header: null
-      // tabBarLabel: "Home"
-      // tabBarIcon: ({ focused }) => (
-      //   <View>
-      //     <Text>Hello.</Text>
-      //   </View>
-      // )
-    },
-    tabBarOptions: {
-      activeTintColor: "tomato",
-      inactiveTintColor: "gray"
+      header: null,
+      title: "Wallets"
     }
   }
 });
 
-export default createBottomTabNavigator(
+const BottomTabNavigator = createBottomTabNavigator(
   {
     Home: HomeStack
-    // ReceiveStack,
+    // Settings: SettingsStack,
+    //Receive:  ReceiveStack,
   },
   {
-    navigationOptions: ({ navigation }) => ({
+    defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
         const { routeName } = navigation.state;
         let iconName;
-        if (routeName === "HomeStack") {
-          iconName = `ios-information-circle${focused ? "" : "-outline"}`;
+        if (routeName === "Home") {
+          iconName = `ios-cash${focused ? "" : "-outline"}`;
         } else if (routeName === "Settings") {
           iconName = `ios-options${focused ? "" : "-outline"}`;
         }
@@ -57,8 +48,10 @@ export default createBottomTabNavigator(
       }
     }),
     tabBarOptions: {
-      activeTintColor: "tomato",
-      inactiveTintColor: "gray"
+      activeTintColor: "#F59332",
+      inactiveTintColor: "#4D4D4D"
     }
   }
 );
+
+export default BottomTabNavigator;
