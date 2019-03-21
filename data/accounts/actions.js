@@ -1,22 +1,23 @@
 // @flow
 
 import {
-  ADD_ACCOUNT,
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
   GET_ACCOUNT_FAIL
 } from "./constants";
 
-import { deriveAccount } from "../../utils/keyring";
+import { type Account } from "./reducer";
+
+import { deriveAccount } from "../../utils/account-utils";
 
 const getAccountStart = () => ({
   type: GET_ACCOUNT_START,
   payload: null
 });
 
-const getAccountSuccess = () => ({
+const getAccountSuccess = (account: Account) => ({
   type: GET_ACCOUNT_SUCCESS,
-  payload: null
+  payload: { account }
 });
 
 const getAccountFail = () => ({
@@ -24,12 +25,17 @@ const getAccountFail = () => ({
   payload: null
 });
 
-export const getAccount = seed => {
+const getAccount = (seed: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
     const account = deriveAccount(seed);
+    console.log(account);
+    dispatch(getAccountSuccess(account));
+
     console.log("get account");
     console.log("called");
     console.log(account);
   };
 };
+
+export { getAccount };

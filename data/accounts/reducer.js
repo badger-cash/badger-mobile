@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  ADD_ACCOUNT,
+  // ADD_ACCOUNT,
   CREATE_NEW_KEYCHAIN_START,
   CREATE_NEW_KEYCHAIN_SUCCESS,
   CREATE_NEW_KEYCHAIN_FAIL,
@@ -11,17 +11,22 @@ import {
 } from "./constants";
 
 export type Account = {
-  name: string,
   address: string,
-  balance: string,
-  utxoCache: UTXO[],
-  tokenCache: boolean, // This can/should go in the `tokens` reducer
-  historicalTransactions: HistoricalTransaction[],
-
-  // These should live with the keyring?
-  seedwords: string[], // SHOULD BE ENCRYPTED? MAYBE? MAYBE NOT?
-  privateKey: string // SAME FOR THIS.  ENCRYPTED WITHIN APP?
+  keypair: ECPair,
+  mnemonic: string
 };
+// export type Account = {
+//   name: string,
+//   address: string,
+//   balance: string,
+//   utxoCache: UTXO[],
+//   tokenCache: boolean, // This can/should go in the `tokens` reducer
+//   historicalTransactions: HistoricalTransaction[],
+
+//   // These should live with the keyring?
+//   seedwords: string[], // SHOULD BE ENCRYPTED? MAYBE? MAYBE NOT?
+//   privateKey: string // SAME FOR THIS.  ENCRYPTED WITHIN APP?
+// };
 
 type ScriptSig = {
   hex: string,
@@ -109,24 +114,39 @@ type HistoricalTransaction = {
 
 type Action = { type: string, payload: any };
 
-export type State = { all: Account[], active: ?number };
+export type State = {
+  byId: { [accountId: string]: Account },
+  allIds: string[],
+  activeId: ?string
+};
 
-export const initialState: State = { all: [{ name: "test" }], active: null };
+export const initialState: State = { byId: {}, allIds: [], activeId: null };
 
-const addAccount = (state: State, payload: Account) => {
-  return { all: [...state.all, payload], active: state.all.length - 1 };
+const addAccount = (state: State, payload: { account: Account }) => {
+  const { account } = payload;
+  const { address, keypair, mnemonic } = account;
+
+  console.log("in add Account");
+
+  const existingAcounts = state.allIds;
+  if (existingAcounts.includes(address)) {
+    return state;
+  }
+
+  return {
+    ...state,
+    byId: { ...state.byId, [address]: account },
+    allIds: [...state.allIds, address],
+    activeId: address
+  };
 };
 
 const accounts = (state: State = initialState, action: Action): State => {
   switch (action.type) {
-    case ADD_ACCOUNT:
+    case GET_ACCOUNT_START:
+      return state;
+    case GET_ACCOUNT_SUCCESS:
       return addAccount(state, action.payload);
-    case CREATE_NEW_KEYCHAIN_START:
-      return state;
-    case CREATE_NEW_KEYCHAIN_SUCCESS:
-      return state;
-    case CREATE_NEW_KEYCHAIN_FAIL:
-      return state;
     default:
       return state;
   }
