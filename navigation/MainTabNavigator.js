@@ -8,21 +8,28 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import HomeScreen from "../screens/HomeScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+import ViewSeedScreen from "../screens/ViewSeedScreen";
 
 const HomeStack = createStackNavigator({
   WalletDashboard: {
     screen: HomeScreen,
     navigationOptions: {
       header: null,
-      title: "Wallets"
+      tabBarLabel: "Wallets"
     }
   }
 });
 
+const SettingsStack = createStackNavigator({
+  SettingsList: SettingsScreen,
+  ViewSeedPhrase: ViewSeedScreen
+});
+
 const BottomTabNavigator = createBottomTabNavigator(
   {
-    Home: HomeStack
-    // Settings: SettingsStack,
+    Home: HomeStack,
+    Settings: SettingsStack
     //Receive:  ReceiveStack,
   },
   {
@@ -31,10 +38,12 @@ const BottomTabNavigator = createBottomTabNavigator(
         const { routeName } = navigation.state;
         let iconName;
         if (routeName === "Home") {
-          iconName = `ios-cash${focused ? "" : "-outline"}`;
+          iconName = `ios-cash`; //${focused ? "" : "-outline"}`;
         } else if (routeName === "Settings") {
-          iconName = `ios-options${focused ? "" : "-outline"}`;
+          iconName = `ios-cog`; //${focused ? "" : "-outline"}`;
         }
+
+        console.log(iconName);
 
         // You can return any component that you like here! We usually use an
         // icon component from react-native-vector-icons

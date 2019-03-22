@@ -12,6 +12,9 @@ type Props = {
   address: string
 };
 
+// For now just a list of the coins and tokens
+// Click on one to go to it's detail screen, which has it's send/receive screens
+
 const HomeScreen = ({ address }: Props) => (
   <SafeAreaView>
     <Text>Main wallet screen</Text>

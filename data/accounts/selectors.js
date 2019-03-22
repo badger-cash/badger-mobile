@@ -14,10 +14,18 @@ const mainAccountSelector = createSelector(
     return mainAccount;
   }
 );
+
 const hasMnemonicSelector = createSelector(
   mainAccountSelector,
   account => {
     return account && account.mnemonic && true;
+  }
+);
+
+const getMnemonicSelector = createSelector(
+  mainAccountSelector,
+  account => {
+    return account ? account.mnemonic : "";
   }
 );
 
@@ -28,4 +36,9 @@ const getAddressSelector = createSelector(
   }
 );
 
-export { hasMnemonicSelector, getAddressSelector, mainAccountSelector };
+export {
+  hasMnemonicSelector,
+  getAddressSelector,
+  getMnemonicSelector,
+  mainAccountSelector
+};
