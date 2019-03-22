@@ -10,3 +10,6 @@ export const SET_KEYWORDS = "badger::account::SET_KEYWORDS";
 export const GET_ACCOUNT_START = "badger:accounts:GET_ACCOUNT_START";
 export const GET_ACCOUNT_SUCCESS = "badger:accounts:GET_ACCOUNT_SUCCESS";
 export const GET_ACCOUNT_FAIL = "badger:accounts:GET_ACCOUNT_FAIL";
+
+// Logout
+export const LOGOUT_ACCOUNT = "badger::accounts::LOGOUT_ACCOUNT";

@@ -3,7 +3,8 @@
 import {
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
-  GET_ACCOUNT_FAIL
+  GET_ACCOUNT_FAIL,
+  LOGOUT_ACCOUNT
 } from "./constants";
 
 import { type Account } from "./reducer";
@@ -29,13 +30,15 @@ const getAccount = (seed: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
     const account = deriveAccount(seed);
-    console.log(account);
     dispatch(getAccountSuccess(account));
-
-    console.log("get account");
-    console.log("called");
-    console.log(account);
   };
 };
 
-export { getAccount };
+const logoutAccount = () => {
+  return {
+    type: LOGOUT_ACCOUNT,
+    payload: null
+  };
+};
+
+export { getAccount, logoutAccount };

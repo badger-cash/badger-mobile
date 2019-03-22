@@ -21,10 +21,15 @@ const HomeStack = createStackNavigator({
   }
 });
 
-const SettingsStack = createStackNavigator({
-  SettingsList: SettingsScreen,
-  ViewSeedPhrase: ViewSeedScreen
-});
+const SettingsStack = createStackNavigator(
+  {
+    SettingsList: SettingsScreen,
+    ViewSeedPhrase: ViewSeedScreen
+  },
+  {
+    initialRouteName: "SettingsList"
+  }
+);
 
 const BottomTabNavigator = createBottomTabNavigator(
   {
@@ -56,6 +61,7 @@ const BottomTabNavigator = createBottomTabNavigator(
         );
       }
     }),
+
     tabBarOptions: {
       activeTintColor: "#F59332",
       inactiveTintColor: "#4D4D4D"

@@ -2,12 +2,10 @@
 
 import {
   // ADD_ACCOUNT,
-  CREATE_NEW_KEYCHAIN_START,
-  CREATE_NEW_KEYCHAIN_SUCCESS,
-  CREATE_NEW_KEYCHAIN_FAIL,
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
-  GET_ACCOUNT_FAIL
+  GET_ACCOUNT_FAIL,
+  LOGOUT_ACCOUNT
 } from "./constants";
 
 export type Account = {
@@ -142,12 +140,18 @@ const addAccount = (state: State, payload: { account: Account }) => {
   };
 };
 
+const logoutAccount = (state: State) => {
+  return initialState;
+};
+
 const accounts = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case GET_ACCOUNT_START:
       return state;
     case GET_ACCOUNT_SUCCESS:
       return addAccount(state, action.payload);
+    case LOGOUT_ACCOUNT:
+      return logoutAccount(state);
     default:
       return state;
   }

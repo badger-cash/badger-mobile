@@ -1,16 +1,14 @@
 // @flow
 
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
 
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  FlatList,
-  TouchableOpacity
-} from "react-native";
+import { SafeAreaView, ScrollView, View, TouchableOpacity } from "react-native";
+
 import { T } from "../atoms";
+
+import { logoutAccount } from "../data/accounts/actions";
 
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
@@ -28,10 +26,11 @@ const Row = styled(View)`
 `;
 
 type Props = {
-  navigation: { navigate: Function }
+  navigation: { navigate: Function },
+  logoutAccount: Function
 };
 
-const SettingsScreen = ({ navigation }: Props) => {
+const SettingsScreen = ({ navigation, logoutAccount }: Props) => {
   return (
     <SafeAreaView>
       <StyledScrollView>
@@ -46,8 +45,7 @@ const SettingsScreen = ({ navigation }: Props) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            // call redux logout function
-            // then navigate to base of app
+            logoutAccount();
             navigation.navigate("AuthLoadingCheck");
           }}
         >
@@ -60,4 +58,15 @@ const SettingsScreen = ({ navigation }: Props) => {
   );
 };
 
-export default SettingsScreen;
+const mapStateToProps = state => {
+  return {};
+};
+
+const mapDispatchToProps = {
+  logoutAccount
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SettingsScreen);
