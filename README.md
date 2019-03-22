@@ -34,6 +34,7 @@ This project use React Native. Please refer to the React Native documentation to
 - [React Native Getting Started Docs](https://facebook.github.io/react-native/docs/getting-started)
 - Install iOS/Android emulators
 - Install cocoapods if running on iOS
+- Be sure to set \$PATH if running on Android
 
 iOS
 
@@ -48,7 +49,11 @@ iOS
 Android
 
 ```bash
-> TO DO
+> yarn install
+> yarn run android
+
+For a simple .apk
+> react-native run-android --variant=release
 ```
 
 ### Nuke all and install command, for when things don't work.
