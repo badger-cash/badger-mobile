@@ -31,6 +31,7 @@ This project use React Native. Please refer to the React Native documentation to
 
 ### Steps
 
+- [React Native Getting Started Docs](https://facebook.github.io/react-native/docs/getting-started)
 - Install iOS/Android emulators
 - Install cocoapods if running on iOS
 
