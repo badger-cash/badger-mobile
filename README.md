@@ -53,7 +53,8 @@ Android
 > yarn run android
 
 For a simple .apk
-> react-native run-android --variant=release
+> cd android
+> ./gradlew assembleRelease
 ```
 
 ### Nuke all and install command, for when things don't work.

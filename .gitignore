@@ -2,4 +2,10 @@ node_modules/
 .expo/
 build/
 
+android/.gradle/*
+android/.idea/*
+android/app/app.iml
+android/badgerMobile.iml
+android/local.properties
+
 Pods/
