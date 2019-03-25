@@ -29,6 +29,7 @@ const getAccountFail = () => ({
 const getAccount = (seed: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
+    //  TODO - Error or fail state
     const account = deriveAccount(seed);
     dispatch(getAccountSuccess(account));
   };

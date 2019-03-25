@@ -2,6 +2,8 @@
 
 // Meta data about all token data
 
+import { UPDATE_TOKEN_META } from "./constants";
+
 type TokenData = {
   address: string,
   symbol: string,
@@ -13,12 +15,20 @@ type TokenData = {
   }
 };
 
-type State = TokenData[];
+type State = {
+  byId: { [tokenId]: TokenData },
+  allIds: string[]
+};
 
-const initialState: TokenData[] = [];
+const initialState: State = { byId: {}, allIds: [] };
 
 const tokenReducer = (state: State = initialState, action) => {
-  return state;
+  switch (state) {
+    case UPDATE_TOKEN_META:
+      return state;
+    default:
+      return state;
+  }
 };
 
 export default tokenReducer;

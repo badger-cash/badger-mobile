@@ -2,6 +2,8 @@ node_modules/
 .expo/
 build/
 
+test_wallets.md
+
 android/.gradle/*
 android/.idea/*
 android/app/app.iml

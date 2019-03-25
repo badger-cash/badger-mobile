@@ -1,29 +1,36 @@
 // @flow
 
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Text, SafeAreaView } from "react-native";
 
 import { connect } from "react-redux";
 
 import { getAddressSelector } from "../data/accounts/selectors";
+import { updateTransactions } from "../data/transactions/actions";
 
 type Props = {
-  address: string
+  address: string,
+  updateTransactions: Function
 };
 
-// For now just a list of the coins and tokens
-// Click on one to go to it's detail screen, which has it's send/receive screens
+const HomeScreen = ({ address, updateTransactions }: Props) => {
+  useEffect(() => {
+    updateTransactions(address);
+  }, []);
 
-const HomeScreen = ({ address }: Props) => (
-  <SafeAreaView>
-    <Text>Main wallet screen</Text>
-    <Text>{address}</Text>
-  </SafeAreaView>
-);
+  return (
+    <SafeAreaView>
+      <Text>Main wallet screen</Text>
+      <Text>{address}</Text>
+    </SafeAreaView>
+  );
+};
 
 const mapStateToProps = state => ({ address: getAddressSelector(state) });
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  updateTransactions
+};
 
 export default connect(
   mapStateToProps,

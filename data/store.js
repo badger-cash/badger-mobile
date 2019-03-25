@@ -3,10 +3,6 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-
-// import { createNavigationReducer } from "react-navigation";
-
-// import { AsyncStorage } from 'react-native'
 import ReduxThunk from "redux-thunk";
 
 import accountsReducer, {
@@ -14,20 +10,20 @@ import accountsReducer, {
   initialState as initialAccountState
 } from "./accounts/reducer";
 
-// import meta, {
-//   type State as StateMeta,
-//   initialState as initialMetaState
-// } from "./meta/reducer";
+import transactionsReducer, {
+  type State as StateTransactions,
+  initialState as initialTransactionsState
+} from "./transactions/reducer";
 
 export type FullState = {
-  accounts: StateAccount
-  // meta: StateMeta
+  accounts: StateAccount,
+  transactions: StateTransactions
 };
 
-// const initialState: FullState = {
-//   accounts: initialAccountState,
-//   meta: initialMetaState
-// };
+const initialState: FullState = {
+  accounts: initialAccountState,
+  transactions: initialTransactionsState
+};
 
 const persistConfig = {
   key: "root",
@@ -36,10 +32,8 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  accounts: accountsReducer
-  // nav,
-  // accounts,
-  // meta
+  accounts: accountsReducer,
+  transactions: transactionsReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -52,8 +46,6 @@ const Logger = ({ getState }) => {
     return next(action);
   };
 };
-
-const initialState: FullState = { accounts: initialAccountState };
 
 const middleware = [Logger, ReduxThunk];
 

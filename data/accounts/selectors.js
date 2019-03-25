@@ -4,6 +4,14 @@ import { createSelector } from "reselect";
 
 const accountsSelector = state => state.accounts;
 
+const activeAccountSelector = createSelector(
+  accountsSelector,
+  accounts => {
+    const { byId, activeId } = accounts;
+    return byId[activeId];
+  }
+);
+
 const mainAccountSelector = createSelector(
   accountsSelector,
   accounts => {
@@ -37,6 +45,7 @@ const getAddressSelector = createSelector(
 );
 
 export {
+  activeAccountSelector,
   hasMnemonicSelector,
   getAddressSelector,
   getMnemonicSelector,
