@@ -12,6 +12,9 @@ const activeAccountSelector = createSelector(
   }
 );
 
+const activeAccountIdSelector = state => state.accounts.activeId;
+
+// For if we only support 1 account.  Probably can remove
 const mainAccountSelector = createSelector(
   accountsSelector,
   accounts => {
@@ -24,21 +27,21 @@ const mainAccountSelector = createSelector(
 );
 
 const hasMnemonicSelector = createSelector(
-  mainAccountSelector,
+  activeAccountSelector,
   account => {
     return account && account.mnemonic && true;
   }
 );
 
 const getMnemonicSelector = createSelector(
-  mainAccountSelector,
+  activeAccountSelector,
   account => {
     return account ? account.mnemonic : "";
   }
 );
 
 const getAddressSelector = createSelector(
-  mainAccountSelector,
+  activeAccountSelector,
   account => {
     return account && account.address;
   }
@@ -46,6 +49,7 @@ const getAddressSelector = createSelector(
 
 export {
   activeAccountSelector,
+  activeAccountIdSelector,
   hasMnemonicSelector,
   getAddressSelector,
   getMnemonicSelector,

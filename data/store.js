@@ -15,25 +15,33 @@ import transactionsReducer, {
   initialState as initialTransactionsState
 } from "./transactions/reducer";
 
+import utxosReducer, {
+  type State as StateUTXOS,
+  initialState as initialUTXOSState
+} from "./utxos/reducer";
+
 export type FullState = {
   accounts: StateAccount,
-  transactions: StateTransactions
+  transactions: StateTransactions,
+  utxos: StateUTXOS
 };
 
 const initialState: FullState = {
   accounts: initialAccountState,
-  transactions: initialTransactionsState
+  transactions: initialTransactionsState,
+  utxos: initialUTXOSState
 };
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["accounts"]
+  whitelist: ["accounts", "transactions", "utxos"]
 };
 
 const rootReducer = combineReducers({
   accounts: accountsReducer,
-  transactions: transactionsReducer
+  transactions: transactionsReducer,
+  utxos: utxosReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
