@@ -8,8 +8,7 @@ type TokenData = {
   address: string,
   symbol: string,
   decimals: number,
-  string: string, // what is this?
-  protocol: "slp" | "whc",
+  protocol: "slp",
   protocolData: {
     baton: boolean
   }

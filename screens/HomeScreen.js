@@ -28,7 +28,7 @@ const HomeScreen = ({ address, updateTransactions, updateBalances }: Props) => {
 
       <TouchableOpacity
         onPress={() => updateTransactions(address)}
-        title="Update Addresses"
+        title="Update Transactions"
       >
         <Text>Update Addresses</Text>
       </TouchableOpacity>

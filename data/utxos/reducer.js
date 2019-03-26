@@ -6,7 +6,18 @@ import {
   UPDATE_UTXO_FAIL
 } from "./constants";
 
-type UTXO = {};
+type UTXO = {
+  txid: string,
+  confirmations: number,
+  amount: number,
+  height: number,
+  vout: any,
+  tx: {},
+  satoshis: number,
+  slp: { baton: any, token: string },
+  validSlpTx: boolean,
+  spendable: boolean
+};
 
 type Action = { type: string, payload: any };
 
