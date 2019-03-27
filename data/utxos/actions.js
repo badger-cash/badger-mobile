@@ -151,7 +151,7 @@ const updateUtxos = address => {
     dispatch(updateUtxoSuccess(utxosUpdatedFull, address));
     // BALANCE CALCULATIONS CAN BE DONE IN SELECTORS FROM HERE
 
-    // Start the MetaData update logic? or call from elsewhere?
+    // Start the MetaData update logic? or call from elsewhere?  Probably from a screen if token metadata is in view and missing.
   };
 };
 

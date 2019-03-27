@@ -6,6 +6,8 @@ import { Text, SafeAreaView, TouchableOpacity } from "react-native";
 
 import { connect } from "react-redux";
 
+import { T, Spacer } from "../atoms";
+import { bchBalanceSelector } from "../data/selectors";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
@@ -13,36 +15,55 @@ import { updateUtxos } from "../data/utxos/actions";
 type Props = {
   address: string,
   updateTransactions: Function,
-  updateUtxos: Function
+  updateUtxos: Function,
+  bchBalance: number
 };
 
-const HomeScreen = ({ address, updateTransactions, updateUtxos }: Props) => {
+const HomeScreen = ({
+  address,
+  updateTransactions,
+  updateUtxos,
+  bchBalance
+}: Props) => {
   // useEffect(() => {
   //   updateTransactions(address);
   // }, []);
 
   return (
     <SafeAreaView>
-      <Text>Main wallet screen!!</Text>
-      <Text>{address}</Text>
+      <T>Main wallet screen!!</T>
+      <Spacer />
+      <T>{address}</T>
+      <Spacer />
+      <T>{bchBalance} BCH</T>
+      <Spacer />
+      <Spacer />
 
       <TouchableOpacity
         onPress={() => updateTransactions(address)}
         title="Update Transactions"
       >
-        <Text>Update Addresses</Text>
+        <T>Update Transactions</T>
       </TouchableOpacity>
+      <Spacer />
       <TouchableOpacity
         onPress={() => updateUtxos(address)}
         title="Update Balances"
       >
-        <Text>Update Balances </Text>
+        <T>Update Balances </T>
       </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
-const mapStateToProps = state => ({ address: getAddressSelector(state) });
+const mapStateToProps = (state, props) => {
+  const address = getAddressSelector(state);
+  const bchBalance = bchBalanceSelector(state, address);
+  return {
+    address,
+    bchBalance
+  };
+};
 const mapDispatchToProps = {
   updateTransactions,
   updateUtxos

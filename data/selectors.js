@@ -4,6 +4,7 @@ import { createSelector } from "reselect";
 
 import { activeAccountSelector } from "./accounts/selectors";
 import { transactionsSelector } from "./transactions/selectors";
+import { utxosByAccountSelector } from "./utxos/selectors";
 
 const transactionsActiveAccountSelector = createSelector(
   activeAccountSelector,
@@ -15,8 +16,10 @@ const transactionsActiveAccountSelector = createSelector(
 );
 
 const bchBalanceSelector = createSelector(
-  transactionsActiveAccountSelector,
-  transactions => {
+  utxosByAccountSelector,
+  utxos => {
+    console.log("utxos in selector??");
+    console.log(utxos);
     return 1.32342432;
   }
 );
