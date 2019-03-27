@@ -6,7 +6,7 @@ import {
   UPDATE_UTXO_FAIL
 } from "./constants";
 
-type UTXO = {
+export type UTXO = {
   txid: string,
   confirmations: number,
   amount: number,
@@ -35,14 +35,23 @@ export const initialState: State = {
   updating: false
 };
 
+const addUtxos = (
+  state: State,
+  { utxos, address }: { utxos: UTXO[], address: string }
+) => {
+  console.log("adding utxos ");
+  console.log(address);
+  return state;
+};
+
 const utxos = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case UPDATE_UTXO_START:
-      return state;
+      return { ...state, updating: true };
     case UPDATE_UTXO_SUCCESS:
-      return state;
+      return { ...addUtxos(state, action.payload), updating: false };
     case UPDATE_UTXO_FAIL:
-      return state;
+      return { ...state, updating: false };
     default:
       return state;
   }

@@ -2,6 +2,12 @@
 
 import { chunk } from "lodash";
 
+import {
+  UPDATE_UTXO_START,
+  UPDATE_UTXO_SUCCESS,
+  UPDATE_UTXO_FAIL
+} from "./constants";
+
 import { utxosSelector } from "./selectors";
 import { activeAccountIdSelector } from "../accounts/selectors";
 
@@ -13,12 +19,29 @@ import {
   decodeTxOut
 } from "../../utils/transaction-utils";
 
+const updateUtxoStart = () => ({
+  type: UPDATE_UTXO_START,
+  payload: null
+});
+
+const updateUtxoSuccess = (utxos, address) => ({
+  type: UPDATE_UTXO_SUCCESS,
+  payload: { utxos, address }
+});
+
+const updateUtxoFail = () => ({
+  type: UPDATE_UTXO_FAIL,
+  payload: null
+});
+
 // Rename to updateUTXO's?  more clear as the selectors compute balances from these
 
 // Update the UTXO's for a given account.
 // Contains logic to separate them by spendability and tokens
 const updateBalances = address => {
   return async (dispatch: Function, getState: Function) => {
+    dispatch(updateUtxoStart());
+
     const state: FullState = getState();
     const accountId = activeAccountIdSelector(state);
 
@@ -117,42 +140,16 @@ const updateBalances = address => {
       utxosToAdd = nonSLPUtxos;
     }
 
-    const utxoUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
+    const utxosUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
 
     console.log("full?");
-    console.log(utxoUpdatedFull);
+    console.log(utxosUpdatedFull);
 
-    // Remove spent UTXO
-    // remove SLP unvalidated UTXO
-
-    // Filter to just the uncached ones
-    // Fetch the details for them
-    // get the details of tx
-    // Get Ids of all SLP tokens and set SLP object in utxo
-    // try
-    // Validate SLP DAG and set validSlpTx to true/false
-    // Update utxoCache set?
-    // Catch
-    // remove all  SLP UTXOs
-    // update utxoCache set
-
-    // Trigger Actions to update token metadata?
-
+    dispatch(updateUtxoSuccess(utxosUpdatedFull, address));
     // BALANCE CALCULATIONS CAN BE DONE IN SELECTORS FROM HERE
+
+    // Start the MetaData update logic? or call from elsewhere?
   };
 };
-
-// const updateTransactions = (address: string) => {
-//   return async (dispatch: Function, getState: Function) => {
-//     console.log("1 - ENTERING GET TRANSACTION");
-//     dispatch(getTransactionsStart());
-//     //  TODO - Error or fail state
-//     const transactions = await getHistoricalBchTransactions(address);
-//     console.log("2 - GOT TRANSACTIONS?");
-//     console.log(transactions);
-
-//     dispatch(getTransactionsSuccess(transactions));
-//   };
-// };
 
 export { updateBalances };
