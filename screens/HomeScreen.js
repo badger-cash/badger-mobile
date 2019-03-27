@@ -7,7 +7,7 @@ import { Text, SafeAreaView, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
 
 import { T, Spacer } from "../atoms";
-import { bchBalanceSelector } from "../data/selectors";
+import { balancesSelector } from "../data/selectors";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
@@ -23,7 +23,7 @@ const HomeScreen = ({
   address,
   updateTransactions,
   updateUtxos,
-  bchBalance
+  balances
 }: Props) => {
   // useEffect(() => {
   //   updateTransactions(address);
@@ -35,7 +35,7 @@ const HomeScreen = ({
       <Spacer />
       <T>{address}</T>
       <Spacer />
-      <T>{bchBalance} BCH</T>
+      <T>{balances.satoshisAvailable} BCH</T>
       <Spacer />
       <Spacer />
 
@@ -58,10 +58,10 @@ const HomeScreen = ({
 
 const mapStateToProps = (state, props) => {
   const address = getAddressSelector(state);
-  const bchBalance = bchBalanceSelector(state, address);
+  const balances = balancesSelector(state, address);
   return {
     address,
-    bchBalance
+    balances
   };
 };
 const mapDispatchToProps = {
