@@ -7,6 +7,7 @@ import {
 } from "./constants";
 
 export type UTXO = {
+  _id: string,
   txid: string,
   confirmations: number,
   amount: number,
@@ -40,12 +41,22 @@ const addUtxos = (
   payload: { utxos: UTXO[], address: string }
 ) => {
   const { address, utxos } = payload;
-  console.log("adding utxos ");
-  console.log(address);
-  console.log(utxos);
 
-  // Add all into `byId` if not already in there?
-  return state;
+  // Currently fully replaces all utxos with passed in set.
+  // In future should only add then prune completely unused ones by account
+  const nextById = Object.values(utxos).reduce((prev, curr) => {
+    return { ...prev, [curr._id]: curr };
+  }, {});
+
+  const nextState = {
+    ...state,
+    byId: nextById,
+    allIds: utxos.map(utxo => utxo._id),
+    byAccount: { ...state.byAccount, [address]: utxos.map(utxo => utxo._id) },
+    updating: false
+  };
+
+  return nextState;
 };
 
 const utxos = (state: State = initialState, action: Action): State => {
@@ -53,7 +64,7 @@ const utxos = (state: State = initialState, action: Action): State => {
     case UPDATE_UTXO_START:
       return { ...state, updating: true };
     case UPDATE_UTXO_SUCCESS:
-      return { ...addUtxos(state, action.payload), updating: false };
+      return addUtxos(state, action.payload);
     case UPDATE_UTXO_FAIL:
       return { ...state, updating: false };
     default:

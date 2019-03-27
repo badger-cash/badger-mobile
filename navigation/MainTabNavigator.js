@@ -48,10 +48,6 @@ const BottomTabNavigator = createBottomTabNavigator(
           iconName = `ios-cog`; //${focused ? "" : "-outline"}`;
         }
 
-        console.log(iconName);
-
-        // You can return any component that you like here! We usually use an
-        // icon component from react-native-vector-icons
         return (
           <Ionicons
             name={iconName}

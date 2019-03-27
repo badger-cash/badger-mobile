@@ -25,11 +25,10 @@ const getTransactionsFail = () => ({
 
 const updateTransactions = (address: string) => {
   return async (dispatch: Function, getState: Function) => {
-    console.log("1 - ENTERING GET TRANSACTION");
     dispatch(getTransactionsStart());
     //  TODO - Error or fail state
     const transactions = await getHistoricalBchTransactions(address);
-    console.log("2 - GOT TRANSACTIONS?");
+    console.log("---GOT TRANSACTIONS---");
     console.log(transactions);
 
     dispatch(getTransactionsSuccess(transactions));

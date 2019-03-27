@@ -32,6 +32,9 @@ const initialState: FullState = {
   utxos: initialUTXOSState
 };
 
+// Remove/add for testing persistence purposes
+// whitelist: ["accounts", "transactions", 'utxos]
+
 const persistConfig = {
   key: "root",
   storage,

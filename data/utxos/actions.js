@@ -148,9 +148,6 @@ const updateUtxos = address => {
 
     const utxosUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
 
-    console.log("full?");
-    console.log(utxosUpdatedFull);
-
     dispatch(updateUtxoSuccess(utxosUpdatedFull, address));
     // BALANCE CALCULATIONS CAN BE DONE IN SELECTORS FROM HERE
 

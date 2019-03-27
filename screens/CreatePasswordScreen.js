@@ -29,8 +29,6 @@ class CreatePasswordScreen extends React.Component<Props, State> {
     const { accounts, createNewVaultAndKeychain } = this.props;
     const { password1, password2 } = this.state;
 
-    console.log("accounts");
-    console.log(accounts);
     return (
       <SafeAreaView>
         <Text>Create Password</Text>
