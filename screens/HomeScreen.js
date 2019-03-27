@@ -8,15 +8,15 @@ import { connect } from "react-redux";
 
 import { getAddressSelector } from "../data/accounts/selectors";
 import { updateTransactions } from "../data/transactions/actions";
-import { updateBalances } from "../data/utxos/actions";
+import { updateUtxos } from "../data/utxos/actions";
 
 type Props = {
   address: string,
   updateTransactions: Function,
-  updateBalances: Function
+  updateUtxos: Function
 };
 
-const HomeScreen = ({ address, updateTransactions, updateBalances }: Props) => {
+const HomeScreen = ({ address, updateTransactions, updateUtxos }: Props) => {
   // useEffect(() => {
   //   updateTransactions(address);
   // }, []);
@@ -33,7 +33,7 @@ const HomeScreen = ({ address, updateTransactions, updateBalances }: Props) => {
         <Text>Update Addresses</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => updateBalances(address)}
+        onPress={() => updateUtxos(address)}
         title="Update Balances"
       >
         <Text>Update Balances </Text>
@@ -45,7 +45,7 @@ const HomeScreen = ({ address, updateTransactions, updateBalances }: Props) => {
 const mapStateToProps = state => ({ address: getAddressSelector(state) });
 const mapDispatchToProps = {
   updateTransactions,
-  updateBalances
+  updateUtxos
 };
 
 export default connect(

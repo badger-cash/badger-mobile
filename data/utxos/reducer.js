@@ -37,10 +37,14 @@ export const initialState: State = {
 
 const addUtxos = (
   state: State,
-  { utxos, address }: { utxos: UTXO[], address: string }
+  payload: { utxos: UTXO[], address: string }
 ) => {
+  const { address, utxos } = payload;
   console.log("adding utxos ");
   console.log(address);
+  console.log(utxos);
+
+  // Add all into `byId` if not already in there?
   return state;
 };
 

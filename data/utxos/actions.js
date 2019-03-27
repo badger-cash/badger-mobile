@@ -1,6 +1,7 @@
 // @flow
 
 import { chunk } from "lodash";
+import uuidv5 from "uuid/v5";
 
 import {
   UPDATE_UTXO_START,
@@ -19,6 +20,9 @@ import {
   decodeTxOut
 } from "../../utils/transaction-utils";
 
+// Generated from `uuid` cli command
+const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
+
 const updateUtxoStart = () => ({
   type: UPDATE_UTXO_START,
   payload: null
@@ -34,11 +38,13 @@ const updateUtxoFail = () => ({
   payload: null
 });
 
-// Rename to updateUTXO's?  more clear as the selectors compute balances from these
+// Simple unique ID for each utxo
+const computeUtxoId = utxo =>
+  uuidv5(`${utxo.txid}_${utxo.vout}`, BADGER_UUID_NAMESPACE);
 
 // Update the UTXO's for a given account.
-// Contains logic to separate them by spendability and tokens
-const updateBalances = address => {
+// Fetch all UTXOS, update them with relevant token metadata, and persist
+const updateUtxos = address => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateUtxoStart());
 
@@ -54,25 +60,25 @@ const updateBalances = address => {
     // Get all UTXO for account
     const utxosAll = await getAllUtxo(address);
 
+    const utxosAllWithId = utxosAll.map(utxo => ({
+      ...utxo,
+      _id: computeUtxoId(utxo)
+    }));
+
+    const utxosAllIds = utxosAllWithId.map(utxo => utxo._id);
+
     // Remove spent and un-validated SLP txs
     const cachedUtxoFiltered = accountUtxos
-      .filter(utxoCached =>
-        utxosAll.some(
-          utxoCurrent =>
-            utxoCurrent.txid === utxoCached.txid &&
-            utxoCurrent.vout === utxoCached.vout
-        )
-      )
-      .filter(cachedUtxo => !(cachedUtxo.slp && !cachedUtxo.validSLP));
+      .filter(utxoCached => utxosAllIds.includes(utxoCached._id))
+      .filter(utxoCached => !(utxoCached.slp && !utxoCached.validSLP));
+
+    const cachedUtxoFilteredIds = cachedUtxoFiltered.map(
+      utxoCached => utxoCached._id
+    );
 
     // New utxos to get data for
-    const utxosNew = utxosAll.filter(
-      utxoCurrent =>
-        !cachedUtxoFiltered.some(
-          utxoCached =>
-            utxoCurrent.txid === utxoCached.txid &&
-            utxoCurrent.vout === utxoCached.vout
-        )
+    const utxosNew = utxosAllWithId.filter(
+      utxoCurrent => !cachedUtxoFilteredIds.includes(utxoCurrent._id)
     );
 
     // Update UTXOS with tx details before saving
@@ -152,4 +158,4 @@ const updateBalances = address => {
   };
 };
 
-export { updateBalances };
+export { updateUtxos };
