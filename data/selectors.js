@@ -6,6 +6,13 @@ import { activeAccountSelector } from "./accounts/selectors";
 import { transactionsSelector } from "./transactions/selectors";
 import { utxosByAccountSelector } from "./utxos/selectors";
 
+type Balances = {
+  satoshisAvailable: number,
+  satoshisLockedInMintingBaton: number,
+  satoshisLockedInTokens: number,
+  slpTokens: { [tokenId: string]: number }
+};
+
 const transactionsActiveAccountSelector = createSelector(
   activeAccountSelector,
   transactionsSelector,
@@ -18,7 +25,7 @@ const transactionsActiveAccountSelector = createSelector(
 const balancesSelector = createSelector(
   utxosByAccountSelector,
   utxos => {
-    const balancesInitial = {
+    const balancesInitial: Balances = {
       satoshisAvailable: 0,
       satoshisLockedInMintingBaton: 0,
       satoshisLockedInTokens: 0,
@@ -29,7 +36,7 @@ const balancesSelector = createSelector(
     // const validTokenIds = [];
     // const batons = [];
 
-    const balances = utxos.reduce((prev, utxo) => {
+    const balances: Balances = utxos.reduce((prev, utxo) => {
       if (utxo.slp && utxo.validSlpTx === true) {
         if (utxo.slp.baton) {
           return {

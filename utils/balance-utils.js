@@ -42,4 +42,17 @@ const getHistoricalBchTransactions = async address => {
   return transactions;
 };
 
-export { getHistoricalBchTransactions };
+const formatAmount = (amount: ?number, decimals: ?number): string => {
+  if (decimals == null) {
+    return "-.--------";
+  }
+  if (!amount) {
+    return `-.`.padEnd(decimals + 2, "-");
+  }
+  const adjustDecimals = (amount / Math.pow(10, decimals)).toFixed(decimals);
+  const removeTrailing = +adjustDecimals + "";
+
+  return removeTrailing;
+};
+
+export { getHistoricalBchTransactions, formatAmount };
