@@ -53,9 +53,9 @@ const updateUtxos = address => {
 
     // Get the existing UTXO's in store for account
     const utxosSlice = state.utxos;
-    const accountUtxos = (utxosSlice.byAccount[accountId] || []).map(
-      utxoId => utxosSlice.byId[utxoId]
-    );
+    const accountUtxos = (utxosSlice.byAccount[accountId] || [])
+      .map(utxoId => utxosSlice.byId[utxoId])
+      .filter(Boolean);
 
     // Get all UTXO for account
     const utxosAll = await getAllUtxo(address);
@@ -149,9 +149,6 @@ const updateUtxos = address => {
     const utxosUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
 
     dispatch(updateUtxoSuccess(utxosUpdatedFull, address));
-    // BALANCE CALCULATIONS CAN BE DONE IN SELECTORS FROM HERE
-
-    // Start the MetaData update logic? or call from elsewhere?  Probably from a screen if token metadata is in view and missing.
   };
 };
 

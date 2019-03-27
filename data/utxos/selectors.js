@@ -7,7 +7,9 @@ const utxosSelector = state => state.utxos;
 const utxosByAccountSelector = (state, address) => {
   const { byId, byAccount } = state.utxos;
 
-  if (!address) return [];
+  const accountUtxoIds = byAccount[address];
+
+  if (!address || !accountUtxoIds) return [];
   return byAccount[address].map(utxoId => byId[utxoId]);
 };
 
