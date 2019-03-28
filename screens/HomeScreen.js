@@ -74,17 +74,10 @@ const HomeScreen = ({
       {slpTokensDisplay.map(([tokenId, amount]) => {
         return (
           <T>
-            {tokenId} - {amount}
+            {tokenId} - {formatAmount(amount, 8)}
           </T>
         );
       })}
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
       <Spacer />
       <Spacer />
       <Spacer />

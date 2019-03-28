@@ -1,7 +1,7 @@
 // @flow
 
 import SLPSDK from "slp-sdk";
-import BigNumber from "big-number";
+import BigNumber from "bignumber.js";
 import slpjs from "slpjs";
 
 import { type UTXO } from "../data/utxos/reducer";
@@ -40,7 +40,7 @@ const getTransactionDetails = async (txid: string) => {
 const decodeTxOut = (txOut: UTXO) => {
   const out = {
     token: "",
-    quantity: 0,
+    quantity: new BigNumber(0, 16),
     baton: false
   };
 

@@ -1,6 +1,8 @@
 // @flow
 
-const getHistoricalBchTransactions = async address => {
+import { type BigNumber } from "bignumber.js";
+
+const getHistoricalBchTransactions = async (address: string) => {
   const query = {
     v: 3,
     q: {
@@ -42,17 +44,20 @@ const getHistoricalBchTransactions = async address => {
   return transactions;
 };
 
-const formatAmount = (amount: ?number, decimals: ?number): string => {
+const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
   if (decimals == null) {
     return "-.--------";
   }
   if (!amount) {
     return `-.`.padEnd(decimals + 2, "-");
   }
-  const adjustDecimals = (amount / Math.pow(10, decimals)).toFixed(decimals);
-  const removeTrailing = +adjustDecimals + "";
 
-  return removeTrailing;
+  const adjustDecimals = amount
+    .dividedBy(Math.pow(10, decimals))
+    .toFixed(decimals);
+  // const removeTrailing = +adjustDecimals + "";
+
+  return adjustDecimals.toString();
 };
 
 export { getHistoricalBchTransactions, formatAmount };
