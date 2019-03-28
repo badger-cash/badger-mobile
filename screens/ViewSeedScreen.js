@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { Text, View, SafeAreaView } from "react-native";
 
 import { getMnemonicSelector } from "../data/accounts/selectors";
-import { T, Spacer } from "../atoms";
+import { T, H1, Spacer } from "../atoms";
 
 const Screen = styled(View)`
   padding: 10px;
@@ -24,7 +24,11 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
   return (
     <SafeAreaView>
       <Screen>
-        <T>Backup Seed Phrase!</T>
+        <H1>Backup Seed Phrase</H1>
+        <T>
+          Your seed phrase is the key to your funds. Please write it down, and
+          keep it very, very private. This is your private key.
+        </T>
         <Spacer medium />
         {separated.map((word, idx) => (
           <T key={idx}>

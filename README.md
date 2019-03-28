@@ -53,6 +53,8 @@ Android
 > yarn run android
 
 For a simple .apk
+> Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
+> generate  badger-mobile-alpha.keystore in /android
 > cd android
 > ./gradlew assembleRelease
 ```
