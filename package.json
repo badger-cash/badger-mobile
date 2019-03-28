@@ -8,11 +8,14 @@
     "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm,url --hack",
     "format": "pretty-quick"
   },
+  "engines": {
+    "node": ">=10.15.1"
+  },
   "dependencies": {
     "@react-native-community/async-storage": "^1.2.1",
     "big-number": "^2.0.0",
     "bignumber.js": "^8.1.1",
-    "bitbox-sdk": "^5.0.1",
+    "bitbox-sdk": "5.1.0",
     "events": "^1.1.1",
     "lodash": "^4.17.11",
     "react": "16.8.4",
