@@ -1,5 +1,7 @@
 node_modules/
 .expo/
+.DS_STORE
+**/app/*.keystore
 yarn-error.log
 build/
 
