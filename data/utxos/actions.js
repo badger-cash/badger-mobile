@@ -44,7 +44,7 @@ const computeUtxoId = utxo =>
 
 // Update the UTXO's for a given account.
 // Fetch all UTXOS, update them with relevant token metadata, and persist
-const updateUtxos = address => {
+const updateUtxos = (address: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateUtxoStart());
 
@@ -119,14 +119,18 @@ const updateUtxos = address => {
             {
               method: "POST",
               headers: {
+                Accept: "application/json",
                 "Content-Type": "application/json"
               },
-              data: {
+              body: JSON.stringify({
                 txids: txIdsToValidate
-              }
+              })
             }
           );
-          const validSLPTxChunk = response.data
+
+          const data = await response.json();
+
+          const validSLPTxChunk = data
             .filter(chunkResult => chunkResult.valid === true)
             .map(chunkResult => chunkResult.txid);
           return validSLPTxChunk;

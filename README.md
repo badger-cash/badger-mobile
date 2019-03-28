@@ -54,12 +54,12 @@ Android
 
 For a simple .apk
 > Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
-> generate  badger-mobile-alpha.keystore in /android
+> generate badger-mobile-alpha.keystore and put into /android
 > cd android
 > ./gradlew assembleRelease
 ```
 
-### Nuke all and install command, for when things don't work.
+### Nuke all and install command, for when things don't work
 
 ```bash
 rm -rf node_modules && yarn install && react-native link && cd ios && pod install && cd .. && yarn run ios

@@ -8,10 +8,13 @@ import {
   LOGOUT_ACCOUNT
 } from "./constants";
 
+import { addressToSlp } from "../../utils/account-utils";
+
 // TODO: account => wallets.  // Account/meta is ONLY mnemonic.  Everything else fetched on startup.
 // TODO - Figure out non-persisting keypair an re-adding if it's missing
 export type Account = {
   address: string,
+  addressSlp: string,
   keypair: ECPair,
   mnemonic: string
 };
@@ -129,6 +132,9 @@ const addAccount = (state: State, payload: { account: Account }) => {
   const { keypair, ...removedKeypair } = account;
   const { address } = removedKeypair;
 
+  const addressSlp = addressToSlp(address);
+  const withSlpAddress = { ...removedKeypair, addressSlp };
+
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
     return state;
@@ -136,7 +142,7 @@ const addAccount = (state: State, payload: { account: Account }) => {
 
   return {
     ...state,
-    byId: { ...state.byId, [address]: removedKeypair },
+    byId: { ...state.byId, [address]: withSlpAddress },
     allIds: [...state.allIds, address],
     activeId: address
   };

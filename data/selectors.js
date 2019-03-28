@@ -36,7 +36,9 @@ const balancesSelector = createSelector(
     // const validTokenIds = [];
     // const batons = [];
 
+    console.log("computing balances");
     const balances: Balances = utxos.reduce((prev, utxo) => {
+      console.log(utxo);
       if (!utxo) return prev;
 
       if (utxo.slp && utxo.validSlpTx === true) {
@@ -67,6 +69,9 @@ const balancesSelector = createSelector(
       }
       return prev;
     }, balancesInitial);
+
+    console.log("selectors end?");
+    console.log(balances);
 
     return balances;
   }

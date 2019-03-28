@@ -11,7 +11,10 @@ import { T, H1, Spacer } from "../atoms";
 import { CoinRow } from "../components";
 
 import { balancesSelector } from "../data/selectors";
-import { getAddressSelector } from "../data/accounts/selectors";
+import {
+  getAddressSelector,
+  getAddressSlpSelector
+} from "../data/accounts/selectors";
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
 
@@ -22,13 +25,16 @@ const MINUTE = 60 * SECOND;
 
 type Props = {
   address: string,
+  addressSlp: string,
   updateTransactions: Function,
   updateUtxos: Function,
-  bchBalance: number
+  bchBalance: number,
+  balances: any
 };
 
 const HomeScreen = ({
   address,
+  addressSlp,
   updateTransactions,
   updateUtxos,
   balances
@@ -39,7 +45,15 @@ const HomeScreen = ({
     return () => clearInterval(utxointerval);
   }, [address]);
 
-  const { slpTokens } = balances;
+  const slpTokens = balances.slpTokens;
+
+  const slpTokensDisplay = Object.keys(slpTokens).map(key => [
+    key,
+    slpTokens[key]
+  ]);
+
+  console.log(addressSlp);
+  console.log(address);
 
   return (
     <SafeAreaView>
@@ -48,12 +62,22 @@ const HomeScreen = ({
       <Spacer />
       <T center>{address}</T>
       <Spacer />
+      <Spacer />
+      <T center>{addressSlp}</T>
+      <Spacer />
       <CoinRow
         ticker="BCH"
         name="Bitcoin Cash"
         amount={formatAmount(balances.satoshisAvailable, 8)}
         extra="$0.000 USD"
       />
+      {slpTokensDisplay.map(([tokenId, amount]) => {
+        return (
+          <T>
+            {tokenId} - {amount}
+          </T>
+        );
+      })}
       <Spacer />
       <Spacer />
       <Spacer />
@@ -65,17 +89,11 @@ const HomeScreen = ({
       <Spacer />
       <Spacer />
 
-      <TouchableOpacity
-        onPress={() => updateTransactions(address)}
-        title="Update Transactions"
-      >
+      <TouchableOpacity onPress={() => updateTransactions(address)}>
         <T center>Update Transactions</T>
       </TouchableOpacity>
       <Spacer />
-      <TouchableOpacity
-        onPress={() => updateUtxos(address)}
-        title="Update Balances"
-      >
+      <TouchableOpacity onPress={() => updateUtxos(address)}>
         <T center>Update Balances </T>
       </TouchableOpacity>
     </SafeAreaView>
@@ -84,9 +102,11 @@ const HomeScreen = ({
 
 const mapStateToProps = (state, props) => {
   const address = getAddressSelector(state);
+  const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
   return {
     address,
+    addressSlp,
     balances
   };
 };

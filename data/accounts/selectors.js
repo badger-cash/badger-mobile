@@ -47,11 +47,19 @@ const getAddressSelector = createSelector(
   }
 );
 
+const getAddressSlpSelector = createSelector(
+  activeAccountSelector,
+  account => {
+    return account && account.addressSlp;
+  }
+);
+
 export {
   activeAccountSelector,
   activeAccountIdSelector,
   hasMnemonicSelector,
   getAddressSelector,
+  getAddressSlpSelector,
   getMnemonicSelector,
   mainAccountSelector
 };
