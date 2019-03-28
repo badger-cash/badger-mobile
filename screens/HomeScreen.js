@@ -34,9 +34,10 @@ const HomeScreen = ({
   balances
 }: Props) => {
   useEffect(() => {
+    updateUtxos(address);
     const utxointerval = setInterval(() => updateUtxos(address), 15 * SECOND);
     return () => clearInterval(utxointerval);
-  }, []);
+  }, [address]);
 
   const { slpTokens } = balances;
 
