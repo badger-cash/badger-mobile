@@ -16,6 +16,7 @@
     "big-number": "^2.0.0",
     "bignumber.js": "^8.1.1",
     "bitbox-sdk": "5.1.0",
+    "ethereum-blockies-base64": "^1.0.2",
     "events": "^1.1.1",
     "lodash": "^4.17.11",
     "react": "16.8.4",

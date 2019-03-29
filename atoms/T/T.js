@@ -13,10 +13,14 @@ const T = styled(Text)`
       text-align: center;
     `}
     ${props =>
-      props.size === "small" &&
-      css`
-        font-size: 14;
-      `}
+      props.size === "small"
+        ? css`
+            font-size: 14;
+          `
+        : props.size === "large" &&
+          css`
+            font-size: 22;
+          `}
   ${props =>
     props.nature === "muted" &&
     css`

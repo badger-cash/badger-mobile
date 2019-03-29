@@ -2378,10 +2378,57 @@ bip66@^1.1.0, bip66@^1.1.3, bip66@^1.1.5:
   dependencies:
     safe-buffer "^5.0.1"
 
-bitbox-sdk@5.0.1, bitbox-sdk@^5.0.1:
+bitbox-sdk@5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/bitbox-sdk/-/bitbox-sdk-5.0.1.tgz#83a07d8a2d8b1cd2fe6a27eadb909b37d765e68e"
   integrity sha512-fMGQbNfaT0nhvdm+ur0b9z073KiNibJVXyHFPy6CtTNMK03yKYAa4ow0AMzNHj3eUBsN9KlW9i/aCWnSiaCgVw==
+  dependencies:
+    assert "^1.4.1"
+    axios "^0.17.1"
+    babel-cli "^6.26.0"
+    babel-preset-env "^1.6.1"
+    babel-preset-es2015 "^6.24.1"
+    babel-register "^6.26.0"
+    bc-bip68 "^1.0.5"
+    bch-wallet-bridge.js "github:web3bch/bch-wallet-bridge.js#master"
+    bigi "^1.4.2"
+    bip21 Bitcoin-com/bip21
+    bip32-utils Bitcoin-com/bip32-utils#0.13.1
+    bip38 "^2.0.2"
+    bip39 "^2.5.0"
+    bip66 "^1.1.5"
+    bitcoincash-ops Bitcoin-com/bitcoincash-ops#2.0.0
+    bitcoincashjs-lib Bitcoin-com/bitcoincashjs-lib#3.4.4
+    bitcoinjs-message "^2.0.0"
+    bs58 "^4.0.1"
+    buffer "^5.1.0"
+    cashaddrjs "^0.2.9"
+    chalk "^2.3.0"
+    clear "0.0.1"
+    coininfo Bitcoin-com/coininfo
+    commander "^2.13.0"
+    cp-file "^5.0.0"
+    ecurve "^1.0.6"
+    figlet "^1.2.0"
+    git-clone "^0.1.0"
+    ini "^1.3.5"
+    mkdirp "^0.5.1"
+    node-cmd "^3.0.0"
+    node-emoji "^1.8.1"
+    qrcode "^1.2.0"
+    randombytes "^2.0.6"
+    repl.history "^0.1.4"
+    safe-buffer "^5.1.2"
+    satoshi-bitcoin "^1.0.4"
+    socket.io "^2.1.1"
+    socket.io-client "^2.1.1"
+    touch "^3.1.0"
+    wif "^2.0.6"
+
+bitbox-sdk@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/bitbox-sdk/-/bitbox-sdk-5.1.0.tgz#8c038a8f3c217efcd330834ed4730f1a8998167d"
+  integrity sha512-W2g97gIdMrYokliX4kLTBu1ttnAu+EQXAHzmNeqFrwfuftitW+3SRyuBWFYNeF3hlAJw1v5mnfuFIg+1vubBoQ==
   dependencies:
     assert "^1.4.1"
     axios "^0.17.1"
@@ -3963,6 +4010,13 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
+
+ethereum-blockies-base64@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/ethereum-blockies-base64/-/ethereum-blockies-base64-1.0.2.tgz#4aebca52142bf4d16a3144e6e2b59303e39ed2b3"
+  integrity sha512-Vg2HTm7slcWNKaRhCUl/L3b4KrB8ohQXdd5Pu3OI897EcR6tVRvUqdTwAyx+dnmoDzj8e2bwBLDQ50ByFmcz6w==
+  dependencies:
+    pnglib "0.0.1"
 
 event-target-shim@^1.0.5:
   version "1.1.1"
@@ -7437,6 +7491,11 @@ pngjs@^3.3.0:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
+pnglib@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/pnglib/-/pnglib-0.0.1.tgz#f9ab6f9c688f4a9d579ad8be28878a716e30c096"
+  integrity sha1-+atvnGiPSp1Xmti+KIeKcW4wwJY=
+
 posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
@@ -7656,6 +7715,13 @@ rc@^1.2.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+react-blockies@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/react-blockies/-/react-blockies-1.4.1.tgz#d4f0faf95ac197213a297a370a4d7f77ea3d0b08"
+  integrity sha512-4N015X5oPNnD3xQPsiqolOFzPZSSWyc5mJhJUZShUCHtiGUxVN+1qsWTcglkHMNySux9hUofaispqcw9QkWP5Q==
+  dependencies:
+    prop-types "^15.5.10"
 
 react-clone-referenced-element@^1.0.1:
   version "1.1.0"

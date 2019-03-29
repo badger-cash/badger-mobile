@@ -109,7 +109,8 @@ const HomeScreen = ({
           symbol,
           name,
           amount: amountFormatted,
-          extra: "Simple Token"
+          extra: "Simple Token",
+          tokenId
         };
       })
     }
@@ -137,6 +138,7 @@ const HomeScreen = ({
               name={item.name}
               amount={item.amount}
               extra={item.extra}
+              tokenId={item.tokenId}
             />
           )}
           keyExtractor={(item, index) => `${index}`}
@@ -167,7 +169,7 @@ const HomeScreen = ({
             />
           );
         })} */}
-        <Spacer />
+        {/* <Spacer />
         <Spacer />
         <Spacer />
 
@@ -177,7 +179,7 @@ const HomeScreen = ({
         <Spacer />
         <TouchableOpacity onPress={() => updateUtxos(address)}>
           <T center>Update Balances </T>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );
