@@ -31,7 +31,6 @@ const updateTokensMetaFail = () => ({
 });
 
 const updateTokensMeta = (tokenIds: string[]) => {
-  console.log("UPDATE STARTED");
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateTokensMetaStart());
 
@@ -54,8 +53,6 @@ const updateTokensMeta = (tokenIds: string[]) => {
         }
       })
       .filter(Boolean);
-
-    console.log("DISPATCH SUCCESS");
 
     dispatch(updateTokensMetaSuccess(tokenMetadataList));
   };

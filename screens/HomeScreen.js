@@ -49,7 +49,7 @@ const HomeScreen = ({
   useEffect(() => {
     // Update UTXOs on an interval
     updateUtxos(address);
-    const utxointerval = setInterval(() => updateUtxos(address), 15 * SECOND);
+    const utxointerval = setInterval(() => updateUtxos(address), 7.5 * SECOND);
     return () => clearInterval(utxointerval);
   }, [address]);
 
@@ -68,8 +68,8 @@ const HomeScreen = ({
     slpTokens[key]
   ]);
 
-  console.log(addressSlp);
-  console.log(address);
+  // console.log(addressSlp);
+  // console.log(address);
   // console.log(tokensById)
 
   return (
@@ -89,22 +89,22 @@ const HomeScreen = ({
         extra="$0.000 USD"
       />
       {slpTokensDisplay.map(([tokenId, amount]) => {
+        const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
+        const name = tokensById[tokenId]
+          ? tokensById[tokenId].name
+          : "--------";
+        const decimals = tokensById[tokenId]
+          ? tokensById[tokenId].decimals
+          : null;
         return (
           <CoinRow
             key={tokenId}
-            ticker={tokensById[tokenId].symbol}
-            name={tokensById[tokenId].name}
-            amount={formatAmount(amount, tokensById[tokenId].decimals)}
+            ticker={symbol}
+            name={name}
+            amount={formatAmount(amount, decimals)}
             extra="Simple Ledger Protocol"
           />
         );
-        {
-          /* return (
-          <T key={tokenId}>
-            {tokenId} - {formatAmount(amount, 8)}
-          </T>
-        ); */
-        }
       })}
       <Spacer />
       <Spacer />
