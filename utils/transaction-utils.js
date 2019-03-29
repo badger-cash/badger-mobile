@@ -5,6 +5,7 @@ import BigNumber from "bignumber.js";
 import slpjs from "slpjs";
 
 import { type UTXO } from "../data/utxos/reducer";
+import { type TokenData } from "../data/tokens/reducer";
 
 const SLP = new SLPSDK();
 
@@ -125,6 +126,44 @@ const decodeTxOut = (txOut: UTXO) => {
   }
 
   return out;
+};
+
+// Straight from Badger plugin
+const decodeTokenMetadata = (txDetails): TokenData => {
+  const script = SLP.Script.toASM(
+    Buffer.from(txDetails.vout[0].scriptPubKey.hex, "hex")
+  ).split(" ");
+
+  if (script[0] !== "OP_RETURN") {
+    throw new Error("Not an OP_RETURN");
+  }
+
+  if (script[1] !== LOKAD_ID_HEX) {
+    throw new Error("Not a SLP OP_RETURN");
+  }
+
+  if (script[2] !== "OP_1") {
+    // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
+    throw new Error("Unknown token type");
+  }
+
+  const type = Buffer.from(script[3], "hex")
+    .toString("ascii")
+    .toLowerCase();
+
+  if (type === "genesis") {
+    return {
+      tokenId: txDetails.txid,
+      symbol: Buffer.from(script[4], "hex").toString("ascii"),
+      name: Buffer.from(script[5], "hex").toString("ascii"),
+      decimals: (out.decimals = script[8].startsWith("OP_")
+        ? parseInt(script[8].slice(3), 10)
+        : parseInt(script[8], 16)),
+      protocol: "slp"
+    };
+  } else {
+    throw new Error("Invalid tx type");
+  }
 };
 
 // const encodeOpReturn = async dataArray => {
@@ -301,4 +340,4 @@ const decodeTxOut = (txOut: UTXO) => {
 //   return txid;
 // };
 
-export { getAllUtxo, getTransactionDetails, decodeTxOut };
+export { getAllUtxo, getTransactionDetails, decodeTxOut, decodeTokenMetadata };

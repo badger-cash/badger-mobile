@@ -10,13 +10,17 @@ import { T, H1, Spacer } from "../atoms";
 
 import { CoinRow } from "../components";
 
-import { balancesSelector } from "../data/selectors";
+import { balancesSelector, type Balances } from "../data/selectors";
 import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
+import { tokensByIdSelector } from "../data/tokens/selectors";
+import { type TokenData } from "../data/tokens/reducer";
+
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
+import { updateTokensMeta } from "../data/tokens/actions";
 
 import { formatAmount } from "../utils/balance-utils";
 
@@ -28,8 +32,9 @@ type Props = {
   addressSlp: string,
   updateTransactions: Function,
   updateUtxos: Function,
-  bchBalance: number,
-  balances: any
+  updateTokensMeta: Function,
+  balances: Balances,
+  tokensById: { [tokenId: string]: TokenData }
 };
 
 const HomeScreen = ({
@@ -37,13 +42,25 @@ const HomeScreen = ({
   addressSlp,
   updateTransactions,
   updateUtxos,
+  tokensById,
   balances
 }: Props) => {
   useEffect(() => {
+    // Update UTXOs on an interval
     updateUtxos(address);
     const utxointerval = setInterval(() => updateUtxos(address), 15 * SECOND);
     return () => clearInterval(utxointerval);
   }, [address]);
+
+  useEffect(() => {
+    const accountTokenIds = Object.keys(balances.slpTokens);
+    const missingTokenIds = accountTokenIds.filter(
+      tokenId => !tokensById[tokenId]
+    );
+
+    updateTokensMeta(missingTokenIds);
+    return () => undefined;
+  }, [balances]);
 
   const slpTokens = balances.slpTokens;
 
@@ -54,6 +71,8 @@ const HomeScreen = ({
 
   console.log(addressSlp);
   console.log(address);
+
+  console.log(balances);
 
   return (
     <SafeAreaView>
@@ -73,7 +92,7 @@ const HomeScreen = ({
       />
       {slpTokensDisplay.map(([tokenId, amount]) => {
         return (
-          <T>
+          <T key={tokenId}>
             {tokenId} - {formatAmount(amount, 8)}
           </T>
         );
@@ -97,10 +116,14 @@ const mapStateToProps = (state, props) => {
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
+
+  const tokensById = tokensByIdSelector(state);
+
   return {
     address,
     addressSlp,
-    balances
+    balances,
+    tokensById
   };
 };
 const mapDispatchToProps = {

@@ -7,7 +7,8 @@ import { activeAccountSelector } from "./accounts/selectors";
 import { transactionsSelector } from "./transactions/selectors";
 import { utxosByAccountSelector } from "./utxos/selectors";
 
-type Balances = {
+// number, but actually BigNumber.
+export type Balances = {
   satoshisAvailable: number,
   satoshisLockedInMintingBaton: number,
   satoshisLockedInTokens: number,

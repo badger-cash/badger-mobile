@@ -70,7 +70,7 @@ const updateUtxos = (address: string) => {
     // Remove spent and un-validated SLP txs
     const cachedUtxoFiltered = accountUtxos
       .filter(utxoCached => utxosAllIds.includes(utxoCached._id))
-      .filter(utxoCached => !(utxoCached.slp && !utxoCached.validSLP));
+      .filter(utxoCached => !(utxoCached.slp && !utxoCached.validSlpTx));
 
     const cachedUtxoFilteredIds = cachedUtxoFiltered.map(
       utxoCached => utxoCached._id

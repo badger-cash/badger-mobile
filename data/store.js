@@ -20,31 +20,37 @@ import utxosReducer, {
   initialState as initialUTXOSState
 } from "./utxos/reducer";
 
+import tokensReducer, {
+  type State as StateTokens,
+  initialState as initialTokensState
+} from "./tokens/reducer";
+
 export type FullState = {
   accounts: StateAccount,
+  tokens: StateTokens,
   transactions: StateTransactions,
   utxos: StateUTXOS
 };
 
 const initialState: FullState = {
   accounts: initialAccountState,
+  tokens: initialTokensState,
   transactions: initialTransactionsState,
   utxos: initialUTXOSState
 };
 
-// Remove/add for testing persistence purposes
-// whitelist: ["accounts", "transactions", 'utxos]
-
+// TODO - Setup encryption on certain parts of the redux state
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["accounts", "transactions", "utxos"]
+  whitelist: ["accounts", "transactions", "utxos", "tokens"]
 };
 
 const rootReducer = combineReducers({
   accounts: accountsReducer,
   transactions: transactionsReducer,
-  utxos: utxosReducer
+  utxos: utxosReducer,
+  tokens: tokensReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
