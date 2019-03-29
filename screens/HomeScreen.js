@@ -42,6 +42,7 @@ const HomeScreen = ({
   addressSlp,
   updateTransactions,
   updateUtxos,
+  updateTokensMeta,
   tokensById,
   balances
 }: Props) => {
@@ -52,15 +53,13 @@ const HomeScreen = ({
     return () => clearInterval(utxointerval);
   }, [address]);
 
-  useEffect(() => {
-    const accountTokenIds = Object.keys(balances.slpTokens);
-    const missingTokenIds = accountTokenIds.filter(
-      tokenId => !tokensById[tokenId]
-    );
+  const tokenIds = Object.keys(balances.slpTokens);
 
+  useEffect(() => {
+    // Fetch token metadata if any are missing
+    const missingTokenIds = tokenIds.filter(tokenId => !tokensById[tokenId]);
     updateTokensMeta(missingTokenIds);
-    return () => undefined;
-  }, [balances]);
+  }, [...tokenIds]);
 
   const slpTokens = balances.slpTokens;
 
@@ -71,8 +70,7 @@ const HomeScreen = ({
 
   console.log(addressSlp);
   console.log(address);
-
-  console.log(balances);
+  // console.log(tokensById)
 
   return (
     <SafeAreaView>
@@ -92,10 +90,21 @@ const HomeScreen = ({
       />
       {slpTokensDisplay.map(([tokenId, amount]) => {
         return (
+          <CoinRow
+            key={tokenId}
+            ticker={tokensById[tokenId].symbol}
+            name={tokensById[tokenId].name}
+            amount={formatAmount(amount, tokensById[tokenId].decimals)}
+            extra="Simple Ledger Protocol"
+          />
+        );
+        {
+          /* return (
           <T key={tokenId}>
             {tokenId} - {formatAmount(amount, 8)}
           </T>
-        );
+        ); */
+        }
       })}
       <Spacer />
       <Spacer />
@@ -128,7 +137,8 @@ const mapStateToProps = (state, props) => {
 };
 const mapDispatchToProps = {
   updateTransactions,
-  updateUtxos
+  updateUtxos,
+  updateTokensMeta
 };
 
 export default connect(

@@ -31,12 +31,13 @@ const updateTokensMetaFail = () => ({
 });
 
 const updateTokensMeta = (tokenIds: string[]) => {
+  console.log("UPDATE STARTED");
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateTokensMetaStart());
 
     const transactionRequests = await Promise.all(
-      chunk(tokenIds, 20).map(tokenIdChunk =>
-        getTransactionDetails(tokenIdChunk)
+      chunk(tokenIds, 20).map(
+        async tokenIdChunk => await getTransactionDetails(tokenIdChunk)
       )
     );
 
@@ -46,14 +47,15 @@ const updateTokensMeta = (tokenIds: string[]) => {
     const tokenMetadataList = tokenTxDetailsList
       .map(txDetails => {
         try {
-          const decodedMetadata = decodeTokenMetadata(txDetails);
-          return decodedMetadata;
+          return decodeTokenMetadata(txDetails);
         } catch (err) {
-          // log.error('Could not parse SLP genesis:', err)
+          console.warn("Could not parse SLP genesis:", err);
           return null;
         }
       })
       .filter(Boolean);
+
+    console.log("DISPATCH SUCCESS");
 
     dispatch(updateTokensMetaSuccess(tokenMetadataList));
   };

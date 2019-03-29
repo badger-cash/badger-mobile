@@ -129,7 +129,7 @@ const decodeTxOut = (txOut: UTXO) => {
 };
 
 // Straight from Badger plugin
-const decodeTokenMetadata = (txDetails): TokenData => {
+const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
   const script = SLP.Script.toASM(
     Buffer.from(txDetails.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
@@ -156,9 +156,9 @@ const decodeTokenMetadata = (txDetails): TokenData => {
       tokenId: txDetails.txid,
       symbol: Buffer.from(script[4], "hex").toString("ascii"),
       name: Buffer.from(script[5], "hex").toString("ascii"),
-      decimals: (out.decimals = script[8].startsWith("OP_")
+      decimals: script[8].startsWith("OP_")
         ? parseInt(script[8].slice(3), 10)
-        : parseInt(script[8], 16)),
+        : parseInt(script[8], 16),
       protocol: "slp"
     };
   } else {
