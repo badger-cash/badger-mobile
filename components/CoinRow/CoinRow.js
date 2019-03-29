@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import { View, Image } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { T } from "../../atoms";
 
@@ -19,11 +20,18 @@ type Props = {
 };
 
 const Outter = styled(View)`
-  padding: 10px;
+  padding: 14px 10px;
   flex-direction: row;
+  border-bottom-color: ${props => props.theme.fg700};
+  border-bottom-width: 1px;
 `;
 
 const IconArea = styled(View)`
+  justify-content: center;
+  margin-right: 10px;
+`;
+
+const ArrowArea = styled(View)`
   justify-content: center;
   margin-right: 10px;
 `;
@@ -34,14 +42,13 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
-const InfoArea = styled(View)``;
+const InfoArea = styled(View)`
+  flex: 1;
+`;
 
 const CoinRow = ({ ticker, name, amount, extra, tokenId }: Props) => {
-  console.log("coin row");
-  console.log(tokenId);
   const imageSource =
     ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
-  console.log("never");
   return (
     <Outter>
       <IconArea>
@@ -54,12 +61,16 @@ const CoinRow = ({ ticker, name, amount, extra, tokenId }: Props) => {
         <T size="large">{amount}</T>
         {/* <T size="small">{extra}</T> */}
       </InfoArea>
+      <ArrowArea>
+        <Ionicons name="ios-arrow-forward" size={24} />
+      </ArrowArea>
     </Outter>
   );
 };
 
 const HeaderWrapper = styled(View)`
-  padding: 10px;
+  padding: 0px 10px;
+  margin-top: 15px;
 `;
 
 const CoinRowHeader = ({ children }) => {
