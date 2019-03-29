@@ -2,14 +2,19 @@
 
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { SafeAreaView, TouchableOpacity } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  SectionList,
+  TouchableOpacity
+} from "react-native";
 import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
 
 import { T, H1, Spacer } from "../atoms";
 
-import { CoinRow } from "../components";
+import { CoinRowHeader, CoinRow } from "../components";
 
 import { balancesSelector, type Balances } from "../data/selectors";
 import {
@@ -68,32 +73,30 @@ const HomeScreen = ({
 
   const slpTokens = balances.slpTokens;
 
+  //[[tokenId, amount]]
   const slpTokensDisplay = Object.keys(slpTokens).map(key => [
     key,
     slpTokens[key]
   ]);
 
-  // console.log(addressSlp);
-  // console.log(address);
+  console.log(addressSlp);
+  console.log(address);
   // console.log(tokensById)
 
-  return (
-    <SafeAreaView>
-      <Spacer small />
-      <H1 center>Badger Mobile</H1>
-      <Spacer />
-      <T center>{address}</T>
-      <Spacer />
-      <Spacer />
-      <T center>{addressSlp}</T>
-      <Spacer />
-      <CoinRow
-        ticker="BCH"
-        name="Bitcoin Cash"
-        amount={formatAmount(balances.satoshisAvailable, 8)}
-        extra="$0.000 USD"
-      />
-      {slpTokensDisplay.map(([tokenId, amount]) => {
+  const walletSections = [
+    {
+      title: "Bitcoin Cash Wallet",
+      data: [
+        {
+          symbol: "BCH",
+          name: "Bitcoin Cash",
+          amount: formatAmount(balances.satoshisAvailable, 8)
+        }
+      ]
+    },
+    {
+      title: "Simple Token Vault",
+      data: slpTokensDisplay.map(([tokenId, amount]) => {
         const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
         const name = tokensById[tokenId]
           ? tokensById[tokenId].name
@@ -101,27 +104,81 @@ const HomeScreen = ({
         const decimals = tokensById[tokenId]
           ? tokensById[tokenId].decimals
           : null;
-        return (
-          <CoinRow
-            key={tokenId}
-            ticker={symbol}
-            name={name}
-            amount={formatAmount(amount, decimals)}
-            extra="Simple Ledger Protocol"
-          />
-        );
-      })}
-      <Spacer />
-      <Spacer />
-      <Spacer />
+        const amountFormatted = formatAmount(amount, decimals);
+        return {
+          symbol,
+          name,
+          amount: amountFormatted,
+          extra: "Simple Token"
+        };
+      })
+    }
+  ];
 
-      <TouchableOpacity onPress={() => updateTransactions(address)}>
-        <T center>Update Transactions</T>
-      </TouchableOpacity>
-      <Spacer />
-      <TouchableOpacity onPress={() => updateUtxos(address)}>
-        <T center>Update Balances </T>
-      </TouchableOpacity>
+  return (
+    <SafeAreaView>
+      <ScrollView>
+        <Spacer small />
+        <H1 center>Badger Mobile</H1>
+        <Spacer />
+        {/* <T center>{address}</T>
+        <Spacer />
+        <Spacer />
+        <T center>{addressSlp}</T>
+        <Spacer /> */}
+        <SectionList
+          sections={walletSections}
+          renderSectionHeader={({ section }) => (
+            <CoinRowHeader>{section.title}</CoinRowHeader>
+          )}
+          renderItem={({ item }) => (
+            <CoinRow
+              ticker={item.symbol}
+              name={item.name}
+              amount={item.amount}
+              extra={item.extra}
+            />
+          )}
+          keyExtractor={(item, index) => `${index}`}
+        />
+        {/* <CoinRow
+          ticker="BCH"
+          name="Bitcoin Cash"
+          amount={formatAmount(balances.satoshisAvailable, 8)}
+          extra="$0.000 USD"
+        />
+        {slpTokensDisplay.map(([tokenId, amount]) => {
+          const symbol = tokensById[tokenId]
+            ? tokensById[tokenId].symbol
+            : "---";
+          const name = tokensById[tokenId]
+            ? tokensById[tokenId].name
+            : "--------";
+          const decimals = tokensById[tokenId]
+            ? tokensById[tokenId].decimals
+            : null;
+          return (
+            <CoinRow
+              key={tokenId}
+              ticker={symbol}
+              name={name}
+              amount={formatAmount(amount, decimals)}
+              extra="Simple Ledger Protocol"
+            />
+          );
+        })} */}
+        <Spacer />
+        <Spacer />
+        <Spacer />
+
+        <TouchableOpacity onPress={() => updateTransactions(address)}>
+          <T center>Update Transactions</T>
+        </TouchableOpacity>
+        <Spacer />
+        <TouchableOpacity onPress={() => updateUtxos(address)}>
+          <T center>Update Balances </T>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 };

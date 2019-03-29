@@ -1,5 +1,5 @@
 // @flow
 
-import CoinRow from "./CoinRow";
+import CoinRow, { CoinRowHeader } from "./CoinRow";
 
-export { CoinRow };
+export { CoinRow, CoinRowHeader };

@@ -22,7 +22,7 @@ const IconArea = styled(View)``;
 
 const InfoArea = styled(View)``;
 
-const CoinRow = ({ ticker, name, amount, extra }) => {
+const CoinRow = ({ ticker, name, amount, extra }: Props) => {
   return (
     <Outter>
       <IconArea />
@@ -37,4 +37,19 @@ const CoinRow = ({ ticker, name, amount, extra }) => {
   );
 };
 
+const HeaderWrapper = styled(View)`
+  padding: 10px;
+`;
+
+const CoinRowHeader = ({ children }) => {
+  return (
+    <HeaderWrapper>
+      <T size="small" nature="muted">
+        {children}
+      </T>
+    </HeaderWrapper>
+  );
+};
+
+export { CoinRowHeader };
 export default CoinRow;
