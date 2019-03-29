@@ -14,3 +14,4 @@ android/badgerMobile.iml
 android/local.properties
 
 Pods/
+flow-typed/
