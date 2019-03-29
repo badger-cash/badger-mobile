@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { SafeAreaView, TouchableOpacity } from "react-native";
+import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
 
@@ -26,6 +27,9 @@ import { formatAmount } from "../utils/balance-utils";
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
+
+// Same as the Badger namespace for now.  doesn't need to be unique here.
+const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
 type Props = {
   address: string,
@@ -54,12 +58,13 @@ const HomeScreen = ({
   }, [address]);
 
   const tokenIds = Object.keys(balances.slpTokens);
+  const tokenIdsHash = uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
 
   useEffect(() => {
     // Fetch token metadata if any are missing
     const missingTokenIds = tokenIds.filter(tokenId => !tokensById[tokenId]);
     updateTokensMeta(missingTokenIds);
-  }, [...tokenIds]);
+  }, [tokenIdsHash]);
 
   const slpTokens = balances.slpTokens;
 
