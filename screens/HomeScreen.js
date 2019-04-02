@@ -43,7 +43,8 @@ type Props = {
   updateUtxos: Function,
   updateTokensMeta: Function,
   balances: Balances,
-  tokensById: { [tokenId: string]: TokenData }
+  tokensById: { [tokenId: string]: TokenData },
+  navigation: { navigate: Function }
 };
 
 const HomeScreen = ({
@@ -53,7 +54,8 @@ const HomeScreen = ({
   updateUtxos,
   updateTokensMeta,
   tokensById,
-  balances
+  balances,
+  navigation
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
@@ -122,11 +124,6 @@ const HomeScreen = ({
         <Spacer small />
         <H1 center>Badger Mobile</H1>
         <Spacer />
-        {/* <T center>{address}</T>
-        <Spacer />
-        <Spacer />
-        <T center>{addressSlp}</T>
-        <Spacer /> */}
         <SectionList
           sections={walletSections}
           renderSectionHeader={({ section }) => (
@@ -139,47 +136,16 @@ const HomeScreen = ({
               amount={item.amount}
               extra={item.extra}
               tokenId={item.tokenId}
+              onPress={() =>
+                navigation.navigate("WalletDetailScreen", {
+                  symbol: item.symbol,
+                  tokenId: item.tokenId
+                })
+              }
             />
           )}
           keyExtractor={(item, index) => `${index}`}
         />
-        {/* <CoinRow
-          ticker="BCH"
-          name="Bitcoin Cash"
-          amount={formatAmount(balances.satoshisAvailable, 8)}
-          extra="$0.000 USD"
-        />
-        {slpTokensDisplay.map(([tokenId, amount]) => {
-          const symbol = tokensById[tokenId]
-            ? tokensById[tokenId].symbol
-            : "---";
-          const name = tokensById[tokenId]
-            ? tokensById[tokenId].name
-            : "--------";
-          const decimals = tokensById[tokenId]
-            ? tokensById[tokenId].decimals
-            : null;
-          return (
-            <CoinRow
-              key={tokenId}
-              ticker={symbol}
-              name={name}
-              amount={formatAmount(amount, decimals)}
-              extra="Simple Ledger Protocol"
-            />
-          );
-        })} */}
-        {/* <Spacer />
-        <Spacer />
-        <Spacer />
-
-        <TouchableOpacity onPress={() => updateTransactions(address)}>
-          <T center>Update Transactions</T>
-        </TouchableOpacity>
-        <Spacer />
-        <TouchableOpacity onPress={() => updateUtxos(address)}>
-          <T center>Update Balances </T>
-        </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );

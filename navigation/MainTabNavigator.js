@@ -10,6 +10,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
+import WalletDetailScreen from "../screens/WalletDetailScreen";
 
 const HomeStack = createStackNavigator({
   WalletDashboard: {
@@ -17,6 +18,16 @@ const HomeStack = createStackNavigator({
     navigationOptions: {
       header: null,
       tabBarLabel: "Wallets"
+    }
+  },
+  WalletDetailScreen: {
+    screen: WalletDetailScreen,
+    navigationOptions: props => {
+      console.log("screen params?");
+      console.log(props);
+      return {
+        title: `$${props.navigation.state.params.symbol}`
+      };
     }
   }
 });
