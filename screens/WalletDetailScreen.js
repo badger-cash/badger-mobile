@@ -48,7 +48,6 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
   const { symbol, tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
 
-  console.log("in wallet detail");
   const isBCH = symbol === "BCH" && !tokenId;
 
   const name = isBCH ? "Bitcoin Cash" : token.name;
@@ -61,9 +60,6 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
   const imageSource =
     ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
 
-  console.log(isBCH);
-
-  // console.log(props);
   return (
     <SafeAreaView>
       <ScrollView>
@@ -75,11 +71,11 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           <Spacer small />
           <H2 center>{name}</H2>
           <H1 center>{formatAmount(amount, decimals)}</H1>
-          <Spacer />
+          <Spacer small />
           <ButtonGroup>
             <Button onPress={() => console.log("1")} text="Send" />
 
-            <Button onPress={() => console.log("2")} text="Receive" />
+            {/* <Button onPress={() => console.log("2")} text="Receive" /> */}
           </ButtonGroup>
           <Spacer />
         </View>
@@ -114,7 +110,6 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
 };
 
 const mapStateToProps = state => {
-  // const { symbol, tokenId } = props.navigation.state.params;
   const address = getAddressSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);

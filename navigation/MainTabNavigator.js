@@ -11,31 +11,44 @@ import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
+import ReceiveScreen from "../screens/ReceiveScreen";
 
-const HomeStack = createStackNavigator({
-  WalletDashboard: {
-    screen: HomeScreen,
-    navigationOptions: {
-      header: null,
-      tabBarLabel: "Wallets"
+const HomeStack = createStackNavigator(
+  {
+    WalletDashboard: {
+      screen: HomeScreen,
+      navigationOptions: {
+        header: null,
+        tabBarLabel: "Wallets"
+      }
+    },
+    WalletDetailScreen: {
+      screen: WalletDetailScreen,
+      navigationOptions: props => {
+        return {
+          title: `$${props.navigation.state.params.symbol}`
+        };
+      }
     }
   },
-  WalletDetailScreen: {
-    screen: WalletDetailScreen,
-    navigationOptions: props => {
-      console.log("screen params?");
-      console.log(props);
-      return {
-        title: `$${props.navigation.state.params.symbol}`
-      };
+  {
+    navigationOptions: {
+      tabBarLabel: "Wallets"
     }
   }
+);
+
+const ReceiveStack = createStackNavigator({
+  Receive: { screen: ReceiveScreen, navigationOptions: { title: "Receive" } }
 });
 
 const SettingsStack = createStackNavigator(
   {
-    SettingsList: SettingsScreen,
-    ViewSeedPhrase: ViewSeedScreen
+    SettingsList: {
+      screen: SettingsScreen,
+      navigationOptions: { title: "Settings" }
+    },
+    ViewSeedPhrase: { screen: ViewSeedScreen }
   },
   {
     initialRouteName: "SettingsList"
@@ -45,8 +58,8 @@ const SettingsStack = createStackNavigator(
 const BottomTabNavigator = createBottomTabNavigator(
   {
     Home: HomeStack,
+    Receive: ReceiveStack,
     Settings: SettingsStack
-    //Receive:  ReceiveStack,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -57,6 +70,8 @@ const BottomTabNavigator = createBottomTabNavigator(
           iconName = `ios-cash`; //${focused ? "" : "-outline"}`;
         } else if (routeName === "Settings") {
           iconName = `ios-cog`; //${focused ? "" : "-outline"}`;
+        } else if (routeName === "Receive") {
+          iconName = "ios-download";
         }
 
         return (
