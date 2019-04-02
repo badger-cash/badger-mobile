@@ -1,17 +1,10 @@
 // @flow
 
 import React from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  Image,
-  Button,
-  TextInput
-} from "react-native";
+import { SafeAreaView, View, Text, Image, TextInput } from "react-native";
 import styled, { css } from "styled-components";
 
-import { T, H1, Spacer } from "../atoms";
+import { T, H1, Spacer, Button } from "../atoms";
 
 import BadgerIcon from "../assets/images/icon.png";
 
@@ -40,11 +33,11 @@ const WelcomeScreen = ({ navigation }: Props) => {
       <View style={{ flex: 1 }}>
         <Button
           onPress={() => navigation.navigate("privacyNotice")}
-          title="Create new wallet"
+          text="Create new wallet"
         />
         <Button
           onPress={() => navigation.navigate("restoreFromBackup")}
-          title="Restore from backup phrase"
+          text="Restore from backup phrase"
         />
       </View>
     </StyledWrapper>

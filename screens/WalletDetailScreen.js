@@ -3,7 +3,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { SafeAreaView, View, ScrollView } from "react-native";
+import { SafeAreaView, View, ScrollView, Image } from "react-native";
+import makeBlockie from "ethereum-blockies-base64";
 
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
@@ -12,6 +13,7 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { formatAmount } from "../utils/balance-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
+import BitcoinCashImage from "../assets/images/icon.png";
 
 const TransactionArea = styled(View)`
   border-top-width: 1px;
@@ -21,6 +23,18 @@ const TransactionArea = styled(View)`
 const ButtonGroup = styled(View)`
   flex-direction: row;
   justify-content: space-around;
+`;
+
+const IconImage = styled(Image)`
+  width: 56;
+  height: 56;
+  border-radius: 28;
+  overflow: hidden;
+`;
+
+const IconArea = styled(View)`
+  align-items: center;
+  justify-content: center;
 `;
 
 type Props = {
@@ -44,6 +58,9 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
     ? balances.satoshisAvailable
     : balances.slpTokens[tokenId];
 
+  const imageSource =
+    ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+
   console.log(isBCH);
 
   // console.log(props);
@@ -51,20 +68,20 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
     <SafeAreaView>
       <ScrollView>
         <View>
-          <Spacer />
+          <Spacer small />
+          <IconArea>
+            <IconImage source={imageSource} />
+          </IconArea>
+          <Spacer small />
           <H2 center>{name}</H2>
-          {/* <Spacer /> */}
-          {/* <H2 center>${ticker}</H2> */}
           <H1 center>{formatAmount(amount, decimals)}</H1>
           <Spacer />
           <ButtonGroup>
-            <Button onPress={() => console.log("1")}>
-              <T>Send</T>
-            </Button>
-            <Button onPress={() => console.log("2")}>
-              <T>Receive</T>
-            </Button>
+            <Button onPress={() => console.log("1")} text="Send" />
+
+            <Button onPress={() => console.log("2")} text="Receive" />
           </ButtonGroup>
+          <Spacer />
         </View>
         <TransactionArea>
           <H2>transaction!</H2>
@@ -96,9 +113,8 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
   );
 };
 
-const mapStateToProps = (state, props) => {
-  const { symbol, tokenId } = props.navigation.state.params;
-  console.log(symbol, tokenId);
+const mapStateToProps = state => {
+  // const { symbol, tokenId } = props.navigation.state.params;
   const address = getAddressSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
