@@ -25,8 +25,9 @@ const HomeStack = createStackNavigator(
     WalletDetailScreen: {
       screen: WalletDetailScreen,
       navigationOptions: props => {
+        const title = props.navigation.state.params.symbol;
         return {
-          title: `$${props.navigation.state.params.symbol}`
+          title: `$${title}`
         };
       }
     }

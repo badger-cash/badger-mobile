@@ -32,11 +32,11 @@ const WelcomeScreen = ({ navigation }: Props) => {
 
       <View style={{ flex: 1 }}>
         <Button
-          onPress={() => navigation.navigate("privacyNotice")}
+          onPress={() => navigation.navigate("PrivacyNotice")}
           text="Create new wallet"
         />
         <Button
-          onPress={() => navigation.navigate("restoreFromBackup")}
+          onPress={() => navigation.navigate("RestoreFromBackup")}
           text="Restore from backup phrase"
         />
       </View>

@@ -14,18 +14,18 @@ import RestoreWalletScreen from "../screens/RestoreWalletScreen";
 
 const AuthStack = createStackNavigator(
   {
-    welcome: {
+    Welcome: {
       screen: WelcomeScreen
     },
-    acceptTermsOfUse: { screen: TermsOfUseScreen },
-    privacyNotice: { screen: PrivacyNoticeScreen },
-    createWallet: { screen: CreateWalletScreen }, // Create a password here also?
+    AcceptTermsOfUse: { screen: TermsOfUseScreen },
+    PrivacyNotice: { screen: PrivacyNoticeScreen },
+    CreateWallet: { screen: CreateWalletScreen }, // Create a password here also?
     // unlock: UnlockScreen,
-    restoreFromBackup: { screen: RestoreWalletScreen }
+    RestoreFromBackup: { screen: RestoreWalletScreen }
   },
   {
     headerMode: "none",
-    initialRouteName: "welcome"
+    initialRouteName: "Welcome"
   }
 );
 

@@ -22,7 +22,7 @@ class PrivacyNoticeScreen extends React.Component<Props> {
         <Spacer />
         <Text>Privacy is important. We will respect yours.</Text>
         <Button
-          onPress={() => navigation.navigate("acceptTermsOfUse")}
+          onPress={() => navigation.navigate("AcceptTermsOfUse")}
           title="Accept"
         />
       </ScreenView>

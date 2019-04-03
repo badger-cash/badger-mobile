@@ -9,6 +9,7 @@ import makeBlockie from "ethereum-blockies-base64";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { type TokenData } from "../data/tokens/reducer";
 
 import { formatAmount } from "../utils/balance-utils";
 
@@ -38,13 +39,15 @@ const IconArea = styled(View)`
 `;
 
 type Props = {
-  navigation: any,
+  navigation: { navigate: Function, state: { params: any } },
   balances: Balances,
   address: string,
   tokensById: { [tokenId: string]: TokenData }
 };
 
 const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
+  console.log("hre?");
+  console.log(navigation);
   const { symbol, tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
 
@@ -73,7 +76,12 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           <H1 center>{formatAmount(amount, decimals)}</H1>
           <Spacer small />
           <ButtonGroup>
-            <Button onPress={() => console.log("1")} text="Send" />
+            <Button
+              onPress={() =>
+                navigation.navigate("SendSetup", { symbol, tokenId })
+              }
+              text="Send"
+            />
 
             {/* <Button onPress={() => console.log("2")} text="Receive" /> */}
           </ButtonGroup>
