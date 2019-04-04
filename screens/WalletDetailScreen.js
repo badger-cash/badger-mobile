@@ -14,11 +14,13 @@ import { type TokenData } from "../data/tokens/reducer";
 import { formatAmount } from "../utils/balance-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
+import { TransactionRow } from "../components";
+
 import BitcoinCashImage from "../assets/images/icon.png";
 
 const TransactionArea = styled(View)`
   border-top-width: 1px;
-  border-top-color: red;
+  border-top-color: ${props => props.theme.fg700};
 `;
 
 const ButtonGroup = styled(View)`
@@ -46,8 +48,6 @@ type Props = {
 };
 
 const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
-  console.log("hre?");
-  console.log(navigation);
   const { symbol, tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
 
@@ -87,7 +87,30 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           </ButtonGroup>
           <Spacer />
         </View>
+        <Spacer small />
+        <T size="small" nature="muted">
+          Transaction History
+        </T>
         <TransactionArea>
+          <TransactionRow
+            type="send"
+            timestamp={1554410212312}
+            toAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
+            fromAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
+            symbol={symbol}
+            tokenId={tokenId}
+            amount={123.313}
+          />
+          <TransactionRow
+            type="receive"
+            timestamp={1554410112312}
+            toAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
+            fromAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
+            symbol={symbol}
+            tokenId={tokenId}
+            amount={0.001}
+          />
+          {/* <H2>transaction!</H2>
           <H2>transaction!</H2>
           <H2>transaction!</H2>
           <H2>transaction!</H2>
@@ -109,8 +132,7 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           <H2>transaction!</H2>
           <H2>transaction!</H2>
           <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
+          <H2>transaction!</H2> */}
         </TransactionArea>
       </ScrollView>
     </SafeAreaView>

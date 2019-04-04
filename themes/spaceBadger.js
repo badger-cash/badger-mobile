@@ -6,7 +6,9 @@ type Theme = {
   fg200: string,
   fg300: string,
   fg700: string,
-  bg900: string
+  bg900: string,
+  danger700: string,
+  success700: string
 };
 
 const spaceBadger: Theme = {
@@ -16,7 +18,9 @@ const spaceBadger: Theme = {
   fg200: "#4D4D4D",
   fg300: "#7d7d7d",
   fg700: "#ededed",
-  bg900: "#ffffff"
+  bg900: "#ffffff",
+  danger700: "#fff4f4",
+  success700: "#f6fff4"
 };
 
 export { spaceBadger };

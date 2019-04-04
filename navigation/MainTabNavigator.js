@@ -13,6 +13,8 @@ import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
 
+// import SendStack from './SendStack';
+
 const HomeStack = createStackNavigator(
   {
     WalletDashboard: {
@@ -31,6 +33,7 @@ const HomeStack = createStackNavigator(
         };
       }
     }
+    // SendStack,
   },
   {
     navigationOptions: {

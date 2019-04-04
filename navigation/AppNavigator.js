@@ -12,7 +12,7 @@ export default createAppContainer(
   createSwitchNavigator(
     {
       AuthStack,
-      SendStack,
+      SendStack: { screen: SendStack },
       AuthLoadingCheck: AuthLoadingScreen,
       Main: MainTabNavigator
     },

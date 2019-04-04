@@ -35,6 +35,7 @@ const WelcomeScreen = ({ navigation }: Props) => {
           onPress={() => navigation.navigate("PrivacyNotice")}
           text="Create new wallet"
         />
+        <Spacer small />
         <Button
           onPress={() => navigation.navigate("RestoreFromBackup")}
           text="Restore from backup phrase"

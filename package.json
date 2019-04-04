@@ -19,6 +19,7 @@
     "ethereum-blockies-base64": "^1.0.2",
     "events": "^1.1.1",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "react": "16.8.4",
     "react-native": "0.59.1",
     "react-native-crypto": "^2.1.2",
