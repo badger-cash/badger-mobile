@@ -129,21 +129,23 @@ const HomeScreen = ({
           renderSectionHeader={({ section }) => (
             <CoinRowHeader>{section.title}</CoinRowHeader>
           )}
-          renderItem={({ item }) => (
-            <CoinRow
-              ticker={item.symbol}
-              name={item.name}
-              amount={item.amount}
-              extra={item.extra}
-              tokenId={item.tokenId}
-              onPress={() =>
-                navigation.navigate("WalletDetailScreen", {
-                  symbol: item.symbol,
-                  tokenId: item.tokenId
-                })
-              }
-            />
-          )}
+          renderItem={({ item }) =>
+            item && (
+              <CoinRow
+                ticker={item.symbol}
+                name={item.name}
+                amount={item.amount}
+                extra={item.extra}
+                tokenId={item.tokenId}
+                onPress={() =>
+                  navigation.navigate("WalletDetailScreen", {
+                    symbol: item.symbol,
+                    tokenId: item.tokenId
+                  })
+                }
+              />
+            )
+          }
           keyExtractor={(item, index) => `${index}`}
         />
       </ScrollView>

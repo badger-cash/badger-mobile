@@ -13,7 +13,7 @@ import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
 
-// import SendStack from './SendStack';
+import SendStack from "./SendStack";
 
 const HomeStack = createStackNavigator(
   {
@@ -95,4 +95,15 @@ const BottomTabNavigator = createBottomTabNavigator(
   }
 );
 
-export default BottomTabNavigator;
+const MainAppStack = createStackNavigator(
+  {
+    MainAppTabs: BottomTabNavigator,
+    SendStack: SendStack
+  },
+  {
+    initialRouteName: "MainAppTabs",
+    headerMode: "none"
+  }
+);
+
+export default MainAppStack;
