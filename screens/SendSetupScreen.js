@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { SafeAreaView } from "react-native";
 
-import { T, Button } from "../atoms";
+import QRCodeScanner from "react-native-qrcode-scanner";
+
+import { T, H1, H2, Button, Spacer } from "../atoms";
 
 type Props = {
   navigation: {
@@ -21,7 +23,23 @@ const SendSetupScreen = ({ navigation }: Props) => {
   };
   return (
     <SafeAreaView>
-      <T>Send setup Screen</T>
+      <Spacer />
+      <H1 center>Create Transaction</H1>
+      <Spacer />
+      <T>Send To</T>
+      {/* <QRCodeScanner
+        onRead={() => console.log("read QR")}
+        topContent={
+          <T style={{color: 'white', flex: 1}}>
+            Go to <T>wikipedia.org/wiki/QR_code</T> on your computer and scan
+            the QR code.
+          </T>
+        }
+        bottomContent={
+            <T>OK. Got it!</T>
+        }
+      /> */}
+
       <T>
         {symbol} {tokenId}
       </T>

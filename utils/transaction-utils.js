@@ -6,6 +6,7 @@ import slpjs from "slpjs";
 
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
+// import console = require("console");
 
 const SLP = new SLPSDK();
 

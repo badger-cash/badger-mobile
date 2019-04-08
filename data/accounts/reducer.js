@@ -16,7 +16,8 @@ export type Account = {
   address: string,
   addressSlp: string,
   keypair: ECPair,
-  mnemonic: string
+  mnemonic: string,
+  derivationPath: string
 };
 // export type Account = {
 //   name: string,
