@@ -21,14 +21,19 @@ const StyledTextInput = styled(TextInput)`
 
 const ScreenWrapper = styled(SafeAreaView)`
   position: relative;
+  margin: 0 6px;
 `;
 
 const StyledButton = styled(Button)`
   align-items: center;
+  flex: 1;
+  margin-left: 5px;
+  margin-right: 5px;
 `;
 
 const ButtonArea = styled(View)`
   flex-direction: row;
+  justify-content: space-around;
 `;
 
 const QROverlayScreen = styled(View)`
@@ -46,7 +51,8 @@ type Props = {
 const SendSetupScreen = ({ navigation }: Props) => {
   const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
-  // Todo - Handle if send with nothing selected
+
+  // Todo - Handle if send with nothing pre-selected on navigation
   const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
     symbol: null,
     tokenId: null
@@ -60,8 +66,8 @@ const SendSetupScreen = ({ navigation }: Props) => {
             fadeIn={false}
             onRead={() => console.log("read QR")}
             cameraStyle={{
-              height: Dimensions.get("window").width,
-              width: Dimensions.get("window").width
+              height: Dimensions.get("window").width - 12,
+              width: Dimensions.get("window").width - 12
             }}
             topViewStyle={{ height: "auto", flex: 0 }}
             topContent={
@@ -79,8 +85,13 @@ const SendSetupScreen = ({ navigation }: Props) => {
       )}
       <Spacer />
       <H1 center>Create Transaction</H1>
+
+      {/* Setup / select coin or token */}
+      {/* Setup / validate address */}
+      {/* Set amount to send */}
       <Spacer />
-      <T>Send To</T>
+      <T>Send To:</T>
+      <Spacer small />
       <StyledTextInput
         editable
         multiline
@@ -92,6 +103,7 @@ const SendSetupScreen = ({ navigation }: Props) => {
           setToAddress(text);
         }}
       />
+      <Spacer small />
       <ButtonArea>
         <StyledButton
           onPress={async () => {
@@ -107,6 +119,7 @@ const SendSetupScreen = ({ navigation }: Props) => {
           <T>Scan QR</T>
         </StyledButton>
       </ButtonArea>
+      <Spacer />
       {/* <QRCodeScanner
         onRead={() => console.log("read QR")}
         topContent={
