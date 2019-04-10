@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -22,6 +22,20 @@ const QRHolder = styled(View)`
   justify-content: center;
   align-items: center;
   padding: 10px;
+  overflow: hidden;
+  position: relative;
+`;
+
+const QROverlay = styled(View)`
+  position: absolute;
+  height: 150px;
+  width: 150px;
+  background-color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  opacity: 0.95;
+  z-index: 2;
 `;
 
 type Props = {
@@ -30,6 +44,8 @@ type Props = {
 };
 
 const ReceiveScreen = ({ address, addressSlp }: Props) => {
+  const [showing, setShowing] = useState("BCH");
+
   return (
     <SafeAreaView>
       <ScrollView>
@@ -39,10 +55,15 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         </View>
         <Spacer small />
         <H2 center>Bitcoin Cash (BCH)</H2>
-        <TouchableOpacity onPress={() => Clipboard.setString(address)}>
+        <TouchableOpacity
+          onPress={() =>
+            showing === "BCH" ? Clipboard.setString(address) : setShowing("BCH")
+          }
+        >
           <T size="xsmall" center>
             {address}
           </T>
+
           <QRHolder>
             <QRCode
               value={address}
@@ -50,14 +71,26 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
               bgColor="black"
               fgColor="white"
             />
+            {showing !== "BCH" && (
+              <QROverlay>
+                <T>Press to show</T>
+              </QROverlay>
+            )}
           </QRHolder>
         </TouchableOpacity>
         <Spacer />
         <H2 center>Simple Token (SLP)</H2>
-        <TouchableOpacity onPress={() => Clipboard.setString(addressSlp)}>
+        <TouchableOpacity
+          onPress={() =>
+            showing === "SLP"
+              ? Clipboard.setString(addressSlp)
+              : setShowing("SLP")
+          }
+        >
           <T size="xsmall" center>
             {addressSlp}
           </T>
+
           <QRHolder>
             <QRCode
               value={addressSlp}
@@ -65,6 +98,11 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
               bgColor="black"
               fgColor="white"
             />
+            {showing !== "SLP" && (
+              <QROverlay>
+                <T>Press to show</T>
+              </QROverlay>
+            )}
           </QRHolder>
         </TouchableOpacity>
       </ScrollView>

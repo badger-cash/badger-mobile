@@ -126,14 +126,14 @@ export type State = {
 
 export const initialState: State = { byId: {}, allIds: [], activeId: null };
 
-const addAccount = (state: State, payload: { account: Account }) => {
+const addAccount = async (state: State, payload: { account: Account }) => {
   const { account } = payload;
 
   // TODO - Look into keypairs, cannot persist without serialization as they are not POJO.  Figure out which parts are needed to persist.
   const { keypair, ...removedKeypair } = account;
   const { address } = removedKeypair;
 
-  const addressSlp = addressToSlp(address);
+  const addressSlp = await addressToSlp(address);
   const withSlpAddress = { ...removedKeypair, addressSlp };
 
   const existingAcounts = state.allIds;

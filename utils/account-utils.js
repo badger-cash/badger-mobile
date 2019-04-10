@@ -31,8 +31,8 @@ const deriveAccount = (
   return { mnemonic, keypair, address };
 };
 
-const addressToSlp = (address: string) => {
-  return SLP.Address.toSLPAddress(address);
+const addressToSlp = async (address: string) => {
+  return await SLP.Address.toSLPAddress(address);
 };
 
 export { deriveAccount, addressToSlp };
