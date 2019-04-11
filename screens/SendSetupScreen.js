@@ -72,7 +72,8 @@ const formatAmount = (amount: string): string => {
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   let decimalCount = 0;
 
-  const valid = amount.split("").reduce((prev, curr) => {
+  const valid = amount.split("").reduce((prev, curr, idx) => {
+    if (idx === 0 && curr === "0") return prev;
     if (validCharacters.includes(curr)) return [...prev, curr];
     if (curr === "." && decimalCount === 0) {
       decimalCount++;
@@ -86,7 +87,7 @@ const formatAmount = (amount: string): string => {
 const SendSetupScreen = ({ navigation, tokensById }: Props) => {
   const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
-  const [sendAmount, setSendAmount] = useState("0");
+  const [sendAmount, setSendAmount] = useState("");
 
   // Todo - Handle if send with nothing pre-selected on navigation
   const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
@@ -98,7 +99,9 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
     symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
   const imageSource =
-    symbol === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+    symbol === "BCH" && !tokenId
+      ? BitcoinCashImage
+      : { uri: makeBlockie(tokenId) };
 
   return (
     <ScreenWrapper>
@@ -151,6 +154,7 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
       <StyledTextInput
         editable
         multiline
+        placeholder={tokenId ? "simpleledger:" : "cashaddr:"}
         autoComplete="off"
         autoCorrect={false}
         autoFocus
@@ -182,6 +186,7 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
       <StyledTextInput
         keyboardType="numeric"
         editable
+        placeholder="0.0"
         autoComplete="off"
         autoCorrect={false}
         value={sendAmount}
@@ -192,7 +197,14 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
       <Spacer small />
 
       <Button
-        onPress={() => navigation.navigate("SendConfirm")}
+        onPress={() =>
+          navigation.navigate("SendConfirm", {
+            symbol,
+            tokenId,
+            sendAmount,
+            toAddress
+          })
+        }
         text="Next Step"
       />
     </ScreenWrapper>

@@ -121,7 +121,7 @@ const HomeScreen = ({
   return (
     <SafeAreaView>
       <ScrollView>
-        <Spacer small />
+        <Spacer />
         <H1 center>Badger Mobile</H1>
         <Spacer />
         <SectionList

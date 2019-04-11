@@ -49,7 +49,10 @@ const InfoArea = styled(View)`
 
 const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
   const imageSource =
-    ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+    ticker === "BCH" && !tokenId
+      ? BitcoinCashImage
+      : { uri: makeBlockie(tokenId) };
+
   return (
     <Outter onPress={onPress}>
       <IconArea>
