@@ -34,9 +34,6 @@ const balancesSelector = createSelector(
       slpTokens: {}
     };
 
-    // Likely compute these in different selectors if needed.
-    // const validTokenIds = [];
-    // const batons = [];
     const balances: Balances = utxos.reduce((prev, utxo) => {
       if (!utxo) return prev;
 

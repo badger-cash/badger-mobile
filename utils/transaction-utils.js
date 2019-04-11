@@ -12,6 +12,13 @@ const SLP = new SLPSDK();
 
 const LOKAD_ID_HEX = "534c5000";
 
+type TxParams = {
+  from: string,
+  to: string,
+  opReturn?: { data: string },
+  value: number
+};
+
 const getAllUtxo = async (address: string) => {
   const result = await SLP.Address.utxo(address);
   return result.utxos;
@@ -167,17 +174,17 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
   }
 };
 
-// const encodeOpReturn = async dataArray => {
-//   const script = [SLP.Script.opcodes.OP_RETURN];
-//   dataArray.forEach(data => {
-//     if (typeof data === "string" && data.substring(0, 2) === "0x") {
-//       script.push(Buffer.from(data.substring(2), "hex"));
-//     } else {
-//       script.push(Buffer.from(data));
-//     }
-//   });
-//   return SLP.Script.encode(script);
-// };
+const encodeOpReturn = async dataArray => {
+  const script = [SLP.Script.opcodes.OP_RETURN];
+  dataArray.forEach(data => {
+    if (typeof data === "string" && data.substring(0, 2) === "0x") {
+      script.push(Buffer.from(data.substring(2), "hex"));
+    } else {
+      script.push(Buffer.from(data));
+    }
+  });
+  return await SLP.Script.encode(script);
+};
 
 // const publishTx = async hex => {
 //   const result = await SLP.RawTransactions.sendRawTransaction(hex);
@@ -191,73 +198,83 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
 //   }
 // };
 
-// const signAndPublishBchTransaction = async (
-//   txParams,
-//   keyPair,
-//   spendableUtxos
-// ) => {
-//   const from = txParams.from;
-//   const to = txParams.to;
-//   const satoshisToSend = parseInt(txParams.value, 10);
+const signAndPublishBchTransaction = async (
+  txParams: TxParams,
+  keyPair,
+  spendableUtxos: UTXO[]
+) => {
+  try {
+    if (!spendableUtxos || spendableUtxos.length === 0) {
+      throw new Error("Insufficient funds");
+    }
 
-//   if (!spendableUtxos || spendableUtxos.length === 0) {
-//     throw new Error("Insufficient funds");
-//   }
+    const { from, to, value, opReturn } = txParams;
+    const satoshisToSend = parseInt(value);
 
-//   let byteCount = SLP.BitcoinCash.getByteCount(
-//     { P2PKH: spendableUtxos.length },
-//     { P2PKH: 2 }
-//   );
-//   if (txParams.opReturn) {
-//     byteCount += this.encodeOpReturn(txParams.opReturn.data).byteLength + 10;
-//   }
+    let byteCount = SLP.BitcoinCash.getByteCount(
+      { P2PKH: spendableUtxos.length },
+      { P2PKH: 2 }
+    );
 
-//   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+    const encodedOpReturn = opReturn ? encodeOpReturn(opReturn.data) : null;
+    if (encodedOpReturn) {
+      byteCount += encodedOpReturn.byteLength + 10;
+    }
 
-//   let totalUtxoAmount = 0;
+    const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
-//   spendableUtxos.forEach(utxo => {
-//     if (utxo.spendable !== true) {
-//       throw new Error("Cannot spend unspendable utxo");
-//     }
-//     transactionBuilder.addInput(utxo.txid, utxo.vout);
-//     totalUtxoAmount += utxo.satoshis;
-//   });
+    let totalUtxoAmount = 0;
+    spendableUtxos.forEach(utxo => {
+      if (utxo.spendable !== true) {
+        throw new Error("Cannot spend unspendable utxo");
+      }
+      transactionBuilder.addInput(utxo.txid, utxo.vout);
+      totalUtxoAmount += utxo.satoshis;
+    });
 
-//   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
+    const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
 
-//   // Destination output
-//   transactionBuilder.addOutput(to, satoshisToSend);
+    // Verify sufficient fee
+    if (satoshisRemaining < 0) {
+      throw new Error(
+        "Not enough Bitcoin Cash (BCH) for transaction fee. Deposit a small amount and try again."
+      );
+    }
+    // Destination output
+    transactionBuilder.addOutput(to, satoshisToSend);
 
-//   // Op Return
-//   // TODO: Allow dev to pass in "position" property for vout of opReturn
-//   if (txParams.opReturn) {
-//     const encodedOpReturn = this.encodeOpReturn(txParams.opReturn.data);
-//     transactionBuilder.addOutput(encodedOpReturn, 0);
-//   }
+    // Op Return
+    // TODO: Allow dev to pass in "position" property for vout of opReturn
+    if (encodedOpReturn) {
+      //  const encodedOpReturn = encodeOpReturn(opReturn.data)
+      transactionBuilder.addOutput(encodedOpReturn, 0);
+    }
 
-//   // Return remaining balance output
-//   if (satoshisRemaining >= 546) {
-//     transactionBuilder.addOutput(from, satoshisRemaining);
-//   }
+    // Return remaining balance output
+    if (satoshisRemaining >= 546) {
+      transactionBuilder.addOutput(from, satoshisRemaining);
+    }
 
-//   let redeemScript;
-//   spendableUtxos.forEach((utxo, index) => {
-//     transactionBuilder.sign(
-//       index,
-//       keyPair,
-//       redeemScript,
-//       transactionBuilder.hashTypes.SIGHASH_ALL,
-//       utxo.satoshis
-//     );
-//   });
+    let redeemScript;
+    spendableUtxos.forEach((utxo, index) => {
+      transactionBuilder.sign(
+        index,
+        keyPair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        utxo.satoshis
+      );
+    });
 
-//   const hex = transactionBuilder.build().toHex();
+    const hex = transactionBuilder.build().toHex();
 
-//   // TODO: Handle failures: transaction already in blockchain, mempool length, networking
-//   const txid = await this.publishTx(hex);
-//   return txid;
-// };
+    // TODO: Handle failures: transaction already in blockchain, mempool length, networking
+    const txid = await this.publishTx(hex);
+    return txid;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
 
 // const signAndPublishSlpTransaction = async (
 //   txParams,
@@ -341,4 +358,10 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
 //   return txid;
 // };
 
-export { getAllUtxo, getTransactionDetails, decodeTxOut, decodeTokenMetadata };
+export {
+  decodeTokenMetadata,
+  decodeTxOut,
+  getAllUtxo,
+  getTransactionDetails,
+  signAndPublishBchTransaction
+};

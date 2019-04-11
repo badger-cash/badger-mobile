@@ -57,14 +57,8 @@ const updateUtxos = (address: string) => {
       .map(utxoId => utxosSlice.byId[utxoId])
       .filter(Boolean);
 
-    console.log("utxos all begin");
-    console.log(address);
-
     // Get all UTXO for account
     const utxosAll = await getAllUtxo(address);
-
-    console.log("AFTER UTXO PULL?");
-    console.log(utxosAll);
 
     const utxosAllWithId = utxosAll.map(utxo => ({
       ...utxo,
