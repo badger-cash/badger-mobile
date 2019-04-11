@@ -20,7 +20,8 @@ const spaceBadger: Theme = {
   fg700: "#ededed",
   bg900: "#ffffff",
   danger700: "#fff4f4",
-  success700: "#f6fff4"
+  success700: "#f6fff4",
+  success500: "rgb(10, 193, 142)"
 };
 
 export { spaceBadger };

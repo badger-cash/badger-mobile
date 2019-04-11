@@ -1,10 +1,12 @@
 // @flow
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { SafeAreaView, View, Image } from "react-native";
 
 import makeBlockie from "ethereum-blockies-base64";
+import Swipeable from "react-native-swipeable";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 import BitcoinCashImage from "../assets/images/icon.png";
 import { Button, T, H1, H2, Spacer } from "../atoms";
@@ -23,6 +25,15 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
+const SwipeButtonContainer = styled(View)`
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 20px;
+  width: 75%;
+  align-self: center;
+`;
+
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
   navigation: {
@@ -39,6 +50,14 @@ type Props = {
 };
 
 const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
+  const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
+
+  // TODO - Consider moving this into redux
+  const [
+    transactionState: "setup" | "signing" | "broadcasting" | "sent",
+    setTransactionState
+  ] = useState("setup");
+
   const { symbol, tokenId, sendAmount, toAddress } = (navigation.state &&
     navigation.state.params) || {
     symbol: null,
@@ -105,6 +124,45 @@ const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
         <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
       </T>
       <Spacer />
+      <Spacer />
+
+      <SwipeButtonContainer>
+        <Swipeable
+          leftActionActivationDistance={200}
+          leftContent={
+            <View
+              style={{
+                height: 40,
+                alignItems: "flex-end",
+                justifyContent: "center",
+                backgroundColor: confirmSwipeActivated
+                  ? "lightgoldenrodyellow"
+                  : "steelblue"
+              }}
+            >
+              {confirmSwipeActivated ? <T>release!</T> : <T>keep pulling!</T>}
+            </View>
+          }
+          onLeftActionActivate={() => setConfirmSwipeActivated(true)}
+          onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
+          onLeftActionComplete={() => setTransactionState("signing")}
+        >
+          <View
+            style={{
+              height: 40,
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "row",
+              backgroundColor:
+                transactionState === "signing" ? "thistle" : "darkseagreen"
+            }}
+          >
+            <T>Swipe </T>
+            <Ionicons name="ios-arrow-round-forward" size={25} />
+            <T> To Send</T>
+          </View>
+        </Swipeable>
+      </SwipeButtonContainer>
       <Button
         onPress={() => console.log("send confirm")}
         text="Confirm Transaction"
