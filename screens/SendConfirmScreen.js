@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { SafeAreaView, View, Image } from "react-native";
+import { Dimensions, SafeAreaView, View, Image } from "react-native";
 
 import makeBlockie from "ethereum-blockies-base64";
 import Swipeable from "react-native-swipeable";
@@ -29,9 +29,27 @@ const SwipeButtonContainer = styled(View)`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 30px;
   width: 75%;
   align-self: center;
+`;
+
+const SwipeContent = styled(View)`
+  height: 60px;
+  padding-right: 10px;
+  align-items: flex-end;
+  justify-content: center;
+  background-color: ${props =>
+    props.activated ? props.theme.success500 : props.theme.pending500};
+`;
+
+const SwipeMainContent = styled(View)`
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  background-color: ${props =>
+    props.triggered ? props.theme.success500 : props.theme.primary400};
 `;
 
 type Props = {
@@ -128,45 +146,31 @@ const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
 
       <SwipeButtonContainer>
         <Swipeable
-          leftActionActivationDistance={200}
+          leftActionActivationDistance={
+            Dimensions.get("window").width * 0.75 * 0.8
+          }
           leftContent={
-            <View
-              style={{
-                height: 40,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                backgroundColor: confirmSwipeActivated
-                  ? "lightgoldenrodyellow"
-                  : "steelblue"
-              }}
-            >
-              {confirmSwipeActivated ? <T>release!</T> : <T>keep pulling!</T>}
-            </View>
+            <SwipeContent activated={confirmSwipeActivated}>
+              {confirmSwipeActivated ? (
+                <T type="inverse">Release to send</T>
+              ) : (
+                <T type="inverse">Keep pulling</T>
+              )}
+            </SwipeContent>
           }
           onLeftActionActivate={() => setConfirmSwipeActivated(true)}
           onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
           onLeftActionComplete={() => setTransactionState("signing")}
         >
-          <View
-            style={{
-              height: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "row",
-              backgroundColor:
-                transactionState === "signing" ? "thistle" : "darkseagreen"
-            }}
-          >
-            <T>Swipe </T>
-            <Ionicons name="ios-arrow-round-forward" size={25} />
-            <T> To Send</T>
-          </View>
+          <SwipeMainContent triggered={transactionState === "signing"}>
+            <T type="inverse">Swipe </T>
+            <T type="inverse" style={{ paddingTop: 2 }}>
+              <Ionicons name="ios-arrow-round-forward" size={25} />
+            </T>
+            <T type="inverse"> To Send</T>
+          </SwipeMainContent>
         </Swipeable>
       </SwipeButtonContainer>
-      <Button
-        onPress={() => console.log("send confirm")}
-        text="Confirm Transaction"
-      />
     </SafeAreaView>
   );
 };

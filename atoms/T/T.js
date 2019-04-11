@@ -6,7 +6,8 @@ import { Text } from "react-native";
 
 const T = styled(Text)`
   font-size: 18;
-  color: ${props => props.theme.fg100};
+  color: ${props =>
+    props.type === "inverse" ? props.theme.bg900 : props.theme.fg100};
   ${props =>
     props.center &&
     css`
