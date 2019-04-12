@@ -101,13 +101,18 @@ const SendConfirmScreen = ({
     toAddress: ""
   };
 
-  const signSendTransaction = () => {
+  const signSendTransaction = async () => {
     setTransactionState("signing");
 
     const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
 
     const txParams = { to: toAddress, from: activeAccount.address, value: 560 };
-    signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
+    try {
+      await signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
+      navigation.navigate("SendSuccess");
+    } catch (e) {
+      throw new Error("Error sending transaction");
+    }
   };
   // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
