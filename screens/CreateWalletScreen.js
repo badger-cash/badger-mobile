@@ -8,8 +8,6 @@ import { connect } from "react-redux";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
 
-// Later - Add a way to add a password here for encryption instead of passing through.
-
 const ScreenWrapper = styled(SafeAreaView)`
   align-items: center;
   justify-content: center;
@@ -21,6 +19,7 @@ type Props = {
   isCreated: boolean,
   getAccount: Function
 };
+
 const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   useEffect(() => {
     if (isCreated) {

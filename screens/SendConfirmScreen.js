@@ -14,14 +14,22 @@ import { Button, T, H1, H2, Spacer } from "../atoms";
 import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
+import { signAndPublishBchTransaction } from "../utils/transaction-utils";
+
+import {
+  getKeypairSelector,
+  activeAccountSelector
+} from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
+
 const IconArea = styled(View)`
   align-items: center;
   justify-content: center;
 `;
 const IconImage = styled(Image)`
-  width: 48;
-  height: 48;
-  border-radius: 24;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -54,6 +62,9 @@ const SwipeMainContent = styled(View)`
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
+  utxos: any,
+  keypair: any,
+  activeAccount: any,
   navigation: {
     navigate: Function,
     state?: {
@@ -67,7 +78,13 @@ type Props = {
   }
 };
 
-const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
+const SendConfirmScreen = ({
+  navigation,
+  tokensById,
+  activeAccount,
+  utxos,
+  keypair
+}: Props) => {
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
 
   // TODO - Consider moving this into redux
@@ -81,9 +98,18 @@ const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
     symbol: null,
     tokenId: null,
     sendAmount: null,
-    toAddress: null
+    toAddress: ""
   };
 
+  const signSendTransaction = () => {
+    setTransactionState("signing");
+
+    const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+
+    const txParams = { to: toAddress, from: activeAccount.address, value: 560 };
+    signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
+  };
+  // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
     navigation.navigate("SendSetup", { symbol, tokenId });
   }
@@ -160,7 +186,7 @@ const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
           }
           onLeftActionActivate={() => setConfirmSwipeActivated(true)}
           onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-          onLeftActionComplete={() => setTransactionState("signing")}
+          onLeftActionComplete={() => signSendTransaction()}
         >
           <SwipeMainContent triggered={transactionState === "signing"}>
             <T type="inverse">Swipe </T>
@@ -177,8 +203,15 @@ const SendConfirmScreen = ({ navigation, tokensById }: Props) => {
 
 const mapStateToProps = state => {
   const tokensById = tokensByIdSelector(state);
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
+  const keypair = getKeypairSelector(state);
+
   return {
-    tokensById
+    activeAccount,
+    tokensById,
+    keypair,
+    utxos
   };
 };
 

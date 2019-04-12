@@ -6,6 +6,8 @@ import { type FullState } from "../store";
 const accountsSelector = (state: FullState) => state.accounts;
 const accountsByIdSelector = (state: FullState) => state.accounts.byId;
 const activeAccountIdSelector = (state: FullState) => state.accounts.activeId;
+const keypairsByAccountSelector = (state: FullState) =>
+  state.accounts.keypairsByAccount;
 
 const activeAccountSelector = createSelector(
   accountsByIdSelector,
@@ -29,6 +31,14 @@ const getMnemonicSelector = createSelector(
   }
 );
 
+const getKeypairSelector = createSelector(
+  keypairsByAccountSelector,
+  activeAccountIdSelector,
+  (keypairs, accountId) => {
+    return keypairs[accountId];
+  }
+);
+
 const getAddressSelector = createSelector(
   activeAccountSelector,
   account => {
@@ -44,10 +54,11 @@ const getAddressSlpSelector = createSelector(
 );
 
 export {
-  activeAccountSelector,
   activeAccountIdSelector,
-  hasMnemonicSelector,
+  activeAccountSelector,
   getAddressSelector,
   getAddressSlpSelector,
-  getMnemonicSelector
+  getKeypairSelector,
+  getMnemonicSelector,
+  hasMnemonicSelector
 };

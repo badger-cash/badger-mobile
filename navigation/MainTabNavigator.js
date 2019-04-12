@@ -71,9 +71,9 @@ const BottomTabNavigator = createBottomTabNavigator(
         const { routeName } = navigation.state;
         let iconName;
         if (routeName === "Home") {
-          iconName = `ios-cash`; //${focused ? "" : "-outline"}`;
+          iconName = `ios-wallet`;
         } else if (routeName === "Settings") {
-          iconName = `ios-cog`; //${focused ? "" : "-outline"}`;
+          iconName = `ios-settings`;
         } else if (routeName === "Receive") {
           iconName = "ios-download";
         }

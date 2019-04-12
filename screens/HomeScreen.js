@@ -1,13 +1,7 @@
 // @flow
 
 import React, { useEffect } from "react";
-import styled from "styled-components";
-import {
-  SafeAreaView,
-  ScrollView,
-  SectionList,
-  TouchableOpacity
-} from "react-native";
+import { SafeAreaView, ScrollView, SectionList } from "react-native";
 import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
@@ -31,7 +25,6 @@ import { updateTokensMeta } from "../data/tokens/actions";
 import { formatAmount } from "../utils/balance-utils";
 
 const SECOND = 1000;
-const MINUTE = 60 * SECOND;
 
 // Same as the Badger namespace for now.  doesn't need to be unique here.
 const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -81,8 +74,8 @@ const HomeScreen = ({
     slpTokens[key]
   ]);
 
-  console.log(addressSlp);
-  console.log(address);
+  // console.log(addressSlp);
+  // console.log(address);
   // console.log(tokensById)
 
   const walletSections = [

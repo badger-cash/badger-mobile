@@ -81,8 +81,6 @@ const TransactionRow = ({
         </IconArea>
         <InfoArea>
           <T>{type}</T>
-          {/* <T size="large">{amount}</T> */}
-          {/* <T size="small">{extra}</T> */}
         </InfoArea>
         <AmountArea>
           <T>

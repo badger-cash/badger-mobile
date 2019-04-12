@@ -13,7 +13,7 @@ const Screen = styled(View)`
   padding: 10px;
 `;
 
-// TODO - Currently stays on this screen if navigating away using bototm nav.
+// TODO - Currently stays on this screen if navigating away using bottom nav.
 // Make pressing settings always start on index page
 
 type Props = { mnemonic: string };

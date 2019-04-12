@@ -63,7 +63,6 @@ const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
           {ticker} - {name}
         </T>
         <T size="large">{amount}</T>
-        {/* <T size="small">{extra}</T> */}
       </InfoArea>
       <ArrowArea>
         <Ionicons name="ios-arrow-forward" size={24} />

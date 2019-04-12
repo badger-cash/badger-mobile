@@ -4,9 +4,9 @@ import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
 import slpjs from "slpjs";
 
+import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
-// import console = require("console");
 
 const SLP = new SLPSDK();
 
@@ -186,21 +186,21 @@ const encodeOpReturn = async dataArray => {
   return await SLP.Script.encode(script);
 };
 
-// const publishTx = async hex => {
-//   const result = await SLP.RawTransactions.sendRawTransaction(hex);
-//   try {
-//     if (result[0].length == 64) {
-//       return result[0];
-//     }
-//     throw new Error(`Transaction Failed: ${result}`);
-//   } catch (e) {
-//     throw e;
-//   }
-// };
+const publishTx = async hex => {
+  const result = await SLP.RawTransactions.sendRawTransaction(hex);
+  try {
+    if (result.length === 64) {
+      return result;
+    }
+    throw new Error(`Transaction Failed: ${result}`);
+  } catch (e) {
+    throw e;
+  }
+};
 
 const signAndPublishBchTransaction = async (
   txParams: TxParams,
-  keyPair,
+  keyPair: ECPair,
   spendableUtxos: UTXO[]
 ) => {
   try {
@@ -209,14 +209,16 @@ const signAndPublishBchTransaction = async (
     }
 
     const { from, to, value, opReturn } = txParams;
-    const satoshisToSend = parseInt(value);
+    const satoshisToSend = parseInt(value, 10);
 
     let byteCount = SLP.BitcoinCash.getByteCount(
       { P2PKH: spendableUtxos.length },
       { P2PKH: 2 }
     );
 
-    const encodedOpReturn = opReturn ? encodeOpReturn(opReturn.data) : null;
+    const encodedOpReturn = opReturn
+      ? await encodeOpReturn(opReturn.data)
+      : null;
     if (encodedOpReturn) {
       byteCount += encodedOpReturn.byteLength + 10;
     }
@@ -269,7 +271,7 @@ const signAndPublishBchTransaction = async (
     const hex = transactionBuilder.build().toHex();
 
     // TODO: Handle failures: transaction already in blockchain, mempool length, networking
-    const txid = await this.publishTx(hex);
+    const txid = await publishTx(hex);
     return txid;
   } catch (err) {
     throw new Error(err);

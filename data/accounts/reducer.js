@@ -7,15 +7,23 @@ import {
   LOGOUT_ACCOUNT
 } from "./constants";
 
-// TODO: account => wallets.  // Account/meta is ONLY mnemonic.  Everything else fetched on startup.
+// Todo - Fill in this type as needed
+export type ECPair = {
+  compressed: boolean,
+  d: any,
+  network: any,
+  __Q: any
+};
+
 // TODO - Figure out non-persisting keypair an re-adding if it's missing
 export type Account = {
   address: string,
   addressSlp: string,
-  keypair: ECPair,
+  keypair?: ECPair,
   mnemonic: string,
   derivationPath?: string
 };
+
 // export type Account = {
 //   name: string,
 //   address: string,
@@ -117,27 +125,37 @@ type Action = { type: string, payload: any };
 
 export type State = {
   byId: { [accountId: string]: Account },
+  keypairsByAccount: { [accountId: string]: ECPair },
   allIds: string[],
   activeId: ?string
 };
 
-export const initialState: State = { byId: {}, allIds: [], activeId: null };
+export const initialState: State = {
+  byId: {},
+  allIds: [],
+  activeId: null,
+  keypairsByAccount: {}
+};
 
 const addAccount = (state: State, payload: { account: Account }) => {
   const { account } = payload;
 
-  // TODO - Look into keypairs, cannot persist without serialization as they are not POJO.  Figure out which parts are needed to persist.
+  // TODO - Find a way to persist keypair, OR re-generate keypair somewhere if doesn't exist
   const { keypair, ...removedKeypair } = account;
-  const { address } = removedKeypair;
+  const { address } = account;
 
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
-    return state;
+    return {
+      ...state,
+      keypairsByAccount: { ...state.keypairsByAccount, [address]: keypair }
+    };
   }
 
   return {
     ...state,
     byId: { ...state.byId, [address]: removedKeypair },
+    keypairsByAccount: { ...state.keypairsByAccount, [address]: keypair },
     allIds: [...state.allIds, address],
     activeId: address
   };

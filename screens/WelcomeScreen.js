@@ -1,8 +1,8 @@
 // @flow
 
 import React from "react";
-import { SafeAreaView, View, Text, Image, TextInput } from "react-native";
-import styled, { css } from "styled-components";
+import { SafeAreaView, View, Image } from "react-native";
+import styled from "styled-components";
 
 import { T, H1, Spacer, Button } from "../atoms";
 

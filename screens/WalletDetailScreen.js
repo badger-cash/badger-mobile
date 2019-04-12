@@ -82,8 +82,6 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
               }
               text="Send"
             />
-
-            {/* <Button onPress={() => console.log("2")} text="Receive" /> */}
           </ButtonGroup>
           <Spacer />
         </View>
@@ -110,29 +108,6 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
             tokenId={tokenId}
             amount={0.001}
           />
-          {/* <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2>
-          <H2>transaction!</H2> */}
         </TransactionArea>
       </ScrollView>
     </SafeAreaView>
