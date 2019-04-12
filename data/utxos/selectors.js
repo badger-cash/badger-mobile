@@ -1,10 +1,11 @@
 // @flow
 
 import { createSelector } from "reselect";
+import { type FullState } from "../store";
 
-const utxosSelector = state => state.utxos;
+const utxosSelector = (state: FullState) => state.utxos;
 
-const utxosByAccountSelector = (state, address) => {
+const utxosByAccountSelector = (state: FullState, address: string) => {
   const { byId, byAccount } = state.utxos;
 
   const accountUtxoIds = byAccount[address];

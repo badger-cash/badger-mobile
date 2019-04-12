@@ -9,7 +9,7 @@ import {
 
 import { type Account } from "./reducer";
 
-import { deriveAccount } from "../../utils/account-utils";
+import { deriveAccount, addressToSlp } from "../../utils/account-utils";
 
 const getAccountStart = () => ({
   type: GET_ACCOUNT_START,
@@ -26,12 +26,15 @@ const getAccountFail = () => ({
   payload: null
 });
 
-const getAccount = (seed: string) => {
+const getAccount = (seed?: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
     //  TODO - Error or fail state
     const account = deriveAccount(seed);
-    dispatch(getAccountSuccess(account));
+    const addressSlp = await addressToSlp(account.address);
+    const accountWithSLP = { ...account, addressSlp };
+
+    dispatch(getAccountSuccess(accountWithSLP));
   };
 };
 

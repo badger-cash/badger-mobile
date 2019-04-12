@@ -1,28 +1,17 @@
 // @flow
 
 import { createSelector } from "reselect";
+import { type FullState } from "../store";
 
-const accountsSelector = state => state.accounts;
+const accountsSelector = (state: FullState) => state.accounts;
+const accountsByIdSelector = (state: FullState) => state.accounts.byId;
+const activeAccountIdSelector = (state: FullState) => state.accounts.activeId;
 
 const activeAccountSelector = createSelector(
-  accountsSelector,
-  accounts => {
-    const { byId, activeId } = accounts;
-    return byId[activeId];
-  }
-);
-
-const activeAccountIdSelector = state => state.accounts.activeId;
-
-// For if we only support 1 account.  Probably can remove
-const mainAccountSelector = createSelector(
-  accountsSelector,
-  accounts => {
-    const { byId, allIds } = accounts;
-    const firstId = allIds[0];
-
-    const mainAccount = byId[firstId];
-    return mainAccount;
+  accountsByIdSelector,
+  activeAccountIdSelector,
+  (byId, activeId) => {
+    return activeId ? byId[activeId] : null;
   }
 );
 
@@ -60,6 +49,5 @@ export {
   hasMnemonicSelector,
   getAddressSelector,
   getAddressSlpSelector,
-  getMnemonicSelector,
-  mainAccountSelector
+  getMnemonicSelector
 };

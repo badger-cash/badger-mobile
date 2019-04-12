@@ -1,14 +1,11 @@
 // @flow
 
 import {
-  // ADD_ACCOUNT,
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
   GET_ACCOUNT_FAIL,
   LOGOUT_ACCOUNT
 } from "./constants";
-
-import { addressToSlp } from "../../utils/account-utils";
 
 // TODO: account => wallets.  // Account/meta is ONLY mnemonic.  Everything else fetched on startup.
 // TODO - Figure out non-persisting keypair an re-adding if it's missing
@@ -17,7 +14,7 @@ export type Account = {
   addressSlp: string,
   keypair: ECPair,
   mnemonic: string,
-  derivationPath: string
+  derivationPath?: string
 };
 // export type Account = {
 //   name: string,
@@ -126,15 +123,12 @@ export type State = {
 
 export const initialState: State = { byId: {}, allIds: [], activeId: null };
 
-const addAccount = async (state: State, payload: { account: Account }) => {
+const addAccount = (state: State, payload: { account: Account }) => {
   const { account } = payload;
 
   // TODO - Look into keypairs, cannot persist without serialization as they are not POJO.  Figure out which parts are needed to persist.
   const { keypair, ...removedKeypair } = account;
   const { address } = removedKeypair;
-
-  const addressSlp = await addressToSlp(address);
-  const withSlpAddress = { ...removedKeypair, addressSlp };
 
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
@@ -143,7 +137,7 @@ const addAccount = async (state: State, payload: { account: Account }) => {
 
   return {
     ...state,
-    byId: { ...state.byId, [address]: withSlpAddress },
+    byId: { ...state.byId, [address]: removedKeypair },
     allIds: [...state.allIds, address],
     activeId: address
   };

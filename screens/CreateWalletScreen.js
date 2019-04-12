@@ -2,13 +2,7 @@
 
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import {
-  SafeAreaView,
-  Text,
-  TextInput,
-  Button,
-  ActivityIndicator
-} from "react-native";
+import { SafeAreaView, ActivityIndicator } from "react-native";
 import { connect } from "react-redux";
 
 import { hasMnemonicSelector } from "../data/accounts/selectors";
