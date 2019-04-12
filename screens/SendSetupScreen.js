@@ -19,7 +19,12 @@ import { T, H1, H2, Button, Spacer } from "../atoms";
 import BitcoinCashImage from "../assets/images/icon.png";
 
 import { type TokenData } from "../data/tokens/reducer";
+
+import { getAddressSelector } from "../data/accounts/selectors";
+import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+
+import { formatAmount } from "../utils/balance-utils";
 
 const StyledTextInput = styled(TextInput)`
   border: 1px ${props => props.theme.primary500};
@@ -61,6 +66,7 @@ const IconImage = styled(Image)`
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
+  balances: Balances,
   navigation: {
     navigate: Function,
     state?: { params: { symbol: string, tokenId: ?string } }
@@ -68,12 +74,12 @@ type Props = {
 };
 
 // Only allow numbers and a single . in amount input
-const formatAmount = (amount: string): string => {
+const formatAmountInput = (amount: string): string => {
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   let decimalCount = 0;
 
-  const valid = amount.split("").reduce((prev, curr, idx) => {
-    if (idx === 0 && curr === "0") return prev;
+  const valid = amount.split("").reduce((prev, curr, idx, array) => {
+    if (idx === 1 && curr === "0" && array[0] === "0") return prev;
     if (validCharacters.includes(curr)) return [...prev, curr];
     if (curr === "." && decimalCount === 0) {
       decimalCount++;
@@ -84,7 +90,7 @@ const formatAmount = (amount: string): string => {
   return valid.join("");
 };
 
-const SendSetupScreen = ({ navigation, tokensById }: Props) => {
+const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
   const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
   const [sendAmount, setSendAmount] = useState("");
@@ -94,6 +100,11 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
     symbol: null,
     tokenId: null
   };
+
+  const availableAmount = tokenId
+    ? balances.slpTokens[tokenId]
+    : balances.satoshisAvailable;
+  const adjustDecimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const coinName =
     symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
@@ -182,6 +193,9 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
       <Spacer />
 
       <T>Amount:</T>
+      <T size="small">
+        {formatAmount(availableAmount, adjustDecimals)} {symbol} available
+      </T>
       <Spacer small />
       <StyledTextInput
         keyboardType="numeric"
@@ -191,7 +205,7 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
         autoCorrect={false}
         value={sendAmount}
         onChangeText={text => {
-          setSendAmount(formatAmount(text));
+          setSendAmount(formatAmountInput(text));
         }}
       />
       <Spacer small />
@@ -212,9 +226,12 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
 };
 
 const mapStateToProps = state => {
+  const address = getAddressSelector(state);
+  const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
   return {
-    tokensById
+    tokensById,
+    balances
   };
 };
 

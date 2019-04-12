@@ -101,15 +101,29 @@ const SendConfirmScreen = ({
     toAddress: ""
   };
 
+  const decimals = tokenId ? tokensById[tokenId].decimals : 8;
+
+  const sendAmountFormatted = parseFloat(sendAmount);
+
+  // Convert BCH amount to satoshis
+  // Send the entered token amount as is
+  const sendAmountParam = tokenId
+    ? sendAmountFormatted
+    : Math.floor(sendAmountFormatted * 10 ** decimals);
+
   const signSendTransaction = async () => {
     setTransactionState("signing");
 
     const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
 
-    const txParams = { to: toAddress, from: activeAccount.address, value: 560 };
+    const txParams = {
+      to: toAddress,
+      from: activeAccount.address,
+      value: sendAmountParam
+    };
     try {
       await signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
-      navigation.navigate("SendSuccess");
+      navigation.navigate("SendSuccess", { txParams });
     } catch (e) {
       throw new Error("Error sending transaction");
     }
@@ -135,8 +149,8 @@ const SendConfirmScreen = ({
   const protocol = addressParts.length === 2 ? addressParts[0] : "legacy";
 
   const addressStart = address.slice(0, 5);
-  const addressMiddle = address.slice(5, -5);
-  const addressEnd = address.slice(-5);
+  const addressMiddle = address.slice(5, -6);
+  const addressEnd = address.slice(-6);
 
   return (
     <SafeAreaView>
