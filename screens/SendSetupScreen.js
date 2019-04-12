@@ -154,7 +154,7 @@ const SendSetupScreen = ({ navigation, tokensById }: Props) => {
       <StyledTextInput
         editable
         multiline
-        placeholder={tokenId ? "simpleledger:" : "cashaddr:"}
+        placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
         autoComplete="off"
         autoCorrect={false}
         autoFocus
