@@ -15,7 +15,7 @@ export type UTXO = {
   vout: any,
   tx: {},
   satoshis: number,
-  slp: { baton: any, token: string },
+  slp: { baton: any, token: string, quantity: number },
   validSlpTx: boolean,
   spendable: boolean
 };

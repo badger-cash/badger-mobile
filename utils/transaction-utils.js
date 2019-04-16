@@ -15,26 +15,15 @@ const LOKAD_ID_HEX = "534c5000";
 type TxParams = {
   from: string,
   to: string,
+  value: number,
   opReturn?: { data: string },
-  value: number
+  sendTokenData?: { tokenId: string }
 };
 
 const getAllUtxo = async (address: string) => {
   const result = await SLP.Address.utxo(address);
   return result.utxos;
 };
-
-// const getLargestUtxo = async (address: string) => {
-//   const result = await SLP.address.utxo(address);
-//   try {
-//     const utxo = result.utxos.sort((a, b) => {
-//       return a.satoshis - b.satoshis;
-//     })[result.utxos.length - 1];
-//     return utxo;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
 
 const getTransactionDetails = async (txid: string) => {
   try {
@@ -278,92 +267,117 @@ const signAndPublishBchTransaction = async (
   }
 };
 
-// const signAndPublishSlpTransaction = async (
-//   txParams,
-//   keyPair,
-//   spendableUtxos,
-//   tokenMetadata,
-//   spendableTokenUtxos
-// ) => {
-//   const from = txParams.from;
-//   const to = txParams.to;
-//   const tokenDecimals = tokenMetadata.decimals;
-//   const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
-//     tokenDecimals
-//   );
-//   const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
+const signAndPublishSlpTransaction = async (
+  txParams: TxParams,
+  keyPair: ECPair,
+  spendableUtxos: UTXO[],
+  tokenMetadata: { decimals: number },
+  spendableTokenUtxos: UTXO[]
+) => {
+  console.log("in sign n pub slp");
+  console.log(spendableTokenUtxos);
+  console.log(txParams);
+  console.log(tokenMetadata);
 
-//   let tokenBalance = new BigNumber(0);
-//   for (const tokenUtxo of spendableTokenUtxos) {
-//     const utxoBalance = tokenUtxo.slp.quantity;
-//     tokenBalance = tokenBalance.plus(utxoBalance);
-//   }
+  console.log("---------- 1 ----------");
 
-//   if (!tokenBalance.gte(tokenSendAmount)) {
-//     throw new Error("Insufficient tokens");
-//   }
+  const from = txParams.from;
+  const to = txParams.to;
+  const tokenDecimals = tokenMetadata.decimals;
+  const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
+    tokenDecimals
+  );
+  const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
 
-//   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
+  let tokenBalance = new BigNumber(0);
+  for (const tokenUtxo of spendableTokenUtxos) {
+    const utxoBalance = tokenUtxo.slp.quantity;
+    tokenBalance = tokenBalance.plus(utxoBalance);
+  }
 
-//   const sendOpReturn = slpjs.slp.buildSendOpReturn({
-//     tokenIdHex: txParams.sendTokenData.tokenId,
-//     outputQtyArray: [tokenSendAmount, tokenChangeAmount]
-//   });
+  console.log("---------- 2 ----------");
 
-//   const inputUtxos = spendableUtxos.concat(spendableTokenUtxos);
+  if (!tokenBalance.gte(tokenSendAmount)) {
+    throw new Error("Insufficient tokens");
+  }
+  console.log("---------- 2.1 ----------");
 
-//   const tokenReceiverAddressArray = [to, from];
+  const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
+  console.log("---------- 2.2 ----------");
 
-//   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+  console.log({
+    tokenIdHex: txParams.sendTokenData.tokenId,
+    outputQtyArray: [tokenSendAmount, tokenChangeAmount]
+  });
 
-//   let totalUtxoAmount = 0;
-//   inputUtxos.forEach(utxo => {
-//     transactionBuilder.addInput(utxo.txid, utxo.vout);
-//     totalUtxoAmount += utxo.satoshis;
-//   });
+  const sendOpReturn = slpjs.slp.buildSendOpReturn({
+    tokenIdHex: txParams.sendTokenData.tokenId,
+    outputQtyArray: [tokenSendAmount.toNumber(), tokenChangeAmount.toNumber()]
+  });
 
-//   const byteCount = slpjs.slp.calculateSendCost(
-//     sendOpReturn.length,
-//     inputUtxos.length,
-//     tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
-//     from
-//   );
+  console.log("---------- 3 ----------");
 
-//   const satoshisRemaining = totalUtxoAmount - byteCount;
+  const inputUtxos = spendableUtxos.concat(spendableTokenUtxos);
 
-//   // SLP data output
-//   transactionBuilder.addOutput(sendOpReturn, 0);
+  const tokenReceiverAddressArray = [to, from];
 
-//   // Token destination output
-//   transactionBuilder.addOutput(to, 546);
+  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
-//   // Return remaining token balance output
-//   transactionBuilder.addOutput(from, 546);
+  let totalUtxoAmount = 0;
+  inputUtxos.forEach(utxo => {
+    transactionBuilder.addInput(utxo.txid, utxo.vout);
+    totalUtxoAmount += utxo.satoshis;
+  });
 
-//   // Return remaining bch balance output
-//   transactionBuilder.addOutput(from, satoshisRemaining + 546);
+  console.log("---------- 4 ----------");
+  const byteCount = slpjs.slp.calculateSendCost(
+    sendOpReturn.length,
+    inputUtxos.length,
+    tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
+    from
+  );
 
-//   let redeemScript;
-//   inputUtxos.forEach((utxo, index) => {
-//     transactionBuilder.sign(
-//       index,
-//       keyPair,
-//       redeemScript,
-//       transactionBuilder.hashTypes.SIGHASH_ALL,
-//       utxo.satoshis
-//     );
-//   });
+  const satoshisRemaining = totalUtxoAmount - byteCount;
 
-//   const hex = transactionBuilder.build().toHex();
+  // SLP data output
+  transactionBuilder.addOutput(sendOpReturn, 0);
 
-//   const txid = await this.publishTx(hex);
-//   return txid;
-// };
+  // Token destination output
+  transactionBuilder.addOutput(to, 546);
+
+  // Return remaining token balance output
+  transactionBuilder.addOutput(from, 546);
+
+  // Return remaining bch balance output
+  transactionBuilder.addOutput(from, satoshisRemaining + 546);
+
+  console.log("---------- 5 ----------");
+  let redeemScript;
+  inputUtxos.forEach((utxo, index) => {
+    transactionBuilder.sign(
+      index,
+      keyPair,
+      redeemScript,
+      transactionBuilder.hashTypes.SIGHASH_ALL,
+      utxo.satoshis
+    );
+  });
+
+  const hex = transactionBuilder.build().toHex();
+
+  console.log("---------- 6 ----------");
+
+  const txid = await publishTx(hex);
+
+  console.log("---------- 7 ----------");
+  return txid;
+};
 
 export {
   decodeTokenMetadata,
   decodeTxOut,
   getAllUtxo,
   getTransactionDetails,
-  signAndPublishBchTransaction
+  signAndPublishBchTransaction,
+  signAndPublishSlpTransaction
 };

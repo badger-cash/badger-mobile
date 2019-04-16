@@ -96,6 +96,8 @@ const updateUtxos = (address: string) => {
     const utxosSlpOrSpendable = utxosNewWithTxDetails.map(utxo => {
       try {
         const slpDecoded = decodeTxOut(utxo);
+        console.log("decoded");
+        console.log(slpDecoded);
         return { ...utxo, slp: slpDecoded, spendable: false };
       } catch (e) {
         return { ...utxo, spendable: true };

@@ -14,7 +14,10 @@ import { Button, T, H1, H2, Spacer } from "../atoms";
 import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
-import { signAndPublishBchTransaction } from "../utils/transaction-utils";
+import {
+  signAndPublishBchTransaction,
+  signAndPublishSlpTransaction
+} from "../utils/transaction-utils";
 
 import {
   getKeypairSelector,
@@ -116,17 +119,51 @@ const SendConfirmScreen = ({
 
     const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
 
-    const txParams = {
-      to: toAddress,
-      from: activeAccount.address,
-      value: sendAmountParam
-    };
+    let txParams = {};
     try {
-      await signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
-      navigation.navigate("SendSuccess", { txParams });
+      if (tokenId) {
+        const spendableTokenUtxos = utxos.filter(utxo => {
+          return (
+            utxo.slp &&
+            utxo.slp.baton === false &&
+            utxo.validSlpTx === true &&
+            utxo.slp.token === tokenId
+          );
+        });
+        // Sign and send SLP Token tx
+        txParams = {
+          to: toAddress,
+          from: activeAccount.addressSlp,
+          value: sendAmountParam,
+          sendTokenData: { tokenId }
+        };
+
+        console.log("txParams");
+        console.log(txParams);
+        console.log(spendableTokenUtxos);
+        await signAndPublishSlpTransaction(
+          txParams,
+          keypair,
+          spendableUTXOS,
+          {
+            decimals
+          },
+          spendableTokenUtxos
+        );
+      } else {
+        // Sign and send BCH tx
+        txParams = {
+          to: toAddress,
+          from: activeAccount.address,
+          value: sendAmountParam
+        };
+
+        await signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
+      }
     } catch (e) {
       throw new Error("Error sending transaction");
     }
+    navigation.navigate("SendSuccess", { txParams });
   };
   // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {

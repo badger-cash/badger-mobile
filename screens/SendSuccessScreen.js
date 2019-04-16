@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { updateUtxos } from "../data/utxos/actions";
 
-import { T } from "../atoms";
+import { Button, T, Spacer, H1 } from "../atoms";
 
 const ScreenCover = styled(View)`
   flex: 1;
@@ -17,27 +17,31 @@ const ScreenCover = styled(View)`
 
 type Props = {
   navigation: { navigate: Function, state: { params: { txParams: any } } },
-  // address: string,
+  address: string,
   updateUtxos: Function
 };
-const SendSuccessScreen = ({ navigation, updateUtxos }: Props) => {
+const SendSuccessScreen = ({ address, navigation, updateUtxos }: Props) => {
   const { txParams } = navigation.state.params;
   const { to, from, amount, data } = txParams;
 
   useEffect(() => {
-    updateUtxos(from);
-  }, [from]);
+    updateUtxos(address);
+  }, [address]);
 
   return (
     <ScreenCover>
       <SafeAreaView>
-        <T>Send Success!</T>
+        <Spacer />
+        <H1>Send Success</H1>
+        <Button onPress={() => navigation.navigate("Home")} text="Done" />
       </SafeAreaView>
     </ScreenCover>
   );
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  address: getAddressSelector(state)
+});
 
 const mapDispatchToProps = {
   updateUtxos
