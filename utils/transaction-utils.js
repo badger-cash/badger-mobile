@@ -2,13 +2,16 @@
 
 import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
-import slpjs from "slpjs";
+// import slpjs from 'slpjs'
 
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
+const slpjs = require("slpjs");
+
 const SLP = new SLPSDK();
+const SLPJS = new slpjs.Slp(SLP);
 
 const LOKAD_ID_HEX = "534c5000";
 
@@ -295,27 +298,21 @@ const signAndPublishSlpTransaction = async (
     tokenBalance = tokenBalance.plus(utxoBalance);
   }
 
-  console.log("---------- 2 ----------");
-
   if (!tokenBalance.gte(tokenSendAmount)) {
     throw new Error("Insufficient tokens");
   }
-  console.log("---------- 2.1 ----------");
 
   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
-  console.log("---------- 2.2 ----------");
 
-  console.log({
-    tokenIdHex: txParams.sendTokenData.tokenId,
-    outputQtyArray: [tokenSendAmount, tokenChangeAmount]
-  });
-
-  const sendOpReturn = slpjs.slp.buildSendOpReturn({
-    tokenIdHex: txParams.sendTokenData.tokenId,
-    outputQtyArray: [tokenSendAmount.toNumber(), tokenChangeAmount.toNumber()]
-  });
-
-  console.log("---------- 3 ----------");
+  let sendOpReturn = null;
+  try {
+    sendOpReturn = SLPJS.buildSendOpReturn({
+      tokenIdHex: txParams.sendTokenData.tokenId,
+      outputQtyArray: [tokenSendAmount, tokenChangeAmount]
+    });
+  } catch (e) {
+    console.log(e);
+  }
 
   const inputUtxos = spendableUtxos.concat(spendableTokenUtxos);
 
@@ -329,14 +326,12 @@ const signAndPublishSlpTransaction = async (
     totalUtxoAmount += utxo.satoshis;
   });
 
-  console.log("---------- 4 ----------");
-  const byteCount = slpjs.slp.calculateSendCost(
+  const byteCount = SLPJS.calculateSendCost(
     sendOpReturn.length,
     inputUtxos.length,
     tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
     from
   );
-
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
   // SLP data output
@@ -344,9 +339,11 @@ const signAndPublishSlpTransaction = async (
 
   // Token destination output
   transactionBuilder.addOutput(to, 546);
+  console.log("---------- 4.2 ----------");
 
   // Return remaining token balance output
   transactionBuilder.addOutput(from, 546);
+  console.log("---------- 4.3 ----------");
 
   // Return remaining bch balance output
   transactionBuilder.addOutput(from, satoshisRemaining + 546);

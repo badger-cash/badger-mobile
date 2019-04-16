@@ -8773,10 +8773,22 @@ slp-sdk@^3.2.1:
     slpjs "0.15.5"
     touch "^3.1.0"
 
-slpjs@0.15.5, slpjs@^0.15.5:
+slpjs@0.15.5:
   version "0.15.5"
   resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.15.5.tgz#ae4ced911f103b13652331ffc15a1952cc76e324"
   integrity sha512-nKu9fVTnACYJJt3NI2jesfTmeamuhiSsNsE/KT7IEvLBB8WAqL5/ZcLEdV0EX5nwNgPYwEvzyFG3QL4oJG90pQ==
+  dependencies:
+    "@types/lodash" "^4.14.120"
+    axios "^0.18.0"
+    bchaddrjs-slp "git://github.com/simpleledger/bchaddrjs.git#master"
+    bignumber.js "^8.1.1"
+    bitcore-lib-cash "^0.19.0"
+    lodash "^4.17.11"
+
+slpjs@^0.15.12:
+  version "0.15.12"
+  resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.15.12.tgz#75bcccaa90573487a614ed4e2bae34175f8fff4c"
+  integrity sha512-qTSVqSAps5TAygtY4vZ4W/94PS6x1Gv6pGzx7QLRKXhvFME1L5Su+UFuKz7ftharGaVlueCh6WWc8j4BTuikrA==
   dependencies:
     "@types/lodash" "^4.14.120"
     axios "^0.18.0"

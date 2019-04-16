@@ -133,14 +133,11 @@ const SendConfirmScreen = ({
         // Sign and send SLP Token tx
         txParams = {
           to: toAddress,
-          from: activeAccount.addressSlp,
+          from: activeAccount.address,
           value: sendAmountParam,
           sendTokenData: { tokenId }
         };
 
-        console.log("txParams");
-        console.log(txParams);
-        console.log(spendableTokenUtxos);
         await signAndPublishSlpTransaction(
           txParams,
           keypair,
