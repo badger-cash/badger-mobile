@@ -15,7 +15,7 @@ import { Button, T, Spacer, H1 } from "../atoms";
 
 const ScreenCover = styled(View)`
   flex: 1;
-  background-color: ${props => props.theme.success500};
+  background-color: ${props => props.theme.success700};
 `;
 
 type Props = {

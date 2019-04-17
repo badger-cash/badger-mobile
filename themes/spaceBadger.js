@@ -8,7 +8,9 @@ type Theme = {
   fg700: string,
   bg900: string,
   danger700: string,
-  success700: string
+  success500: string,
+  success700: string,
+  pending500: string
 };
 
 const spaceBadger: Theme = {

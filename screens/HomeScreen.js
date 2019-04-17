@@ -81,6 +81,30 @@ const HomeScreen = ({
   // console.log(address);
   // console.log(tokensById)
 
+  const tokenData = slpTokensDisplay
+    .map(([tokenId, amount]) => {
+      const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
+      const name = tokensById[tokenId] ? tokensById[tokenId].name : "--------";
+      const decimals = tokensById[tokenId]
+        ? tokensById[tokenId].decimals
+        : null;
+      const amountFormatted = formatAmount(amount, decimals);
+      return {
+        symbol,
+        name,
+        amount: amountFormatted,
+        extra: "Simple Token",
+        tokenId
+      };
+    })
+    .sort((a, b) => {
+      const symbolA = a.symbol.toUpperCase();
+      const symbolB = b.symbol.toUpperCase();
+      if (symbolA < symbolB) return -1;
+      if (symbolA > symbolB) return 1;
+      return 0;
+    });
+
   const walletSections = [
     {
       title: "Bitcoin Cash Wallet",
@@ -94,23 +118,7 @@ const HomeScreen = ({
     },
     {
       title: "Simple Token Vault",
-      data: slpTokensDisplay.map(([tokenId, amount]) => {
-        const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
-        const name = tokensById[tokenId]
-          ? tokensById[tokenId].name
-          : "--------";
-        const decimals = tokensById[tokenId]
-          ? tokensById[tokenId].decimals
-          : null;
-        const amountFormatted = formatAmount(amount, decimals);
-        return {
-          symbol,
-          name,
-          amount: amountFormatted,
-          extra: "Simple Token",
-          tokenId
-        };
-      })
+      data: tokenData
     }
   ];
 
