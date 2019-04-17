@@ -117,12 +117,18 @@ const SendConfirmScreen = ({
   const signSendTransaction = async () => {
     setTransactionState("signing");
 
-    const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+    const utxoWithKeypair = utxos.map(utxo => ({
+      ...utxo,
+      keypair:
+        utxo.address === activeAccount.address ? keypair.bch : keypair.slp
+    }));
+
+    const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
 
     let txParams = {};
     try {
       if (tokenId) {
-        const spendableTokenUtxos = utxos.filter(utxo => {
+        const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
           return (
             utxo.slp &&
             utxo.slp.baton === false &&
@@ -140,12 +146,12 @@ const SendConfirmScreen = ({
 
         await signAndPublishSlpTransaction(
           txParams,
-          keypair,
           spendableUTXOS,
           {
             decimals
           },
-          spendableTokenUtxos
+          spendableTokenUtxos,
+          activeAccount.addressSlp
         );
       } else {
         // Sign and send BCH tx
@@ -155,7 +161,7 @@ const SendConfirmScreen = ({
           value: sendAmountParam
         };
 
-        await signAndPublishBchTransaction(txParams, keypair, spendableUTXOS);
+        await signAndPublishBchTransaction(txParams, spendableUTXOS);
       }
     } catch (e) {
       throw new Error("Error sending transaction");

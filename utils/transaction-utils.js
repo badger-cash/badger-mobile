@@ -192,7 +192,6 @@ const publishTx = async hex => {
 
 const signAndPublishBchTransaction = async (
   txParams: TxParams,
-  keyPair: ECPair,
   spendableUtxos: UTXO[]
 ) => {
   try {
@@ -253,7 +252,7 @@ const signAndPublishBchTransaction = async (
     spendableUtxos.forEach((utxo, index) => {
       transactionBuilder.sign(
         index,
-        keyPair,
+        utxo.keypair,
         redeemScript,
         transactionBuilder.hashTypes.SIGHASH_ALL,
         utxo.satoshis
@@ -272,18 +271,11 @@ const signAndPublishBchTransaction = async (
 
 const signAndPublishSlpTransaction = async (
   txParams: TxParams,
-  keyPair: ECPair,
   spendableUtxos: UTXO[],
   tokenMetadata: { decimals: number },
-  spendableTokenUtxos: UTXO[]
+  spendableTokenUtxos: UTXO[],
+  tokenChangeAddress: string
 ) => {
-  console.log("in sign n pub slp");
-  console.log(spendableTokenUtxos);
-  console.log(txParams);
-  console.log(tokenMetadata);
-
-  console.log("---------- 1 ----------");
-
   const from = txParams.from;
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;
@@ -339,21 +331,18 @@ const signAndPublishSlpTransaction = async (
 
   // Token destination output
   transactionBuilder.addOutput(to, 546);
-  console.log("---------- 4.2 ----------");
 
   // Return remaining token balance output
-  transactionBuilder.addOutput(from, 546);
-  console.log("---------- 4.3 ----------");
+  transactionBuilder.addOutput(tokenChangeAddress, 546);
 
   // Return remaining bch balance output
   transactionBuilder.addOutput(from, satoshisRemaining + 546);
 
-  console.log("---------- 5 ----------");
   let redeemScript;
   inputUtxos.forEach((utxo, index) => {
     transactionBuilder.sign(
       index,
-      keyPair,
+      utxo.keypair,
       redeemScript,
       transactionBuilder.hashTypes.SIGHASH_ALL,
       utxo.satoshis
@@ -362,11 +351,8 @@ const signAndPublishSlpTransaction = async (
 
   const hex = transactionBuilder.build().toHex();
 
-  console.log("---------- 6 ----------");
-
   const txid = await publishTx(hex);
 
-  console.log("---------- 7 ----------");
   return txid;
 };
 

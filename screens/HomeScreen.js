@@ -52,8 +52,11 @@ const HomeScreen = ({
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
-    updateUtxos(address);
-    const utxointerval = setInterval(() => updateUtxos(address), 10 * SECOND);
+    updateUtxos(address, addressSlp);
+    const utxointerval = setInterval(
+      () => updateUtxos(address, addressSlp),
+      10 * SECOND
+    );
     return () => clearInterval(utxointerval);
   }, [address]);
 

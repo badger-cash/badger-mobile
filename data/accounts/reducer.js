@@ -20,8 +20,9 @@ export type Account = {
   address: string,
   addressSlp: string,
   keypair?: ECPair,
+  keypairSlp?: ECPair,
   mnemonic: string,
-  derivationPath?: string
+  accountIndex: string
 };
 
 // export type Account = {
@@ -137,24 +138,38 @@ export const initialState: State = {
   keypairsByAccount: {}
 };
 
-const addAccount = (state: State, payload: { account: Account }) => {
-  const { account } = payload;
+const addAccount = (
+  state: State,
+  payload: { account: Account, accountSlp: Account }
+) => {
+  const { account, accountSlp } = payload;
 
   // TODO - Find a way to persist keypair, OR re-generate keypair somewhere if doesn't exist
   const { keypair, ...removedKeypair } = account;
   const { address } = account;
 
+  const combinedAccount = {
+    ...removedKeypair,
+    addressSlp: accountSlp.address
+  };
+
+  const keypairSlp = accountSlp.keypair;
+  const addressSlp = accountSlp.address;
+
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
     return {
       ...state,
-      keypairsByAccount: { ...state.keypairsByAccount, [address]: keypair }
+      keypairsByAccount: {
+        ...state.keypairsByAccount,
+        [address]: { bch: keypair, slp: keypairSlp }
+      }
     };
   }
 
   return {
     ...state,
-    byId: { ...state.byId, [address]: removedKeypair },
+    byId: { ...state.byId, [address]: combinedAccount },
     keypairsByAccount: { ...state.keypairsByAccount, [address]: keypair },
     allIds: [...state.allIds, address],
     activeId: address

@@ -16,9 +16,9 @@ const getAccountStart = () => ({
   payload: null
 });
 
-const getAccountSuccess = (account: Account) => ({
+const getAccountSuccess = (account: Account, accountSlp: Account) => ({
   type: GET_ACCOUNT_SUCCESS,
-  payload: { account }
+  payload: { account, accountSlp }
 });
 
 const getAccountFail = () => ({
@@ -26,15 +26,32 @@ const getAccountFail = () => ({
   payload: null
 });
 
-const getAccount = (seed?: string) => {
+const getAccount = (seed?: string, accountIndex: number = 0) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
-    //  TODO - Error or fail state
-    const account = deriveAccount(seed);
-    const addressSlp = await addressToSlp(account.address);
-    const accountWithSLP = { ...account, addressSlp };
 
-    dispatch(getAccountSuccess(accountWithSLP));
+    const derivationPathBCH = "m/44'/145'";
+    const derivationPathSLP = "m/44'/245'";
+
+    const childIndex = 0;
+    //  TODO - Error or fail state
+    const account = deriveAccount(
+      seed,
+      accountIndex,
+      childIndex,
+      derivationPathBCH
+    );
+    const accountSlp = deriveAccount(
+      seed,
+      accountIndex,
+      childIndex,
+      derivationPathSLP
+    );
+
+    // const addressSlp = await addressToSlp(account.address);
+    // const accountWithSLP = { ...account, addressSlp };
+
+    dispatch(getAccountSuccess(account, accountSlp));
   };
 };
 

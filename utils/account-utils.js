@@ -11,7 +11,7 @@ const deriveAccount = (
   mnemonic: ?string = null,
   accountIndex: number = 0,
   childIndex: number = 0,
-  hdPathString: string = "m/44'/245'"
+  hdPathString: string
 ) => {
   if (!mnemonic) {
     mnemonic = SLP.Mnemonic.generate(128);
@@ -28,7 +28,7 @@ const deriveAccount = (
   const keypair = SLP.HDNode.toKeyPair(child);
   const address = SLP.ECPair.toCashAddress(keypair);
 
-  return { mnemonic, keypair, address };
+  return { mnemonic, keypair, address, accountIndex };
 };
 
 const addressToSlp = async (address: string) => {
