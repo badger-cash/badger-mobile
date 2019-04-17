@@ -9,7 +9,6 @@ import {
   UPDATE_UTXO_FAIL
 } from "./constants";
 
-import { utxosSelector } from "./selectors";
 import { activeAccountIdSelector } from "../accounts/selectors";
 
 import { type FullState } from "../store";

@@ -144,7 +144,6 @@ const addAccount = (
 ) => {
   const { account, accountSlp } = payload;
 
-  // TODO - Find a way to persist keypair, OR re-generate keypair somewhere if doesn't exist
   const { keypair, ...removedKeypair } = account;
   const { address } = account;
 
@@ -154,7 +153,6 @@ const addAccount = (
   };
 
   const keypairSlp = accountSlp.keypair;
-  const addressSlp = accountSlp.address;
 
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {

@@ -5,7 +5,10 @@ import { connect } from "react-redux";
 import { View, SafeAreaView } from "react-native";
 import styled from "styled-components";
 
-import { getAddressSelector } from "../data/accounts/selectors";
+import {
+  getAddressSelector,
+  getAddressSlpSelector
+} from "../data/accounts/selectors";
 import { updateUtxos } from "../data/utxos/actions";
 
 import { Button, T, Spacer, H1 } from "../atoms";
@@ -18,15 +21,21 @@ const ScreenCover = styled(View)`
 type Props = {
   navigation: { navigate: Function, state: { params: { txParams: any } } },
   address: string,
+  addressSlp: String,
   updateUtxos: Function
 };
-const SendSuccessScreen = ({ address, navigation, updateUtxos }: Props) => {
+const SendSuccessScreen = ({
+  address,
+  addressSlp,
+  navigation,
+  updateUtxos
+}: Props) => {
   const { txParams } = navigation.state.params;
   const { to, from, amount, data } = txParams;
 
   useEffect(() => {
-    updateUtxos(address);
-  }, [address]);
+    updateUtxos(address, addressSlp);
+  }, [address, addressSlp]);
 
   return (
     <ScreenCover>
@@ -40,7 +49,8 @@ const SendSuccessScreen = ({ address, navigation, updateUtxos }: Props) => {
 };
 
 const mapStateToProps = state => ({
-  address: getAddressSelector(state)
+  address: getAddressSelector(state),
+  addressSlp: getAddressSlpSelector(state)
 });
 
 const mapDispatchToProps = {
