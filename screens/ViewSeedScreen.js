@@ -25,11 +25,12 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
     <SafeAreaView>
       <Screen>
         <H1>Backup Seed Phrase</H1>
+        <Spacer />
         <T>
           Your seed phrase is the key to your funds. Please write it down, and
           keep it very, very private. This is your private key.
         </T>
-        <Spacer medium />
+        <Spacer />
         {separated.map((word, idx) => (
           <T key={idx}>
             {idx + 1}. {word}

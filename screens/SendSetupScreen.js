@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import {
   SafeAreaView,
+  KeyboardAvoidingView,
   TextInput,
   View,
   Clipboard,
@@ -34,10 +35,12 @@ const StyledTextInput = styled(TextInput)`
 const ScreenWrapper = styled(SafeAreaView)`
   position: relative;
   margin: 0 6px;
+  height: 100%;
 `;
 
 const StyledButton = styled(Button)`
   align-items: center;
+  flex-direction: row;
   flex: 1;
   margin-left: 5px;
   margin-right: 5px;
@@ -139,76 +142,91 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
               </View>
             }
             bottomContent={
-              <Button onPress={() => setQrOpen(false)} text="Cancel Scan" />
+              <Button
+                nature="cautionGhost"
+                onPress={() => setQrOpen(false)}
+                text="Cancel Scan"
+              />
             }
           />
         </QROverlayScreen>
       )}
-      <Spacer />
-      <H1 center>Create Transaction</H1>
-      <Spacer />
-      <IconArea>
-        <IconImage source={imageSource} />
-      </IconArea>
       <Spacer small />
-      <H2 center>
-        {coinName} ({symbol})
-      </H2>
-      {tokenId && (
-        <T size="tiny" center>
-          {tokenId}
-        </T>
-      )}
-      <Spacer />
-      <T>Send To:</T>
-      <Spacer small />
-      <StyledTextInput
-        editable
-        multiline
-        placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
-        autoComplete="off"
-        autoCorrect={false}
-        autoFocus
-        value={toAddress}
-        onChangeText={text => {
-          setToAddress(text);
-        }}
-      />
-      <Spacer small />
-      <ButtonArea>
-        <StyledButton
-          onPress={async () => {
-            const content = await Clipboard.getString();
-            setToAddress(content);
-          }}
-        >
-          <Ionicons name="ios-clipboard" size={22} />
-          <T>Paste</T>
-        </StyledButton>
-        <StyledButton text="Scan QR" onPress={() => setQrOpen(true)}>
-          <Ionicons name="ios-qr-scanner" size={22} />
-          <T>Scan QR</T>
-        </StyledButton>
-      </ButtonArea>
-      <Spacer />
+      <KeyboardAvoidingView behavior="position">
+        <H1 center>Create Transaction</H1>
+        <Spacer />
+        <IconArea>
+          <IconImage source={imageSource} />
+        </IconArea>
+        <Spacer small />
+        <H2 center>
+          {coinName} ({symbol})
+        </H2>
+        {tokenId && (
+          <T size="tiny" center>
+            {tokenId}
+          </T>
+        )}
+        <Spacer />
 
-      <T>Amount:</T>
-      <T size="small">
-        {formatAmount(availableAmount, adjustDecimals)} {symbol} available
-      </T>
-      <Spacer small />
-      <StyledTextInput
-        keyboardType="numeric"
-        editable
-        placeholder="0.0"
-        autoComplete="off"
-        autoCorrect={false}
-        value={sendAmount}
-        onChangeText={text => {
-          setSendAmount(formatAmountInput(text));
-        }}
-      />
-      <Spacer small />
+        <T>Send To:</T>
+        <Spacer small />
+        <StyledTextInput
+          editable
+          multiline
+          placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
+          autoComplete="off"
+          autoCorrect={false}
+          autoFocus
+          value={toAddress}
+          onChangeText={text => {
+            setToAddress(text);
+          }}
+        />
+        <Spacer small />
+        <ButtonArea>
+          <StyledButton
+            nature="ghost"
+            onPress={async () => {
+              const content = await Clipboard.getString();
+              setToAddress(content);
+            }}
+          >
+            <T center spacing="loose" type="primary">
+              <Ionicons name="ios-clipboard" size={22} /> Paste
+            </T>
+          </StyledButton>
+          <StyledButton
+            nature="ghost"
+            text="Scan QR"
+            onPress={() => setQrOpen(true)}
+          >
+            <T center spacing="loose" type="primary">
+              <Ionicons name="ios-qr-scanner" size={22} /> Scan QR
+            </T>
+          </StyledButton>
+        </ButtonArea>
+        <Spacer />
+
+        <T>Amount:</T>
+        <T size="small">
+          {formatAmount(availableAmount, adjustDecimals)} {symbol} available
+        </T>
+        <Spacer small />
+        <StyledTextInput
+          keyboardType="numeric"
+          editable
+          placeholder="0.0"
+          autoComplete="off"
+          autoCorrect={false}
+          value={sendAmount}
+          onChangeText={text => {
+            setSendAmount(formatAmountInput(text));
+          }}
+        />
+      </KeyboardAvoidingView>
+
+      <Spacer fill />
 
       <Button
         onPress={() =>
@@ -221,6 +239,13 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
         }
         text="Next Step"
       />
+      <Spacer small />
+      <Button
+        nature="cautionGhost"
+        onPress={() => navigation.navigate("Home")}
+        text="Cancel"
+      />
+      <Spacer />
     </ScreenWrapper>
   );
 };

@@ -79,7 +79,7 @@ const HeaderWrapper = styled(View)`
 const CoinRowHeader = ({ children }) => {
   return (
     <HeaderWrapper>
-      <T size="small" nature="muted">
+      <T size="small" type="muted">
         {children}
       </T>
     </HeaderWrapper>

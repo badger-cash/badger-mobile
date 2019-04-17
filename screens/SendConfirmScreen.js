@@ -45,6 +45,12 @@ const SwipeButtonContainer = styled(View)`
   align-self: center;
 `;
 
+const ButtonsContainer = styled(View)`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
 const SwipeContent = styled(View)`
   height: 60px;
   padding-right: 10px;
@@ -60,7 +66,7 @@ const SwipeMainContent = styled(View)`
   justify-content: center;
   flex-direction: row;
   background-color: ${props =>
-    props.triggered ? props.theme.success500 : props.theme.primary400};
+    props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
 type Props = {
@@ -193,7 +199,7 @@ const SendConfirmScreen = ({
   const addressEnd = address.slice(-6);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ height: "100%" }}>
       <Spacer />
       <H1 center>Confirm Transaction</H1>
       <Spacer small />
@@ -210,7 +216,7 @@ const SendConfirmScreen = ({
         </T>
       )}
       <Spacer />
-      <H2 center>Sending Amount</H2>
+      <H2 center>Sending</H2>
       <Spacer small />
       <H2 center>
         {sendAmount} {symbol}
@@ -226,36 +232,48 @@ const SendConfirmScreen = ({
         <T size="small">{addressMiddle}</T>
         <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
       </T>
-      <Spacer />
-      <Spacer />
 
-      <SwipeButtonContainer>
-        <Swipeable
-          leftActionActivationDistance={
-            Dimensions.get("window").width * 0.75 * 0.8
-          }
-          leftContent={
-            <SwipeContent activated={confirmSwipeActivated}>
-              {confirmSwipeActivated ? (
-                <T type="inverse">Release to send</T>
-              ) : (
-                <T type="inverse">Keep pulling</T>
-              )}
-            </SwipeContent>
-          }
-          onLeftActionActivate={() => setConfirmSwipeActivated(true)}
-          onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-          onLeftActionComplete={() => signSendTransaction()}
-        >
-          <SwipeMainContent triggered={transactionState === "signing"}>
-            <T type="inverse">Swipe </T>
-            <T type="inverse" style={{ paddingTop: 2 }}>
-              <Ionicons name="ios-arrow-round-forward" size={25} />
-            </T>
-            <T type="inverse"> To Send</T>
-          </SwipeMainContent>
-        </Swipeable>
-      </SwipeButtonContainer>
+      <ButtonsContainer>
+        <SwipeButtonContainer>
+          <Swipeable
+            leftActionActivationDistance={
+              Dimensions.get("window").width * 0.75 * 0.8
+            }
+            leftContent={
+              <SwipeContent activated={confirmSwipeActivated}>
+                {confirmSwipeActivated ? (
+                  <T type="inverse">Release to send</T>
+                ) : (
+                  <T type="inverse">Keep pulling</T>
+                )}
+              </SwipeContent>
+            }
+            onLeftActionActivate={() => setConfirmSwipeActivated(true)}
+            onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
+            onLeftActionComplete={() => signSendTransaction()}
+          >
+            <SwipeMainContent triggered={transactionState === "signing"}>
+              <T weight="bold" type="inverse">
+                Swipe{" "}
+              </T>
+              <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
+                <Ionicons name="ios-arrow-round-forward" size={25} />
+              </T>
+              <T weight="bold" type="inverse">
+                {" "}
+                To Send
+              </T>
+            </SwipeMainContent>
+          </Swipeable>
+        </SwipeButtonContainer>
+        <Spacer />
+        <Button
+          nature="cautionGhost"
+          text="Cancel Transaction"
+          onPress={() => navigation.goBack()}
+        />
+      </ButtonsContainer>
+      {/* <Spacer /> */}
     </SafeAreaView>
   );
 };

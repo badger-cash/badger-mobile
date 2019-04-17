@@ -86,7 +86,7 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           <Spacer />
         </View>
         <Spacer small />
-        <T size="small" nature="muted">
+        <T size="small" type="muted">
           Transaction History
         </T>
         <TransactionArea>

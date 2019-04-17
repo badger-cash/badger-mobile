@@ -15,6 +15,8 @@ import ReceiveScreen from "../screens/ReceiveScreen";
 
 import SendStack from "./SendStack";
 
+import { spaceBadger as theme } from "../themes/spaceBadger";
+
 const HomeStack = createStackNavigator(
   {
     WalletDashboard: {
@@ -29,7 +31,13 @@ const HomeStack = createStackNavigator(
       navigationOptions: props => {
         const title = props.navigation.state.params.symbol;
         return {
-          title: `$${title}`
+          title: `$${title}`,
+
+          headerBackTitleStyle: {
+            color: theme.primary500
+          },
+          headerTintColor: theme.primary500,
+          headerTitleStyle: { color: theme.fg200 }
         };
       }
     }
@@ -52,7 +60,16 @@ const SettingsStack = createStackNavigator(
       screen: SettingsScreen,
       navigationOptions: { title: "Settings" }
     },
-    ViewSeedPhrase: { screen: ViewSeedScreen }
+    ViewSeedPhrase: {
+      screen: ViewSeedScreen,
+      navigationOptions: {
+        headerBackTitleStyle: {
+          color: theme.primary500
+        },
+        headerTintColor: theme.primary500,
+        headerTitleStyle: { color: theme.fg200 }
+      }
+    }
   },
   {
     initialRouteName: "SettingsList"
@@ -89,8 +106,8 @@ const BottomTabNavigator = createBottomTabNavigator(
     }),
 
     tabBarOptions: {
-      activeTintColor: "#F59332",
-      inactiveTintColor: "#4D4D4D"
+      activeTintColor: theme.primary500,
+      inactiveTintColor: theme.fg300
     }
   }
 );

@@ -125,9 +125,9 @@ const HomeScreen = ({
   return (
     <SafeAreaView>
       <ScrollView>
-        <Spacer />
+        <Spacer small />
         <H1 center>Badger Mobile</H1>
-        <Spacer />
+        <Spacer small />
         <SectionList
           sections={walletSections}
           renderSectionHeader={({ section }) => (

@@ -48,13 +48,15 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
 
   return (
     <SafeAreaView>
-      <ScrollView>
-        <Spacer />
-        <View style={{ padding: 10 }}>
-          <T center>Scan a BCH or SLP code below to receive funds</T>
-        </View>
+      <ScrollView style={{ padding: 10 }}>
         <Spacer small />
+        <T center>
+          Scan a public key below to receive funds. Click to reveal or copy the
+          address to clipboard.
+        </T>
+        <Spacer />
         <H2 center>Bitcoin Cash (BCH)</H2>
+
         <TouchableOpacity
           onPress={() =>
             showing === "BCH" ? Clipboard.setString(address) : setShowing("BCH")

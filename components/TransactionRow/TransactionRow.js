@@ -71,7 +71,7 @@ const TransactionRow = ({
   return (
     <Row type={type}>
       <TopRow>
-        <T size="small" nature="muted">
+        <T size="small" type="muted">
           {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
         </T>
       </TopRow>
