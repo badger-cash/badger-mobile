@@ -21,6 +21,17 @@ import BitcoinCashImage from "../assets/images/icon.png";
 const TransactionArea = styled(View)`
   border-top-width: 1px;
   border-top-color: ${props => props.theme.fg700};
+  position: relative;
+`;
+
+const IncompleteCover = styled(View)`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ButtonGroup = styled(View)`
@@ -29,9 +40,9 @@ const ButtonGroup = styled(View)`
 `;
 
 const IconImage = styled(Image)`
-  width: 56;
-  height: 56;
-  border-radius: 28;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -86,10 +97,13 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           <Spacer />
         </View>
         <Spacer small />
-        <T size="small" type="muted">
+        <T style={{ marginLeft: 7, marginBottom: 5 }} size="small" type="muted">
           Transaction History
         </T>
         <TransactionArea>
+          <IncompleteCover>
+            <T type="muted">Transaction history coming soon</T>
+          </IncompleteCover>
           <TransactionRow
             type="send"
             timestamp={1554410212312}

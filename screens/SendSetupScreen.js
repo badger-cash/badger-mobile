@@ -61,9 +61,9 @@ const IconArea = styled(View)`
   justify-content: center;
 `;
 const IconImage = styled(Image)`
-  width: 48;
-  height: 48;
-  border-radius: 24;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 

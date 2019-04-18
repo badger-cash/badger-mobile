@@ -40,7 +40,7 @@ const SwipeButtonContainer = styled(View)`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 30px;
+  border-radius: 32px;
   width: 75%;
   align-self: center;
 `;
@@ -52,7 +52,7 @@ const ButtonsContainer = styled(View)`
 `;
 
 const SwipeContent = styled(View)`
-  height: 60px;
+  height: 64px;
   padding-right: 10px;
   align-items: flex-end;
   justify-content: center;
@@ -61,7 +61,7 @@ const SwipeContent = styled(View)`
 `;
 
 const SwipeMainContent = styled(View)`
-  height: 60px;
+  height: 64px;
   align-items: center;
   justify-content: center;
   flex-direction: row;

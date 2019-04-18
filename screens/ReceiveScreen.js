@@ -1,5 +1,5 @@
 // @flow
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -15,6 +15,7 @@ import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
+import { addressToSlp } from "../utils/account-utils";
 
 import { T, Spacer, H1, H2 } from "../atoms";
 
@@ -46,6 +47,17 @@ type Props = {
 const ReceiveScreen = ({ address, addressSlp }: Props) => {
   const [showing, setShowing] = useState("BCH");
 
+  const [simpleLedgerAddr, setSimpleLedgerAddr] = useState(addressSlp);
+
+  const convertAddress = async () => {
+    const convertedAddress = await addressToSlp(addressSlp);
+    setSimpleLedgerAddr(convertedAddress);
+  };
+
+  useEffect(() => {
+    convertAddress();
+  }, [addressSlp]);
+
   return (
     <SafeAreaView>
       <ScrollView style={{ padding: 10 }}>
@@ -75,7 +87,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             />
             {showing !== "BCH" && (
               <QROverlay>
-                <T>Press to show</T>
+                <T>Tap to show</T>
               </QROverlay>
             )}
           </QRHolder>
@@ -85,24 +97,24 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         <TouchableOpacity
           onPress={() =>
             showing === "SLP"
-              ? Clipboard.setString(addressSlp)
+              ? Clipboard.setString(simpleLedgerAddr)
               : setShowing("SLP")
           }
         >
           <T size="xsmall" center>
-            {addressSlp}
+            {simpleLedgerAddr}
           </T>
 
           <QRHolder>
             <QRCode
-              value={addressSlp}
+              value={simpleLedgerAddr}
               size={150}
               bgColor="black"
               fgColor="white"
             />
             {showing !== "SLP" && (
               <QROverlay>
-                <T>Press to show</T>
+                <T>Tap to show</T>
               </QROverlay>
             )}
           </QRHolder>

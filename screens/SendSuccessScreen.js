@@ -80,6 +80,9 @@ const SendSuccessScreen = ({
   const coinName = tokenId ? tokensById[tokenId].name : "Bitcoin Cash";
   const symbol = tokenId ? tokensById[tokenId].symbol : "BCH";
 
+  // Tokens absolute amount, BCH it's # of satoshis
+  const valueFormatted = tokenId ? value : value / 10 ** 8;
+
   return (
     <ScreenCover>
       <SafeAreaView style={{ height: "100%" }}>
@@ -102,7 +105,7 @@ const SendSuccessScreen = ({
         <H2 center>Sent</H2>
         <Spacer small />
         <H2 center>
-          {value} {symbol}
+          {valueFormatted} {symbol}
         </H2>
         <Spacer large />
         <H2 center>To Address</H2>
