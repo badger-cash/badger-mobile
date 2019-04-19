@@ -273,7 +273,6 @@ const SendConfirmScreen = ({
           onPress={() => navigation.goBack()}
         />
       </ButtonsContainer>
-      {/* <Spacer /> */}
     </SafeAreaView>
   );
 };

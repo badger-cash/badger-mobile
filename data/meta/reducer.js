@@ -1,4 +1,5 @@
 // @flow
+// I think this reducer can be removed as it's purpose is application implementation specific
 
 import { SELECT_TOKEN } from "./constants";
 
