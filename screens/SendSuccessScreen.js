@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { View, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
+import _ from "lodash";
 
 import makeBlockie from "ethereum-blockies-base64";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -55,15 +56,13 @@ const SendSuccessScreen = ({
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;
 
   useEffect(() => {
-    updateUtxos(address, addressSlp);
+    // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
+    _.delay(() => updateUtxos(address, addressSlp), 2000);
   }, [address, addressSlp]);
 
   const imageSource = tokenId
     ? { uri: makeBlockie(tokenId) }
     : BitcoinCashImage;
-
-  // const coinName =
-  // symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
   // toAddress like
   // -> simpleledger:qq2addressHash

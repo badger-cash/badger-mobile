@@ -168,7 +168,10 @@ const addAccount = (
   return {
     ...state,
     byId: { ...state.byId, [address]: combinedAccount },
-    keypairsByAccount: { ...state.keypairsByAccount, [address]: keypair },
+    keypairsByAccount: {
+      ...state.keypairsByAccount,
+      [address]: { bch: keypair, slp: keypairSlp }
+    },
     allIds: [...state.allIds, address],
     activeId: address
   };
