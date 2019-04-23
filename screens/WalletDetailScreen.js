@@ -92,9 +92,9 @@ const WalletDetailScreen = ({
 
   // Update transaction history
   useEffect(() => {
-    updateTransactions(address);
+    updateTransactions(address, addressSlp);
     const transactionInterval = setInterval(
-      () => updateTransactions(address),
+      () => updateTransactions(address, addressSlp),
       15 * 1000
     );
     return () => clearInterval(transactionInterval);
@@ -138,7 +138,11 @@ const WalletDetailScreen = ({
                 fromAddress={tx.txParams.from}
                 symbol={symbol}
                 tokenId={tokenId}
-                amount={formatAmount(tx.txParams.value, decimals)}
+                amount={
+                  tokenId
+                    ? tx.txParams.value
+                    : formatAmount(tx.txParams.value, decimals)
+                }
               />
             );
           })}
@@ -148,13 +152,17 @@ const WalletDetailScreen = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const tokenId = props.navigation.state.params.tokenId;
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
 
-  const transactions = transactionsByAccountSelector(state, address);
+  const transactions = transactionsByAccountSelector(state, {
+    address,
+    tokenId
+  });
   return {
     address,
     addressSlp,

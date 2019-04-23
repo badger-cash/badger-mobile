@@ -1,6 +1,9 @@
 // @flow
 
 import BigNumber from "bignumber.js";
+import SLPSDK from "slp-sdk";
+
+const SLP = new SLPSDK();
 
 const getHistoricalBchTransactions = async (
   address: string,
@@ -56,6 +59,65 @@ const getHistoricalBchTransactions = async (
   return transactions;
 };
 
+const getHistoricalSlpTransactions = async (
+  address: string,
+  slpAddress: string,
+  latestBlock: number
+) => {
+  const query = {
+    v: 3,
+    q: {
+      find: {
+        db: ["c", "u"],
+        $query: {
+          $or: [
+            {
+              "in.e.a": address.slice(12)
+            },
+            {
+              "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
+            },
+            {
+              "in.e.a": slpAddress.slice(12)
+            },
+            {
+              "slp.detail.outputs.address": SLP.Address.toSLPAddress(slpAddress)
+            }
+          ],
+          "slp.valid": true,
+          "blk.i": {
+            $not: {
+              $lte: latestBlock
+            }
+          }
+        },
+        $orderby: {
+          "blk.i": -1
+        }
+      },
+      project: {
+        _id: 0,
+        "tx.h": 1,
+        "in.i": 1,
+        "in.e": 1,
+        "slp.detail": 1,
+        blk: 1
+      },
+      limit: 500
+    }
+  };
+  const s = JSON.stringify(query);
+  const b64 = Buffer.from(s).toString("base64");
+  const url = `https://slpdb.bitcoin.com/q/${b64}`;
+
+  const request = await fetch(url);
+  const result = await request.json();
+
+  const transactions = [...result.c, ...result.u];
+
+  return transactions;
+};
+
 const formatAmount = (
   amount: ?BigNumber | ?number,
   decimals: ?number
@@ -66,8 +128,9 @@ const formatAmount = (
   if (!amount) {
     return `-.`.padEnd(decimals + 2, "-");
   }
+
+  // Convert to BigNumber if not already
   let bigNumber = amount;
-  console.log(typeof amount);
   if (typeof amount === "number") {
     bigNumber = new BigNumber(amount);
   }
@@ -80,4 +143,8 @@ const formatAmount = (
   return adjustDecimals.toString();
 };
 
-export { getHistoricalBchTransactions, formatAmount };
+export {
+  getHistoricalBchTransactions,
+  getHistoricalSlpTransactions,
+  formatAmount
+};

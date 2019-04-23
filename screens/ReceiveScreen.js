@@ -35,7 +35,7 @@ const QROverlay = styled(View)`
   align-items: center;
   justify-content: center;
   padding: 15px;
-  opacity: 0.95;
+  opacity: 0.98;
   z-index: 2;
 `;
 

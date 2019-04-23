@@ -6,20 +6,7 @@ import {
   GET_TRANSACTIONS_FAIL
 } from "./constants";
 
-import BigNumber from "bignumber.js";
-
-// export type Transaction = {
-//   blk: {
-//     h: string,
-//     i: number,
-//     t: number
-//   },
-//   in: any[],
-//   out: any[],
-//   tx: { h: string }
-// };
-
-// What we store in redux
+// Transaction shape in redux store
 export type Transaction = {
   hash: string,
   txParams: {
@@ -27,7 +14,11 @@ export type Transaction = {
     to: string,
     fromAddresses: string[],
     toAddresses: string[],
-    value: string
+    value: string,
+    sendTokenData?: {
+      tokenProtocol: "slp",
+      tokenId: string
+    }
   },
   time: number,
   block: number,
