@@ -22,6 +22,8 @@ const spaceBadger: Theme = {
   fg300: "#7d7d7d",
   fg700: "#ededed",
   bg900: "#ffffff",
+  danger300: "#ff5454",
+  danger500: "#ff8484",
   danger700: "#fff4f4",
   success700: "#f6fff4",
   success500: "rgb(62, 193, 10)",

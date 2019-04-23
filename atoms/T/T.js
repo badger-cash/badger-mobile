@@ -15,6 +15,8 @@ const T = styled(Text)`
       ? props.theme.accent500
       : props.type === "primary"
       ? props.theme.primary500
+      : props.type === "danger"
+      ? props.theme.danger300
       : props.theme.fg100};
   ${props =>
     props.center &&

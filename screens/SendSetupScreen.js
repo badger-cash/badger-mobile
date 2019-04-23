@@ -15,6 +15,7 @@ import {
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import makeBlockie from "ethereum-blockies-base64";
+import SLPSDK from "slp-sdk";
 
 import { T, H1, H2, Button, Spacer } from "../atoms";
 import BitcoinCashImage from "../assets/images/icon.png";
@@ -26,6 +27,8 @@ import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { formatAmount } from "../utils/balance-utils";
+
+const SLP = new SLPSDK();
 
 const StyledTextInput = styled(TextInput)`
   border: 1px ${props => props.theme.primary500};
@@ -67,6 +70,12 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
+const ErrorContainer = styled(View)`
+  border-color: ${props => props.theme.danger500};
+  border-width: 1px;
+  padding: 5px;
+`;
+
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
   balances: Balances,
@@ -97,6 +106,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
   const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
   const [sendAmount, setSendAmount] = useState("");
+  const [errors, setErrors] = useState([]);
 
   // Todo - Handle if send with nothing pre-selected on navigation
   const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
@@ -108,6 +118,10 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
     ? balances.slpTokens[tokenId]
     : balances.satoshisAvailable;
   const adjustDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+
+  const availableFunds = parseFloat(
+    formatAmount(availableAmount, adjustDecimals)
+  );
 
   const coinName =
     symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
@@ -127,6 +141,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             onRead={e => {
               const address = e.data;
               setToAddress(address);
+              setErrors([]);
               setQrOpen(false);
             }}
             cameraStyle={{
@@ -180,6 +195,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           autoFocus
           value={toAddress}
           onChangeText={text => {
+            setErrors([]);
             setToAddress(text);
           }}
         />
@@ -189,6 +205,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             nature="ghost"
             onPress={async () => {
               const content = await Clipboard.getString();
+              setErrors([]);
               setToAddress(content);
             }}
           >
@@ -210,7 +227,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
         <T>Amount:</T>
         <T size="small">
-          {formatAmount(availableAmount, adjustDecimals)} {symbol} available
+          {availableFunds} {symbol} available
         </T>
         <Spacer small />
         <StyledTextInput
@@ -221,22 +238,58 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           autoCorrect={false}
           value={sendAmount}
           onChangeText={text => {
+            setErrors([]);
             setSendAmount(formatAmountInput(text));
           }}
         />
       </KeyboardAvoidingView>
 
-      <Spacer fill />
+      {errors.length > 0 ? (
+        <>
+          <Spacer small />
+          <ErrorContainer>
+            {errors.map(error => (
+              <T size="small" type="danger" center key={error}>
+                {error}
+              </T>
+            ))}
+          </ErrorContainer>
+          <Spacer fill />
+        </>
+      ) : (
+        <Spacer fill />
+      )}
 
       <Button
-        onPress={() =>
-          navigation.navigate("SendConfirm", {
-            symbol,
-            tokenId,
-            sendAmount,
-            toAddress
-          })
-        }
+        onPress={() => {
+          const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+          let hasErrors = false;
+          if (tokenId && addressFormat !== "slpaddr") {
+            setErrors([
+              "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger`"
+            ]);
+            hasErrors = true;
+          } else if (!tokenId && addressFormat !== "cashaddr") {
+            setErrors([
+              "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `cashaddr`"
+            ]);
+            hasErrors = true;
+          }
+
+          if (sendAmount > availableFunds) {
+            setErrors(["Cannot send more funds than are available"]);
+            hasErrors = true;
+          }
+
+          if (!hasErrors) {
+            navigation.navigate("SendConfirm", {
+              symbol,
+              tokenId,
+              sendAmount,
+              toAddress
+            });
+          }
+        }}
         text="Next Step"
       />
       <Spacer small />

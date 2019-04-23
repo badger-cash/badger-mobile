@@ -9,6 +9,8 @@ import _ from "lodash";
 import makeBlockie from "ethereum-blockies-base64";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import SLPSDK from "slp-sdk";
+
 import BitcoinCashImage from "../assets/images/icon.png";
 
 import {
@@ -19,6 +21,8 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { updateUtxos } from "../data/utxos/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
+
+const SLP = new SLPSDK();
 
 const ScreenCover = styled(View)`
   flex: 1;
@@ -64,10 +68,13 @@ const SendSuccessScreen = ({
     ? { uri: makeBlockie(tokenId) }
     : BitcoinCashImage;
 
+  const toConverted = tokenId
+    ? SLP.Address.toSLPAddress(to)
+    : SLP.Address.toCashAddress(to);
   // toAddress like
   // -> simpleledger:qq2addressHash
   // -> l344f3legacyFormatted
-  const addressParts = to.split(":");
+  const addressParts = toConverted.split(":");
   const toAddress =
     addressParts.length === 2 ? addressParts[1] : addressParts[0];
   const protocol = addressParts.length === 2 ? addressParts[0] : "legacy";

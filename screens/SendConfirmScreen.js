@@ -8,6 +8,8 @@ import makeBlockie from "ethereum-blockies-base64";
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import SLPSDK from "slp-sdk";
+
 import BitcoinCashImage from "../assets/images/icon.png";
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
@@ -24,6 +26,8 @@ import {
   activeAccountSelector
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
+
+const SLP = new SLPSDK();
 
 const IconArea = styled(View)`
   align-items: center;
@@ -144,11 +148,14 @@ const SendConfirmScreen = ({
         });
         // Sign and send SLP Token tx
         txParams = {
-          to: toAddress,
+          to: SLP.Address.toCashAddress(toAddress),
           from: activeAccount.address,
           value: sendAmountParam,
           sendTokenData: { tokenId }
         };
+
+        console.log("sending SLP transaction");
+        console.log(txParams);
 
         await signAndPublishSlpTransaction(
           txParams,
@@ -160,6 +167,7 @@ const SendConfirmScreen = ({
           activeAccount.addressSlp
         );
       } else {
+        console.log("sending BCH transaction");
         // Sign and send BCH tx
         txParams = {
           to: toAddress,
