@@ -90,16 +90,6 @@ const WalletDetailScreen = ({
   const imageSource =
     ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
 
-  // Update transaction history
-  useEffect(() => {
-    updateTransactions(address, addressSlp);
-    const transactionInterval = setInterval(
-      () => updateTransactions(address, addressSlp),
-      15 * 1000
-    );
-    return () => clearInterval(transactionInterval);
-  }, []);
-
   return (
     <SafeAreaView>
       <ScrollView>
@@ -124,7 +114,7 @@ const WalletDetailScreen = ({
         </View>
         <Spacer small />
         <T style={{ marginLeft: 7, marginBottom: 5 }} size="small" type="muted">
-          Transaction History
+          Transaction History (10)
         </T>
         <TransactionArea>
           {transactions.map(tx => {
@@ -162,7 +152,8 @@ const mapStateToProps = (state, props) => {
   const transactions = transactionsByAccountSelector(state, {
     address,
     tokenId
-  });
+  }).slice(0, 10);
+
   return {
     address,
     addressSlp,
@@ -173,7 +164,7 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  updateTransactions
+  // updateTransactions
 };
 
 export default connect(

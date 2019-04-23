@@ -60,6 +60,16 @@ const HomeScreen = ({
     return () => clearInterval(utxointerval);
   }, [address]);
 
+  // Update transaction history
+  useEffect(() => {
+    updateTransactions(address, addressSlp);
+    const transactionInterval = setInterval(
+      () => updateTransactions(address, addressSlp),
+      15 * 1000
+    );
+    return () => clearInterval(transactionInterval);
+  }, []);
+
   const tokenIds = Object.keys(balances.slpTokens);
   const tokenIdsHash = uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
 
