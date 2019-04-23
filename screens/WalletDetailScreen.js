@@ -1,14 +1,20 @@
 // @flow
 
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { SafeAreaView, View, ScrollView, Image } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 
-import { getAddressSelector } from "../data/accounts/selectors";
+import {
+  getAddressSelector,
+  getAddressSlpSelector
+} from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { transactionsByAccountSelector } from "../data/transactions/selectors";
+import { updateTransactions } from "../data/transactions/actions";
+import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { formatAmount } from "../utils/balance-utils";
@@ -52,13 +58,23 @@ const IconArea = styled(View)`
 `;
 
 type Props = {
-  navigation: { navigate: Function, state: { params: any } },
-  balances: Balances,
   address: string,
-  tokensById: { [tokenId: string]: TokenData }
+  balances: Balances,
+  navigation: { navigate: Function, state: { params: any } },
+  tokensById: { [tokenId: string]: TokenData },
+  updateTransactions: Function,
+  transactions: Transaction[]
 };
 
-const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
+const WalletDetailScreen = ({
+  address,
+  addressSlp,
+  balances,
+  navigation,
+  tokensById,
+  transactions,
+  updateTransactions
+}: Props) => {
   const { symbol, tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
 
@@ -73,6 +89,16 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
 
   const imageSource =
     ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+
+  // Update transaction history
+  useEffect(() => {
+    updateTransactions(address);
+    const transactionInterval = setInterval(
+      () => updateTransactions(address),
+      15 * 1000
+    );
+    return () => clearInterval(transactionInterval);
+  }, []);
 
   return (
     <SafeAreaView>
@@ -101,27 +127,21 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
           Transaction History
         </T>
         <TransactionArea>
-          <IncompleteCover>
-            <T type="muted">Transaction history coming soon</T>
-          </IncompleteCover>
-          <TransactionRow
-            type="send"
-            timestamp={1554410212312}
-            toAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
-            fromAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
-            symbol={symbol}
-            tokenId={tokenId}
-            amount={123.313}
-          />
-          <TransactionRow
-            type="receive"
-            timestamp={1554410112312}
-            toAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
-            fromAddress="bitcoincash:qrwt7l9k5gm9u0gw26rxvzeglvtgc5zehy85pupqv2"
-            symbol={symbol}
-            tokenId={tokenId}
-            amount={0.001}
-          />
+          {transactions.map(tx => {
+            const txType = tx.txParams.to === address ? "receive" : "send";
+            return (
+              <TransactionRow
+                key={tx.hash}
+                type={txType}
+                timestamp={tx.time}
+                toAddress={tx.txParams.to}
+                fromAddress={tx.txParams.from}
+                symbol={symbol}
+                tokenId={tokenId}
+                amount={formatAmount(tx.txParams.value, decimals)}
+              />
+            );
+          })}
         </TransactionArea>
       </ScrollView>
     </SafeAreaView>
@@ -130,15 +150,23 @@ const WalletDetailScreen = ({ balances, navigation, tokensById }: Props) => {
 
 const mapStateToProps = state => {
   const address = getAddressSelector(state);
+  const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
+
+  const transactions = transactionsByAccountSelector(state, address);
   return {
+    address,
+    addressSlp,
     balances,
-    tokensById
+    tokensById,
+    transactions
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  updateTransactions
+};
 
 export default connect(
   mapStateToProps,
