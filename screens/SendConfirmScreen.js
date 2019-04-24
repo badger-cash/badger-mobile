@@ -2,7 +2,13 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Dimensions, SafeAreaView, View, Image } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
+  View,
+  Image
+} from "react-native";
 
 import makeBlockie from "ethereum-blockies-base64";
 import Swipeable from "react-native-swipeable";
@@ -154,9 +160,6 @@ const SendConfirmScreen = ({
           sendTokenData: { tokenId }
         };
 
-        console.log("sending SLP transaction");
-        console.log(txParams);
-
         await signAndPublishSlpTransaction(
           txParams,
           spendableUTXOS,
@@ -243,43 +246,49 @@ const SendConfirmScreen = ({
 
       <ButtonsContainer>
         <SwipeButtonContainer>
-          <Swipeable
-            leftActionActivationDistance={
-              Dimensions.get("window").width * 0.75 * 0.8
-            }
-            leftContent={
-              <SwipeContent activated={confirmSwipeActivated}>
-                {confirmSwipeActivated ? (
-                  <T type="inverse">Release to send</T>
-                ) : (
-                  <T type="inverse">Keep pulling</T>
-                )}
-              </SwipeContent>
-            }
-            onLeftActionActivate={() => setConfirmSwipeActivated(true)}
-            onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-            onLeftActionComplete={() => signSendTransaction()}
-          >
-            <SwipeMainContent triggered={transactionState === "signing"}>
-              <T weight="bold" type="inverse">
-                Swipe{" "}
-              </T>
-              <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
-                <Ionicons name="ios-arrow-round-forward" size={25} />
-              </T>
-              <T weight="bold" type="inverse">
-                {" "}
-                To Send
-              </T>
-            </SwipeMainContent>
-          </Swipeable>
+          {transactionState === "signing" ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <Swipeable
+              leftActionActivationDistance={
+                Dimensions.get("window").width * 0.75 * 0.8
+              }
+              leftContent={
+                <SwipeContent activated={confirmSwipeActivated}>
+                  {confirmSwipeActivated ? (
+                    <T type="inverse">Release to send</T>
+                  ) : (
+                    <T type="inverse">Keep pulling</T>
+                  )}
+                </SwipeContent>
+              }
+              onLeftActionActivate={() => setConfirmSwipeActivated(true)}
+              onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
+              onLeftActionComplete={() => signSendTransaction()}
+            >
+              <SwipeMainContent triggered={transactionState === "signing"}>
+                <T weight="bold" type="inverse">
+                  Swipe{" "}
+                </T>
+                <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
+                  <Ionicons name="ios-arrow-round-forward" size={25} />
+                </T>
+                <T weight="bold" type="inverse">
+                  {" "}
+                  To Send
+                </T>
+              </SwipeMainContent>
+            </Swipeable>
+          )}
         </SwipeButtonContainer>
         <Spacer />
-        <Button
-          nature="cautionGhost"
-          text="Cancel Transaction"
-          onPress={() => navigation.goBack()}
-        />
+        {transactionState !== "signing" && (
+          <Button
+            nature="cautionGhost"
+            text="Cancel Transaction"
+            onPress={() => navigation.goBack()}
+          />
+        )}
       </ButtonsContainer>
     </SafeAreaView>
   );
