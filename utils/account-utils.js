@@ -1,22 +1,23 @@
 // @flow
 
-// import BITBOXSDK from "bitbox-sdk";
 import SLPSDK from "slp-sdk";
 
 const SLP = new SLPSDK();
 
-// const BITBOX = new BITBOXSDK();
+const generateMnemonic = () => {
+  const mnemonic = SLP.Mnemonic.generate(128);
+  return mnemonic;
+};
 
 const deriveAccount = (
-  mnemonic: ?string = null,
+  mnemonic: string,
   accountIndex: number = 0,
   childIndex: number = 0,
   hdPathString: string
 ) => {
   if (!mnemonic) {
-    mnemonic = SLP.Mnemonic.generate(128);
+    throw new Error("Mnemonic required to derive account"); // mnemonic = SLP.Mnemonic.generate(128);
   }
-
   const seed = SLP.Mnemonic.toSeed(mnemonic);
   const hdWallet = SLP.HDNode.fromSeed(seed, "mainnet");
   const rootNode = SLP.HDNode.derivePath(hdWallet, hdPathString);
@@ -35,4 +36,4 @@ const addressToSlp = async (address: string) => {
   return await SLP.Address.toSLPAddress(address);
 };
 
-export { deriveAccount, addressToSlp };
+export { deriveAccount, addressToSlp, generateMnemonic };
