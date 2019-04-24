@@ -3,7 +3,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -16,10 +16,11 @@ type Props = {
   name: string,
   amount: string,
   extra: string,
-  tokenId: ?string
+  tokenId: ?string,
+  onPress: Function
 };
 
-const Outter = styled(View)`
+const Outter = styled(TouchableOpacity)`
   padding: 14px 10px;
   flex-direction: row;
   border-bottom-color: ${props => props.theme.fg700};
@@ -46,11 +47,14 @@ const InfoArea = styled(View)`
   flex: 1;
 `;
 
-const CoinRow = ({ ticker, name, amount, extra, tokenId }: Props) => {
+const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
   const imageSource =
-    ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+    ticker === "BCH" && !tokenId
+      ? BitcoinCashImage
+      : { uri: makeBlockie(tokenId) };
+
   return (
-    <Outter>
+    <Outter onPress={onPress}>
       <IconArea>
         <IconImage source={imageSource} />
       </IconArea>
@@ -59,7 +63,6 @@ const CoinRow = ({ ticker, name, amount, extra, tokenId }: Props) => {
           {ticker} - {name}
         </T>
         <T size="large">{amount}</T>
-        {/* <T size="small">{extra}</T> */}
       </InfoArea>
       <ArrowArea>
         <Ionicons name="ios-arrow-forward" size={24} />
@@ -76,7 +79,7 @@ const HeaderWrapper = styled(View)`
 const CoinRowHeader = ({ children }) => {
   return (
     <HeaderWrapper>
-      <T size="small" nature="muted">
+      <T size="small" type="muted">
         {children}
       </T>
     </HeaderWrapper>

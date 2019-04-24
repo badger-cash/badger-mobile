@@ -1,13 +1,7 @@
 // @flow
 
 import React, { useEffect } from "react";
-import styled from "styled-components";
-import {
-  SafeAreaView,
-  ScrollView,
-  SectionList,
-  TouchableOpacity
-} from "react-native";
+import { SafeAreaView, ScrollView, SectionList } from "react-native";
 import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
@@ -31,7 +25,6 @@ import { updateTokensMeta } from "../data/tokens/actions";
 import { formatAmount } from "../utils/balance-utils";
 
 const SECOND = 1000;
-const MINUTE = 60 * SECOND;
 
 // Same as the Badger namespace for now.  doesn't need to be unique here.
 const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -43,7 +36,8 @@ type Props = {
   updateUtxos: Function,
   updateTokensMeta: Function,
   balances: Balances,
-  tokensById: { [tokenId: string]: TokenData }
+  tokensById: { [tokenId: string]: TokenData },
+  navigation: { navigate: Function }
 };
 
 const HomeScreen = ({
@@ -53,14 +47,28 @@ const HomeScreen = ({
   updateUtxos,
   updateTokensMeta,
   tokensById,
-  balances
+  balances,
+  navigation
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
-    updateUtxos(address);
-    const utxointerval = setInterval(() => updateUtxos(address), 7.5 * SECOND);
+    updateUtxos(address, addressSlp);
+    const utxointerval = setInterval(
+      () => updateUtxos(address, addressSlp),
+      10 * SECOND
+    );
     return () => clearInterval(utxointerval);
   }, [address]);
+
+  // Update transaction history
+  useEffect(() => {
+    updateTransactions(address, addressSlp);
+    const transactionInterval = setInterval(
+      () => updateTransactions(address, addressSlp),
+      15 * 1000
+    );
+    return () => clearInterval(transactionInterval);
+  }, []);
 
   const tokenIds = Object.keys(balances.slpTokens);
   const tokenIdsHash = uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
@@ -79,9 +87,33 @@ const HomeScreen = ({
     slpTokens[key]
   ]);
 
-  console.log(addressSlp);
-  console.log(address);
+  // console.log(addressSlp);
+  // console.log(address);
   // console.log(tokensById)
+
+  const tokenData = slpTokensDisplay
+    .map(([tokenId, amount]) => {
+      const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
+      const name = tokensById[tokenId] ? tokensById[tokenId].name : "--------";
+      const decimals = tokensById[tokenId]
+        ? tokensById[tokenId].decimals
+        : null;
+      const amountFormatted = formatAmount(amount, decimals);
+      return {
+        symbol,
+        name,
+        amount: amountFormatted,
+        extra: "Simple Token",
+        tokenId
+      };
+    })
+    .sort((a, b) => {
+      const symbolA = a.symbol.toUpperCase();
+      const symbolB = b.symbol.toUpperCase();
+      if (symbolA < symbolB) return -1;
+      if (symbolA > symbolB) return 1;
+      return 0;
+    });
 
   const walletSections = [
     {
@@ -96,23 +128,7 @@ const HomeScreen = ({
     },
     {
       title: "Simple Token Vault",
-      data: slpTokensDisplay.map(([tokenId, amount]) => {
-        const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
-        const name = tokensById[tokenId]
-          ? tokensById[tokenId].name
-          : "--------";
-        const decimals = tokensById[tokenId]
-          ? tokensById[tokenId].decimals
-          : null;
-        const amountFormatted = formatAmount(amount, decimals);
-        return {
-          symbol,
-          name,
-          amount: amountFormatted,
-          extra: "Simple Token",
-          tokenId
-        };
-      })
+      data: tokenData
     }
   ];
 
@@ -121,65 +137,31 @@ const HomeScreen = ({
       <ScrollView>
         <Spacer small />
         <H1 center>Badger Mobile</H1>
-        <Spacer />
-        {/* <T center>{address}</T>
-        <Spacer />
-        <Spacer />
-        <T center>{addressSlp}</T>
-        <Spacer /> */}
+        <Spacer small />
         <SectionList
           sections={walletSections}
           renderSectionHeader={({ section }) => (
             <CoinRowHeader>{section.title}</CoinRowHeader>
           )}
-          renderItem={({ item }) => (
-            <CoinRow
-              ticker={item.symbol}
-              name={item.name}
-              amount={item.amount}
-              extra={item.extra}
-              tokenId={item.tokenId}
-            />
-          )}
+          renderItem={({ item }) =>
+            item && (
+              <CoinRow
+                ticker={item.symbol}
+                name={item.name}
+                amount={item.amount}
+                extra={item.extra}
+                tokenId={item.tokenId}
+                onPress={() =>
+                  navigation.navigate("WalletDetailScreen", {
+                    symbol: item.symbol,
+                    tokenId: item.tokenId
+                  })
+                }
+              />
+            )
+          }
           keyExtractor={(item, index) => `${index}`}
         />
-        {/* <CoinRow
-          ticker="BCH"
-          name="Bitcoin Cash"
-          amount={formatAmount(balances.satoshisAvailable, 8)}
-          extra="$0.000 USD"
-        />
-        {slpTokensDisplay.map(([tokenId, amount]) => {
-          const symbol = tokensById[tokenId]
-            ? tokensById[tokenId].symbol
-            : "---";
-          const name = tokensById[tokenId]
-            ? tokensById[tokenId].name
-            : "--------";
-          const decimals = tokensById[tokenId]
-            ? tokensById[tokenId].decimals
-            : null;
-          return (
-            <CoinRow
-              key={tokenId}
-              ticker={symbol}
-              name={name}
-              amount={formatAmount(amount, decimals)}
-              extra="Simple Ledger Protocol"
-            />
-          );
-        })} */}
-        {/* <Spacer />
-        <Spacer />
-        <Spacer />
-
-        <TouchableOpacity onPress={() => updateTransactions(address)}>
-          <T center>Update Transactions</T>
-        </TouchableOpacity>
-        <Spacer />
-        <TouchableOpacity onPress={() => updateUtxos(address)}>
-          <T center>Update Balances </T>
-        </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );

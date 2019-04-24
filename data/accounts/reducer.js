@@ -1,23 +1,30 @@
 // @flow
 
 import {
-  // ADD_ACCOUNT,
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
   GET_ACCOUNT_FAIL,
   LOGOUT_ACCOUNT
 } from "./constants";
 
-import { addressToSlp } from "../../utils/account-utils";
+// Todo - Fill in this type as needed
+export type ECPair = {
+  compressed: boolean,
+  d: any,
+  network: any,
+  __Q: any
+};
 
-// TODO: account => wallets.  // Account/meta is ONLY mnemonic.  Everything else fetched on startup.
 // TODO - Figure out non-persisting keypair an re-adding if it's missing
 export type Account = {
   address: string,
   addressSlp: string,
-  keypair: ECPair,
-  mnemonic: string
+  keypair?: ECPair,
+  keypairSlp?: ECPair,
+  mnemonic: string,
+  accountIndex: string
 };
+
 // export type Account = {
 //   name: string,
 //   address: string,
@@ -119,30 +126,52 @@ type Action = { type: string, payload: any };
 
 export type State = {
   byId: { [accountId: string]: Account },
+  keypairsByAccount: { [accountId: string]: ECPair },
   allIds: string[],
   activeId: ?string
 };
 
-export const initialState: State = { byId: {}, allIds: [], activeId: null };
+export const initialState: State = {
+  byId: {},
+  allIds: [],
+  activeId: null,
+  keypairsByAccount: {}
+};
 
-const addAccount = (state: State, payload: { account: Account }) => {
-  const { account } = payload;
+const addAccount = (
+  state: State,
+  payload: { account: Account, accountSlp: Account }
+) => {
+  const { account, accountSlp } = payload;
 
-  // TODO - Look into keypairs, cannot persist without serialization as they are not POJO.  Figure out which parts are needed to persist.
   const { keypair, ...removedKeypair } = account;
-  const { address } = removedKeypair;
+  const { address } = account;
 
-  const addressSlp = addressToSlp(address);
-  const withSlpAddress = { ...removedKeypair, addressSlp };
+  const combinedAccount = {
+    ...removedKeypair,
+    addressSlp: accountSlp.address
+  };
+
+  const keypairSlp = accountSlp.keypair;
 
   const existingAcounts = state.allIds;
   if (existingAcounts.includes(address)) {
-    return state;
+    return {
+      ...state,
+      keypairsByAccount: {
+        ...state.keypairsByAccount,
+        [address]: { bch: keypair, slp: keypairSlp }
+      }
+    };
   }
 
   return {
     ...state,
-    byId: { ...state.byId, [address]: withSlpAddress },
+    byId: { ...state.byId, [address]: combinedAccount },
+    keypairsByAccount: {
+      ...state.keypairsByAccount,
+      [address]: { bch: keypair, slp: keypairSlp }
+    },
     allIds: [...state.allIds, address],
     activeId: address
   };

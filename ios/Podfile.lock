@@ -17,6 +17,16 @@ PODS:
   - glog (0.3.5)
   - React (0.59.1):
     - React/Core (= 0.59.1)
+  - react-native-async-storage (1.2.1):
+    - React
+  - react-native-camera (2.2.1):
+    - React
+    - react-native-camera/RCT (= 2.2.1)
+    - react-native-camera/RN (= 2.2.1)
+  - react-native-camera/RCT (2.2.1):
+    - React
+  - react-native-camera/RN (2.2.1):
+    - React
   - react-native-randombytes (3.5.2):
     - React
   - React/Core (0.59.1):
@@ -72,7 +82,11 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
+  - ReactNativePermissions (1.1.1):
+    - React
   - RNGestureHandler (1.1.0):
+    - React
+  - RNVectorIcons (6.4.2):
     - React
   - UMBarCodeScannerInterface (1.0.0)
   - UMCameraInterface (1.0.0)
@@ -98,6 +112,8 @@ DEPENDENCIES:
   - EXPermissions (from `../node_modules/expo-permissions/ios`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - "react-native-async-storage (from `../node_modules/@react-native-community/async-storage`)"
+  - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
@@ -113,7 +129,9 @@ DEPENDENCIES:
   - React/RCTText (from `../node_modules/react-native`)
   - React/RCTVibration (from `../node_modules/react-native`)
   - React/RCTWebSocket (from `../node_modules/react-native`)
+  - ReactNativePermissions (from `../node_modules/react-native-permissions`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - UMBarCodeScannerInterface (from `../node_modules/unimodules-barcode-scanner-interface/ios`)
   - UMCameraInterface (from `../node_modules/unimodules-camera-interface/ios`)
   - UMConstantsInterface (from `../node_modules/unimodules-constants-interface/ios`)
@@ -147,10 +165,18 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
     :path: "../node_modules/react-native"
+  react-native-async-storage:
+    :path: "../node_modules/@react-native-community/async-storage"
+  react-native-camera:
+    :path: "../node_modules/react-native-camera"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
+  ReactNativePermissions:
+    :path: "../node_modules/react-native-permissions"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   UMBarCodeScannerInterface:
     :path: "../node_modules/unimodules-barcode-scanner-interface/ios"
   UMCameraInterface:
@@ -187,8 +213,12 @@ SPEC CHECKSUMS:
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   React: 34a405ead72252839fdc4afc1f972a7ed984af84
+  react-native-async-storage: fe962994ac710376da9a7a98c43c474b9392b558
+  react-native-camera: b5a1fe5f8a71cb1e2f624e1b78a612d32d8a25af
   react-native-randombytes: aa2b5e8bf90a9c0402101c62ed7b145f02940e32
+  ReactNativePermissions: b64e084dff6a5cad51587d38c306f09246246384
   RNGestureHandler: b65d391f4f570178d657b99a16ec99d09b8656b0
+  RNVectorIcons: 6607bd3a30291d0edb56f9bbe7ae411ee2b928b0
   UMBarCodeScannerInterface: 53fd3cbf24fe5c58f3ba82ac8c27f0373fbf52fa
   UMCameraInterface: d5a2727e76d6b47e3201f863102c055ddbcc6206
   UMConstantsInterface: 800fb8f95fca9bb2c18ae554e4cb4df4383f6cbf
@@ -203,6 +233,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: f88793bd35248182e15591e0aa5b045132312be0
   yoga: 8fb47f180b19b0dadb285a09e4c74c8a41721d3a
 
-PODFILE CHECKSUM: fc8f725d550135e5ab1e9f10bd3f0ca73150453a
+PODFILE CHECKSUM: 2c58e0ee5e87bfce1c23ecb79fae382ab0aeaed0
 
 COCOAPODS: 1.6.1

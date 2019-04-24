@@ -4,17 +4,24 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 
 import { ActivityIndicator, StatusBar, View } from "react-native";
-import { hasMnemonicSelector } from "../data/accounts/selectors";
+import { getMnemonicSelector } from "../data/accounts/selectors";
+import { getAccount } from "../data/accounts/actions";
 
 type Props = {
   navigation: { navigate: Function },
-  hasMnemonic: boolean
+  mnemonic: string,
+  getAccount: Function
 };
 
-const AuthLoadingScreen = ({ navigation, hasMnemonic }: Props) => {
+const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   useEffect(() => {
-    const targetScreen = hasMnemonic ? "Main" : "AuthStack";
-    navigation.navigate(targetScreen);
+    if (mnemonic) {
+      // re-generate accounts keypair then go to Main.
+      getAccount(mnemonic);
+      navigation.navigate("Main");
+    } else {
+      navigation.navigate("AuthStack");
+    }
   });
 
   return (
@@ -25,6 +32,12 @@ const AuthLoadingScreen = ({ navigation, hasMnemonic }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({ hasMnemonic: hasMnemonicSelector(state) });
+const mapStateToProps = state => ({ mnemonic: getMnemonicSelector(state) });
+const mapDispatchToProps = {
+  getAccount
+};
 
-export default connect(mapStateToProps)(AuthLoadingScreen);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AuthLoadingScreen);

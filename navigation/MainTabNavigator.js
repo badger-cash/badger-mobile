@@ -10,21 +10,66 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
+import WalletDetailScreen from "../screens/WalletDetailScreen";
+import ReceiveScreen from "../screens/ReceiveScreen";
 
-const HomeStack = createStackNavigator({
-  WalletDashboard: {
-    screen: HomeScreen,
+import SendStack from "./SendStack";
+
+import { spaceBadger as theme } from "../themes/spaceBadger";
+
+const HomeStack = createStackNavigator(
+  {
+    WalletDashboard: {
+      screen: HomeScreen,
+      navigationOptions: {
+        header: null,
+        tabBarLabel: "Wallets"
+      }
+    },
+    WalletDetailScreen: {
+      screen: WalletDetailScreen,
+      navigationOptions: props => {
+        const title = props.navigation.state.params.symbol;
+        return {
+          title: `$${title}`,
+
+          headerBackTitleStyle: {
+            color: theme.primary500
+          },
+          headerTintColor: theme.primary500,
+          headerTitleStyle: { color: theme.fg200 }
+        };
+      }
+    }
+    // SendStack,
+  },
+  {
     navigationOptions: {
-      header: null,
       tabBarLabel: "Wallets"
     }
   }
+);
+
+const ReceiveStack = createStackNavigator({
+  Receive: { screen: ReceiveScreen, navigationOptions: { title: "Receive" } }
 });
 
 const SettingsStack = createStackNavigator(
   {
-    SettingsList: SettingsScreen,
-    ViewSeedPhrase: ViewSeedScreen
+    SettingsList: {
+      screen: SettingsScreen,
+      navigationOptions: { title: "Settings" }
+    },
+    ViewSeedPhrase: {
+      screen: ViewSeedScreen,
+      navigationOptions: {
+        headerBackTitleStyle: {
+          color: theme.primary500
+        },
+        headerTintColor: theme.primary500,
+        headerTitleStyle: { color: theme.fg200 }
+      }
+    }
   },
   {
     initialRouteName: "SettingsList"
@@ -34,8 +79,8 @@ const SettingsStack = createStackNavigator(
 const BottomTabNavigator = createBottomTabNavigator(
   {
     Home: HomeStack,
+    Receive: ReceiveStack,
     Settings: SettingsStack
-    //Receive:  ReceiveStack,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -43,9 +88,11 @@ const BottomTabNavigator = createBottomTabNavigator(
         const { routeName } = navigation.state;
         let iconName;
         if (routeName === "Home") {
-          iconName = `ios-cash`; //${focused ? "" : "-outline"}`;
+          iconName = `ios-wallet`;
         } else if (routeName === "Settings") {
-          iconName = `ios-cog`; //${focused ? "" : "-outline"}`;
+          iconName = `ios-settings`;
+        } else if (routeName === "Receive") {
+          iconName = "ios-download";
         }
 
         return (
@@ -59,10 +106,21 @@ const BottomTabNavigator = createBottomTabNavigator(
     }),
 
     tabBarOptions: {
-      activeTintColor: "#F59332",
-      inactiveTintColor: "#4D4D4D"
+      activeTintColor: theme.primary500,
+      inactiveTintColor: theme.fg300
     }
   }
 );
 
-export default BottomTabNavigator;
+const MainAppStack = createStackNavigator(
+  {
+    MainAppTabs: BottomTabNavigator,
+    SendStack: SendStack
+  },
+  {
+    initialRouteName: "MainAppTabs",
+    headerMode: "none"
+  }
+);
+
+export default MainAppStack;

@@ -20,7 +20,7 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
       <Spacer />
       <Text>TODO - Minimal and clear.</Text>
       <Button
-        onPress={() => navigation.navigate("createWallet")}
+        onPress={() => navigation.navigate("CreateWallet")}
         title="Accept"
       />
     </ScreenView>
