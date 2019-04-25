@@ -5,6 +5,25 @@ import _ from "lodash";
 
 const transactionsSelector = state => state.transactions;
 
+const transactionsLatestBlockSelector = (
+  state: FullState,
+  { address }: { address: ?string }
+) => {
+  if (!address) return [];
+
+  const { byId, byAccount } = state.transactions;
+  const transactionTransactionsIds = byAccount[address];
+
+  if (!transactionTransactionsIds) return [];
+  const transactions = transactionTransactionsIds.map(txHash => byId[txHash]);
+
+  const latestBlock = transactions.reduce(
+    (acc, curr) => (curr.block > acc.block ? curr.block : acc.block),
+    0
+  );
+  return latestBlock;
+};
+
 const transactionsByAccountSelector = (
   state: FullState,
   { address, tokenId }: { address: ?string, tokenId?: ?string }
@@ -16,7 +35,7 @@ const transactionsByAccountSelector = (
 
   if (!transactionTransactionsIds) return [];
 
-  const transactions = byAccount[address]
+  const transactions = transactionTransactionsIds
     .map(txHash => byId[txHash])
     .filter(tx => {
       const txTokenId =
@@ -30,4 +49,8 @@ const transactionsByAccountSelector = (
   return _.sortBy(transactions, ["time"]).reverse();
 };
 
-export { transactionsSelector, transactionsByAccountSelector };
+export {
+  transactionsSelector,
+  transactionsByAccountSelector,
+  transactionsLatestBlockSelector
+};

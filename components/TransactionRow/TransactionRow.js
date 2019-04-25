@@ -49,8 +49,9 @@ const AmountArea = styled(View)``;
 type Props = {
   type: "send" | "receive",
   timestamp: number,
-  toAddress: string,
-  fromAddress: string,
+  toAddresses: string[],
+  fromAddresses: string[],
+  fromAddress: ?string,
   symbol: string,
   tokenId: string,
   amount: number
@@ -59,13 +60,15 @@ type Props = {
 const TransactionRow = ({
   type,
   timestamp,
-  toAddress,
+  toAddresses,
+  fromAddresses,
   fromAddress,
   symbol,
   tokenId,
   amount
 }: Props) => {
-  const transactionAddress = type === "send" ? toAddress : fromAddress;
+  const transactionAddress =
+    type === "send" ? toAddresses[0] : fromAddress || fromAddresses[0];
 
   const imageSource = { uri: makeBlockie(transactionAddress) };
   return (

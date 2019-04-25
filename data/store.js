@@ -43,7 +43,7 @@ const initialState: FullState = {
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["utxos", "tokens"] // "transactions"
+  whitelist: ["utxos", "tokens", "transactions"]
 };
 
 // keypairs are re-computed each time the app launches, cannot persist complex objects easily.
