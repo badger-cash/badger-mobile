@@ -20,7 +20,27 @@ const transactionsActiveAccountSelector = createSelector(
   transactionsSelector,
   (activeAccount, transactions) => {
     const { address } = activeAccount;
-    return transactions.byAccountId[address];
+    const { byId, byAccount } = transactions;
+
+    if (!address) return [];
+
+    const accountTransactionIds = byAccount[address] || [];
+
+    const accountTransactions = accountTransactionIds.map(
+      txHash => byId[txHash]
+    );
+    return accountTransactions;
+  }
+);
+
+const transactionsLatestBlockSelector = createSelector(
+  transactionsActiveAccountSelector,
+  transactions => {
+    const latestBlock = transactions.reduce(
+      (acc, curr) => (curr.block > acc ? curr.block : acc),
+      0
+    );
+    return latestBlock;
   }
 );
 
@@ -73,4 +93,9 @@ const balancesSelector = createSelector(
   }
 );
 
-export { balancesSelector };
+// transaction selector all for account
+
+// one which uses that for latest block
+// One which uses it for specific tokens/coins filtering
+
+export { balancesSelector, transactionsLatestBlockSelector };
