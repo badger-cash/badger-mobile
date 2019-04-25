@@ -84,7 +84,7 @@ const WalletDetailScreen = ({
 
   return (
     <SafeAreaView>
-      <ScrollView>
+      <ScrollView style={{ height: "100%" }}>
         <View>
           <Spacer small />
           <IconArea>
