@@ -14,6 +14,8 @@ import {
   getHistoricalSlpTransactions
 } from "../../utils/balance-utils";
 
+import { transactionsLatestBlockSelector } from "./selectors";
+
 const SLP = new SLPSDK();
 
 const getTransactionsStart = () => ({
@@ -35,11 +37,22 @@ const updateTransactions = (address: string, addressSlp: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getTransactionsStart());
 
-    // Fetch all transactions
-    // Need to check both as BCH and SLP can live on both 145 and 245 accounts
+    // Until --- we should optimize this latest block check.  Pretty unoptimized currently
+    const currentState = getState();
+    const currentTransactions = currentState.transactions;
 
-    // Determine most recently fetched tx block for account first.
-    const latestBlock = 0;
+    const latestBlockBCH = transactionsLatestBlockSelector(
+      currentState,
+      address
+    );
+    const latestBlockSLP = transactionsLatestBlockSelector(
+      currentState,
+      addressSlp
+    );
+    const latestBlock = Math.max(latestBlockBCH, latestBlockSLP);
+
+    // ---
+
     const transactionsBCH145 = getHistoricalBchTransactions(
       address,
       latestBlock
@@ -145,6 +158,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
           }
           return accumulator;
         }, []);
+
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
       if (!fromAddress && fromAddresses.includes(address)) {
         fromAddress = address;

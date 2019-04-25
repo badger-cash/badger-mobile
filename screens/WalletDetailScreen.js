@@ -13,7 +13,6 @@ import {
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { transactionsByAccountSelector } from "../data/transactions/selectors";
-import { updateTransactions } from "../data/transactions/actions";
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
@@ -28,16 +27,6 @@ const TransactionArea = styled(View)`
   border-top-width: 1px;
   border-top-color: ${props => props.theme.fg700};
   position: relative;
-`;
-
-const IncompleteCover = styled(View)`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  z-index: 1;
-  justify-content: center;
-  align-items: center;
 `;
 
 const ButtonGroup = styled(View)`
@@ -114,7 +103,7 @@ const WalletDetailScreen = ({
         </View>
         <Spacer small />
         <T style={{ marginLeft: 7, marginBottom: 5 }} size="small" type="muted">
-          Transaction History (10)
+          Transaction History (max 10)
         </T>
         <TransactionArea>
           {transactions.map(tx => {
@@ -124,8 +113,9 @@ const WalletDetailScreen = ({
                 key={tx.hash}
                 type={txType}
                 timestamp={tx.time}
-                toAddress={tx.txParams.to}
-                fromAddress={tx.txParams.from}
+                toAddresses={tx.txParams.toAddresses}
+                fromAddresses={tx.txParams.fromAddresses}
+                fromAddress={tx.txParams.fromAddress}
                 symbol={symbol}
                 tokenId={tokenId}
                 amount={
