@@ -55,13 +55,14 @@ const addTransactions = (
   const txIds = transactions.map(tx => tx.hash);
 
   const existingAccountTxs = state.byAccount[address] || [];
+  const nextAccountTxs = new Set([...existingAccountTxs, ...txIds]);
 
   return {
     ...state,
     byId: { ...state.byId, ...transactionsById },
     byAccount: {
       ...state.byAccount,
-      [address]: [...existingAccountTxs, ...txIds]
+      [address]: [...nextAccountTxs]
     },
     allIds: [...state.allIds, ...txIds],
     updating: false
