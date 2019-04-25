@@ -2,6 +2,7 @@
 
 import { createSelector } from "reselect";
 import BigNumber from "bignumber.js";
+import _ from "lodash";
 
 import { activeAccountSelector } from "./accounts/selectors";
 import { transactionsSelector } from "./transactions/selectors";
@@ -29,7 +30,11 @@ const transactionsActiveAccountSelector = createSelector(
     const accountTransactions = accountTransactionIds.map(
       txHash => byId[txHash]
     );
-    return accountTransactions;
+
+    const sortedTransactions = _.sortBy(accountTransactions, [
+      "time"
+    ]).reverse();
+    return sortedTransactions;
   }
 );
 
@@ -103,4 +108,8 @@ const balancesSelector = createSelector(
 // one which uses that for latest block
 // One which uses it for specific tokens/coins filtering
 
-export { balancesSelector, transactionsLatestBlockSelector };
+export {
+  balancesSelector,
+  transactionsActiveAccountSelector,
+  transactionsLatestBlockSelector
+};
