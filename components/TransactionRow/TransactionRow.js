@@ -78,7 +78,8 @@ const TransactionRow = ({
     blockieCache = { ...blockieCache, [transactionAddress]: newBlockie };
     blockie = newBlockie;
   }
-  const imageSource = { uri: makeBlockie(transactionAddress) };
+  const imageSource = { uri: blockie };
+  // const imageSource = { uri: makeBlockie(transactionAddress) }; // no cache version
 
   return (
     <Row type={type}>
