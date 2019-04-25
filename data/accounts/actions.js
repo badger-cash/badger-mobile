@@ -9,7 +9,11 @@ import {
 
 import { type Account } from "./reducer";
 
-import { deriveAccount, addressToSlp } from "../../utils/account-utils";
+import {
+  deriveAccount,
+  addressToSlp,
+  generateMnemonic
+} from "../../utils/account-utils";
 
 const getAccountStart = () => ({
   type: GET_ACCOUNT_START,
@@ -26,7 +30,9 @@ const getAccountFail = () => ({
   payload: null
 });
 
-const getAccount = (seed?: string, accountIndex: number = 0) => {
+const getAccount = (mnemonic?: string, accountIndex?: number = 0) => {
+  const accountMnemonic = mnemonic ? mnemonic : generateMnemonic();
+
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
 
@@ -36,20 +42,18 @@ const getAccount = (seed?: string, accountIndex: number = 0) => {
     const childIndex = 0;
     //  TODO - Error or fail state
     const account = deriveAccount(
-      seed,
+      accountMnemonic,
       accountIndex,
       childIndex,
       derivationPathBCH
     );
+
     const accountSlp = deriveAccount(
-      seed,
+      accountMnemonic,
       accountIndex,
       childIndex,
       derivationPathSLP
     );
-
-    // const addressSlp = await addressToSlp(account.address);
-    // const accountWithSLP = { ...account, addressSlp };
 
     dispatch(getAccountSuccess(account, accountSlp));
   };

@@ -12,6 +12,11 @@ module.exports = {
         experimentalImportSupport: false,
         inlineRequires: false
       }
-    })
+    }),
+    minifierConfig: {
+      mangle: {
+        keep_fnames: true
+      }
+    }
   }
 };

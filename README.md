@@ -57,6 +57,11 @@ For a simple .apk
 > generate badger-mobile-alpha.keystore and put into /android
 > cd android
 > ./gradlew assembleRelease
+
+To run production build locally
+> Ensure emulator is running or device is plugged in
+> react-native run-android --variant=release
+> react-native log-android
 ```
 
 ### Nuke all and install command, for when things don't work
