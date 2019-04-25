@@ -3,54 +3,33 @@
 import { createSelector } from "reselect";
 import _ from "lodash";
 
-const transactionsSelector = state => state.transactions;
+import { type FullState } from "../store";
 
-const transactionsLatestBlockSelector = (
-  state: FullState,
-  { address }: { address: ?string }
-) => {
-  if (!address) return [];
+const transactionsSelector = (state: FullState) => state.transactions;
 
-  const { byId, byAccount } = state.transactions;
-  const transactionTransactionsIds = byAccount[address];
+// const transactionsByAccountSelector = (
+//   state: FullState,
+//   { address, tokenId }: { address: ?string, tokenId?: ?string }
+// ) => {
+//   if (!address) return [];
 
-  if (!transactionTransactionsIds) return [];
-  const transactions = transactionTransactionsIds.map(txHash => byId[txHash]);
+//   const { byId, byAccount } = state.transactions;
+//   const transactionTransactionsIds = byAccount[address];
 
-  const latestBlock = transactions.reduce(
-    (acc, curr) => (curr.block > acc.block ? curr.block : acc.block),
-    0
-  );
-  return latestBlock;
-};
+//   if (!transactionTransactionsIds) return [];
 
-const transactionsByAccountSelector = (
-  state: FullState,
-  { address, tokenId }: { address: ?string, tokenId?: ?string }
-) => {
-  if (!address) return [];
+//   const transactions = transactionTransactionsIds
+//     .map(txHash => byId[txHash])
+//     .filter(tx => {
+//       const txTokenId =
+//         tx.txParams.sendTokenData && tx.txParams.sendTokenData.tokenId;
+//       if (tokenId) {
+//         return tokenId === txTokenId;
+//       }
+//       return !tokenId;
+//     });
 
-  const { byId, byAccount } = state.transactions;
-  const transactionTransactionsIds = byAccount[address];
+//   return _.sortBy(transactions, ["time"]).reverse();
+// };
 
-  if (!transactionTransactionsIds) return [];
-
-  const transactions = transactionTransactionsIds
-    .map(txHash => byId[txHash])
-    .filter(tx => {
-      const txTokenId =
-        tx.txParams.sendTokenData && tx.txParams.sendTokenData.tokenId;
-      if (tokenId) {
-        return tokenId === txTokenId;
-      }
-      return !tokenId;
-    });
-
-  return _.sortBy(transactions, ["time"]).reverse();
-};
-
-export {
-  transactionsSelector,
-  transactionsByAccountSelector,
-  transactionsLatestBlockSelector
-};
+export { transactionsSelector };

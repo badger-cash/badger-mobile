@@ -14,7 +14,7 @@ import {
   getHistoricalSlpTransactions
 } from "../../utils/balance-utils";
 
-import { transactionsLatestBlockSelector } from "./selectors";
+import { transactionsLatestBlockSelector } from "../selectors";
 
 const SLP = new SLPSDK();
 
@@ -37,21 +37,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getTransactionsStart());
 
-    // Until --- we should optimize this latest block check.  Pretty unoptimized currently
     const currentState = getState();
-    const currentTransactions = currentState.transactions;
-
-    const latestBlockBCH = transactionsLatestBlockSelector(
-      currentState,
-      address
-    );
-    const latestBlockSLP = transactionsLatestBlockSelector(
-      currentState,
-      addressSlp
-    );
-    const latestBlock = Math.max(latestBlockBCH, latestBlockSLP);
-
-    // ---
+    const latestBlock = transactionsLatestBlockSelector(currentState);
 
     const transactionsBCH145 = getHistoricalBchTransactions(
       address,
@@ -227,16 +214,15 @@ const updateTransactions = (address: string, addressSlp: string) => {
         block: tx.blk && tx.blk.i ? tx.blk.i : 0,
         status: "confirmed",
         network: "mainnet"
-        // loadingDefaults: false, // safe to remove?
       };
     });
 
-    const formattedTransactionsAll = [
+    const formattedTransactionsNew = [
       ...formattedTransactionsBCH,
       ...formattedTransactionsSLP
     ];
 
-    dispatch(getTransactionsSuccess(formattedTransactionsAll, address));
+    dispatch(getTransactionsSuccess(formattedTransactionsNew, address));
   };
 };
 

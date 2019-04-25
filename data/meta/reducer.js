@@ -1,5 +1,4 @@
 // @flow
-// I think this reducer can be removed as it's purpose is application implementation specific
 
 import { SELECT_TOKEN } from "./constants";
 
@@ -23,7 +22,7 @@ const selectToken = (state: State, payload: string) => {
   return { ...state, selectTokenId: payload };
 };
 
-const accounts = (state: State = initialState, action: Action): State => {
+const meta = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case SELECT_TOKEN:
       return selectToken(state, action.payload);
@@ -32,4 +31,4 @@ const accounts = (state: State = initialState, action: Action): State => {
   }
 };
 
-export default accounts;
+export default meta;

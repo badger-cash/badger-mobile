@@ -32,6 +32,7 @@ const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 type Props = {
   address: string,
   addressSlp: string,
+  latestTransactionHistoryBlock: number,
   updateTransactions: Function,
   updateUtxos: Function,
   updateTokensMeta: Function,
@@ -53,11 +54,11 @@ const HomeScreen = ({
   useEffect(() => {
     // Update UTXOs on an interval
     updateUtxos(address, addressSlp);
-    const utxointerval = setInterval(
+    const utxoInterval = setInterval(
       () => updateUtxos(address, addressSlp),
       10 * SECOND
     );
-    return () => clearInterval(utxointerval);
+    return () => clearInterval(utxoInterval);
   }, [address]);
 
   // Update transaction history
@@ -68,7 +69,7 @@ const HomeScreen = ({
       15 * 1000
     );
     return () => clearInterval(transactionInterval);
-  }, []);
+  }, [address]);
 
   const tokenIds = Object.keys(balances.slpTokens);
   const tokenIdsHash = uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);

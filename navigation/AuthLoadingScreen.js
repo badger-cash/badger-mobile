@@ -2,10 +2,24 @@
 
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
+import styled from "styled-components";
+import { ActivityIndicator, View } from "react-native";
 
-import { ActivityIndicator, StatusBar, View } from "react-native";
+import { T, Spacer } from "../atoms";
 import { getMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
+
+const Wrapper = styled(View)`
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+`;
+
+const InnerWrapper = styled(View)`
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+`;
 
 type Props = {
   navigation: { navigate: Function },
@@ -25,10 +39,13 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   });
 
   return (
-    <View>
-      <ActivityIndicator />
-      <StatusBar barStyle="default" />
-    </View>
+    <Wrapper>
+      <InnerWrapper>
+        <ActivityIndicator />
+        <Spacer />
+        <T>Starting Badger Mobile</T>
+      </InnerWrapper>
+    </Wrapper>
   );
 };
 

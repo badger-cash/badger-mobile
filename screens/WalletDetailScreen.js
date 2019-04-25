@@ -10,9 +10,12 @@ import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
-import { balancesSelector, type Balances } from "../data/selectors";
+import {
+  balancesSelector,
+  transactionsActiveAccountSelector,
+  type Balances
+} from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { transactionsByAccountSelector } from "../data/transactions/selectors";
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
@@ -64,10 +67,10 @@ const WalletDetailScreen = ({
   transactions,
   updateTransactions
 }: Props) => {
-  const { symbol, tokenId } = navigation.state.params;
+  const { tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
 
-  const isBCH = symbol === "BCH" && !tokenId;
+  const isBCH = !tokenId;
 
   const name = isBCH ? "Bitcoin Cash" : token.name;
   const ticker = isBCH ? "BCH" : token.symbol;
@@ -88,13 +91,18 @@ const WalletDetailScreen = ({
             <IconImage source={imageSource} />
           </IconArea>
           <Spacer small />
-          <H2 center>{name}</H2>
+          <H1 center>{name}</H1>
+          <T size="tiny" center>
+            {tokenId}
+          </T>
+          <Spacer />
+          <T center>Balance</T>
           <H1 center>{formatAmount(amount, decimals)}</H1>
-          <Spacer small />
+          <Spacer />
           <ButtonGroup>
             <Button
               onPress={() =>
-                navigation.navigate("SendSetup", { symbol, tokenId })
+                navigation.navigate("SendSetup", { symbol: ticker, tokenId })
               }
               text="Send"
             />
@@ -103,7 +111,7 @@ const WalletDetailScreen = ({
         </View>
         <Spacer small />
         <T style={{ marginLeft: 7, marginBottom: 5 }} size="small" type="muted">
-          Transaction History (max 10)
+          Transaction History (max 30)
         </T>
         <TransactionArea>
           {transactions.map(tx => {
@@ -115,8 +123,8 @@ const WalletDetailScreen = ({
                 timestamp={tx.time}
                 toAddresses={tx.txParams.toAddresses}
                 fromAddresses={tx.txParams.fromAddresses}
-                fromAddress={tx.txParams.fromAddress}
-                symbol={symbol}
+                fromAddress={tx.txParams.from}
+                symbol={ticker}
                 tokenId={tokenId}
                 amount={
                   tokenId
@@ -139,10 +147,18 @@ const mapStateToProps = (state, props) => {
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
 
-  const transactions = transactionsByAccountSelector(state, {
-    address,
-    tokenId
-  }).slice(0, 10);
+  const transactionsAll = transactionsActiveAccountSelector(state);
+
+  const transactions = transactionsAll
+    .filter(tx => {
+      const txTokenId =
+        tx.txParams.sendTokenData && tx.txParams.sendTokenData.tokenId;
+      if (tokenId) {
+        return tokenId === txTokenId;
+      }
+      return !tokenId;
+    })
+    .slice(0, 30);
 
   return {
     address,

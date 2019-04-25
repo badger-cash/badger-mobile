@@ -2,6 +2,7 @@
 
 import { createSelector } from "reselect";
 import BigNumber from "bignumber.js";
+import _ from "lodash";
 
 import { activeAccountSelector } from "./accounts/selectors";
 import { transactionsSelector } from "./transactions/selectors";
@@ -20,7 +21,31 @@ const transactionsActiveAccountSelector = createSelector(
   transactionsSelector,
   (activeAccount, transactions) => {
     const { address } = activeAccount;
-    return transactions.byAccountId[address];
+    const { byId, byAccount } = transactions;
+
+    if (!address) return [];
+
+    const accountTransactionIds = byAccount[address] || [];
+
+    const accountTransactions = accountTransactionIds.map(
+      txHash => byId[txHash]
+    );
+
+    const sortedTransactions = _.sortBy(accountTransactions, [
+      "time"
+    ]).reverse();
+    return sortedTransactions;
+  }
+);
+
+const transactionsLatestBlockSelector = createSelector(
+  transactionsActiveAccountSelector,
+  transactions => {
+    const latestBlock = transactions.reduce(
+      (acc, curr) => (curr.block > acc ? curr.block : acc),
+      0
+    );
+    return latestBlock;
   }
 );
 
@@ -73,4 +98,8 @@ const balancesSelector = createSelector(
   }
 );
 
-export { balancesSelector };
+export {
+  balancesSelector,
+  transactionsActiveAccountSelector,
+  transactionsLatestBlockSelector
+};

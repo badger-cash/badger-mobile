@@ -46,6 +46,8 @@ const InfoArea = styled(View)`
 `;
 const AmountArea = styled(View)``;
 
+let blockieCache = {};
+
 type Props = {
   type: "send" | "receive",
   timestamp: number,
@@ -54,7 +56,7 @@ type Props = {
   fromAddress: ?string,
   symbol: string,
   tokenId: string,
-  amount: number
+  amount: string
 };
 
 const TransactionRow = ({
@@ -70,7 +72,15 @@ const TransactionRow = ({
   const transactionAddress =
     type === "send" ? toAddresses[0] : fromAddress || fromAddresses[0];
 
-  const imageSource = { uri: makeBlockie(transactionAddress) };
+  let blockie = blockieCache[transactionAddress];
+  if (!blockie) {
+    const newBlockie = makeBlockie(transactionAddress);
+    blockieCache = { ...blockieCache, [transactionAddress]: newBlockie };
+    blockie = newBlockie;
+  }
+  const imageSource = { uri: blockie };
+  // const imageSource = { uri: makeBlockie(transactionAddress) }; // no cache version
+
   return (
     <Row type={type}>
       <TopRow>
