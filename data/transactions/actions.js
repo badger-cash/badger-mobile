@@ -14,7 +14,6 @@ import {
   getHistoricalSlpTransactions
 } from "../../utils/balance-utils";
 
-// import { transactionsLatestBlockSelector } from "./selectors";
 import { transactionsLatestBlockSelector } from "../selectors";
 
 const SLP = new SLPSDK();

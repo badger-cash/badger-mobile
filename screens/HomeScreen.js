@@ -175,14 +175,11 @@ const mapStateToProps = (state, props) => {
 
   const tokensById = tokensByIdSelector(state);
 
-  // const latestTransactionHistoryBlock = transactionsLatestBlockSelector(state);
-
   return {
     address,
     addressSlp,
     balances,
     tokensById
-    // latestTransactionHistoryBlock
   };
 };
 const mapDispatchToProps = {

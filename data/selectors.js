@@ -49,11 +49,6 @@ const transactionsLatestBlockSelector = createSelector(
   }
 );
 
-// const transactionByTokenSelector = createSelector(
-//   transactionsActiveAccountSelector,
-
-// )
-
 const balancesSelector = createSelector(
   utxosByAccountSelector,
   utxos => {
@@ -102,11 +97,6 @@ const balancesSelector = createSelector(
     return balances;
   }
 );
-
-// transaction selector all for account
-
-// one which uses that for latest block
-// One which uses it for specific tokens/coins filtering
 
 export {
   balancesSelector,
