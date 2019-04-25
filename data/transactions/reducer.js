@@ -54,12 +54,14 @@ const addTransactions = (
 
   const txIds = transactions.map(tx => tx.hash);
 
+  const existingAccountTxs = state.byAccount[address] || [];
+
   return {
     ...state,
     byId: { ...state.byId, ...transactionsById },
     byAccount: {
       ...state.byAccount,
-      [address]: [...state.byAccount[address], ...txIds]
+      [address]: [...existingAccountTxs, ...txIds]
     },
     allIds: [...state.allIds, ...txIds],
     updating: false

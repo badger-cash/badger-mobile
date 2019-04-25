@@ -44,6 +44,11 @@ const transactionsLatestBlockSelector = createSelector(
   }
 );
 
+// const transactionByTokenSelector = createSelector(
+//   transactionsActiveAccountSelector,
+
+// )
+
 const balancesSelector = createSelector(
   utxosByAccountSelector,
   utxos => {
