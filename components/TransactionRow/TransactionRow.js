@@ -43,8 +43,11 @@ const IconImage = styled(Image)`
 
 const InfoArea = styled(View)`
   flex: 1;
+  justify-content: center;
 `;
-const AmountArea = styled(View)``;
+const AmountArea = styled(View)`
+  justify-content: center;
+`;
 
 let blockieCache = {};
 
@@ -81,19 +84,21 @@ const TransactionRow = ({
   const imageSource = { uri: blockie };
   // const imageSource = { uri: makeBlockie(transactionAddress) }; // no cache version
 
+  const typeFormatted = type === "send" ? "Sent" : "Received";
   return (
     <Row type={type}>
       <TopRow>
         <T size="small" type="muted">
           {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
         </T>
+        <T size="tiny">{transactionAddress}</T>
       </TopRow>
       <BottomRow>
         <IconArea>
           <IconImage source={imageSource} />
         </IconArea>
         <InfoArea>
-          <T>{type}</T>
+          <T>{typeFormatted}</T>
         </InfoArea>
         <AmountArea>
           <T>
