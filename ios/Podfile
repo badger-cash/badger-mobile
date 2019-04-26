@@ -1,7 +1,7 @@
 platform :ios, '10.0'
 
 target 'badgerMobile' do
-  # Pods for badger2
+  # Pods for badgerMobile
   pod 'React', :path => '../node_modules/react-native', :subspecs => [
     'Core',
     'CxxBridge',

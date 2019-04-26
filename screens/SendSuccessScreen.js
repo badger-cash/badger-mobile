@@ -19,6 +19,7 @@ import {
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { updateUtxos } from "../data/utxos/actions";
+import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
 
@@ -45,6 +46,7 @@ type Props = {
   address: string,
   addressSlp: String,
   updateUtxos: Function,
+  updateTransactions: Function,
   tokensById: any
 };
 const SendSuccessScreen = ({
@@ -52,7 +54,8 @@ const SendSuccessScreen = ({
   addressSlp,
   tokensById,
   navigation,
-  updateUtxos
+  updateUtxos,
+  updateTransactions
 }: Props) => {
   const { txParams } = navigation.state.params;
   const { to, from, value, data } = txParams;
@@ -61,7 +64,8 @@ const SendSuccessScreen = ({
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    _.delay(() => updateUtxos(address, addressSlp), 2000);
+    _.delay(() => updateUtxos(address, addressSlp), 1500);
+    _.delay(() => updateTransactions(address, addressSlp, 1750));
   }, [address, addressSlp]);
 
   const imageSource = tokenId
@@ -143,7 +147,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = {
-  updateUtxos
+  updateUtxos,
+  updateTransactions
 };
 
 export default connect(
