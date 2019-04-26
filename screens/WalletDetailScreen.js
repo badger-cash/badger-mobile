@@ -156,7 +156,7 @@ const mapStateToProps = (state, props) => {
       if (tokenId) {
         return tokenId === txTokenId;
       }
-      return !tokenId;
+      return !txTokenId;
     })
     .slice(0, 30);
 
