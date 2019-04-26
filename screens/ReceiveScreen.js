@@ -18,7 +18,7 @@ import {
 } from "../data/accounts/selectors";
 import { addressToSlp } from "../utils/account-utils";
 
-import { T, Spacer, H1, H2 } from "../atoms";
+import { T, Spacer, H2 } from "../atoms";
 
 const QRHolder = styled(View)`
   justify-content: center;

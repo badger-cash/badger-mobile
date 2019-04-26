@@ -16,11 +16,14 @@ import {
   getAddressSlpSelector
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { spotPricesSelector } from "../data/prices/selectors";
+
 import { type TokenData } from "../data/tokens/reducer";
 
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
 import { updateTokensMeta } from "../data/tokens/actions";
+import { updateSpotPrice } from "../data/prices/actions";
 
 import { formatAmount } from "../utils/balance-utils";
 
@@ -32,24 +35,28 @@ const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 type Props = {
   address: string,
   addressSlp: string,
-  latestTransactionHistoryBlock: number,
-  updateTransactions: Function,
-  updateUtxos: Function,
-  updateTokensMeta: Function,
   balances: Balances,
+  latestTransactionHistoryBlock: number,
+  navigation: { navigate: Function },
+  spotPrices: any,
   tokensById: { [tokenId: string]: TokenData },
-  navigation: { navigate: Function }
+  updateSpotPrice: Function,
+  updateTokensMeta: Function,
+  updateTransactions: Function,
+  updateUtxos: Function
 };
 
 const HomeScreen = ({
   address,
   addressSlp,
-  updateTransactions,
-  updateUtxos,
-  updateTokensMeta,
-  tokensById,
   balances,
-  navigation
+  navigation,
+  spotPrices,
+  tokensById,
+  updateSpotPrice,
+  updateTokensMeta,
+  updateTransactions,
+  updateUtxos
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
@@ -80,6 +87,13 @@ const HomeScreen = ({
     updateTokensMeta(missingTokenIds);
   }, [tokenIdsHash]);
 
+  // Todo - Add `currency` as a dependency to recompute
+  useEffect(() => {
+    updateSpotPrice();
+    const spotPriceInterval = setInterval(() => updateSpotPrice(), 60 * 1000);
+    return () => clearInterval(spotPriceInterval);
+  }, []);
+
   const slpTokens = balances.slpTokens;
 
   //[[tokenId, amount]]
@@ -91,6 +105,9 @@ const HomeScreen = ({
   // console.log(addressSlp);
   // console.log(address);
   // console.log(tokensById)
+
+  console.log("got spot price?");
+  console.log(spotPrices);
 
   const tokenData = slpTokensDisplay
     .map(([tokenId, amount]) => {
@@ -116,6 +133,12 @@ const HomeScreen = ({
       return 0;
     });
 
+  const BCHFiatAmount =
+    spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8);
+  const BCHFiatDisplay = spotPrices["bch"]["usd"].rate
+    ? `$${BCHFiatAmount.toFixed(3)} USD`
+    : "$ -.-- USD";
+
   const walletSections = [
     {
       title: "Bitcoin Cash Wallet",
@@ -123,7 +146,8 @@ const HomeScreen = ({
         {
           symbol: "BCH",
           name: "Bitcoin Cash",
-          amount: formatAmount(balances.satoshisAvailable, 8)
+          amount: formatAmount(balances.satoshisAvailable, 8),
+          valueDisplay: BCHFiatDisplay
         }
       ]
     },
@@ -147,11 +171,12 @@ const HomeScreen = ({
           renderItem={({ item }) =>
             item && (
               <CoinRow
-                ticker={item.symbol}
-                name={item.name}
                 amount={item.amount}
                 extra={item.extra}
+                name={item.name}
+                ticker={item.symbol}
                 tokenId={item.tokenId}
+                valueDisplay={item.valueDisplay}
                 onPress={() =>
                   navigation.navigate("WalletDetailScreen", {
                     symbol: item.symbol,
@@ -175,17 +200,21 @@ const mapStateToProps = (state, props) => {
 
   const tokensById = tokensByIdSelector(state);
 
+  const spotPrices = spotPricesSelector(state);
+
   return {
     address,
     addressSlp,
     balances,
+    spotPrices,
     tokensById
   };
 };
 const mapDispatchToProps = {
+  updateSpotPrice,
+  updateTokensMeta,
   updateTransactions,
-  updateUtxos,
-  updateTokensMeta
+  updateUtxos
 };
 
 export default connect(
