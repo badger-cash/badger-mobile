@@ -32,6 +32,7 @@ import {
   activeAccountSelector
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
+import { spotPricesSelector } from "../data/prices/selectors";
 
 const SLP = new SLPSDK();
 
@@ -83,9 +84,11 @@ type Props = {
   tokensById: { [tokenId: string]: TokenData },
   utxos: any,
   keypair: any,
+  spotPrices: any,
   activeAccount: any,
   navigation: {
     navigate: Function,
+    goBack: Function,
     state?: {
       params: {
         symbol: string,
@@ -102,7 +105,8 @@ const SendConfirmScreen = ({
   tokensById,
   activeAccount,
   utxos,
-  keypair
+  keypair,
+  spotPrices
 }: Props) => {
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
 
@@ -195,8 +199,7 @@ const SendConfirmScreen = ({
       ? BitcoinCashImage
       : { uri: makeBlockie(tokenId) };
 
-  const coinName =
-    symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
+  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
   // toAddress like
   // -> simpleledger:qq2addressHash
@@ -208,6 +211,16 @@ const SendConfirmScreen = ({
   const addressStart = address.slice(0, 5);
   const addressMiddle = address.slice(5, -6);
   const addressEnd = address.slice(-6);
+
+  const isBCH = !tokenId;
+  const BCHFiatAmount = isBCH
+    ? spotPrices["bch"]["usd"].rate * (sendAmountParam / 10 ** 8)
+    : 0;
+  const fiatDisplay = isBCH
+    ? spotPrices["bch"]["usd"].rate
+      ? `$${BCHFiatAmount.toFixed(3)} USD`
+      : "$ -.-- USD"
+    : null;
 
   return (
     <SafeAreaView style={{ height: "100%" }}>
@@ -232,6 +245,11 @@ const SendConfirmScreen = ({
       <H2 center>
         {sendAmount} {symbol}
       </H2>
+      {fiatDisplay && (
+        <T center type="muted2">
+          {fiatDisplay}
+        </T>
+      )}
       <Spacer large />
       <H2 center>To Address</H2>
       <Spacer small />
@@ -299,11 +317,13 @@ const mapStateToProps = state => {
   const activeAccount = activeAccountSelector(state);
   const utxos = utxosByAccountSelector(state, activeAccount.address);
   const keypair = getKeypairSelector(state);
+  const spotPrices = spotPricesSelector(state);
 
   return {
     activeAccount,
-    tokensById,
     keypair,
+    spotPrices,
+    tokensById,
     utxos
   };
 };
