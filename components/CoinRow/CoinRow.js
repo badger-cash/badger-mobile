@@ -60,7 +60,8 @@ const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
       </IconArea>
       <InfoArea>
         <T>
-          {ticker} - {name}
+          {ticker}
+          <T type="muted2"> - {name}</T>
         </T>
         <T size="large">{amount}</T>
       </InfoArea>
@@ -76,7 +77,7 @@ const HeaderWrapper = styled(View)`
   margin-top: 15px;
 `;
 
-const CoinRowHeader = ({ children }) => {
+const CoinRowHeader = ({ children }: { children: string }) => {
   return (
     <HeaderWrapper>
       <T size="small" type="muted">

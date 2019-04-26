@@ -9,6 +9,8 @@ const T = styled(Text)`
   color: ${props =>
     props.type === "muted"
       ? props.theme.fg200
+      : props.type === "muted2"
+      ? props.theme.fg300
       : props.type === "inverse"
       ? props.theme.bg900
       : props.type === "accent"
