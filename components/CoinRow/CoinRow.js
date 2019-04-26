@@ -12,11 +12,12 @@ import { T } from "../../atoms";
 import BitcoinCashImage from "../../assets/images/icon.png";
 
 type Props = {
-  ticker: string,
-  name: string,
   amount: string,
   extra: string,
+  name: string,
+  ticker: string,
   tokenId: ?string,
+  valueDisplay: ?string,
   onPress: Function
 };
 
@@ -47,7 +48,15 @@ const InfoArea = styled(View)`
   flex: 1;
 `;
 
-const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
+const CoinRow = ({
+  ticker,
+  name,
+  amount,
+  extra,
+  tokenId,
+  valueDisplay,
+  onPress
+}: Props) => {
   const imageSource =
     ticker === "BCH" && !tokenId
       ? BitcoinCashImage
@@ -60,9 +69,15 @@ const CoinRow = ({ ticker, name, amount, extra, tokenId, onPress }: Props) => {
       </IconArea>
       <InfoArea>
         <T>
-          {ticker} - {name}
+          {ticker}
+          <T type="muted2"> - {name}</T>
         </T>
         <T size="large">{amount}</T>
+        {valueDisplay && (
+          <T type="muted2" size="small">
+            {valueDisplay}
+          </T>
+        )}
       </InfoArea>
       <ArrowArea>
         <Ionicons name="ios-arrow-forward" size={24} />
@@ -76,7 +91,7 @@ const HeaderWrapper = styled(View)`
   margin-top: 15px;
 `;
 
-const CoinRowHeader = ({ children }) => {
+const CoinRowHeader = ({ children }: { children: string }) => {
   return (
     <HeaderWrapper>
       <T size="small" type="muted">

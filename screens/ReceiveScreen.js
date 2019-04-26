@@ -1,4 +1,5 @@
 // @flow
+
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
@@ -9,7 +10,7 @@ import {
   TouchableOpacity,
   Clipboard
 } from "react-native";
-import QRCode from "react-native-qrcode";
+import QRCode from "react-native-qrcode-svg";
 
 import {
   getAddressSelector,
@@ -17,7 +18,7 @@ import {
 } from "../data/accounts/selectors";
 import { addressToSlp } from "../utils/account-utils";
 
-import { T, Spacer, H1, H2 } from "../atoms";
+import { T, Spacer, H2 } from "../atoms";
 
 const QRHolder = styled(View)`
   justify-content: center;

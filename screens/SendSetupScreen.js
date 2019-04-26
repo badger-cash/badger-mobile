@@ -192,7 +192,6 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
           autoComplete="off"
           autoCorrect={false}
-          autoFocus
           value={toAddress}
           onChangeText={text => {
             setErrors([]);

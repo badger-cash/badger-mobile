@@ -1,9 +1,7 @@
 platform :ios, '10.0'
 
-require_relative '../node_modules/react-native-unimodules/cocoapods'
-
 target 'badgerMobile' do
-  # Pods for badger2
+  # Pods for badgerMobile
   pod 'React', :path => '../node_modules/react-native', :subspecs => [
     'Core',
     'CxxBridge',
@@ -27,7 +25,6 @@ target 'badgerMobile' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  use_unimodules!
 
   pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
 
@@ -40,6 +37,8 @@ target 'badgerMobile' do
   pod 'ReactNativePermissions', :path => '../node_modules/react-native-permissions'
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
 
   target 'badgerMobileTests' do
     inherit! :search_paths

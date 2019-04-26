@@ -18,7 +18,10 @@ import {
   getAddressSlpSelector
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { spotPricesSelector } from "../data/prices/selectors";
+
 import { updateUtxos } from "../data/utxos/actions";
+import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
 
@@ -43,8 +46,10 @@ const IconImage = styled(Image)`
 type Props = {
   navigation: { navigate: Function, state: { params: { txParams: any } } },
   address: string,
-  addressSlp: String,
+  addressSlp: string,
+  spotPrices: any,
   updateUtxos: Function,
+  updateTransactions: Function,
   tokensById: any
 };
 const SendSuccessScreen = ({
@@ -52,7 +57,9 @@ const SendSuccessScreen = ({
   addressSlp,
   tokensById,
   navigation,
-  updateUtxos
+  spotPrices,
+  updateUtxos,
+  updateTransactions
 }: Props) => {
   const { txParams } = navigation.state.params;
   const { to, from, value, data } = txParams;
@@ -61,7 +68,8 @@ const SendSuccessScreen = ({
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    _.delay(() => updateUtxos(address, addressSlp), 2000);
+    _.delay(() => updateUtxos(address, addressSlp), 1500);
+    _.delay(() => updateTransactions(address, addressSlp, 1750));
   }, [address, addressSlp]);
 
   const imageSource = tokenId
@@ -87,7 +95,17 @@ const SendSuccessScreen = ({
   const symbol = tokenId ? tokensById[tokenId].symbol : "BCH";
 
   // Tokens absolute amount, BCH it's # of satoshis
-  const valueFormatted = tokenId ? value : value / 10 ** 8;
+  const valueAdjusted = tokenId ? value : value / 10 ** 8;
+
+  const isBCH = !tokenId;
+  const BCHFiatAmount = isBCH
+    ? spotPrices["bch"]["usd"].rate * valueAdjusted
+    : 0;
+  const fiatDisplay = isBCH
+    ? spotPrices["bch"]["usd"].rate
+      ? `$${BCHFiatAmount.toFixed(3)} USD`
+      : "$ -.-- USD"
+    : null;
 
   return (
     <ScreenCover>
@@ -111,8 +129,13 @@ const SendSuccessScreen = ({
         <H2 center>Sent</H2>
         <Spacer small />
         <H2 center>
-          {valueFormatted} {symbol}
+          {valueAdjusted} {symbol}
         </H2>
+        {fiatDisplay && (
+          <T center type="muted2">
+            {fiatDisplay}
+          </T>
+        )}
         <Spacer large />
         <H2 center>To Address</H2>
         <Spacer small />
@@ -139,11 +162,13 @@ const SendSuccessScreen = ({
 const mapStateToProps = state => ({
   address: getAddressSelector(state),
   addressSlp: getAddressSlpSelector(state),
-  tokensById: tokensByIdSelector(state)
+  tokensById: tokensByIdSelector(state),
+  spotPrices: spotPricesSelector(state)
 });
 
 const mapDispatchToProps = {
-  updateUtxos
+  updateUtxos,
+  updateTransactions
 };
 
 export default connect(

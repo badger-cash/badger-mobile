@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { SafeAreaView, View, ScrollView, Image } from "react-native";
@@ -15,6 +15,8 @@ import {
   transactionsActiveAccountSelector,
   type Balances
 } from "../data/selectors";
+import { spotPricesSelector } from "../data/prices/selectors";
+
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
@@ -64,6 +66,7 @@ const WalletDetailScreen = ({
   balances,
   navigation,
   tokensById,
+  spotPrices,
   transactions,
   updateTransactions
 }: Props) => {
@@ -82,6 +85,15 @@ const WalletDetailScreen = ({
   const imageSource =
     ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
 
+  const BCHFiatAmount = isBCH
+    ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
+    : 0;
+  const fiatDisplay = isBCH
+    ? spotPrices["bch"]["usd"].rate
+      ? `$${BCHFiatAmount.toFixed(3)} USD`
+      : "$ -.-- USD"
+    : null;
+
   return (
     <SafeAreaView>
       <ScrollView style={{ height: "100%" }}>
@@ -98,6 +110,11 @@ const WalletDetailScreen = ({
           <Spacer />
           <T center>Balance</T>
           <H1 center>{formatAmount(amount, decimals)}</H1>
+          {fiatDisplay && (
+            <T center type="muted2">
+              {fiatDisplay}
+            </T>
+          )}
           <Spacer />
           <ButtonGroup>
             <Button
@@ -146,6 +163,7 @@ const mapStateToProps = (state, props) => {
   const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
+  const spotPrices = spotPricesSelector(state);
 
   const transactionsAll = transactionsActiveAccountSelector(state);
 
@@ -156,7 +174,7 @@ const mapStateToProps = (state, props) => {
       if (tokenId) {
         return tokenId === txTokenId;
       }
-      return !tokenId;
+      return !txTokenId;
     })
     .slice(0, 30);
 
@@ -165,13 +183,12 @@ const mapStateToProps = (state, props) => {
     addressSlp,
     balances,
     tokensById,
-    transactions
+    transactions,
+    spotPrices
   };
 };
 
-const mapDispatchToProps = {
-  // updateTransactions
-};
+const mapDispatchToProps = {};
 
 export default connect(
   mapStateToProps,

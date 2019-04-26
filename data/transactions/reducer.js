@@ -59,7 +59,7 @@ const addTransactions = (
 
   return {
     ...state,
-    byId: { ...state.byId, ...transactionsById },
+    byId: { ...transactionsById, ...state.byId },
     byAccount: {
       ...state.byAccount,
       [address]: [...nextAccountTxs]
