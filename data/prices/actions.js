@@ -29,11 +29,8 @@ const updateSpotPriceFail = () => ({
 const updateSpotPrice = () => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateSpotPriceStart());
-    console.log("before");
 
     const rate = await SLP.Price.current("usd");
-    console.log("spot rate usd");
-    console.log(rate);
     dispatch(updateSpotPriceSuccess("usd", rate));
   };
 };
