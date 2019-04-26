@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { SafeAreaView, View, ScrollView, Image } from "react-native";
@@ -169,9 +169,7 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = {
-  // updateTransactions
-};
+const mapDispatchToProps = {};
 
 export default connect(
   mapStateToProps,
