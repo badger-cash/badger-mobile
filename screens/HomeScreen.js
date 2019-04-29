@@ -106,9 +106,6 @@ const HomeScreen = ({
   // console.log(address);
   // console.log(tokensById)
 
-  console.log("got spot price?");
-  console.log(spotPrices);
-
   const tokenData = slpTokensDisplay
     .map(([tokenId, amount]) => {
       const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";

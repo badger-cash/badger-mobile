@@ -99,7 +99,33 @@ const formatAmountInput = (amount: string): string => {
     }
     return prev;
   }, []);
-  return valid.join("");
+
+  const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
+  return maybeZero.join("");
+};
+
+const parseQr = (qrData: string) => {
+  let address = null;
+  let amount = null;
+
+  // Parse out address and any BIP21 relevant data
+  const parts = qrData.split("?");
+
+  address = parts[0];
+  const parameters = parts[1];
+  if (parameters) {
+    const parameterParts = parameters.split("&");
+    parameterParts.map(param => {
+      const [name, value] = param.split("=");
+      if (name === "amount") {
+        amount = value;
+      }
+    });
+  }
+  return {
+    address,
+    amount
+  };
 };
 
 const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
@@ -123,13 +149,11 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
     formatAmount(availableAmount, adjustDecimals)
   );
 
-  const coinName =
-    symbol === "BCH" && !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
+  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
-  const imageSource =
-    symbol === "BCH" && !tokenId
-      ? BitcoinCashImage
-      : { uri: makeBlockie(tokenId) };
+  const imageSource = !tokenId
+    ? BitcoinCashImage
+    : { uri: makeBlockie(tokenId) };
 
   return (
     <ScreenWrapper>
@@ -139,8 +163,13 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             cameraProps={{ ratio: "1:1", captureAudio: false }}
             fadeIn={false}
             onRead={e => {
-              const address = e.data;
-              setToAddress(address);
+              const qrData = e.data;
+
+              const { address, amount } = parseQr(qrData);
+
+              address && setToAddress(address);
+              amount && setSendAmount(amount);
+
               setErrors([]);
               setQrOpen(false);
             }}
