@@ -304,7 +304,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             hasErrors = true;
           }
 
-          if (sendAmount > availableFunds) {
+          if (parseFloat(sendAmount) > availableFunds) {
             setErrors(["Cannot send more funds than are available"]);
             hasErrors = true;
           }

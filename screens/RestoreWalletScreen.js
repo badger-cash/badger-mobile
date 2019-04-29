@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 
 import { SafeAreaView, View, TextInput, TouchableOpacity } from "react-native";
 
-import { T, Spacer } from "../atoms";
+import { H1, H2, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 
@@ -26,9 +26,7 @@ type Props = {
 };
 
 const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
-  const [mnemonic, setMnemonic] = useState(
-    "Enter Backup Phrase / Mnemonic Here"
-  );
+  const [mnemonic, setMnemonic] = useState("");
 
   useEffect(() => {
     if (isCreated) {
@@ -39,14 +37,20 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
   return (
     <SafeAreaView>
       <Screen>
-        <T>Restore From Backup Phrase</T>
+        <Spacer />
+        <H1 center>Restore From Recovery Phrase</H1>
+        <Spacer />
+        <T center>
+          Enter your 12 word recovery phrase or mnemonic to login to an existing
+          account
+        </T>
         <Spacer />
         <StyledTextInput
           multiline
           editable
           autoComplete="off"
           autoCorrect={false}
-          autoFocus
+          placeholder="Enter Backup Phrase / Mnemonic"
           value={mnemonic}
           onChangeText={text => {
             setMnemonic(text);

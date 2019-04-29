@@ -4,7 +4,7 @@ import React from "react";
 import { SafeAreaView, View, Image } from "react-native";
 import styled from "styled-components";
 
-import { T, H1, Spacer, Button } from "../atoms";
+import { T, H1, H2, Spacer, Button } from "../atoms";
 
 import BadgerIcon from "../assets/images/icon.png";
 
@@ -20,7 +20,8 @@ const WelcomeScreen = ({ navigation }: Props) => {
   return (
     <StyledWrapper>
       <Spacer />
-      <H1>Badger | Alpha</H1>
+      <H1>Badger Mobile </H1>
+      <H2 type="muted2">Alpha</H2>
       <Spacer />
       <Image source={BadgerIcon} style={{ width: 150, height: 150 }} />
       <Spacer />
@@ -33,12 +34,12 @@ const WelcomeScreen = ({ navigation }: Props) => {
       <View style={{ flex: 1 }}>
         <Button
           onPress={() => navigation.navigate("PrivacyNotice")}
-          text="Create new wallet"
+          text="Create Wallet"
         />
         <Spacer small />
         <Button
           onPress={() => navigation.navigate("RestoreFromBackup")}
-          text="Restore from backup phrase"
+          text="Restore Wallet"
         />
       </View>
     </StyledWrapper>

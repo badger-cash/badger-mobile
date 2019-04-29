@@ -82,7 +82,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           <QRHolder>
             <QRCode
               value={address}
-              size={150}
+              size={125}
               bgColor="black"
               fgColor="white"
             />
@@ -109,7 +109,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           <QRHolder>
             <QRCode
               value={simpleLedgerAddr}
-              size={150}
+              size={125}
               bgColor="black"
               fgColor="white"
             />
@@ -120,6 +120,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             )}
           </QRHolder>
         </TouchableOpacity>
+        <Spacer />
       </ScrollView>
     </SafeAreaView>
   );

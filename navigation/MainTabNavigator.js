@@ -107,7 +107,10 @@ const BottomTabNavigator = createBottomTabNavigator(
 
     tabBarOptions: {
       activeTintColor: theme.primary500,
-      inactiveTintColor: theme.fg300
+      inactiveTintColor: theme.fg300,
+      tabStyle: {
+        paddingVertical: 5
+      }
     }
   }
 );
