@@ -5,7 +5,11 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 
 import { View, SafeAreaView } from "react-native";
-import { NavigationEvents } from "react-navigation";
+import {
+  NavigationEvents,
+  NavigationActions,
+  StackActions
+} from "react-navigation";
 
 import { getMnemonicSelector } from "../data/accounts/selectors";
 import { T, H1, Spacer, Button } from "../atoms";
@@ -45,11 +49,15 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
 
   return (
     <SafeAreaView>
-      <NavigationEvents onWillBlur={() => setShowing(false)} />
+      <NavigationEvents
+        onWillBlur={() => {
+          setShowing(false);
+        }}
+      />
       <Screen>
-        <H1>Backup Seed Phrase</H1>
+        <H1 center>Backup Seed Phrase</H1>
         <Spacer />
-        <T>
+        <T center>
           Your seed phrase is the key to your funds. Please write it down, and
           keep it very, very private. This is your private key.
         </T>
@@ -57,12 +65,13 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
         <WordHolder>
           {!showing && (
             <Cover>
-              <T center>I am in a private area and wish to see my seed words</T>
+              <T center>
+                I am in a private area and wish to see my seed phrase
+              </T>
               <Spacer />
               <Button
-                text="Reveal Seed Words"
+                text="Reveal Seed Phrase"
                 onPress={() => setShowing(true)}
-                nature="cautionGhost"
               />
             </Cover>
           )}

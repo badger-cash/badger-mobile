@@ -43,7 +43,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       <InnerWrapper>
         <ActivityIndicator />
         <Spacer />
-        <T>Starting Badger Mobile</T>
+        <T>Herding Badgers</T>
       </InnerWrapper>
     </Wrapper>
   );

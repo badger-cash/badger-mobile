@@ -8,8 +8,6 @@ import { SafeAreaView, ScrollView, View, TouchableOpacity } from "react-native";
 
 import { T } from "../atoms";
 
-import { logoutAccount } from "../data/accounts/actions";
-
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
 `;
@@ -30,7 +28,7 @@ type Props = {
   logoutAccount: Function
 };
 
-const SettingsScreen = ({ navigation, logoutAccount }: Props) => {
+const SettingsScreen = ({ navigation }: Props) => {
   return (
     <SafeAreaView>
       <StyledScrollView>
@@ -45,8 +43,7 @@ const SettingsScreen = ({ navigation, logoutAccount }: Props) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            logoutAccount();
-            navigation.navigate("AuthLoadingCheck");
+            navigation.navigate("LogoutScreen");
           }}
         >
           <Row>
@@ -62,9 +59,7 @@ const mapStateToProps = state => {
   return {};
 };
 
-const mapDispatchToProps = {
-  logoutAccount
-};
+const mapDispatchToProps = {};
 
 export default connect(
   mapStateToProps,

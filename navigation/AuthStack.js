@@ -9,7 +9,6 @@ import TermsOfUseScreen from "../screens/TermsOfUseScreen";
 import PrivacyNoticeScreen from "../screens/PrivacyNoticeScreen";
 import CreateWalletScreen from "../screens/CreateWalletScreen";
 
-// import UnlockScreen from "../screens/UnlockScreen";
 import RestoreWalletScreen from "../screens/RestoreWalletScreen";
 
 const AuthStack = createStackNavigator(
@@ -20,7 +19,6 @@ const AuthStack = createStackNavigator(
     AcceptTermsOfUse: { screen: TermsOfUseScreen },
     PrivacyNotice: { screen: PrivacyNoticeScreen },
     CreateWallet: { screen: CreateWalletScreen }, // Create a password here also?
-    // unlock: UnlockScreen,
     RestoreFromBackup: { screen: RestoreWalletScreen }
   },
   {

@@ -12,6 +12,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
+import LogoutScreen from "../screens/LogoutScreen";
 
 import SendStack from "./SendStack";
 
@@ -69,6 +70,9 @@ const SettingsStack = createStackNavigator(
         headerTintColor: theme.primary500,
         headerTitleStyle: { color: theme.fg200 }
       }
+    },
+    LogoutScreen: {
+      screen: LogoutScreen
     }
   },
   {
