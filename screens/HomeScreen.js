@@ -59,6 +59,7 @@ const HomeScreen = ({
   updateUtxos
 }: Props) => {
   useEffect(() => {
+    if (!address) return;
     // Update UTXOs on an interval
     updateUtxos(address, addressSlp);
     const utxoInterval = setInterval(
@@ -70,6 +71,7 @@ const HomeScreen = ({
 
   // Update transaction history
   useEffect(() => {
+    if (!address) return;
     updateTransactions(address, addressSlp);
     const transactionInterval = setInterval(
       () => updateTransactions(address, addressSlp),

@@ -20,6 +20,8 @@ const transactionsActiveAccountSelector = createSelector(
   activeAccountSelector,
   transactionsSelector,
   (activeAccount, transactions) => {
+    if (!activeAccount) return [];
+
     const { address } = activeAccount;
     const { byId, byAccount } = transactions;
 
