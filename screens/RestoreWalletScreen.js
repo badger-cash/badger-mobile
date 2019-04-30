@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import SLPSDK from "slp-sdk";
 
 import { SafeAreaView, View, TextInput } from "react-native";
 
 import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
+
+const SLP = new SLPSDK();
 
 const Screen = styled(View)`
   padding: 10px;
@@ -36,14 +39,6 @@ const formatMnemonic = (mnemonic: string) => {
   const formatted = cleaned.join(" ").toLowerCase();
 
   return formatted;
-};
-
-// Basic mnemonic validation, for now just ensure it's length is 12
-const validateMnemonic = (mnemonic: string) => {
-  const trimmed = mnemonic.trim();
-  const split = trimmed.split(" ");
-  const validLength = split.length === 12;
-  return validLength;
 };
 
 type Props = {
@@ -103,14 +98,22 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
 
         <Button
           onPress={() => {
-            const validMnemonic = validateMnemonic(mnemonic);
-            if (!validMnemonic) {
-              setInputError(
-                "That mnemonic doesn't look right, double check that pass phrase and make sure it's 12 words long and try again"
-              );
+            const mnemonicMessage = SLP.Mnemonic.validate(
+              mnemonic,
+              SLP.Mnemonic.wordLists().english
+            );
+            if (mnemonicMessage === "Valid mnemonic") {
+              getAccount(mnemonic.trim());
               return;
             }
-            getAccount(mnemonic.trim());
+            let errorMessage = "Double check the recovery phrase and try again";
+            if (mnemonicMessage === "Invalid mnemonic") {
+              errorMessage = `${mnemonicMessage}, check the recovery phrase and try again`;
+            } else {
+              errorMessage = mnemonicMessage;
+            }
+
+            setInputError(errorMessage);
           }}
           text="Restore Wallet"
         />
