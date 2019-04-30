@@ -1,6 +1,6 @@
 {
   "name": "badgerMobile",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "homepage": "https://badger.bitcoin.com",
   "repository": {
@@ -31,6 +31,7 @@
     "react-native-camera": "^2.6.0",
     "react-native-crypto": "^2.1.2",
     "react-native-gesture-handler": "^1.1.0",
+    "react-native-markdown-package": "^1.4.3",
     "react-native-qrcode-scanner": "^1.1.2",
     "react-native-qrcode-svg": "^5.1.2",
     "react-native-randombytes": "^3.5.2",

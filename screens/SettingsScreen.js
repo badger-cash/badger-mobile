@@ -6,7 +6,9 @@ import styled from "styled-components";
 
 import { SafeAreaView, ScrollView, View, TouchableOpacity } from "react-native";
 
-import { T } from "../atoms";
+import { T, Spacer } from "../atoms";
+
+import packageJson from "../package.json";
 
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
@@ -31,7 +33,7 @@ type Props = {
 const SettingsScreen = ({ navigation }: Props) => {
   return (
     <SafeAreaView>
-      <StyledScrollView>
+      <StyledScrollView contentContainerStyle={{ flex: 1 }}>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("ViewSeedPhrase");
@@ -43,6 +45,24 @@ const SettingsScreen = ({ navigation }: Props) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            navigation.navigate("ViewTermsOfUse");
+          }}
+        >
+          <Row>
+            <T>Terms of Use</T>
+          </Row>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("ViewPrivacyPolicy");
+          }}
+        >
+          <Row>
+            <T>Privacy Policy</T>
+          </Row>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
             navigation.navigate("LogoutScreen");
           }}
         >
@@ -50,6 +70,11 @@ const SettingsScreen = ({ navigation }: Props) => {
             <T>Logout</T>
           </Row>
         </TouchableOpacity>
+        <Spacer fill />
+        <T center size="small" type="muted2">
+          Version {packageJson.version}
+        </T>
+        <Spacer small />
       </StyledScrollView>
     </SafeAreaView>
   );
