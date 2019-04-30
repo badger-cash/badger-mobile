@@ -14,6 +14,9 @@ import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 
+import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
+import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
+
 import SendStack from "./SendStack";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
@@ -122,7 +125,9 @@ const BottomTabNavigator = createBottomTabNavigator(
 const MainAppStack = createStackNavigator(
   {
     MainAppTabs: BottomTabNavigator,
-    SendStack: SendStack
+    SendStack: SendStack,
+    ViewTermsOfUse: { screen: ViewTermsOfUseScreen },
+    ViewPrivacyPolicy: { screen: ViewPrivacyNoticeScreen }
   },
   {
     initialRouteName: "MainAppTabs",
