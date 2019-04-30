@@ -12,6 +12,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
+import LogoutScreen from "../screens/LogoutScreen";
 
 import SendStack from "./SendStack";
 
@@ -69,6 +70,9 @@ const SettingsStack = createStackNavigator(
         headerTintColor: theme.primary500,
         headerTitleStyle: { color: theme.fg200 }
       }
+    },
+    LogoutScreen: {
+      screen: LogoutScreen
     }
   },
   {
@@ -107,7 +111,10 @@ const BottomTabNavigator = createBottomTabNavigator(
 
     tabBarOptions: {
       activeTintColor: theme.primary500,
-      inactiveTintColor: theme.fg300
+      inactiveTintColor: theme.fg300,
+      tabStyle: {
+        paddingVertical: 5
+      }
     }
   }
 );

@@ -185,6 +185,7 @@ const HomeScreen = ({
           }
           keyExtractor={(item, index) => `${index}`}
         />
+        <Spacer small />
       </ScrollView>
     </SafeAreaView>
   );
