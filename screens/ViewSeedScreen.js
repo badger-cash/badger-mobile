@@ -4,17 +4,13 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
-import { View, SafeAreaView } from "react-native";
-import {
-  NavigationEvents,
-  NavigationActions,
-  StackActions
-} from "react-navigation";
+import { View, ScrollView, SafeAreaView } from "react-native";
+import { NavigationEvents } from "react-navigation";
 
 import { getMnemonicSelector } from "../data/accounts/selectors";
 import { T, H1, Spacer, Button } from "../atoms";
 
-const Screen = styled(View)`
+const Screen = styled(ScrollView)`
   padding: 10px;
 `;
 
@@ -35,9 +31,6 @@ const Cover = styled(View)`
   width: 100%;
   z-index: 1;
 `;
-
-// TODO - Currently stays on this screen if navigating away using bottom nav.
-// Make pressing settings always start on index page
 
 type Props = { mnemonic: string };
 
@@ -81,6 +74,7 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
             </T>
           ))}
         </WordHolder>
+        <Spacer />
       </Screen>
     </SafeAreaView>
   );

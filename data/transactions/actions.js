@@ -35,6 +35,8 @@ const getTransactionsFail = () => ({
 
 const updateTransactions = (address: string, addressSlp: string) => {
   return async (dispatch: Function, getState: Function) => {
+    if (!address || !addressSlp) return;
+
     dispatch(getTransactionsStart());
 
     const currentState = getState();

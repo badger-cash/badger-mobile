@@ -9,6 +9,9 @@ const getHistoricalBchTransactions = async (
   address: string,
   latestBlock: number
 ) => {
+  if (!address) {
+    return [];
+  }
   const query = {
     v: 3,
     q: {
@@ -64,6 +67,7 @@ const getHistoricalSlpTransactions = async (
   slpAddress: string,
   latestBlock: number
 ) => {
+  if (!address) return [];
   const query = {
     v: 3,
     q: {

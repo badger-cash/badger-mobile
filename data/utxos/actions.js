@@ -43,6 +43,7 @@ const computeUtxoId = utxo =>
 
 const refreshUtxos = async (state: FullState, address: string) => {
   const accountId = activeAccountIdSelector(state);
+  if (!accountId) return [];
 
   // Get the existing UTXO's in store for account
   const utxosSlice = state.utxos;
@@ -153,6 +154,10 @@ const refreshUtxos = async (state: FullState, address: string) => {
 // Fetch all UTXOS, update them with relevant token metadata, and persist
 const updateUtxos = (address: string, addressSlp: string) => {
   return async (dispatch: Function, getState: Function) => {
+    if (!address || !addressSlp) {
+      return;
+    }
+
     dispatch(updateUtxoStart());
 
     const state: FullState = getState();

@@ -56,6 +56,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
   };
 
   useEffect(() => {
+    if (!addressSlp) return;
     convertAddress();
   }, [addressSlp]);
 
@@ -79,19 +80,21 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             {address}
           </T>
 
-          <QRHolder>
-            <QRCode
-              value={address}
-              size={125}
-              bgColor="black"
-              fgColor="white"
-            />
-            {showing !== "BCH" && (
-              <QROverlay>
-                <T>Tap to show</T>
-              </QROverlay>
-            )}
-          </QRHolder>
+          {address && (
+            <QRHolder>
+              <QRCode
+                value={address}
+                size={125}
+                bgColor="black"
+                fgColor="white"
+              />
+              {showing !== "BCH" && (
+                <QROverlay>
+                  <T>Tap to show</T>
+                </QROverlay>
+              )}
+            </QRHolder>
+          )}
         </TouchableOpacity>
         <Spacer />
         <H2 center>Simple Token (SLP)</H2>
@@ -106,19 +109,21 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             {simpleLedgerAddr}
           </T>
 
-          <QRHolder>
-            <QRCode
-              value={simpleLedgerAddr}
-              size={125}
-              bgColor="black"
-              fgColor="white"
-            />
-            {showing !== "SLP" && (
-              <QROverlay>
-                <T>Tap to show</T>
-              </QROverlay>
-            )}
-          </QRHolder>
+          {simpleLedgerAddr && (
+            <QRHolder>
+              <QRCode
+                value={simpleLedgerAddr}
+                size={125}
+                bgColor="black"
+                fgColor="white"
+              />
+              {showing !== "SLP" && (
+                <QROverlay>
+                  <T>Tap to show</T>
+                </QROverlay>
+              )}
+            </QRHolder>
+          )}
         </TouchableOpacity>
         <Spacer />
       </ScrollView>

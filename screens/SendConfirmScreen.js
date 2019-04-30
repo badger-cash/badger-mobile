@@ -89,6 +89,7 @@ type Props = {
   navigation: {
     navigate: Function,
     goBack: Function,
+    replace: Function,
     state?: {
       params: {
         symbol: string,
@@ -110,7 +111,6 @@ const SendConfirmScreen = ({
 }: Props) => {
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
 
-  // TODO - Consider moving this into redux
   const [
     transactionState: "setup" | "signing" | "broadcasting" | "sent",
     setTransactionState
@@ -174,7 +174,6 @@ const SendConfirmScreen = ({
           activeAccount.addressSlp
         );
       } else {
-        console.log("sending BCH transaction");
         // Sign and send BCH tx
         txParams = {
           to: toAddress,
@@ -187,7 +186,7 @@ const SendConfirmScreen = ({
     } catch (e) {
       throw new Error("Error sending transaction");
     }
-    navigation.navigate("SendSuccess", { txParams });
+    navigation.replace("SendSuccess", { txParams });
   };
   // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
