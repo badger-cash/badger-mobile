@@ -3,7 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { SafeAreaView, View, ScrollView, Image } from "react-native";
+import { SafeAreaView, View, ScrollView, Image, Linking } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 
 import {
@@ -39,6 +39,10 @@ const ButtonGroup = styled(View)`
   justify-content: space-around;
 `;
 
+const ExplorerRow = styled(View)`
+  padding: 10px 10px 12px;
+`;
+
 const IconImage = styled(Image)`
   width: 64;
   height: 64;
@@ -53,7 +57,9 @@ const IconArea = styled(View)`
 
 type Props = {
   address: string,
+  addressSlp: String,
   balances: Balances,
+  spotPrices: any,
   navigation: { navigate: Function, state: { params: any } },
   tokensById: { [tokenId: string]: TokenData },
   updateTransactions: Function,
@@ -93,6 +99,10 @@ const WalletDetailScreen = ({
       ? `$${BCHFiatAmount.toFixed(3)} USD`
       : "$ -.-- USD"
     : null;
+
+  const explorerUrl = isBCH
+    ? `https://explorer.bitcoin.com/bch/address/${address}`
+    : `https://explorer.bitcoin.com/bch/address/${addressSlp}`;
 
   return (
     <SafeAreaView>
@@ -151,6 +161,17 @@ const WalletDetailScreen = ({
               />
             );
           })}
+          <ExplorerRow>
+            <Spacer />
+            <T
+              center
+              type="muted2"
+              onPress={() => Linking.openURL(explorerUrl)}
+            >
+              Full History
+            </T>
+            <Spacer />
+          </ExplorerRow>
         </TransactionArea>
       </ScrollView>
     </SafeAreaView>
