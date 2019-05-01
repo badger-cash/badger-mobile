@@ -25,6 +25,8 @@ import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
 
+import { getTokenImage } from "../utils/token-utils";
+
 const SLP = new SLPSDK();
 
 const ScreenCover = styled(View)`
@@ -72,9 +74,7 @@ const SendSuccessScreen = ({
     _.delay(() => updateTransactions(address, addressSlp, 1750));
   }, [address, addressSlp]);
 
-  const imageSource = tokenId
-    ? { uri: makeBlockie(tokenId) }
-    : BitcoinCashImage;
+  const imageSource = getTokenImage(tokenId);
 
   const toConverted = tokenId
     ? SLP.Address.toSLPAddress(to)

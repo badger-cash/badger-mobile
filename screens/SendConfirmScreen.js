@@ -27,6 +27,8 @@ import {
   signAndPublishSlpTransaction
 } from "../utils/transaction-utils";
 
+import { getTokenImage } from "../utils/token-utils";
+
 import {
   getKeypairSelector,
   activeAccountSelector
@@ -193,10 +195,7 @@ const SendConfirmScreen = ({
     navigation.navigate("SendSetup", { symbol, tokenId });
   }
 
-  const imageSource =
-    symbol === "BCH" && !tokenId
-      ? BitcoinCashImage
-      : { uri: makeBlockie(tokenId) };
+  const imageSource = getTokenImage(tokenId);
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 

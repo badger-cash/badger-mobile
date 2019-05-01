@@ -29,6 +29,7 @@ import { TransactionRow } from "../components";
 import { addressToSlp } from "../utils/account-utils";
 
 import BitcoinCashImage from "../assets/images/icon.png";
+import { getTokenImage } from "../utils/token-utils";
 
 const TransactionArea = styled(View)`
   border-top-width: 1px;
@@ -102,8 +103,7 @@ const WalletDetailScreen = ({
     ? balances.satoshisAvailable
     : balances.slpTokens[tokenId];
 
-  const imageSource =
-    ticker === "BCH" ? BitcoinCashImage : { uri: makeBlockie(tokenId) };
+  const imageSource = getTokenImage(tokenId);
 
   const BCHFiatAmount = isBCH
     ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)

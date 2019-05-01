@@ -27,6 +27,7 @@ import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { formatAmount } from "../utils/balance-utils";
+import { getTokenImage } from "../utils/token-utils";
 
 const SLP = new SLPSDK();
 
@@ -165,9 +166,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
-  const imageSource = !tokenId
-    ? BitcoinCashImage
-    : { uri: makeBlockie(tokenId) };
+  const imageSource = getTokenImage(tokenId);
 
   return (
     <ScreenWrapper>
