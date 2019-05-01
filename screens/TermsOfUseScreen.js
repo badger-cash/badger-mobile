@@ -23,7 +23,7 @@ _Our Terms of Use have been updated as of January 8, 2019_
 
 ## 1. Acceptance of Terms
 
-Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at[https://badger.bitcoin.com/](https://badger.bitcoin.com/) and browser plugin (the "Site") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services.
+Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at [https://badger.bitcoin.com/](https://badger.bitcoin.com/) and browser plugin (the "Site") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services.
 
 ## 2. Modification of Terms of Use
 
@@ -155,6 +155,7 @@ Users with questions, complaints or claims with respect to the Service may conta
 const TermsOfUseScreen = ({ navigation }: Props) => {
   return (
     <ScreenView>
+      <Spacer small />
       <H2 center>Terms of Use</H2>
       <Spacer small />
       <ScrollView>
@@ -172,13 +173,16 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
 const ViewTermsOfUseScreen = ({ navigation }: Props) => {
   return (
     <ScreenView>
+      <Spacer small />
       <H2 center>Terms of Use</H2>
       <Spacer small />
       <ScrollView>
         <Markdown onLink={url => Linking.openURL(url)}>{ToSContent}</Markdown>
         <Spacer />
       </ScrollView>
-      <Button onPress={() => navigation.goBack()} text="Okay" />
+      <Spacer small />
+      <Button onPress={() => navigation.goBack()} text="Accept" />
+      <Spacer small />
     </ScreenView>
   );
 };
