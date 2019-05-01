@@ -299,7 +299,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             hasErrors = true;
           } else if (!tokenId && addressFormat !== "cashaddr") {
             setErrors([
-              "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `cashaddr:`"
+              "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
             ]);
             hasErrors = true;
           }
