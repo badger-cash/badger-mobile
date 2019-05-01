@@ -242,7 +242,7 @@ const SendConfirmScreen = ({
       <H2 center>Sending</H2>
       <Spacer small />
       <H2 center>
-        {sendAmount || "--"} {symbol}
+        {sendAmountFormatted || "--"} {symbol}
       </H2>
       {fiatDisplay && (
         <T center type="muted2">
