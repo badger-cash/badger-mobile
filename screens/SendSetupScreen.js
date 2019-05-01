@@ -108,7 +108,7 @@ const formatAmountInput = (amount: string, maxDecimals: number): string => {
   // Add a 0 if first digit is a '.'
   const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
 
-  // restrict decimals
+  // Restrict decimals
   const decimalIndex = maybeZero.indexOf(".");
   const decimalAdjusted =
     decimalIndex >= 0
@@ -320,6 +320,11 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
           if (parseFloat(sendAmount) > availableFunds) {
             setErrors(["Cannot send more funds than are available"]);
+            hasErrors = true;
+          }
+
+          if (!sendAmount) {
+            setErrors(["Amount required"]);
             hasErrors = true;
           }
 
