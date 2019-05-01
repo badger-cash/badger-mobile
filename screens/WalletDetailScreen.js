@@ -1,9 +1,9 @@
 // @flow
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { SafeAreaView, View, ScrollView, Image } from "react-native";
+import { SafeAreaView, View, ScrollView, Image, Linking } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 
 import {
@@ -26,6 +26,8 @@ import { formatAmount } from "../utils/balance-utils";
 import { T, H1, H2, Spacer, Button } from "../atoms";
 import { TransactionRow } from "../components";
 
+import { addressToSlp } from "../utils/account-utils";
+
 import BitcoinCashImage from "../assets/images/icon.png";
 
 const TransactionArea = styled(View)`
@@ -37,6 +39,10 @@ const TransactionArea = styled(View)`
 const ButtonGroup = styled(View)`
   flex-direction: row;
   justify-content: space-around;
+`;
+
+const ExplorerRow = styled(View)`
+  padding: 10px 10px 12px;
 `;
 
 const IconImage = styled(Image)`
@@ -53,7 +59,9 @@ const IconArea = styled(View)`
 
 type Props = {
   address: string,
+  addressSlp: string,
   balances: Balances,
+  spotPrices: any,
   navigation: { navigate: Function, state: { params: any } },
   tokensById: { [tokenId: string]: TokenData },
   updateTransactions: Function,
@@ -72,6 +80,18 @@ const WalletDetailScreen = ({
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
+
+  const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
+
+  async function convertToSimpleLedger() {
+    const simpleLedger = await addressToSlp(addressSlp);
+    setSimpleledgerAddress(simpleLedger);
+    return simpleLedger;
+  }
+
+  useEffect(() => {
+    convertToSimpleLedger();
+  }, [addressSlp]);
 
   const isBCH = !tokenId;
 
@@ -93,6 +113,10 @@ const WalletDetailScreen = ({
       ? `$${BCHFiatAmount.toFixed(3)} USD`
       : "$ -.-- USD"
     : null;
+
+  const explorerUrl = isBCH
+    ? `https://explorer.bitcoin.com/bch/address/${address}`
+    : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddress}`;
 
   return (
     <SafeAreaView>
@@ -151,6 +175,17 @@ const WalletDetailScreen = ({
               />
             );
           })}
+          <ExplorerRow>
+            <Spacer />
+            <T
+              center
+              type="muted2"
+              onPress={() => Linking.openURL(explorerUrl)}
+            >
+              Full History
+            </T>
+            <Spacer />
+          </ExplorerRow>
         </TransactionArea>
       </ScrollView>
     </SafeAreaView>
