@@ -82,7 +82,6 @@ const TransactionRow = ({
     blockie = newBlockie;
   }
   const imageSource = { uri: blockie };
-  // const imageSource = { uri: makeBlockie(transactionAddress) }; // no cache version
 
   const typeFormatted = type === "send" ? "Sent" : "Received";
   return (

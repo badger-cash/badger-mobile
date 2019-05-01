@@ -27,6 +27,7 @@ import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { formatAmount } from "../utils/balance-utils";
+import { getTokenImage } from "../utils/token-utils";
 
 const SLP = new SLPSDK();
 
@@ -86,13 +87,18 @@ type Props = {
 };
 
 // Only allow numbers and a single . in amount input
-const formatAmountInput = (amount: string): string => {
+const formatAmountInput = (amount: string, maxDecimals: number): string => {
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   let decimalCount = 0;
 
   const valid = amount.split("").reduce((prev, curr, idx, array) => {
+    // Only allow max 1 leading 0
     if (idx === 1 && curr === "0" && array[0] === "0") return prev;
+
+    // Filter non-valid characters
     if (validCharacters.includes(curr)) return [...prev, curr];
+
+    // Max of 1 decimal
     if (curr === "." && decimalCount === 0) {
       decimalCount++;
       return [...prev, curr];
@@ -100,8 +106,17 @@ const formatAmountInput = (amount: string): string => {
     return prev;
   }, []);
 
+  // Add a 0 if first digit is a '.'
   const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
-  return maybeZero.join("");
+
+  // Restrict decimals
+  const decimalIndex = maybeZero.indexOf(".");
+  const decimalAdjusted =
+    decimalIndex >= 0
+      ? maybeZero.slice(0, decimalIndex + maxDecimals + 1)
+      : maybeZero;
+
+  return decimalAdjusted.join("");
 };
 
 const parseQr = (qrData: string) => {
@@ -151,9 +166,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
-  const imageSource = !tokenId
-    ? BitcoinCashImage
-    : { uri: makeBlockie(tokenId) };
+  const imageSource = getTokenImage(tokenId);
 
   return (
     <ScreenWrapper>
@@ -267,7 +280,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           value={sendAmount}
           onChangeText={text => {
             setErrors([]);
-            setSendAmount(formatAmountInput(text));
+            setSendAmount(formatAmountInput(text, adjustDecimals));
           }}
         />
       </KeyboardAvoidingView>
@@ -306,6 +319,11 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
           if (parseFloat(sendAmount) > availableFunds) {
             setErrors(["Cannot send more funds than are available"]);
+            hasErrors = true;
+          }
+
+          if (!sendAmount) {
+            setErrors(["Amount required"]);
             hasErrors = true;
           }
 

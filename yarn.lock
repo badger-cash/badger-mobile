@@ -2194,6 +2194,11 @@ bc-bip68@^1.0.5:
   resolved "https://registry.yarnpkg.com/bc-bip68/-/bc-bip68-1.0.5.tgz#4d3774067d8c9e922e225f5f2c4178ee9ae8dc94"
   integrity sha512-GzaMlN7pNthrY5BhReVhnfr4Ixx+GUSfyNRHYh0QiMUF0d0+0YaD8MpEdv6AjFBksg/zlqL1fVCBBm6PpTt2Rg==
 
+bch-token-icons@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/bch-token-icons/-/bch-token-icons-0.0.4.tgz#f049fe3a88821369b78c4a49fe63dd1d457d7909"
+  integrity sha512-3BzPDScrc20eSl+K6QWvZGtCNyKkZ6dRezVzzVeSZ/YXXPI5mujcSZR/WNgvf2ukaxkmT7yDqIeu+CdQOZGkVw==
+
 bch-wallet-bridge-provider-interface@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/bch-wallet-bridge-provider-interface/-/bch-wallet-bridge-provider-interface-0.1.1.tgz#5f1fb2a9738829611111c0ff9886228c3bd494aa"

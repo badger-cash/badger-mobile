@@ -9,8 +9,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { T } from "../../atoms";
 
-import BitcoinCashImage from "../../assets/images/icon.png";
-
+import { getTokenImage } from "../../utils/token-utils";
 type Props = {
   amount: string,
   extra: string,
@@ -57,10 +56,7 @@ const CoinRow = ({
   valueDisplay,
   onPress
 }: Props) => {
-  const imageSource =
-    ticker === "BCH" && !tokenId
-      ? BitcoinCashImage
-      : { uri: makeBlockie(tokenId) };
+  const imageSource = getTokenImage(tokenId);
 
   return (
     <Outter onPress={onPress}>

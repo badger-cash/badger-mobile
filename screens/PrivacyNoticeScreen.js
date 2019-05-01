@@ -62,7 +62,7 @@ const ViewPrivacyNoticeScreen = ({ navigation }: Props) => {
       </T>
 
       <Spacer fill />
-      <Button onPress={() => navigation.goBack()} text="Okay" />
+      <Button onPress={() => navigation.goBack()} text="Accept" />
       <Spacer large />
     </ScreenView>
   );
