@@ -15,6 +15,7 @@ const SLP = new SLPSDK();
 
 const Screen = styled(View)`
   padding: 10px;
+  height: 100%;
 `;
 
 const StyledTextInput = styled(TextInput)`
@@ -83,18 +84,14 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         />
         <Spacer large />
 
-        {inputError ? (
-          <>
-            <ErrorContainer>
-              <T size="small" type="danger" center>
-                {inputError}
-              </T>
-            </ErrorContainer>
-            <Spacer />
-          </>
-        ) : (
-          <Spacer />
+        {inputError && (
+          <ErrorContainer>
+            <T size="small" type="danger" center>
+              {inputError}
+            </T>
+          </ErrorContainer>
         )}
+        <Spacer fill />
 
         <Button
           onPress={() => {
