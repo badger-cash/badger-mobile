@@ -40,7 +40,7 @@ const StyledTextInput = styled(TextInput)`
 const ScreenWrapper = styled(SafeAreaView)`
   position: relative;
   margin: 0 6px;
-  height: 100%;
+  flex: 1;
 `;
 
 const StyledButton = styled(Button)`
@@ -57,8 +57,15 @@ const ButtonArea = styled(View)`
 `;
 
 const QROverlayScreen = styled(View)`
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: ${Dimensions.get("window").height}px;
+  z-index: 1;
+  background-color: ${props => props.theme.bg900};
 `;
 
 const IconArea = styled(View)`
@@ -203,13 +210,13 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
               <Button
                 nature="cautionGhost"
                 onPress={() => setQrOpen(false)}
-                text="Cancel Scan"
+                text="Cancel QR Scan"
               />
             }
           />
         </QROverlayScreen>
       )}
-      <ScrollView contentContainerStyle={{ minHeight: "100%" }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer small />
         <KeyboardAvoidingView behavior="position">
           <H1 center>Create Transaction</H1>

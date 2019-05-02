@@ -37,7 +37,7 @@ const PrivacyNoticeScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate("AcceptTermsOfUse")}
         text="Accept"
       />
-      <Spacer large />
+      <Spacer />
     </ScreenView>
   );
 };
@@ -63,7 +63,7 @@ const ViewPrivacyNoticeScreen = ({ navigation }: Props) => {
 
       <Spacer fill />
       <Button onPress={() => navigation.goBack()} text="Accept" />
-      <Spacer large />
+      <Spacer />
     </ScreenView>
   );
 };
