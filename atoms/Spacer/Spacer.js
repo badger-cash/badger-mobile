@@ -16,6 +16,11 @@ const Spacer = styled(View)`
       margin-bottom: 15px;
     `}
     ${props =>
+      props.tiny &&
+      css`
+        margin-bottom: 7px;
+      `}
+    ${props =>
       props.fill &&
       css`
         margin-bottom: 0px;

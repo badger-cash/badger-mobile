@@ -33,7 +33,7 @@ type Props = {
 const SettingsScreen = ({ navigation }: Props) => {
   return (
     <SafeAreaView>
-      <StyledScrollView contentContainerStyle={{ flex: 1 }}>
+      <StyledScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("ViewSeedPhrase");

@@ -176,7 +176,7 @@ const WalletDetailScreen = ({
             );
           })}
           <ExplorerRow>
-            <Spacer />
+            <Spacer small />
             <T
               center
               type="muted2"
@@ -184,7 +184,7 @@ const WalletDetailScreen = ({
             >
               Full History
             </T>
-            <Spacer />
+            <Spacer small />
           </ExplorerRow>
         </TransactionArea>
       </ScrollView>

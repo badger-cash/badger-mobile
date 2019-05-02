@@ -2,7 +2,7 @@
 
 import styled, { css } from "styled-components";
 
-import { Text } from "react-native";
+import { Text, Platform } from "react-native";
 
 const T = styled(Text)`
   font-size: 18;
@@ -51,6 +51,11 @@ const T = styled(Text)`
       props.spacing === "loose" &&
       css`
         letter-spacing: 1;
+      `}
+    ${props =>
+      props.monospace &&
+      css`
+        font-family: ${Platform.OS === "ios" ? "Courier" : "monospace"};
       `}
 `;
 

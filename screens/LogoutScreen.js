@@ -54,7 +54,7 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer small />
         <H1 center>Logout?</H1>
         <Spacer small />
@@ -71,7 +71,9 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
         <T center>
           If the seed phrase is lost, we are unable to recover it for you.
         </T>
+        <Spacer small />
         <Spacer fill />
+
         <ButtonContainer>
           <Button
             nature="cautionGhost"

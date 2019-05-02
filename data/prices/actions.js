@@ -31,7 +31,7 @@ const updateSpotPrice = () => {
     dispatch(updateSpotPriceStart());
 
     const rate = await SLP.Price.current("usd");
-    dispatch(updateSpotPriceSuccess("usd", rate));
+    dispatch(updateSpotPriceSuccess("usd", rate / 100));
   };
 };
 

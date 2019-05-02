@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import {
   SafeAreaView,
+  ScrollView,
   KeyboardAvoidingView,
   TextInput,
   View,
@@ -39,7 +40,7 @@ const StyledTextInput = styled(TextInput)`
 const ScreenWrapper = styled(SafeAreaView)`
   position: relative;
   margin: 0 6px;
-  height: 100%;
+  flex: 1;
 `;
 
 const StyledButton = styled(Button)`
@@ -56,8 +57,15 @@ const ButtonArea = styled(View)`
 `;
 
 const QROverlayScreen = styled(View)`
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: ${Dimensions.get("window").height}px;
+  z-index: 1;
+  background-color: ${props => props.theme.bg900};
 `;
 
 const IconArea = styled(View)`
@@ -202,149 +210,152 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
               <Button
                 nature="cautionGhost"
                 onPress={() => setQrOpen(false)}
-                text="Cancel Scan"
+                text="Cancel QR Scan"
               />
             }
           />
         </QROverlayScreen>
       )}
-      <Spacer small />
-      <KeyboardAvoidingView behavior="position">
-        <H1 center>Create Transaction</H1>
-        <Spacer />
-        <IconArea>
-          <IconImage source={imageSource} />
-        </IconArea>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer small />
-        <H2 center>
-          {coinName} ({symbol})
-        </H2>
-        {tokenId && (
-          <T size="tiny" center>
-            {tokenId}
-          </T>
-        )}
-        <Spacer />
-
-        <T>Send To:</T>
-        <Spacer small />
-        <StyledTextInput
-          editable
-          multiline
-          placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
-          autoComplete="off"
-          autoCorrect={false}
-          value={toAddress}
-          onChangeText={text => {
-            setErrors([]);
-            setToAddress(text);
-          }}
-        />
-        <Spacer small />
-        <ButtonArea>
-          <StyledButton
-            nature="ghost"
-            onPress={async () => {
-              const content = await Clipboard.getString();
-              setErrors([]);
-              setToAddress(content);
-            }}
-          >
-            <T center spacing="loose" type="primary">
-              <Ionicons name="ios-clipboard" size={22} /> Paste
-            </T>
-          </StyledButton>
-          <StyledButton
-            nature="ghost"
-            text="Scan QR"
-            onPress={() => setQrOpen(true)}
-          >
-            <T center spacing="loose" type="primary">
-              <Ionicons name="ios-qr-scanner" size={22} /> Scan QR
-            </T>
-          </StyledButton>
-        </ButtonArea>
-        <Spacer />
-
-        <T>Amount:</T>
-        <T size="small">
-          {availableFunds} {symbol} available
-        </T>
-        <Spacer small />
-        <StyledTextInput
-          keyboardType="numeric"
-          editable
-          placeholder="0.0"
-          autoComplete="off"
-          autoCorrect={false}
-          value={sendAmount}
-          onChangeText={text => {
-            setErrors([]);
-            setSendAmount(formatAmountInput(text, adjustDecimals));
-          }}
-        />
-      </KeyboardAvoidingView>
-
-      {errors.length > 0 ? (
-        <>
+        <KeyboardAvoidingView behavior="position">
+          <H1 center>Create Transaction</H1>
+          <Spacer />
+          <IconArea>
+            <IconImage source={imageSource} />
+          </IconArea>
           <Spacer small />
-          <ErrorContainer>
-            {errors.map(error => (
-              <T size="small" type="danger" center key={error}>
-                {error}
+          <H2 center>
+            {coinName} ({symbol})
+          </H2>
+          {tokenId && (
+            <T size="tiny" center>
+              {tokenId}
+            </T>
+          )}
+          <Spacer />
+
+          <T>Send To:</T>
+          <Spacer small />
+          <StyledTextInput
+            editable
+            multiline
+            placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
+            autoComplete="off"
+            autoCorrect={false}
+            value={toAddress}
+            onChangeText={text => {
+              setErrors([]);
+              setToAddress(text);
+            }}
+          />
+          <Spacer small />
+          <ButtonArea>
+            <StyledButton
+              nature="ghost"
+              onPress={async () => {
+                const content = await Clipboard.getString();
+                setErrors([]);
+                setToAddress(content);
+              }}
+            >
+              <T center spacing="loose" type="primary">
+                <Ionicons name="ios-clipboard" size={22} /> Paste
               </T>
-            ))}
-          </ErrorContainer>
+            </StyledButton>
+            <StyledButton
+              nature="ghost"
+              text="Scan QR"
+              onPress={() => setQrOpen(true)}
+            >
+              <T center spacing="loose" type="primary">
+                <Ionicons name="ios-qr-scanner" size={22} /> Scan QR
+              </T>
+            </StyledButton>
+          </ButtonArea>
+          <Spacer />
+
+          <T>Amount:</T>
+          <T size="small">
+            {availableFunds} {symbol} available
+          </T>
+          <Spacer small />
+          <StyledTextInput
+            keyboardType="numeric"
+            editable
+            placeholder="0.0"
+            autoComplete="off"
+            autoCorrect={false}
+            value={sendAmount}
+            onChangeText={text => {
+              setErrors([]);
+              setSendAmount(formatAmountInput(text, adjustDecimals));
+            }}
+          />
+        </KeyboardAvoidingView>
+
+        {errors.length > 0 ? (
+          <>
+            <Spacer small />
+            <ErrorContainer>
+              {errors.map(error => (
+                <T size="small" type="danger" center key={error}>
+                  {error}
+                </T>
+              ))}
+            </ErrorContainer>
+            <Spacer fill />
+          </>
+        ) : (
           <Spacer fill />
-        </>
-      ) : (
-        <Spacer fill />
-      )}
+        )}
+        <Spacer small />
 
-      <Button
-        onPress={() => {
-          const addressFormat = SLP.Address.detectAddressFormat(toAddress);
-          let hasErrors = false;
-          if (tokenId && addressFormat !== "slpaddr") {
-            setErrors([
-              "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger:`"
-            ]);
-            hasErrors = true;
-          } else if (!tokenId && addressFormat !== "cashaddr") {
-            setErrors([
-              "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
-            ]);
-            hasErrors = true;
-          }
+        <Button
+          onPress={() => {
+            const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+            let hasErrors = false;
+            if (tokenId && addressFormat !== "slpaddr") {
+              setErrors([
+                "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger:`"
+              ]);
+              hasErrors = true;
+            } else if (!tokenId && addressFormat !== "cashaddr") {
+              setErrors([
+                "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
+              ]);
+              hasErrors = true;
+            }
 
-          if (parseFloat(sendAmount) > availableFunds) {
-            setErrors(["Cannot send more funds than are available"]);
-            hasErrors = true;
-          }
+            if (parseFloat(sendAmount) > availableFunds) {
+              setErrors(["Cannot send more funds than are available"]);
+              hasErrors = true;
+            }
 
-          if (!sendAmount) {
-            setErrors(["Amount required"]);
-            hasErrors = true;
-          }
+            if (!sendAmount) {
+              setErrors(["Amount required"]);
+              hasErrors = true;
+            }
 
-          if (!hasErrors) {
-            navigation.navigate("SendConfirm", {
-              symbol,
-              tokenId,
-              sendAmount,
-              toAddress
-            });
-          }
-        }}
-        text="Next Step"
-      />
-      <Spacer small />
-      <Button
-        nature="cautionGhost"
-        onPress={() => navigation.navigate("Home")}
-        text="Cancel"
-      />
-      <Spacer />
+            if (!hasErrors) {
+              navigation.navigate("SendConfirm", {
+                symbol,
+                tokenId,
+                sendAmount,
+                toAddress
+              });
+            }
+          }}
+          text="Next Step"
+        />
+        <Spacer small />
+        <Button
+          nature="cautionGhost"
+          onPress={() => navigation.navigate("Home")}
+          text="Cancel"
+        />
+        <Spacer />
+      </ScrollView>
     </ScreenWrapper>
   );
 };
