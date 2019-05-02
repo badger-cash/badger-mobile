@@ -909,10 +909,10 @@
     "@types/istanbul-lib-coverage" "^2.0.0"
     "@types/yargs" "^12.0.9"
 
-"@react-native-community/async-storage@^1.3.3":
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/@react-native-community/async-storage/-/async-storage-1.3.3.tgz#fbcd09c68be0f91362c1bc5696802d8e281cf67d"
-  integrity sha512-mypRivxWCO3apTDWpbvc7owcz5gZH0mI60JWPJDW/Pibr3vk9T7TQPA44b8m43qc/o5cnSEJFZk6l/1T4QEM/Q==
+"@react-native-community/async-storage@^1.3.4":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@react-native-community/async-storage/-/async-storage-1.3.4.tgz#5a664484d485bcbab79648e1a0ce775b90843f29"
+  integrity sha512-fJmzL27x0BEjhmMXPnDPnUNCZK7bph+NBVCfAz9fzHzAamaiOkdUwuL3PvE4Oj4Kw4knP8ocw5VRDGorAidZ2g==
 
 "@react-native-community/cli@^1.2.1":
   version "1.4.6"
@@ -954,10 +954,10 @@
     xcode "^2.0.0"
     xmldoc "^0.4.0"
 
-"@react-navigation/core@~3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-3.4.0.tgz#776845f9d4f8b2b9cb99c5d2d4433ebcef290d92"
-  integrity sha512-YAnx9mK6P/zYkvn4YxZL6thaNdouSmD7FUaftFrOAbE7y7cCfH8hmk7BOLoOet6Sh2+UnrpkWX7Kg54cT2Jw+g==
+"@react-navigation/core@~3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-3.4.1.tgz#8c7e0e53cfb8ccaf87afb76a2733f5e5fde20cd8"
+  integrity sha512-slslu4FmjKQMO/EKGGqqGsfC6evQLdbJM2ROACcC2Xxf0+nPeZV5ND8HHukUZZucJRE6Bg/NI+zC1XSBYRjhnw==
   dependencies:
     hoist-non-react-statics "^3.3.0"
     path-to-regexp "^1.7.0"
@@ -2324,10 +2324,10 @@ bip66@^1.1.0, bip66@^1.1.3, bip66@^1.1.5:
   dependencies:
     safe-buffer "^5.0.1"
 
-bitbox-sdk@5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/bitbox-sdk/-/bitbox-sdk-5.1.1.tgz#4debaf58fe9064c1af867d4c4a5a233ce8a9370c"
-  integrity sha512-KfzFH3tKSAgxppmibDxOBrw3dFEXnryTH7BwyBbMQhHU7635xmMOtTFFGpEf0i+PyfdpPTjy10YGV/jgiV2ZvQ==
+bitbox-sdk@5.1.3:
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/bitbox-sdk/-/bitbox-sdk-5.1.3.tgz#7a22699625433532b2002becd6c19e1e10935e8d"
+  integrity sha512-u2fFCp0VM6QruyWnepiV1IVpx4ltF0y/N/dmp5Un0JcyxKUqk4Ajt5TatWcqEjY3Fyx4EhfPCzdRVAQ1HyYnIQ==
   dependencies:
     assert "^1.4.1"
     axios "^0.17.1"
@@ -7866,12 +7866,12 @@ react-navigation-tabs@1.1.2:
     react-lifecycles-compat "^3.0.4"
     react-native-tab-view "^1.3.4"
 
-react-navigation@^3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-3.9.0.tgz#f36877226a6a5ded5c8f99d14dfaf5a073469826"
-  integrity sha512-Fd2l5ZkfHXrT/jVTtQtlGR7LeNshVecPKHE03XJjEPX/N7EizRLSYm45IfSJGdxBpHwO3Fud7lWJSY+tgblpHQ==
+react-navigation@^3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/react-navigation/-/react-navigation-3.9.1.tgz#2b2545f5c11905b534d96996c658d0691bc5f11f"
+  integrity sha512-4rUQXGT0yvLb9yX9NDuKdrXb/NcAPGUHDTlto8Fg4Tm23uuyBBSrDVStqC59rUM4JcoQnRqhenN2wXGvWE+WYA==
   dependencies:
-    "@react-navigation/core" "~3.4.0"
+    "@react-navigation/core" "~3.4.1"
     "@react-navigation/native" "~3.4.0"
     react-navigation-drawer "1.2.1"
     react-navigation-stack "1.3.0"
@@ -7885,10 +7885,10 @@ react-proxy@^1.1.7:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-react-redux@^7.0.2:
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.0.2.tgz#34b280a3482aaf60e7d4a504b1295165cbe6b86a"
-  integrity sha512-uKRuMgQt8dWbcz0U75oFK5tDo3boyAKrqvf/j94vpqRFFZfyDDy4kofUgloFIGyuKTq2Zz51zgK9RzOTFXk5ew==
+react-redux@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.0.3.tgz#983c5a6de81cb1e696bd1c090ba826545f9170f1"
+  integrity sha512-vYZA7ftOYlDk3NetitsI7fLjryt/widNl1SLXYvFenIpm7vjb4ryK0EeFrgn62usg5fYkyIAWNUPKnwWPevKLg==
   dependencies:
     "@babel/runtime" "^7.4.3"
     hoist-non-react-statics "^3.3.0"
@@ -8650,15 +8650,15 @@ slide@^1.1.5:
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
   integrity sha1-VusCfWW00tzmyy4tMsTUr8nh1wc=
 
-slp-sdk@^3.2.4:
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/slp-sdk/-/slp-sdk-3.2.4.tgz#5448245acec7cd046b4eb808111243cbf9e9ad81"
-  integrity sha512-DAQdCTZEhXHlhWfgg2x9RAKH9IuN/U7eEGJEN7wmT88UYpsaZwC/9f/FuUmhXhm9wbkPoU5a92vrdIul6f3DMQ==
+slp-sdk@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/slp-sdk/-/slp-sdk-3.3.2.tgz#d4b4a562a83796c1a24623cebfc15cbe06d2edd9"
+  integrity sha512-epITUkzBn7WYX83avgtIr9tZFcNGWuEYWujy3Zj4Kbt7IriUDfm6QZQdo+x8zatUOFSTJpyE38JOzrfyPhHsFA==
   dependencies:
     axios "^0.17.1"
     babel-register "^6.26.0"
     bignumber.js "^8.0.2"
-    bitbox-sdk "5.1.1"
+    bitbox-sdk "5.1.3"
     chalk "^2.3.0"
     clear "0.1.0"
     commander "^2.13.0"
@@ -8682,10 +8682,10 @@ slpjs@0.15.9:
     bitcore-lib-cash "^0.19.0"
     lodash "^4.17.11"
 
-slpjs@^0.15.12:
-  version "0.15.12"
-  resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.15.12.tgz#75bcccaa90573487a614ed4e2bae34175f8fff4c"
-  integrity sha512-qTSVqSAps5TAygtY4vZ4W/94PS6x1Gv6pGzx7QLRKXhvFME1L5Su+UFuKz7ftharGaVlueCh6WWc8j4BTuikrA==
+slpjs@^0.15.13:
+  version "0.15.13"
+  resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.15.13.tgz#c787c6efdea13d420b0d6ec58cf67419a8113f2d"
+  integrity sha512-CYztaooB+YzFMBzmrntkclxgwqODUONp1l5yXIGtmxVcFlCMAS1vmy+ISPqPxqnNtX7KX1aUtyPzu1imEtfMbw==
   dependencies:
     "@types/lodash" "^4.14.120"
     axios "^0.18.0"
@@ -9439,10 +9439,10 @@ urix@^0.1.0:
   resolved "https://registry.yarnpkg.com/urix/-/urix-0.1.0.tgz#da937f7a62e21fec1fd18d49b35c2935067a6c72"
   integrity sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=
 
-url@^0.10.3:
-  version "0.10.3"
-  resolved "https://registry.yarnpkg.com/url/-/url-0.10.3.tgz#021e4d9c7705f21bbf37d03ceb58767402774c64"
-  integrity sha1-Ah5NnHcF8hu/N9A861h2dAJ3TGQ=
+url@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/url/-/url-0.11.0.tgz#3838e97cfc60521eb73c525a8e55bfdd9e2e28f1"
+  integrity sha1-ODjpfPxgUh63PFJajlW/3Z4uKPE=
   dependencies:
     punycode "1.3.2"
     querystring "0.2.0"
