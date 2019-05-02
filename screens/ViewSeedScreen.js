@@ -18,6 +18,8 @@ const WordHolder = styled(View)`
   position: relative;
 `;
 
+const WordRow = styled(View)``;
+
 const Cover = styled(View)`
   position: absolute;
   background-color: rgba(255, 255, 255, 0.95);
@@ -68,11 +70,19 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
               />
             </Cover>
           )}
-          {separated.map((word, idx) => (
-            <T key={idx}>
-              {idx + 1}. {word}
-            </T>
-          ))}
+          <View>
+            {separated.map((word, idx) => (
+              <WordRow key={idx}>
+                <T>
+                  <T monospace type="muted">
+                    {`${idx + 1}.`.padStart(3, " ")}
+                  </T>
+                  <T> {word}</T>
+                </T>
+                <Spacer tiny />
+              </WordRow>
+            ))}
+          </View>
         </WordHolder>
         <Spacer />
       </Screen>
