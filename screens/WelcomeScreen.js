@@ -34,7 +34,7 @@ const WelcomeScreen = ({ navigation }: Props) => {
       <View style={{ flex: 1 }}>
         <Button
           onPress={() => navigation.navigate("CreateWallet")}
-          text="Create Wallet"
+          text="New Wallet"
         />
         <Spacer small />
         <Button
