@@ -63,9 +63,6 @@ const SwipeButtonContainer = styled(View)`
 
 const ButtonsContainer = styled(View)`
   align-items: center;
-  /* justify-content: center; */
-  /* margin-left: 10px;
-  margin-right: 10px; */
 `;
 
 const SwipeContent = styled(View)`
