@@ -315,12 +315,18 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           onPress={() => {
             const addressFormat = SLP.Address.detectAddressFormat(toAddress);
             let hasErrors = false;
-            if (tokenId && addressFormat !== "slpaddr") {
+            if (
+              tokenId &&
+              !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)
+            ) {
               setErrors([
                 "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger:`"
               ]);
               hasErrors = true;
-            } else if (!tokenId && addressFormat !== "cashaddr") {
+            } else if (
+              !tokenId &&
+              !["cashaddr", "legacy"].includes(addressFormat)
+            ) {
               setErrors([
                 "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
               ]);
