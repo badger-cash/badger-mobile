@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { View, SafeAreaView, Image } from "react-native";
+import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
 
@@ -110,50 +110,53 @@ const SendSuccessScreen = ({
   return (
     <ScreenCover>
       <SafeAreaView style={{ height: "100%" }}>
-        <Spacer />
-        <H1 center>Success!</H1>
-        <Spacer small />
-        <IconArea>
-          <IconImage source={imageSource} />
-        </IconArea>
-        <Spacer small />
-        <H2 center>
-          {coinName} ({symbol})
-        </H2>
-        {tokenId && (
-          <T size="tiny" center>
-            {tokenId}
+        <ScrollView contentContainerStyle={{ height: "100%" }}>
+          <Spacer small />
+          <H1 center>Success!</H1>
+          <Spacer small />
+          <IconArea>
+            <IconImage source={imageSource} />
+          </IconArea>
+          <Spacer small />
+          <H2 center>
+            {coinName} ({symbol})
+          </H2>
+          {tokenId && (
+            <T size="tiny" center>
+              {tokenId}
+            </T>
+          )}
+          <Spacer />
+          <H2 center>Sent</H2>
+          <Spacer small />
+          <H2 center>
+            {valueAdjusted} {symbol}
+          </H2>
+          {fiatDisplay && (
+            <T center type="muted2">
+              {fiatDisplay}
+            </T>
+          )}
+          <Spacer large />
+          <H2 center>To Address</H2>
+          <Spacer small />
+          <T size="small" center>
+            {protocol}:
           </T>
-        )}
-        <Spacer />
-        <H2 center>Sent</H2>
-        <Spacer small />
-        <H2 center>
-          {valueAdjusted} {symbol}
-        </H2>
-        {fiatDisplay && (
-          <T center type="muted2">
-            {fiatDisplay}
+          <T center>
+            <T style={{ fontWeight: "bold" }}>{addressStart}</T>
+            <T size="small">{addressMiddle}</T>
+            <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
           </T>
-        )}
-        <Spacer large />
-        <H2 center>To Address</H2>
-        <Spacer small />
-        <T size="small" center>
-          {protocol}:
-        </T>
-        <T center>
-          <T style={{ fontWeight: "bold" }}>{addressStart}</T>
-          <T size="small">{addressMiddle}</T>
-          <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
-        </T>
-        <Spacer fill />
-        <Button
-          style={{ marginLeft: 7, marginRight: 7 }}
-          onPress={() => navigation.navigate("Home")}
-          text="Finish"
-        />
-        <Spacer />
+          <Spacer fill />
+          <Spacer small />
+          <Button
+            style={{ marginLeft: 7, marginRight: 7 }}
+            onPress={() => navigation.navigate("Home")}
+            text="Finish"
+          />
+          <Spacer small />
+        </ScrollView>
       </SafeAreaView>
     </ScreenCover>
   );

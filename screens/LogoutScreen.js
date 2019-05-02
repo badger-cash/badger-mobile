@@ -71,7 +71,9 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
         <T center>
           If the seed phrase is lost, we are unable to recover it for you.
         </T>
+        <Spacer small />
         <Spacer fill />
+
         <ButtonContainer>
           <Button
             nature="cautionGhost"

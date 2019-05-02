@@ -134,6 +134,7 @@ const HomeScreen = ({
 
   const BCHFiatAmount =
     spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8);
+
   const BCHFiatDisplay = spotPrices["bch"]["usd"].rate
     ? `$${BCHFiatAmount.toFixed(3)} USD`
     : "$ -.-- USD";

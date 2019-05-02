@@ -162,10 +162,12 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
         <Markdown onLink={url => Linking.openURL(url)}>{ToSContent}</Markdown>
         <Spacer />
       </ScrollView>
+      <Spacer small />
       <Button
         onPress={() => navigation.navigate("CreateWallet")}
         text="Accept"
       />
+      <Spacer small />
     </ScreenView>
   );
 };
