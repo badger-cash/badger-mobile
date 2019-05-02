@@ -13,6 +13,7 @@ const ScreenView = styled(SafeAreaView)`
   margin-left: 5px;
 `;
 
+// Edit - This version no longer used, was used in onboarding.  Maybe remove
 const PrivacyNoticeScreen = ({ navigation }: Props) => {
   return (
     <ScreenView style={{ flex: 1 }}>
@@ -42,6 +43,7 @@ const PrivacyNoticeScreen = ({ navigation }: Props) => {
   );
 };
 
+// Accessed from settings
 const ViewPrivacyNoticeScreen = ({ navigation }: Props) => {
   return (
     <ScreenView style={{ flex: 1 }}>

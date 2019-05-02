@@ -152,6 +152,7 @@ Users with questions, complaints or claims with respect to the Service may conta
 [Privacy Policy](https://www.bitcoin.com/privacy-policy)
 `;
 
+// Edit - This version no longer used, was used in onboarding.  Maybe remove
 const TermsOfUseScreen = ({ navigation }: Props) => {
   return (
     <ScreenView>
@@ -170,6 +171,7 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
   );
 };
 
+// This one is viewed in settings
 const ViewTermsOfUseScreen = ({ navigation }: Props) => {
   return (
     <ScreenView>
