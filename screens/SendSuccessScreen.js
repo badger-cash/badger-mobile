@@ -110,7 +110,7 @@ const SendSuccessScreen = ({
   return (
     <ScreenCover>
       <SafeAreaView style={{ height: "100%" }}>
-        <ScrollView contentContainerStyle={{ height: "100%" }}>
+        <ScrollView contentContainerStyle={{ minHeight: "100%" }}>
           <Spacer small />
           <H1 center>Success!</H1>
           <Spacer small />

@@ -226,7 +226,7 @@ const SendConfirmScreen = ({
 
   return (
     <SafeAreaView style={{ height: "100%" }}>
-      <ScrollView contentContainerStyle={{ height: "100%" }}>
+      <ScrollView contentContainerStyle={{ minHeight: "100%" }}>
         <Spacer />
         <H1 center>Confirm Transaction</H1>
         <Spacer small />

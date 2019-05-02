@@ -209,7 +209,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
           />
         </QROverlayScreen>
       )}
-      <ScrollView contentContainerStyle={{ height: "100%" }}>
+      <ScrollView contentContainerStyle={{ minHeight: "100%" }}>
         <Spacer small />
         <KeyboardAvoidingView behavior="position">
           <H1 center>Create Transaction</H1>
