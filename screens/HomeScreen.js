@@ -120,6 +120,7 @@ const HomeScreen = ({
   // console.log(tokensById)
 
   const tokenData = slpTokensDisplay
+    .filter(([tokenId, amount]) => amount.toNumber() !== 0)
     .map(([tokenId, amount]) => {
       const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
       const name = tokensById[tokenId] ? tokensById[tokenId].name : "--------";
@@ -172,7 +173,6 @@ const HomeScreen = ({
     <SafeAreaView>
       <View style={{ height: "100%" }}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-          {/* <Spacer /> */}
           {!seedViewed ? (
             <>
               <BackupNotice>
