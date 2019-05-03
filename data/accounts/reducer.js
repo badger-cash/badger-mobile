@@ -89,13 +89,9 @@ const logoutAccount = (state: State) => {
 const setSeedViewed = (state: State, payload: { address: string }) => {
   const { address } = payload;
 
-  console.log(state.byId);
-  console.log(state.byId[address]);
-  console.log(address);
   const currentAccount = state.byId[address];
   const updatedAccount = { ...currentAccount, seedViewed: true };
 
-  console.log(updatedAccount);
   return {
     ...state,
     byId: { ...state.byId, [address]: updatedAccount }
