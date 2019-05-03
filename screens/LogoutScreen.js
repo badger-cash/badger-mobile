@@ -89,9 +89,13 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
               leftContent={
                 <SwipeContent activated={confirmSwipeActivated}>
                   {confirmSwipeActivated ? (
-                    <T type="inverse">Release to Logout</T>
+                    <T type="inverse" weight="bold">
+                      Release to Logout
+                    </T>
                   ) : (
-                    <T type="inverse">Keep going</T>
+                    <T type="inverse" weight="bold">
+                      Keep going
+                    </T>
                   )}
                 </SwipeContent>
               }
