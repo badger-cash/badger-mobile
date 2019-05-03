@@ -6,6 +6,8 @@ import styled from "styled-components";
 
 import { SafeAreaView, ScrollView, View, TouchableOpacity } from "react-native";
 
+import { getSeedViewedSelector } from "../data/accounts/selectors";
+
 import { T, Spacer } from "../atoms";
 
 import packageJson from "../package.json";
@@ -16,8 +18,9 @@ const StyledScrollView = styled(ScrollView)`
 
 const Row = styled(View)`
   height: 65;
-  justify-content: center;
-  border: solid ${props => props.theme.fg200};
+  flex-direction: row;
+  align-items: center;
+  border: solid ${props => props.theme.fg500};
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
@@ -25,52 +28,67 @@ const Row = styled(View)`
   padding-left: 5;
 `;
 
+const NotificationDot = styled(View)`
+  height: 6px;
+  width: 6px;
+  border-radius: 6px;
+  background-color: ${props => props.theme.accent500};
+  margin-left: 7px;
+`;
+
+const OptionsRow = ({
+  text,
+  pressFn,
+  hasNotification
+}: {
+  text: string,
+  pressFn: Function,
+  hasNotification?: boolean
+}) => (
+  <TouchableOpacity onPress={pressFn}>
+    <Row>
+      <T>{text}</T>
+      {hasNotification && <NotificationDot />}
+    </Row>
+  </TouchableOpacity>
+);
+
 type Props = {
   navigation: { navigate: Function },
-  logoutAccount: Function
+  seedViewed: boolean
 };
 
-const SettingsScreen = ({ navigation }: Props) => {
+const SettingsScreen = ({ navigation, seedViewed }: Props) => {
   return (
     <SafeAreaView>
       <StyledScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <TouchableOpacity
-          onPress={() => {
+        <OptionsRow
+          text="View Seed Phrase"
+          pressFn={() => {
             navigation.navigate("ViewSeedPhrase");
           }}
-        >
-          <Row>
-            <T>View Seed Phrase</T>
-          </Row>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
+          hasNotification={!seedViewed}
+        />
+        <OptionsRow
+          text="Terms of Use"
+          pressFn={() => {
             navigation.navigate("ViewTermsOfUse");
           }}
-        >
-          <Row>
-            <T>Terms of Use</T>
-          </Row>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
+        />
+        <OptionsRow
+          text="Privacy Policy"
+          pressFn={() => {
             navigation.navigate("ViewPrivacyPolicy");
           }}
-        >
-          <Row>
-            <T>Privacy Policy</T>
-          </Row>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
+        />
+        <OptionsRow
+          text="Logout"
+          pressFn={() => {
             navigation.navigate("LogoutScreen");
           }}
-        >
-          <Row>
-            <T>Logout</T>
-          </Row>
-        </TouchableOpacity>
+        />
         <Spacer fill />
+        <Spacer small />
         <T center size="small" type="muted2">
           Version {packageJson.version}
         </T>
@@ -81,7 +99,8 @@ const SettingsScreen = ({ navigation }: Props) => {
 };
 
 const mapStateToProps = state => {
-  return {};
+  const seedViewed = getSeedViewedSelector(state);
+  return { seedViewed };
 };
 
 const mapDispatchToProps = {};

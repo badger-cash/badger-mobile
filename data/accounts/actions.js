@@ -4,7 +4,8 @@ import {
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
   GET_ACCOUNT_FAIL,
-  LOGOUT_ACCOUNT
+  LOGOUT_ACCOUNT,
+  VIEW_SEED
 } from "./constants";
 
 import { type Account } from "./reducer";
@@ -20,9 +21,13 @@ const getAccountStart = () => ({
   payload: null
 });
 
-const getAccountSuccess = (account: Account, accountSlp: Account) => ({
+const getAccountSuccess = (
+  account: Account,
+  accountSlp: Account,
+  isNew: boolean
+) => ({
   type: GET_ACCOUNT_SUCCESS,
-  payload: { account, accountSlp }
+  payload: { account, accountSlp, isNew }
 });
 
 const getAccountFail = () => ({
@@ -32,6 +37,7 @@ const getAccountFail = () => ({
 
 const getAccount = (mnemonic?: string, accountIndex?: number = 0) => {
   const accountMnemonic = mnemonic ? mnemonic : generateMnemonic();
+  const isNew = !mnemonic;
 
   return async (dispatch: Function, getState: Function) => {
     dispatch(getAccountStart());
@@ -55,7 +61,7 @@ const getAccount = (mnemonic?: string, accountIndex?: number = 0) => {
       derivationPathSLP
     );
 
-    dispatch(getAccountSuccess(account, accountSlp));
+    dispatch(getAccountSuccess(account, accountSlp, isNew));
   };
 };
 
@@ -66,4 +72,11 @@ const logoutAccount = () => {
   };
 };
 
-export { getAccount, logoutAccount };
+const viewSeed = (address: string) => {
+  return {
+    type: VIEW_SEED,
+    payload: { address }
+  };
+};
+
+export { getAccount, logoutAccount, viewSeed };

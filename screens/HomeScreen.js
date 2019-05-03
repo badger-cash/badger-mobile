@@ -1,7 +1,8 @@
 // @flow
 
 import React, { useEffect } from "react";
-import { SafeAreaView, ScrollView, SectionList } from "react-native";
+import styled from "styled-components";
+import { SafeAreaView, ScrollView, SectionList, View } from "react-native";
 import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
@@ -13,7 +14,8 @@ import { CoinRowHeader, CoinRow } from "../components";
 import { balancesSelector, type Balances } from "../data/selectors";
 import {
   getAddressSelector,
-  getAddressSlpSelector
+  getAddressSlpSelector,
+  getSeedViewedSelector
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector } from "../data/prices/selectors";
@@ -32,10 +34,18 @@ const SECOND = 1000;
 // Same as the Badger namespace for now.  doesn't need to be unique here.
 const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
+const BackupNotice = styled(View)`
+  border: 1px solid ${props => props.theme.accent500};
+  padding: 5px;
+  background-color: ${props => props.theme.accent900};
+  margin: 5px;
+`;
+
 type Props = {
   address: string,
   addressSlp: string,
   balances: Balances,
+  seedViewed: boolean,
   latestTransactionHistoryBlock: number,
   navigation: { navigate: Function },
   spotPrices: any,
@@ -49,6 +59,7 @@ type Props = {
 const HomeScreen = ({
   address,
   addressSlp,
+  seedViewed,
   balances,
   navigation,
   spotPrices,
@@ -159,37 +170,51 @@ const HomeScreen = ({
 
   return (
     <SafeAreaView>
-      <ScrollView>
-        <Spacer />
-        <H1 center>Badger Mobile</H1>
-        <Spacer small />
-        <SectionList
-          sections={walletSections}
-          renderSectionHeader={({ section }) => (
-            <CoinRowHeader>{section.title}</CoinRowHeader>
+      <View style={{ height: "100%" }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+          {/* <Spacer /> */}
+          {!seedViewed ? (
+            <>
+              <BackupNotice>
+                <T center size="small" type="accent">
+                  Please backup your seed phrase
+                </T>
+              </BackupNotice>
+              <Spacer small />
+            </>
+          ) : (
+            <Spacer />
           )}
-          renderItem={({ item }) =>
-            item && (
-              <CoinRow
-                amount={item.amount}
-                extra={item.extra}
-                name={item.name}
-                ticker={item.symbol}
-                tokenId={item.tokenId}
-                valueDisplay={item.valueDisplay}
-                onPress={() =>
-                  navigation.navigate("WalletDetailScreen", {
-                    symbol: item.symbol,
-                    tokenId: item.tokenId
-                  })
-                }
-              />
-            )
-          }
-          keyExtractor={(item, index) => `${index}`}
-        />
-        <Spacer small />
-      </ScrollView>
+          <H1 center>Badger Mobile</H1>
+          <Spacer small />
+          <SectionList
+            sections={walletSections}
+            renderSectionHeader={({ section }) => (
+              <CoinRowHeader>{section.title}</CoinRowHeader>
+            )}
+            renderItem={({ item }) =>
+              item && (
+                <CoinRow
+                  amount={item.amount}
+                  extra={item.extra}
+                  name={item.name}
+                  ticker={item.symbol}
+                  tokenId={item.tokenId}
+                  valueDisplay={item.valueDisplay}
+                  onPress={() =>
+                    navigation.navigate("WalletDetailScreen", {
+                      symbol: item.symbol,
+                      tokenId: item.tokenId
+                    })
+                  }
+                />
+              )
+            }
+            keyExtractor={(item, index) => `${index}`}
+          />
+          <Spacer small />
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -203,9 +228,12 @@ const mapStateToProps = (state, props) => {
 
   const spotPrices = spotPricesSelector(state);
 
+  const seedViewed = getSeedViewedSelector(state);
+
   return {
     address,
     addressSlp,
+    seedViewed,
     balances,
     spotPrices,
     tokensById

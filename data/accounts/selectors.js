@@ -53,6 +53,13 @@ const getAddressSlpSelector = createSelector(
   }
 );
 
+const getSeedViewedSelector = createSelector(
+  activeAccountSelector,
+  account => {
+    return account && account.seedViewed;
+  }
+);
+
 export {
   activeAccountIdSelector,
   activeAccountSelector,
@@ -60,5 +67,6 @@ export {
   getAddressSlpSelector,
   getKeypairSelector,
   getMnemonicSelector,
-  hasMnemonicSelector
+  hasMnemonicSelector,
+  getSeedViewedSelector
 };

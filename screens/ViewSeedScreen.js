@@ -7,7 +7,11 @@ import styled from "styled-components";
 import { View, ScrollView, SafeAreaView } from "react-native";
 import { NavigationEvents } from "react-navigation";
 
-import { getMnemonicSelector } from "../data/accounts/selectors";
+import { viewSeed } from "../data/accounts/actions";
+import {
+  getMnemonicSelector,
+  getAddressSelector
+} from "../data/accounts/selectors";
 import { T, H1, Spacer, Button } from "../atoms";
 
 const Screen = styled(ScrollView)`
@@ -34,9 +38,9 @@ const Cover = styled(View)`
   z-index: 1;
 `;
 
-type Props = { mnemonic: string };
+type Props = { mnemonic: string, address: string, viewSeed: Function };
 
-const ViewSeedScreen = ({ mnemonic }: Props) => {
+const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
   const [showing, setShowing] = useState(false);
 
   const words = showing ? mnemonic : "---------- ".repeat(12).trim();
@@ -66,7 +70,10 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
               <Spacer />
               <Button
                 text="Reveal Seed Phrase"
-                onPress={() => setShowing(true)}
+                onPress={() => {
+                  setShowing(true);
+                  viewSeed(address);
+                }}
               />
             </Cover>
           )}
@@ -91,7 +98,13 @@ const ViewSeedScreen = ({ mnemonic }: Props) => {
 };
 
 const mapStateToProps = state => ({
+  address: getAddressSelector(state),
   mnemonic: getMnemonicSelector(state)
 });
 
-export default connect(mapStateToProps)(ViewSeedScreen);
+const mapDispatchToProps = { viewSeed };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ViewSeedScreen);
