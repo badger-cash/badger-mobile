@@ -65,20 +65,21 @@ const SettingsStack = createStackNavigator(
       navigationOptions: { title: "Settings" }
     },
     ViewSeedPhrase: {
-      screen: ViewSeedScreen,
-      navigationOptions: {
-        headerBackTitleStyle: {
-          color: theme.primary500
-        },
-        headerTintColor: theme.primary500,
-        headerTitleStyle: { color: theme.fg200 }
-      }
+      screen: ViewSeedScreen
     },
     LogoutScreen: {
       screen: LogoutScreen
     }
   },
   {
+    defaultNavigationOptions: {
+      headerBackTitleStyle: {
+        color: theme.primary500
+      },
+      headerTintColor: theme.primary500,
+      headerTitleStyle: { color: theme.fg200 }
+    },
+
     initialRouteName: "SettingsList"
   }
 );

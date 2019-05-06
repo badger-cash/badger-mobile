@@ -6,7 +6,7 @@ import {
   UPDATE_BCH_SPOT_PRICE_FAIL
 } from "./constants";
 
-type State = {
+export type State = {
   spot: {
     [coinId: string]: {
       [currency: string]: { rate: ?number, lastUpdated: ?number }
@@ -16,7 +16,7 @@ type State = {
 
 type Action = { type: string, payload: any };
 
-const initialState = {
+export const initialState = {
   spot: {
     bch: { usd: { rate: null, lastUpdated: null } }
   }
