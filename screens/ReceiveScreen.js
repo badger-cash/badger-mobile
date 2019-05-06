@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
+import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
 import {
   SafeAreaView,
@@ -47,6 +48,7 @@ type Props = {
 
 const ReceiveScreen = ({ address, addressSlp }: Props) => {
   const [showing, setShowing] = useState("BCH");
+  const [copyNotify, setCopyNotify] = useState("");
 
   const [simpleLedgerAddr, setSimpleLedgerAddr] = useState(addressSlp);
 
@@ -62,6 +64,11 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
 
   return (
     <SafeAreaView>
+      <NavigationEvents
+        onWillBlur={() => {
+          setCopyNotify("");
+        }}
+      />
       <ScrollView style={{ padding: 10 }}>
         <Spacer small />
         <T center>
@@ -72,9 +79,15 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         <H2 center>Bitcoin Cash (BCH)</H2>
 
         <TouchableOpacity
-          onPress={() =>
-            showing === "BCH" ? Clipboard.setString(address) : setShowing("BCH")
-          }
+          onPress={() => {
+            if (showing === "BCH") {
+              Clipboard.setString(address);
+              setCopyNotify("BCH");
+              return;
+            }
+            setShowing("BCH");
+            setCopyNotify("");
+          }}
         >
           <T size="xsmall" center>
             bitcoincash:
@@ -100,14 +113,21 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </QRHolder>
           )}
         </TouchableOpacity>
+        <T center size="small" type="accent">
+          {copyNotify === "BCH" ? "Copied BCH Address" : " "}
+        </T>
         <Spacer />
         <H2 center>Simple Token (SLP)</H2>
         <TouchableOpacity
-          onPress={() =>
-            showing === "SLP"
-              ? Clipboard.setString(simpleLedgerAddr)
-              : setShowing("SLP")
-          }
+          onPress={() => {
+            if (showing === "SLP") {
+              Clipboard.setString(simpleLedgerAddr);
+              setCopyNotify("SLP");
+              return;
+            }
+            setShowing("SLP");
+            setCopyNotify("");
+          }}
         >
           <T size="xsmall" center>
             simpleledger:
@@ -133,6 +153,9 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </QRHolder>
           )}
         </TouchableOpacity>
+        <T center size="small" type="accent">
+          {copyNotify === "SLP" ? "Copied SLP Address" : " "}
+        </T>
         <Spacer />
       </ScrollView>
     </SafeAreaView>
