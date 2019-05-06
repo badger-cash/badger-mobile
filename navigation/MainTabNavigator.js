@@ -13,6 +13,7 @@ import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
+import ContactUsScreen from "../screens/ContactUsScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -66,6 +67,9 @@ const SettingsStack = createStackNavigator(
     },
     ViewSeedPhrase: {
       screen: ViewSeedScreen
+    },
+    ContactUsScreen: {
+      screen: ContactUsScreen
     },
     LogoutScreen: {
       screen: LogoutScreen

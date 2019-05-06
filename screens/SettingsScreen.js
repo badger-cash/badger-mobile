@@ -39,15 +39,17 @@ const NotificationDot = styled(View)`
 const OptionsRow = ({
   text,
   pressFn,
-  hasNotification
+  hasNotification,
+  muted
 }: {
   text: string,
   pressFn: Function,
-  hasNotification?: boolean
+  hasNotification?: boolean,
+  muted?: boolean
 }) => (
   <TouchableOpacity onPress={pressFn}>
     <Row>
-      <T>{text}</T>
+      <T type={muted ? "muted2" : ""}>{text}</T>
       {hasNotification && <NotificationDot />}
     </Row>
   </TouchableOpacity>
@@ -71,14 +73,23 @@ const SettingsScreen = ({ navigation, seedViewed }: Props) => {
         />
         <OptionsRow
           text="Terms of Use"
+          muted
           pressFn={() => {
             navigation.navigate("ViewTermsOfUse");
           }}
         />
         <OptionsRow
           text="Privacy Policy"
+          muted
           pressFn={() => {
             navigation.navigate("ViewPrivacyPolicy");
+          }}
+        />
+        <OptionsRow
+          text="Contact Us"
+          muted
+          pressFn={() => {
+            navigation.navigate("ContactUsScreen");
           }}
         />
         <OptionsRow
