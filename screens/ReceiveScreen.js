@@ -80,7 +80,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             bitcoincash:
           </T>
           <T size="xsmall" center>
-            {address.split(":")[1]}
+            {address && address.split(":")[1]}
           </T>
           <Spacer tiny />
 
@@ -113,7 +113,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             simpleledger:
           </T>
           <T size="xsmall" center>
-            {simpleLedgerAddr.split(":")[1]}
+            {simpleLedgerAddr && simpleLedgerAddr.split(":")[1]}
           </T>
           <Spacer tiny />
 

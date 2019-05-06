@@ -4,7 +4,8 @@ import {
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
   GET_ACCOUNT_FAIL,
-  LOGOUT_ACCOUNT
+  LOGOUT_ACCOUNT,
+  VIEW_SEED
 } from "./constants";
 
 // Todo - Fill in this type as needed
@@ -17,11 +18,12 @@ export type ECPair = {
 
 export type Account = {
   address: string,
-  addressSlp: string,
+  addressSlp?: string,
   keypair?: ECPair,
   keypairSlp?: ECPair,
   mnemonic: string,
-  accountIndex: string
+  accountIndex: number,
+  seedViewed?: boolean
 };
 
 type Action = { type: string, payload: any };
@@ -42,16 +44,17 @@ export const initialState: State = {
 
 const addAccount = (
   state: State,
-  payload: { account: Account, accountSlp: Account }
+  payload: { account: Account, accountSlp: Account, isNew: boolean }
 ) => {
-  const { account, accountSlp } = payload;
+  const { account, accountSlp, isNew } = payload;
 
   const { keypair, ...removedKeypair } = account;
   const { address } = account;
 
   const combinedAccount = {
     ...removedKeypair,
-    addressSlp: accountSlp.address
+    addressSlp: accountSlp.address,
+    seedViewed: !isNew
   };
 
   const keypairSlp = accountSlp.keypair;
@@ -83,6 +86,18 @@ const logoutAccount = (state: State) => {
   return initialState;
 };
 
+const setSeedViewed = (state: State, payload: { address: string }) => {
+  const { address } = payload;
+
+  const currentAccount = state.byId[address];
+  const updatedAccount = { ...currentAccount, seedViewed: true };
+
+  return {
+    ...state,
+    byId: { ...state.byId, [address]: updatedAccount }
+  };
+};
+
 const accounts = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case GET_ACCOUNT_START:
@@ -91,6 +106,8 @@ const accounts = (state: State = initialState, action: Action): State => {
       return addAccount(state, action.payload);
     case LOGOUT_ACCOUNT:
       return logoutAccount(state);
+    case VIEW_SEED:
+      return setSeedViewed(state, action.payload);
     default:
       return state;
   }
