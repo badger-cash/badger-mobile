@@ -8,7 +8,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import HomeScreen from "../screens/HomeScreen";
-import SettingsScreen from "../screens/SettingsScreen";
+import MenuScreen from "../screens/MenuScreen";
 import ViewSeedScreen from "../screens/ViewSeedScreen";
 import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
@@ -46,37 +46,46 @@ const HomeStack = createStackNavigator(
         };
       }
     }
-    // SendStack,
   },
   {
     navigationOptions: {
       tabBarLabel: "Wallets"
-    }
+    },
+    headerLayoutPreset: "center"
   }
 );
 
-const ReceiveStack = createStackNavigator({
-  Receive: { screen: ReceiveScreen, navigationOptions: { title: "Receive" } }
-});
-
-const SettingsStack = createStackNavigator(
+const ReceiveStack = createStackNavigator(
   {
-    SettingsList: {
-      screen: SettingsScreen,
-      navigationOptions: { title: "Settings" }
+    Receive: {
+      screen: ReceiveScreen,
+      navigationOptions: { title: "Receive" }
+    }
+  },
+  { headerLayoutPreset: "center" }
+);
+
+const MenuStack = createStackNavigator(
+  {
+    Menu: {
+      screen: MenuScreen,
+      navigationOptions: { title: "Menu" }
     },
     ViewSeedPhrase: {
-      screen: ViewSeedScreen
+      screen: ViewSeedScreen,
+      navigationOptions: { title: "Seed Phrase" }
     },
     ContactUsScreen: {
       screen: ContactUsScreen,
       navigationOptions: { title: "Contact Us" }
     },
     LogoutScreen: {
-      screen: LogoutScreen
+      screen: LogoutScreen,
+      navigationOptions: { title: "Logout?" }
     }
   },
   {
+    headerLayoutPreset: "center",
     defaultNavigationOptions: {
       headerBackTitleStyle: {
         color: theme.primary500
@@ -85,7 +94,7 @@ const SettingsStack = createStackNavigator(
       headerTitleStyle: { color: theme.fg200 }
     },
 
-    initialRouteName: "SettingsList"
+    initialRouteName: "Menu"
   }
 );
 
@@ -93,7 +102,7 @@ const BottomTabNavigator = createBottomTabNavigator(
   {
     Home: HomeStack,
     Receive: ReceiveStack,
-    Settings: SettingsStack
+    Menu: MenuStack
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -102,8 +111,8 @@ const BottomTabNavigator = createBottomTabNavigator(
         let iconName;
         if (routeName === "Home") {
           iconName = `ios-wallet`;
-        } else if (routeName === "Settings") {
-          iconName = `ios-settings`;
+        } else if (routeName === "Menu") {
+          iconName = `ios-menu`;
         } else if (routeName === "Receive") {
           iconName = "ios-download";
         }

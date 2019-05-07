@@ -43,7 +43,7 @@ const PrivacyNoticeScreen = ({ navigation }: Props) => {
   );
 };
 
-// Accessed from settings
+// Accessed from Menu List
 const ViewPrivacyNoticeScreen = ({ navigation }: Props) => {
   return (
     <ScreenView style={{ flex: 1 }}>

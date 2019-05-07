@@ -2,7 +2,13 @@
 
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { SafeAreaView, ScrollView, SectionList, View } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  SectionList,
+  View,
+  TouchableOpacity
+} from "react-native";
 import uuidv5 from "uuid/v5";
 
 import { connect } from "react-redux";
@@ -34,9 +40,9 @@ const SECOND = 1000;
 // Same as the Badger namespace for now.  doesn't need to be unique here.
 const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
-const BackupNotice = styled(View)`
+const BackupNotice = styled(TouchableOpacity)`
   border: 1px solid ${props => props.theme.accent500};
-  padding: 5px;
+  padding: 7px;
   background-color: ${props => props.theme.accent900};
   margin: 5px;
 `;
@@ -175,7 +181,9 @@ const HomeScreen = ({
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
           {!seedViewed ? (
             <>
-              <BackupNotice>
+              <BackupNotice
+                onPress={() => navigation.navigate("ViewSeedPhrase")}
+              >
                 <T center size="small" type="accent">
                   Please backup your seed phrase
                 </T>

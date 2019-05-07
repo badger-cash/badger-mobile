@@ -60,7 +60,7 @@ type Props = {
   seedViewed: boolean
 };
 
-const SettingsScreen = ({ navigation, seedViewed }: Props) => {
+const MenuScreen = ({ navigation, seedViewed }: Props) => {
   return (
     <SafeAreaView>
       <StyledScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -119,4 +119,4 @@ const mapDispatchToProps = {};
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SettingsScreen);
+)(MenuScreen);

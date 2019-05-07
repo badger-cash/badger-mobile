@@ -23,10 +23,12 @@ const ContactUsScreen = (props: Props) => {
     <SafeAreaView style={{ height: "100%" }}>
       <ScreenWrapper contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer />
+        <T center>We hope you are enjoying Badger Mobile</T>
+        <Spacer small />
         <T center>
-          We hope you are enjoying Badger Mobile. If you wish to contact us to
-          give feedback or ask a question, please feel free to contact the team
-          through electronic mail or Telegram.
+          If you wish to give feedback, ask a question, or contact us for
+          another reason, get in touch with the team through electronic mail or
+          Telegram
         </T>
         <Spacer large />
         <T center>
@@ -43,7 +45,6 @@ const ContactUsScreen = (props: Props) => {
           </T>
         </TouchableOpacity>
         <Spacer />
-
         <T center>
           <FontAwesome name="telegram" size={22} /> Telegram
         </T>

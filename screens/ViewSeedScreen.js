@@ -12,7 +12,7 @@ import {
   getMnemonicSelector,
   getAddressSelector
 } from "../data/accounts/selectors";
-import { T, H1, Spacer, Button } from "../atoms";
+import { T, Spacer, Button } from "../atoms";
 
 const Screen = styled(ScrollView)`
   padding: 10px;
@@ -54,11 +54,16 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
         }}
       />
       <Screen>
-        <H1 center>Backup Seed Phrase</H1>
         <Spacer />
         <T center>
-          Your seed phrase is the key to your funds. Please write it down, and
-          keep it very, very private. This is your private key.
+          Your seed phrase is the key to your funds. Losing this phrase is
+          losing access to this wallet. If lost we will be unable to help you
+          recover it.
+        </T>
+        <Spacer small />
+        <T center>
+          Write it down, keep it safe, and do not share it with anyone you do
+          not trust with access to your wallet.
         </T>
         <Spacer />
         <WordHolder>
