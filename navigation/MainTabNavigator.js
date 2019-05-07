@@ -50,7 +50,8 @@ const HomeStack = createStackNavigator(
   {
     navigationOptions: {
       tabBarLabel: "Wallets"
-    }
+    },
+    headerLayoutPreset: "center"
   }
 );
 
