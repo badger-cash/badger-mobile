@@ -29,7 +29,8 @@ const spaceBadger: Theme = {
   danger700: "#fff4f4",
   success700: "#f6fff4",
   success500: "rgb(62, 193, 10)",
-  pending500: "rgb(0, 193, 225)"
+  pending500: "rgb(0, 193, 225)",
+  coverBg: "rgba(255, 255, 255, 0.95)"
 };
 
 export { spaceBadger };

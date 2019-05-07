@@ -61,6 +61,8 @@ const balancesSelector = createSelector(
       slpTokens: {}
     };
 
+    if (!utxos) return balancesInitial;
+
     const balances: Balances = utxos.reduce((prev, utxo) => {
       if (!utxo) return prev;
 
