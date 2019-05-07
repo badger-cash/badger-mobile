@@ -69,7 +69,8 @@ const SettingsStack = createStackNavigator(
       screen: ViewSeedScreen
     },
     ContactUsScreen: {
-      screen: ContactUsScreen
+      screen: ContactUsScreen,
+      navigationOptions: { title: "Contact Us" }
     },
     LogoutScreen: {
       screen: LogoutScreen
