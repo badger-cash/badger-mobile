@@ -1,13 +1,13 @@
 {
   "name": "badgerMobile",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "license": "MIT",
   "homepage": "https://badger.bitcoin.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Bitcoin-com/badger-mobile.git"
   },
-  "author": "SpicyPete <peter@bitcoin.com> (https://bitcoin.com)",
+  "author": "SpicyPete <peter@bitcoin.com> (https://twitter.com/SpicyyyPete)",
   "contributors": [],
   "scripts": {
     "android": "react-native run-android",

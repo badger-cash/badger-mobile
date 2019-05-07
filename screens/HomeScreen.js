@@ -47,6 +47,18 @@ const BackupNotice = styled(TouchableOpacity)`
   margin: 5px;
 `;
 
+const NoTokensRow = styled(View)`
+  padding: 10px;
+`;
+
+const NoTokensFound = () => (
+  <NoTokensRow>
+    <T size="small" type="muted2">
+      No SLP tokens in the vault yet
+    </T>
+  </NoTokensRow>
+);
+
 type Props = {
   address: string,
   addressSlp: string,
@@ -121,10 +133,6 @@ const HomeScreen = ({
     slpTokens[key]
   ]);
 
-  // console.log(addressSlp);
-  // console.log(address);
-  // console.log(tokensById)
-
   const tokenData = slpTokensDisplay
     .filter(([tokenId, amount]) => amount.toNumber() !== 0)
     .map(([tokenId, amount]) => {
@@ -185,7 +193,7 @@ const HomeScreen = ({
                 onPress={() => navigation.navigate("ViewSeedPhrase")}
               >
                 <T center size="small" type="accent">
-                  Please backup your seed phrase
+                  Please backup your Seed Phrase
                 </T>
               </BackupNotice>
               <Spacer small />
@@ -200,6 +208,9 @@ const HomeScreen = ({
             renderSectionHeader={({ section }) => (
               <CoinRowHeader>{section.title}</CoinRowHeader>
             )}
+            renderSectionFooter={({ section }) =>
+              !section.data.length ? <NoTokensFound /> : null
+            }
             renderItem={({ item }) =>
               item && (
                 <CoinRow

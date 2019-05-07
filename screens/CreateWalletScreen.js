@@ -5,6 +5,8 @@ import styled from "styled-components";
 import { SafeAreaView, ActivityIndicator } from "react-native";
 import { connect } from "react-redux";
 
+import { Spacer, T } from "../atoms";
+
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
 
@@ -32,6 +34,12 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   return (
     <ScreenWrapper>
       <ActivityIndicator />
+      <Spacer />
+      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
+      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
+      <T monospace>🔧 Loading Wallet 🔧</T>
+      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
+      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
     </ScreenWrapper>
   );
 };
