@@ -2,7 +2,7 @@
 
 > Your gateway to the world of Bitcoin Cash (BCH) apps.
 
-Badger Mobile is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) platform. Interact with CashID, collect tokens, and more.
+Badger Mobile is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wallet. The easiest to use mobile wallet for BCH and SLP tokens.
 
 ## Technologies / Patterns
 
