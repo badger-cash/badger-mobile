@@ -63,7 +63,7 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
         <Spacer small />
         <T center>
           Write it down, keep it safe, and do not share it with anyone you do
-          not trust with access to your wallet
+          not trust with access to your wallet.
         </T>
         <Spacer />
         <WordHolder>

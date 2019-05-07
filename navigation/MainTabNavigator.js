@@ -55,9 +55,15 @@ const HomeStack = createStackNavigator(
   }
 );
 
-const ReceiveStack = createStackNavigator({
-  Receive: { screen: ReceiveScreen, navigationOptions: { title: "Receive" } }
-});
+const ReceiveStack = createStackNavigator(
+  {
+    Receive: {
+      screen: ReceiveScreen,
+      navigationOptions: { title: "Receive" }
+    }
+  },
+  { headerLayoutPreset: "center" }
+);
 
 const MenuStack = createStackNavigator(
   {
@@ -79,6 +85,7 @@ const MenuStack = createStackNavigator(
     }
   },
   {
+    headerLayoutPreset: "center",
     defaultNavigationOptions: {
       headerBackTitleStyle: {
         color: theme.primary500
