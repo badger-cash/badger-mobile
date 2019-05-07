@@ -1,5 +1,7 @@
 // @flow
 
+import { LOGOUT_ACCOUNT } from "../accounts/constants";
+
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
@@ -67,6 +69,8 @@ const utxos = (state: State = initialState, action: Action): State => {
       return addUtxos(state, action.payload);
     case UPDATE_UTXO_FAIL:
       return { ...state, updating: false };
+    case LOGOUT_ACCOUNT:
+      return initialState;
     default:
       return state;
   }

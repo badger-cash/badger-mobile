@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   SectionList,
@@ -25,6 +26,7 @@ import {
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector } from "../data/prices/selectors";
+import { doneInitialLoadSelector } from "../data/utxos/selectors";
 
 import { type TokenData } from "../data/tokens/reducer";
 
@@ -59,13 +61,28 @@ const NoTokensFound = () => (
   </NoTokensRow>
 );
 
+const InitialLoadCover = styled(View)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  left: 0;
+  background-color: ${props => props.theme.coverBg};
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
 type Props = {
   address: string,
   addressSlp: string,
   balances: Balances,
-  seedViewed: boolean,
+  initialLoadingDone: boolean,
   latestTransactionHistoryBlock: number,
   navigation: { navigate: Function },
+  seedViewed: boolean,
   spotPrices: any,
   tokensById: { [tokenId: string]: TokenData },
   updateSpotPrice: Function,
@@ -77,9 +94,10 @@ type Props = {
 const HomeScreen = ({
   address,
   addressSlp,
-  seedViewed,
   balances,
+  initialLoadingDone,
   navigation,
+  seedViewed,
   spotPrices,
   tokensById,
   updateSpotPrice,
@@ -203,34 +221,43 @@ const HomeScreen = ({
           )}
           <H1 center>Badger Mobile</H1>
           <Spacer small />
-          <SectionList
-            sections={walletSections}
-            renderSectionHeader={({ section }) => (
-              <CoinRowHeader>{section.title}</CoinRowHeader>
+          <View style={{ position: "relative" }}>
+            <SectionList
+              sections={walletSections}
+              renderSectionHeader={({ section }) => (
+                <CoinRowHeader>{section.title}</CoinRowHeader>
+              )}
+              renderSectionFooter={({ section }) =>
+                !section.data.length ? <NoTokensFound /> : null
+              }
+              renderItem={({ item }) =>
+                item && (
+                  <CoinRow
+                    amount={item.amount}
+                    extra={item.extra}
+                    name={item.name}
+                    ticker={item.symbol}
+                    tokenId={item.tokenId}
+                    valueDisplay={item.valueDisplay}
+                    onPress={() =>
+                      navigation.navigate("WalletDetailScreen", {
+                        symbol: item.symbol,
+                        tokenId: item.tokenId
+                      })
+                    }
+                  />
+                )
+              }
+              keyExtractor={(item, index) => `${index}`}
+            />
+            {!initialLoadingDone && (
+              <InitialLoadCover>
+                <ActivityIndicator />
+                <Spacer small />
+                <T>Checking Balances</T>
+              </InitialLoadCover>
             )}
-            renderSectionFooter={({ section }) =>
-              !section.data.length ? <NoTokensFound /> : null
-            }
-            renderItem={({ item }) =>
-              item && (
-                <CoinRow
-                  amount={item.amount}
-                  extra={item.extra}
-                  name={item.name}
-                  ticker={item.symbol}
-                  tokenId={item.tokenId}
-                  valueDisplay={item.valueDisplay}
-                  onPress={() =>
-                    navigation.navigate("WalletDetailScreen", {
-                      symbol: item.symbol,
-                      tokenId: item.tokenId
-                    })
-                  }
-                />
-              )
-            }
-            keyExtractor={(item, index) => `${index}`}
-          />
+          </View>
           <Spacer small />
         </ScrollView>
       </View>
@@ -249,13 +276,16 @@ const mapStateToProps = (state, props) => {
 
   const seedViewed = getSeedViewedSelector(state);
 
+  const initialLoadingDone = doneInitialLoadSelector(state, address);
+
   return {
     address,
     addressSlp,
     seedViewed,
     balances,
     spotPrices,
-    tokensById
+    tokensById,
+    initialLoadingDone
   };
 };
 const mapDispatchToProps = {

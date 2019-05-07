@@ -26,7 +26,7 @@ const WordRow = styled(View)``;
 
 const Cover = styled(View)`
   position: absolute;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: ${props => props.theme.coverBg};
   align-items: center;
   justify-content: center;
   top: 0;

@@ -6,14 +6,21 @@ import { type FullState } from "../store";
 const utxosSelector = (state: FullState) => state.utxos;
 
 const utxosByAccountSelector = (state: FullState, address: ?string) => {
-  if (!address) return [];
+  if (!address) return null;
 
   const { byId, byAccount } = state.utxos;
   const accountUtxoIds = byAccount[address];
 
-  if (!accountUtxoIds) return [];
+  if (!accountUtxoIds) return null;
 
   return byAccount[address].map(utxoId => byId[utxoId]);
 };
 
-export { utxosSelector, utxosByAccountSelector };
+const doneInitialLoadSelector = createSelector(
+  utxosByAccountSelector,
+  utxos => {
+    return !!utxos;
+  }
+);
+
+export { utxosSelector, utxosByAccountSelector, doneInitialLoadSelector };
