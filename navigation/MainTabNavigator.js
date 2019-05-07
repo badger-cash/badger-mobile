@@ -46,7 +46,6 @@ const HomeStack = createStackNavigator(
         };
       }
     }
-    // SendStack,
   },
   {
     navigationOptions: {
