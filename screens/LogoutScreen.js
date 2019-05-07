@@ -8,7 +8,7 @@ import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import _ from "lodash";
 
-import { Button, T, H1, H2, Spacer } from "../atoms";
+import { Button, T, Spacer } from "../atoms";
 import { logoutAccount } from "../data/accounts/actions";
 
 const ButtonContainer = styled(View)``;
@@ -55,9 +55,7 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Spacer small />
-        <H1 center>Logout?</H1>
-        <Spacer small />
+        <Spacer />
         <T center>
           You are about to logout of your wallet. You need to use your seed
           phrase to access this account again.

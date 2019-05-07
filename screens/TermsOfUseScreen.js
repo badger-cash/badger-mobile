@@ -77,7 +77,7 @@ SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES OR THE LIMIT
 
 ## 8. Our Proprietary Rights
 
-All title, ownership and intellectual property rights in and to the Service are owned by Badger or its licensors. You acknowledge and agree that the Service contains proprietary and confidential information that is protected by applicable intellectual property and other laws. Except as expressly authorized by Badger, you agree not to copy, modify, rent, lease, loan, sell, distribute, perform, display or create derivative works based on the Service, in whole or in part. Badger issues a license for Badger, found [here](https://github.com/Bitcoin-com/badger/blob/develop/LICENSE). For information on other licenses utilized in the development of Badger, please see our source code at: [https://github.com/bitcoin-com/badger-mobile](https://github.com/bitcoin-com/badger-mobile)
+All title, ownership and intellectual property rights in and to the Service are owned by Badger or its licensors. You acknowledge and agree that the Service contains proprietary and confidential information that is protected by applicable intellectual property and other laws. Except as expressly authorized by Badger, you agree not to copy, modify, rent, lease, loan, sell, distribute, perform, display or create derivative works based on the Service, in whole or in part. Badger issues a license for Badger, found [here](https://github.com/Bitcoin-com/badger-mobile/blob/develop/license). For information on other licenses utilized in the development of Badger, please see our source code at: [https://github.com/bitcoin-com/badger-mobile](https://github.com/bitcoin-com/badger-mobile)
 
 ## 9. Links
 
@@ -173,7 +173,7 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
   );
 };
 
-// This one is viewed in settings
+// This one is viewed from Menu
 const ViewTermsOfUseScreen = ({ navigation }: Props) => {
   return (
     <ScreenView>
