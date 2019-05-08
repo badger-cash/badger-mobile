@@ -41,6 +41,10 @@ const SLP = new SLPSDK();
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 
+const ScreenWrapper = styled(SafeAreaView)`
+  height: 100%;
+  padding: 0 16px;
+`;
 const IconArea = styled(View)`
   align-items: center;
   justify-content: center;
@@ -222,9 +226,9 @@ const SendConfirmScreen = ({
     : null;
 
   return (
-    <SafeAreaView style={{ height: "100%" }}>
+    <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Spacer />
+        <Spacer small />
         <H1 center>Confirm Transaction</H1>
         <Spacer small />
         <IconArea>
@@ -319,7 +323,7 @@ const SendConfirmScreen = ({
         </ButtonsContainer>
         <Spacer small />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 

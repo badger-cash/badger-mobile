@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import SLPSDK from "slp-sdk";
 
-import { SafeAreaView, View, TextInput } from "react-native";
+import { SafeAreaView, View, TextInput, StyleSheet } from "react-native";
 
 import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
@@ -14,7 +14,7 @@ import { hasMnemonicSelector } from "../data/accounts/selectors";
 const SLP = new SLPSDK();
 
 const Screen = styled(View)`
-  padding: 10px;
+  padding: 0 16px;
   height: 100%;
 `;
 
@@ -25,8 +25,9 @@ const StyledTextInput = styled(TextInput)`
 
 const ErrorContainer = styled(View)`
   border-color: ${props => props.theme.danger500};
-  border-width: 1px;
-  padding: 5px;
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
+  padding: 8px;
 `;
 
 const formatMnemonic = (mnemonic: string) => {
@@ -45,7 +46,7 @@ const formatMnemonic = (mnemonic: string) => {
 type Props = {
   getAccount: Function,
   isCreated: boolean,
-  navigation: { navigate: Function }
+  navigation: { navigate: Function, goBack: Function }
 };
 
 const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
@@ -62,11 +63,11 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
     <SafeAreaView>
       <Screen>
         <Spacer />
-        <H1 center>Restore From Recovery Phrase</H1>
+        <H1 center>Restore Wallet</H1>
         <Spacer />
         <T center>
-          Enter your 12 word recovery phrase or mnemonic to login to an existing
-          account
+          Enter your 12 word seed phrase or mnemonic to restore and access an
+          existing wallet
         </T>
         <Spacer large />
         <StyledTextInput
@@ -92,9 +93,17 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
           </ErrorContainer>
         )}
         <Spacer fill />
+        <Button
+          onPress={() => navigation.goBack()}
+          text="Cancel"
+          nature="cautionGhost"
+        />
+        <Spacer small />
 
         <Button
           onPress={() => {
+            let errorMessage = "Double check the recovery phrase and try again";
+
             const mnemonicMessage = SLP.Mnemonic.validate(
               mnemonic,
               SLP.Mnemonic.wordLists().english
@@ -103,11 +112,14 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
               getAccount(mnemonic.trim());
               return;
             }
-            let errorMessage = "Double check the recovery phrase and try again";
+
             if (mnemonicMessage === "Invalid mnemonic") {
               errorMessage = `${mnemonicMessage}, check the recovery phrase and try again`;
             } else {
               errorMessage = mnemonicMessage;
+            }
+            if (!mnemonic.length) {
+              errorMessage = "Seed Phrase / Mnemonic cannot be empty";
             }
 
             setInputError(errorMessage);

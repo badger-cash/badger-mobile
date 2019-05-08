@@ -2,7 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
-import { SafeAreaView, ScrollView, Linking } from "react-native";
+import { SafeAreaView, ScrollView, Linking, StyleSheet } from "react-native";
 
 import Markdown from "react-native-markdown-package";
 
@@ -12,8 +12,13 @@ type Props = { navigation: any };
 
 const ScreenView = styled(SafeAreaView)`
   height: 100%;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin: 0 16px;
+`;
+
+const MarkdownScrollview = styled(ScrollView)`
+  border-color: ${props => props.theme.fg500};
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  border-top-width: ${StyleSheet.hairlineWidth};
 `;
 
 const ToSContent = `

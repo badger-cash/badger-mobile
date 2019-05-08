@@ -37,7 +37,7 @@ const StyledTextInput = styled(TextInput)`
 
 const ScreenWrapper = styled(View)`
   position: relative;
-  margin: 0 6px;
+  margin: 0 16px;
   flex: 1;
 `;
 
@@ -45,8 +45,6 @@ const StyledButton = styled(Button)`
   align-items: center;
   flex-direction: row;
   flex: 1;
-  /* margin-left: 5px;
-  margin-right: 5px; */
 `;
 
 const ButtonArea = styled(View)`
@@ -306,12 +304,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
               </T>
             </StyledButton>
 
-          </ButtonArea>
-          <View style={{alignItems: 'flex-end'}}>
-          <T size="small">
-            Send Max
-          </T>
-          </View> */}
+          </ButtonArea> */}
           </KeyboardAvoidingView>
 
           {errors.length > 0 ? (

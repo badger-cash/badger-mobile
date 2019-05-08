@@ -14,7 +14,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { T, Spacer } from "../atoms";
 
 const ScreenWrapper = styled(ScrollView)`
-  padding: 7px;
+  padding: 7px 16px;
 `;
 
 type Props = {};

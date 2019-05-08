@@ -3,8 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { SafeAreaView, View, ScrollView, Image, Linking } from "react-native";
-import makeBlockie from "ethereum-blockies-base64";
+import {
+  SafeAreaView,
+  View,
+  ScrollView,
+  Image,
+  Linking,
+  StyleSheet
+} from "react-native";
 
 import {
   getAddressSelector,
@@ -28,11 +34,10 @@ import { TransactionRow } from "../components";
 
 import { addressToSlp } from "../utils/account-utils";
 
-import BitcoinCashImage from "../assets/images/icon.png";
 import { getTokenImage } from "../utils/token-utils";
 
 const TransactionArea = styled(View)`
-  border-top-width: 1px;
+  border-top-width: ${StyleSheet.hairlineWidth};
   border-top-color: ${props => props.theme.fg700};
   position: relative;
 `;
@@ -43,7 +48,7 @@ const ButtonGroup = styled(View)`
 `;
 
 const ExplorerRow = styled(View)`
-  padding: 10px 10px 12px;
+  padding: 10px 16px;
 `;
 
 const IconImage = styled(Image)`

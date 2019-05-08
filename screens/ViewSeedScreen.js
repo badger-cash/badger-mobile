@@ -15,7 +15,7 @@ import {
 import { T, Spacer, Button } from "../atoms";
 
 const Screen = styled(ScrollView)`
-  padding: 10px;
+  padding: 0 16px;
 `;
 
 const WordHolder = styled(View)`
@@ -55,15 +55,16 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
       />
       <Screen>
         <Spacer />
-        <T center>
-          Your seed phrase is the key to your funds. Losing this phrase is
-          losing access to this wallet. If lost we will be unable to help you
-          recover it.
+        <T center>This seed phrase is the key to the funds in this wallet.</T>
+        <Spacer small />
+        <T center small>
+          Losing this phrase is losing access to this wallet. If lost we will be
+          unable to help you recover your Seed Phrase or wallet.
         </T>
         <Spacer small />
         <T center>
-          Write it down, keep it safe, and do not share it with anyone you do
-          not trust with access to your wallet.
+          Write the 12-word seed phrase down in order, keep it safe, and do not
+          share it with anyone you do not trust with access to your wallet.
         </T>
         <Spacer />
         <WordHolder>
