@@ -4,8 +4,10 @@ import styled, { css } from "styled-components";
 
 import { Text, Platform } from "react-native";
 
+export const BASE_SIZE = 16;
+
 const T = styled(Text)`
-  font-size: 18;
+  font-size: ${BASE_SIZE};
   color: ${props =>
     props.type === "muted"
       ? props.theme.fg200
@@ -28,19 +30,19 @@ const T = styled(Text)`
   ${props =>
     props.size === "tiny"
       ? css`
-          font-size: 8;
+          font-size: ${BASE_SIZE * 0.5};
         `
       : props.size === "xsmall"
       ? css`
-          font-size: 10;
+          font-size: ${BASE_SIZE * 0.75};
         `
       : props.size === "small"
       ? css`
-          font-size: 14;
+          font-size: ${BASE_SIZE * 0.9};
         `
       : props.size === "large" &&
         css`
-          font-size: 22;
+          font-size: ${BASE_SIZE * 1.2};
         `}
     ${props =>
       props.weight === "bold" &&

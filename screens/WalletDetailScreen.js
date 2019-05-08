@@ -123,14 +123,17 @@ const WalletDetailScreen = ({
       <ScrollView style={{ height: "100%" }}>
         <View>
           <Spacer small />
+          <H1 center>{name}</H1>
+          {tokenId && (
+            <T size="tiny" center>
+              {tokenId}
+            </T>
+          )}
+          <Spacer small />
           <IconArea>
             <IconImage source={imageSource} />
           </IconArea>
-          <Spacer small />
-          <H1 center>{name}</H1>
-          <T size="tiny" center>
-            {tokenId}
-          </T>
+
           <Spacer />
           <T center>Balance</T>
           <H1 center>{formatAmount(amount, decimals)}</H1>

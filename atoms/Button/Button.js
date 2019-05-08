@@ -2,13 +2,15 @@
 import * as React from "react";
 
 import styled, { css } from "styled-components";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, StyleSheet } from "react-native";
 import T from "../T";
 
 const StyledButton = styled(TouchableOpacity)`
-  border-width: 1px;
-  padding: 8px 14px;
-  border-radius: 2px;
+  border-width: ${StyleSheet.hairlineWidth};
+  min-width: 150px;
+
+  padding: 8px 12px;
+  border-radius: 3px;
   justify-content: center;
   ${props =>
     props.nature === "primary"
