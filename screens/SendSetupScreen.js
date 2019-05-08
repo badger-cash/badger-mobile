@@ -62,7 +62,7 @@ const QROverlayScreen = styled(View)`
   right: 0;
   bottom: 0;
   left: 0;
-  width: 100%;
+  width: ${Dimensions.get("window").width - 32}px;
   height: ${Dimensions.get("window").height}px;
   z-index: 1;
   background-color: ${props => props.theme.bg900};
@@ -199,8 +199,8 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                   setQrOpen(false);
                 }}
                 cameraStyle={{
-                  height: Dimensions.get("window").width - 12,
-                  width: Dimensions.get("window").width - 12
+                  height: Dimensions.get("window").width - 32,
+                  width: Dimensions.get("window").width - 32
                 }}
               />
             </View>
