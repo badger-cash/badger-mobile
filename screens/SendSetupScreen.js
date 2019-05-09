@@ -31,8 +31,9 @@ import { getTokenImage } from "../utils/token-utils";
 const SLP = new SLPSDK();
 
 const StyledTextInput = styled(TextInput)`
-  border: 1px ${props => props.theme.primary500};
-  padding: 15px 5px;
+  border: 1px ${props => props.theme.accent500};
+  border-radius: 3px;
+  padding: 16px 8px;
 `;
 
 const ScreenWrapper = styled(View)`
@@ -85,7 +86,9 @@ const IconImage = styled(Image)`
 const ErrorContainer = styled(View)`
   border-color: ${props => props.theme.danger500};
   border-width: 1px;
-  padding: 5px;
+  border-radius: 3px;
+  padding: 8px;
+  background-color: ${props => props.theme.danger700};
 `;
 
 type Props = {
@@ -236,7 +239,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             <Spacer />
 
             <T>Send To:</T>
-            <Spacer small />
+            <Spacer tiny />
             <StyledTextInput
               editable
               multiline
@@ -280,7 +283,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             <T size="small">
               {availableFunds} {symbol} available
             </T>
-            <Spacer small />
+            <Spacer tiny />
             <StyledTextInput
               keyboardType="numeric"
               editable
