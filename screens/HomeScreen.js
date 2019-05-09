@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   SectionList,
   View,
   TouchableOpacity
@@ -43,14 +44,16 @@ const SECOND = 1000;
 const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
 const BackupNotice = styled(TouchableOpacity)`
-  border: 1px solid ${props => props.theme.accent500};
-  padding: 7px;
+  border-color: ${props => props.theme.accent500};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
+  padding: 8px;
   background-color: ${props => props.theme.accent900};
-  margin: 5px;
+  margin: 8px 16px;
 `;
 
 const NoTokensRow = styled(View)`
-  padding: 10px;
+  padding: 10px 16px;
 `;
 
 const NoTokensFound = () => (
@@ -217,10 +220,16 @@ const HomeScreen = ({
               <Spacer small />
             </>
           ) : (
-            <Spacer />
+            <Spacer large />
           )}
-          <H1 center>Badger Mobile</H1>
-          <Spacer small />
+          <H1 center spacing="loose" weight="bold">
+            Badger Mobile
+          </H1>
+          <Spacer tiny />
+          <T center type="muted2">
+            BCH and SLP wallet
+          </T>
+          <Spacer />
           <View style={{ position: "relative" }}>
             <SectionList
               sections={walletSections}

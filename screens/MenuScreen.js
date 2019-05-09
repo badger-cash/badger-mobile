@@ -4,7 +4,13 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
-import { SafeAreaView, ScrollView, View, TouchableOpacity } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  StyleSheet
+} from "react-native";
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
@@ -24,8 +30,8 @@ const Row = styled(View)`
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
-  border-bottom-width: 0.5px;
-  padding-left: 5;
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  padding-left: 16;
 `;
 
 const NotificationDot = styled(View)`
@@ -33,7 +39,7 @@ const NotificationDot = styled(View)`
   width: 6px;
   border-radius: 6px;
   background-color: ${props => props.theme.accent500};
-  margin-left: 7px;
+  margin-left: 8px;
 `;
 
 const OptionsRow = ({

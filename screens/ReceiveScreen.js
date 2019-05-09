@@ -24,7 +24,7 @@ import { T, Spacer, H2 } from "../atoms";
 const QRHolder = styled(View)`
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 0 16px;
   overflow: hidden;
   position: relative;
 `;
@@ -77,6 +77,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         </T>
         <Spacer />
         <H2 center>Bitcoin Cash (BCH)</H2>
+        <Spacer tiny />
 
         <TouchableOpacity
           onPress={() => {
@@ -113,11 +114,13 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </QRHolder>
           )}
         </TouchableOpacity>
+        <Spacer tiny />
         <T center size="small" type="accent">
           {copyNotify === "BCH" ? "Copied BCH Address" : " "}
         </T>
         <Spacer />
         <H2 center>Simple Token (SLP)</H2>
+        <Spacer tiny />
         <TouchableOpacity
           onPress={() => {
             if (showing === "SLP") {
@@ -153,6 +156,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </QRHolder>
           )}
         </TouchableOpacity>
+        <Spacer tiny />
         <T center size="small" type="accent">
           {copyNotify === "SLP" ? "Copied SLP Address" : " "}
         </T>

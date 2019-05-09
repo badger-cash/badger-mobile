@@ -12,6 +12,7 @@ const StyledWrapper = styled(SafeAreaView)`
   display: flex;
   flex: 1;
   align-items: center;
+  margin: 0 16px;
 `;
 
 type Props = { navigation: { navigate: Function } };
@@ -21,14 +22,16 @@ const WelcomeScreen = ({ navigation }: Props) => {
     <StyledWrapper>
       <Spacer />
       <H1>Badger Mobile </H1>
-      <H2 type="muted2">RC.2</H2>
+      <H2 type="muted2">RC.3</H2>
       <Spacer />
       <Image source={BadgerIcon} style={{ width: 150, height: 150 }} />
       <Spacer />
       <View style={{ flex: 1 }}>
-        <T style={{ textAlign: "center" }}>
-          Your gateway to the world of Bitcoin Cash (BCH) apps
-        </T>
+        <H2 style={{ textAlign: "center" }}>
+          Your gateway to the world of Bitcoin Cash (BCH).
+        </H2>
+        <Spacer small />
+        <T center>Bitcoin Cash (BCH) and Simple Token (SLP) wallet </T>
       </View>
 
       <View style={{ flex: 1 }}>

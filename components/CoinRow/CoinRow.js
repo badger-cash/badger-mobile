@@ -4,10 +4,9 @@ import React from "react";
 import styled from "styled-components";
 
 import { View, Image, TouchableOpacity } from "react-native";
-import makeBlockie from "ethereum-blockies-base64";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import { T } from "../../atoms";
+import { T, Spacer } from "../../atoms";
 
 import { getTokenImage } from "../../utils/token-utils";
 type Props = {
@@ -20,8 +19,8 @@ type Props = {
   onPress: Function
 };
 
-const Outter = styled(TouchableOpacity)`
-  padding: 14px 10px;
+const Outer = styled(TouchableOpacity)`
+  padding: 16px 16px;
   flex-direction: row;
   border-bottom-color: ${props => props.theme.fg700};
   border-bottom-width: 1px;
@@ -29,12 +28,11 @@ const Outter = styled(TouchableOpacity)`
 
 const IconArea = styled(View)`
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 12px;
 `;
 
 const ArrowArea = styled(View)`
   justify-content: center;
-  margin-right: 10px;
 `;
 const IconImage = styled(Image)`
   width: 36;
@@ -59,7 +57,7 @@ const CoinRow = ({
   const imageSource = getTokenImage(tokenId);
 
   return (
-    <Outter onPress={onPress}>
+    <Outer onPress={onPress}>
       <IconArea>
         <IconImage source={imageSource} />
       </IconArea>
@@ -68,6 +66,7 @@ const CoinRow = ({
           {ticker}
           <T type="muted2"> - {name}</T>
         </T>
+        <Spacer minimal />
         <T size="large">{amount}</T>
         {valueDisplay && (
           <T type="muted2" size="small">
@@ -76,23 +75,23 @@ const CoinRow = ({
         )}
       </InfoArea>
       <ArrowArea>
-        <Ionicons name="ios-arrow-forward" size={24} />
+        <T type="muted2">
+          <Ionicons name="ios-arrow-forward" size={20} />
+        </T>
       </ArrowArea>
-    </Outter>
+    </Outer>
   );
 };
 
 const HeaderWrapper = styled(View)`
-  padding: 0px 10px;
-  margin-top: 15px;
+  padding: 0px 16px;
+  margin-top: 25px;
 `;
 
 const CoinRowHeader = ({ children }: { children: string }) => {
   return (
     <HeaderWrapper>
-      <T size="small" type="muted">
-        {children}
-      </T>
+      <T type="muted2">{children}</T>
     </HeaderWrapper>
   );
 };

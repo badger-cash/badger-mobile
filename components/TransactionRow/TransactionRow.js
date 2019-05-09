@@ -2,16 +2,16 @@
 
 import React from "react";
 import styled, { css } from "styled-components";
-import { View, Image } from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 
 import { T } from "../../atoms";
 
 const Row = styled(View)`
-  padding: 10px 10px 12px;
+  padding: 16px;
   border-bottom-color: ${props => props.theme.fg700};
-  border-bottom-width: 1px;
+  border-bottom-width: ${StyleSheet.hairlineWidth};
   ${props =>
     props.type === "send"
       ? css`

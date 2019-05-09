@@ -9,8 +9,7 @@ import { H1, T, Spacer, Button } from "../atoms";
 type Props = { navigation: any };
 
 const ScreenView = styled(SafeAreaView)`
-  margin-right: 5px;
-  margin-left: 5px;
+  margin: 0 16px;
 `;
 
 // Edit - This version no longer used, was used in onboarding.  Maybe remove

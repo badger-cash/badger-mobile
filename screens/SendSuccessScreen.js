@@ -32,6 +32,7 @@ const SLP = new SLPSDK();
 const ScreenCover = styled(View)`
   flex: 1;
   background-color: ${props => props.theme.success700};
+  padding: 0 16px;
 `;
 
 const IconArea = styled(View)`
@@ -70,8 +71,8 @@ const SendSuccessScreen = ({
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    _.delay(() => updateUtxos(address, addressSlp), 1500);
-    _.delay(() => updateTransactions(address, addressSlp, 1750));
+    _.delay(() => updateUtxos(address, addressSlp), 1750);
+    _.delay(() => updateTransactions(address, addressSlp, 2000));
   }, [address, addressSlp]);
 
   const imageSource = getTokenImage(tokenId);

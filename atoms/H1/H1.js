@@ -4,13 +4,15 @@ import styled, { css } from "styled-components";
 
 import { Text } from "react-native";
 
+import { BASE_SIZE, textBase } from "../T";
+
 const H1 = styled(Text)`
-  font-size: 32;
-  color: ${props => props.theme.fg100};
+  ${textBase};
+  font-size: ${BASE_SIZE * 2};
   ${props =>
-    props.center &&
+    props.spacing === "loose" &&
     css`
-      text-align: center;
+      letter-spacing: 1.4;
     `}
 `;
 
