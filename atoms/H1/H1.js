@@ -12,7 +12,7 @@ const H1 = styled(Text)`
   ${props =>
     props.spacing === "loose" &&
     css`
-      letter-spacing: 2.5;
+      letter-spacing: 1.4;
     `}
 `;
 

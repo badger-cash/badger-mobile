@@ -222,9 +222,13 @@ const HomeScreen = ({
           ) : (
             <Spacer large />
           )}
-          <H1 center spacing="loose">
+          <H1 center spacing="loose" weight="bold">
             Badger Mobile
           </H1>
+          <Spacer tiny />
+          <T center type="muted2">
+            BCH and SLP wallet
+          </T>
           <Spacer />
           <View style={{ position: "relative" }}>
             <SectionList

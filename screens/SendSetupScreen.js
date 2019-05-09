@@ -44,16 +44,19 @@ const ScreenWrapper = styled(View)`
 const StyledButton = styled(Button)`
   align-items: center;
   flex-direction: row;
-  flex: 1;
 `;
 
 const ButtonArea = styled(View)`
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
 `;
 
 const ActionButtonArea = styled(View)`
   align-items: center;
+`;
+
+const MaxButtonArea = styled(View)`
+  align-items: flex-end;
 `;
 
 const QROverlayScreen = styled(View)`
@@ -165,7 +168,8 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
 
   const availableAmount = tokenId
     ? balances.slpTokens[tokenId]
-    : balances.satoshisAvailable;
+    : balances.satoshisAvailable - 546;
+
   const adjustDecimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = parseFloat(
@@ -220,7 +224,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             <IconArea>
               <IconImage source={imageSource} />
             </IconArea>
-            <Spacer small />
+            <Spacer tiny />
             <H2 center>
               {coinName} ({symbol})
             </H2>
@@ -245,7 +249,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 setToAddress(text);
               }}
             />
-            <Spacer small />
+            <Spacer tiny />
             <ButtonArea>
               <StyledButton
                 style={{ marginRight: 5 }}
@@ -290,21 +294,20 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 setSendAmount(formatAmountInput(text, adjustDecimals));
               }}
             />
-            {/* <ButtonArea>
-            <StyledButton
-              nature="ghost"
-              onPress={async () => {
-                const content = await Clipboard.getString();
-                setErrors([]);
-                setToAddress(content);
-              }}
-            >
-              <T center spacing="loose" type="primary" size="small">
-                <Ionicons name="ios-clipboard" size={18} /> Send Max
-              </T>
-            </StyledButton>
-
-          </ButtonArea> */}
+            <Spacer tiny />
+            <MaxButtonArea>
+              <StyledButton
+                nature="ghost"
+                onPress={() => {
+                  setSendAmount(`${availableFunds}`);
+                  setErrors([]);
+                }}
+              >
+                <T center spacing="loose" type="primary" size="small">
+                  <Ionicons name="ios-color-wand" size={18} /> Send Max
+                </T>
+              </StyledButton>
+            </MaxButtonArea>
           </KeyboardAvoidingView>
 
           {errors.length > 0 ? (

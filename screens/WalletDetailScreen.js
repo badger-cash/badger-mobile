@@ -159,7 +159,11 @@ const WalletDetailScreen = ({
           <Spacer />
         </View>
         <Spacer small />
-        <T style={{ marginLeft: 7, marginBottom: 5 }} size="small" type="muted">
+        <T
+          style={{ marginLeft: 16, marginBottom: 5 }}
+          size="small"
+          type="muted"
+        >
           Transaction History (max 30)
         </T>
         <TransactionArea>

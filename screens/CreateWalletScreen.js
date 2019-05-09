@@ -35,11 +35,7 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
     <ScreenWrapper>
       <ActivityIndicator />
       <Spacer />
-      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
-      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
-      <T monospace>🔧 Loading Wallet 🔧</T>
-      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
-      <T monospace>🔧🦡🔧🦡🔧🦡🔧🦡🔧🦡</T>
+      <T monospace>Loading Wallet...</T>
     </ScreenWrapper>
   );
 };
