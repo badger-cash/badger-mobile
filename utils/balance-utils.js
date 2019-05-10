@@ -57,6 +57,7 @@ const getHistoricalBchTransactions = async (
   const request = await fetch(url);
   const result = await request.json();
 
+  // combine confirmed and unconfirmed
   const transactions = [...result.c, ...result.u];
 
   return transactions;
@@ -117,6 +118,7 @@ const getHistoricalSlpTransactions = async (
   const request = await fetch(url);
   const result = await request.json();
 
+  // Get confirmed and unconfirmed transactions
   const transactions = [...result.c, ...result.u];
 
   return transactions;
@@ -142,7 +144,6 @@ const formatAmount = (
   const adjustDecimals = bigNumber
     .dividedBy(Math.pow(10, decimals))
     .toFixed(decimals);
-  // const removeTrailing = +adjustDecimals + "";
 
   return adjustDecimals.toString();
 };

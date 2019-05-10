@@ -66,7 +66,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     const transactionsBCH = [...bch145History, ...bch245History];
 
-    // const transactionsSLP = await getHistoricalSlpTransactions(address);
     const formattedTransactionsBCH = transactionsBCH.map(tx => {
       const fromAddresses = tx.in
         .filter(input => input.e && input.e.a)
@@ -122,8 +121,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
         txParams: {
           from: fromAddress,
           to: toAddress,
-          fromAddresses: fromAddresses,
-          toAddresses: toAddresses,
+          fromAddresses,
+          toAddresses,
           value
         },
         time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
@@ -134,62 +133,75 @@ const updateTransactions = (address: string, addressSlp: string) => {
     });
 
     const formattedTransactionsSLP = slpHistory.map(tx => {
-      const fromAddresses = tx.in
+      const { slp } = tx;
+      const inputs = tx.in;
+
+      const { outputs, tokenIdHex, transactionType, decimals } = slp.detail;
+
+      // All from addresses in cashaddr format
+      const fromAddresses = inputs
         .filter(input => input.e && input.e.a)
         .map(input => {
-          const addr = `bitcoincash:${input.e.a}`;
-          if (addr === addressSlp) return address;
-          else return addr;
-        })
-        .reduce((accumulator, currentValue) => {
-          if (!accumulator.find(element => element === currentValue)) {
-            accumulator.push(currentValue);
-          }
-          return accumulator;
-        }, []);
+          const addr = SLP.Address.toCashAddress(input.e.a);
+          return addr;
+        });
 
-      let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
-      if (!fromAddress && fromAddresses.includes(address)) {
-        fromAddress = address;
-      }
-
-      // Determine to address
-      const toAddresses = tx.slp.detail.outputs
+      // All to addresses in cashaddr format
+      const toAddresses = outputs
         .filter(output => output.address)
         .map(output => {
           const addr = SLP.Address.toCashAddress(output.address);
-          if (addr === addressSlp) return address;
-          else return addr;
-        })
-        .reduce((accumulator, currentValue) => {
-          if (!accumulator.find(element => element === currentValue)) {
-            accumulator.push(currentValue);
-          }
-          return accumulator;
-        }, []);
-      let toAddress = toAddresses.length === 1 ? toAddresses[0] : null;
-      if (
-        !toAddress &&
-        toAddresses.length === 2 &&
-        toAddresses.find(element => element === fromAddress)
-      ) {
-        toAddress = toAddresses.filter(element => element !== fromAddress)[0];
-      } else if (!toAddress && toAddresses.includes(address)) {
-        toAddress = address;
+          return addr;
+        });
+
+      // Detect if it's from this wallet
+      let fromUser = fromAddresses.reduce((acc, curr) => {
+        if (acc) return acc;
+        return [address, addressSlp].includes(curr);
+      }, false);
+
+      let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
+
+      // If sending SLP, show from SLP address over the BCH address
+      if (!fromAddress && fromAddresses.includes(addressSlp)) {
+        fromAddress = addressSlp;
+      } else if (!fromAddress && fromAddresses.includes(address)) {
+        fromAddress = address;
+      }
+
+      let toAddress = null;
+
+      // if from us, search for an external address
+      if (fromUser) {
+        toAddress = toAddresses.reduce((acc, curr) => {
+          if (acc) return acc;
+          return [address, addressSlp].includes(curr) ? null : curr;
+        }, null);
+      } else {
+        // else search for one of our addresses
+        toAddress = toAddresses.includes(addressSlp)
+          ? addressSlp
+          : toAddresses.includes(address) && address;
+      }
+
+      // Else from and to us?
+      if (fromUser && !toAddress) {
+        // Change to false so these appear as received
+        fromUser = false;
+        toAddress = toAddresses.includes(addressSlp)
+          ? addressSlp
+          : toAddresses.includes(address) && address;
       }
 
       // Determine value
       let value = new BigNumber(0);
       if (toAddress && fromAddress !== toAddress) {
-        value = tx.slp.detail.outputs.reduce((accumulator, currentValue) => {
+        value = outputs.reduce((accumulator, currentValue) => {
           if (currentValue.address && currentValue.amount) {
             const outputAddress = SLP.Address.toCashAddress(
               currentValue.address
             );
-            if (
-              outputAddress === toAddress ||
-              (toAddress === address && outputAddress === addressSlp)
-            ) {
+            if (outputAddress === toAddress) {
               accumulator = accumulator.plus(
                 new BigNumber(currentValue.amount)
               );
@@ -204,12 +216,14 @@ const updateTransactions = (address: string, addressSlp: string) => {
         txParams: {
           from: fromAddress,
           to: toAddress,
-          fromAddresses: fromAddresses,
-          toAddresses: toAddresses,
-          value: value.toNumber(),
+          fromAddresses,
+          toAddresses,
+          value: value.toFixed(decimals),
+          fromUser,
+          transactionType,
           sendTokenData: {
             tokenProtocol: "slp",
-            tokenId: tx.slp.detail.tokenIdHex
+            tokenId: tokenIdHex
           }
         },
         time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),

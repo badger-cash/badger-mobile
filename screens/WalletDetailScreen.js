@@ -168,22 +168,35 @@ const WalletDetailScreen = ({
         </T>
         <TransactionArea>
           {transactions.map(tx => {
-            const txType = tx.txParams.to === address ? "receive" : "send";
+            const { hash, txParams, time } = tx;
+            const {
+              to,
+              from,
+              toAddresses,
+              fromAddresses,
+              fromUser,
+              transactionType,
+              value
+            } = txParams;
+
+            const txType = fromUser
+              ? "send"
+              : to === address || to === addressSlp
+              ? "receive"
+              : "send";
+
             return (
               <TransactionRow
-                key={tx.hash}
+                key={hash}
                 type={txType}
-                timestamp={tx.time}
-                toAddresses={tx.txParams.toAddresses}
-                fromAddresses={tx.txParams.fromAddresses}
-                fromAddress={tx.txParams.from}
+                timestamp={time}
+                toAddress={to}
+                toAddresses={toAddresses}
+                fromAddresses={fromAddresses}
+                fromAddress={from}
                 symbol={ticker}
                 tokenId={tokenId}
-                amount={
-                  tokenId
-                    ? tx.txParams.value
-                    : formatAmount(tx.txParams.value, decimals)
-                }
+                amount={tokenId ? value : formatAmount(value, decimals)}
               />
             );
           })}

@@ -3,14 +3,15 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
-  SafeAreaView,
-  ScrollView,
-  KeyboardAvoidingView,
-  TextInput,
-  View,
   Clipboard,
   Dimensions,
-  Image
+  Image,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View
 } from "react-native";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
@@ -31,7 +32,8 @@ import { getTokenImage } from "../utils/token-utils";
 const SLP = new SLPSDK();
 
 const StyledTextInput = styled(TextInput)`
-  border: 1px ${props => props.theme.accent500};
+  border-color: ${props => props.theme.accent500};
+  border-width: ${StyleSheet.hairlineWidth};
   border-radius: 3px;
   padding: 16px 8px;
 `;
