@@ -83,15 +83,14 @@ const TransactionRow = ({
     type === "send" ? toAddress : fromAddress || fromAddresses[0];
 
   let formattedTransactionAddress = null;
-  // try {
-  formattedTransactionAddress = tokenId
-    ? SLP.Address.toSLPAddress(transactionAddress)
-    : transactionAddress;
-  // } catch (e) {
-  //   formattedTransactionAddress = null;
-  // }
-
-  if (typeof formattedTransactionAddress !== "string") {
+  try {
+    formattedTransactionAddress = tokenId
+      ? SLP.Address.toSLPAddress(transactionAddress)
+      : transactionAddress;
+    if (typeof formattedTransactionAddress !== "string") {
+      formattedTransactionAddress = null;
+    }
+  } catch (e) {
     formattedTransactionAddress = null;
   }
 
