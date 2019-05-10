@@ -78,8 +78,11 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
+  // Can remove `|| toAddresses[0]` before launch.
   const transactionAddress =
-    type === "send" ? toAddress : fromAddress || fromAddresses[0];
+    type === "send"
+      ? toAddress || toAddresses[0]
+      : fromAddress || fromAddresses[0];
 
   let blockie = blockieCache[transactionAddress];
   if (!blockie) {

@@ -174,16 +174,12 @@ const WalletDetailScreen = ({
               from,
               toAddresses,
               fromAddresses,
-              fromUser,
               transactionType,
               value
             } = txParams;
 
-            const txType = fromUser
-              ? "send"
-              : to === address || to === addressSlp
-              ? "receive"
-              : "send";
+            const txType =
+              to === address || to === addressSlp ? "receive" : "send";
 
             return (
               <TransactionRow

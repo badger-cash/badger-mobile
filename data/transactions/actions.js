@@ -219,7 +219,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
           fromAddresses,
           toAddresses,
           value: value.toFixed(decimals),
-          fromUser,
           transactionType,
           sendTokenData: {
             tokenProtocol: "slp",

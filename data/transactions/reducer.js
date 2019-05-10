@@ -12,7 +12,7 @@ export type Transaction = {
   txParams: {
     from: string,
     to: string,
-    fromUser?: boolean,
+    // fromUser?: boolean,
     transactionType?: "SEND" | "MINT",
     fromAddresses: string[],
     toAddresses: string[],
