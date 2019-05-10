@@ -78,7 +78,6 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
-  // Can remove `|| toAddresses[0]` before launch.
   const transactionAddress =
     type === "send" ? toAddress : fromAddress || fromAddresses[0];
 
@@ -87,6 +86,8 @@ const TransactionRow = ({
     formattedTransactionAddress = tokenId
       ? SLP.Address.toSLPAddress(transactionAddress)
       : transactionAddress;
+
+    // Above method returns an error instead of throwing one for now.
     if (typeof formattedTransactionAddress !== "string") {
       formattedTransactionAddress = null;
     }
