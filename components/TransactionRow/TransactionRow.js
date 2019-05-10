@@ -82,6 +82,19 @@ const TransactionRow = ({
   const transactionAddress =
     type === "send" ? toAddress : fromAddress || fromAddresses[0];
 
+  let formattedTransactionAddress = null;
+  // try {
+  formattedTransactionAddress = tokenId
+    ? SLP.Address.toSLPAddress(transactionAddress)
+    : transactionAddress;
+  // } catch (e) {
+  //   formattedTransactionAddress = null;
+  // }
+
+  if (typeof formattedTransactionAddress !== "string") {
+    formattedTransactionAddress = null;
+  }
+
   let blockie = blockieCache[transactionAddress];
   if (!blockie) {
     const newBlockie = makeBlockie(transactionAddress || "unknown");
@@ -97,13 +110,7 @@ const TransactionRow = ({
         <T size="small" type="muted">
           {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
         </T>
-        {transactionAddress && (
-          <T size="tiny">
-            {tokenId
-              ? SLP.Address.toSLPAddress(transactionAddress)
-              : transactionAddress}
-          </T>
-        )}
+        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
       </TopRow>
       <BottomRow>
         <IconArea>
