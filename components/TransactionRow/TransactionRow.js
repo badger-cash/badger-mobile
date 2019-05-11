@@ -6,7 +6,11 @@ import { View, Image, StyleSheet } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 
+import SLPSDK from "slp-sdk";
+
 import { T } from "../../atoms";
+
+const SLP = new SLPSDK();
 
 const Row = styled(View)`
   padding: 16px;
@@ -54,6 +58,7 @@ let blockieCache = {};
 type Props = {
   type: "send" | "receive",
   timestamp: number,
+  toAddress: string,
   toAddresses: string[],
   fromAddresses: string[],
   fromAddress: ?string,
@@ -66,6 +71,7 @@ const TransactionRow = ({
   type,
   timestamp,
   toAddresses,
+  toAddress,
   fromAddresses,
   fromAddress,
   symbol,
@@ -73,11 +79,25 @@ const TransactionRow = ({
   amount
 }: Props) => {
   const transactionAddress =
-    type === "send" ? toAddresses[0] : fromAddress || fromAddresses[0];
+    type === "send" ? toAddress : fromAddress || fromAddresses[0];
+
+  let formattedTransactionAddress = null;
+  try {
+    formattedTransactionAddress = tokenId
+      ? SLP.Address.toSLPAddress(transactionAddress)
+      : transactionAddress;
+
+    // Above method returns an error instead of throwing one for now.
+    if (typeof formattedTransactionAddress !== "string") {
+      formattedTransactionAddress = null;
+    }
+  } catch (e) {
+    formattedTransactionAddress = null;
+  }
 
   let blockie = blockieCache[transactionAddress];
   if (!blockie) {
-    const newBlockie = makeBlockie(transactionAddress);
+    const newBlockie = makeBlockie(transactionAddress || "unknown");
     blockieCache = { ...blockieCache, [transactionAddress]: newBlockie };
     blockie = newBlockie;
   }
@@ -90,7 +110,7 @@ const TransactionRow = ({
         <T size="small" type="muted">
           {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
         </T>
-        <T size="tiny">{transactionAddress}</T>
+        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
       </TopRow>
       <BottomRow>
         <IconArea>

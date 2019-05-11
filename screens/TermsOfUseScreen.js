@@ -22,13 +22,14 @@ const MarkdownScrollview = styled(ScrollView)`
 `;
 
 const ToSContent = `
-THIS AGREEMENT IS SUBJECT TO BINDING ARBITRATION AND A WAIVER OF CLASS ACTION RIGHTS AS DETAILED IN SECTION 13. PLEASE READ THE AGREEMENT CAREFULLY.
 
-_Our Terms of Use have been updated as of January 8, 2019_
+**THIS AGREEMENT IS SUBJECT TO BINDING ARBITRATION AND A WAIVER OF CLASS ACTION RIGHTS AS DETAILED IN SECTION 13. PLEASE READ THE AGREEMENT CAREFULLY.**
+
+_Our Terms of Use have been updated as of May 10, 2019_
 
 ## 1. Acceptance of Terms
 
-Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at [https://badger.bitcoin.com/](https://badger.bitcoin.com/) and browser plugin (the "Site") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services.
+Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at[https://badger.bitcoin.com/](https://badger.bitcoin.com/), browser plugin (the "Site"), and mobile application (the "App") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services.
 
 ## 2. Modification of Terms of Use
 
@@ -42,7 +43,7 @@ Badger is a global platform and by accessing the Content or Services, you are re
 
 ## 4 Account Password and Security
 
-When setting up an account within Badger, you will be responsible for keeping your own account secrets, which may be a twelve-word seed phrase, an account file, or other locally stored secret information. Badger encrypts this information locally with a password you provide, that we never send to our servers. You agree to (a) never use the same password for Badger that you have ever used outside of this service; (b) keep your secret information and password confidential and do not share them with anyone else; (c) immediately notify Badger of any unauthorized use of your account or breach of security. Badger cannot and will not be liable for any loss or damage arising from your failure to comply with this section.
+When setting up an account within Badger, you will be responsible for keeping your own account secrets, which may be a twelve-word seed phrase, an account file, or other locally stored secret information. You agree to (a) never use the same password for Badger that you have ever used outside of this service; (b) keep your secret information and password confidential and do not share them with anyone else; (c) immediately notify Badger of any unauthorized use of your account or breach of security. Badger cannot and will not be liable for any loss or damage arising from your failure to comply with this section.
 
 ## 5. Representations, Warranties, and Risks
 
@@ -82,11 +83,11 @@ SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES OR THE LIMIT
 
 ## 8. Our Proprietary Rights
 
-All title, ownership and intellectual property rights in and to the Service are owned by Badger or its licensors. You acknowledge and agree that the Service contains proprietary and confidential information that is protected by applicable intellectual property and other laws. Except as expressly authorized by Badger, you agree not to copy, modify, rent, lease, loan, sell, distribute, perform, display or create derivative works based on the Service, in whole or in part. Badger issues a license for Badger, found [here](https://github.com/Bitcoin-com/badger-mobile/blob/develop/license). For information on other licenses utilized in the development of Badger, please see our source code at: [https://github.com/bitcoin-com/badger-mobile](https://github.com/bitcoin-com/badger-mobile)
+All title, ownership and intellectual property rights in and to the Service are owned by Badger or its licensors. You acknowledge and agree that the Service contains proprietary and confidential information that is protected by applicable intellectual property and other laws. Except as expressly authorized by Badger, you agree not to copy, modify, rent, lease, loan, sell, distribute, perform, display or create derivative works based on the Service, in whole or in part. Badger issues a license for Badger, found [here](https://github.com/Bitcoin-com/badger/blob/develop/LICENSE) and [here](https://github.com/Bitcoin-com/badger-mobile/blob/develop/license). For information on other licenses utilized in the development of Badger, please see our Site source code at: [https://github.com/bitcoin-com/badger](https://github.com/bitcoin-com/badger), and our App source code at :[https://github.com/bitcoin-com/badger-mobile](https://github.com/bitcoin-com/badger-mobile)
 
 ## 9. Links
 
-The Service provides, or third parties may provide, links to other World Wide Web or accessible sites, applications or resources. Because Badger has no control over such sites, applications and resources, you acknowledge and agree that Badger is not responsible for the availability of such external sites, applications or resources, and does not endorse and is not responsible or liable for any content, advertising, products or other materials on or available from such sites or resources. You further acknowledge and agree that Badger shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such site or resource.
+The Service provides, or third parties may provide, links to other World Wide Web or accessible sites, applications or resources. Because Badger has no control over such sites, applications and resources, you acknowledge and agree that Badger is not responsible for the availability of such external sites, applications or resources, and does not endorse and is not responsible or liable for any content, advertising, products or other materials on or available from such sites or resources. You further acknowledge an agree that Badger shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance on any such content, goods or services available on or through any such site or resource.
 
 ## 10. Termination and Suspension
 
@@ -154,7 +155,8 @@ Users with questions, complaints or claims with respect to the Service may conta
 
 ## 15 Related Links
 
-[Privacy Policy](https://www.bitcoin.com/privacy-policy)
+**[Privacy](https://www.bitcoin.com/privacy-policy)**
+
 `;
 
 // Edit - This version no longer used, was used in onboarding.  Maybe remove

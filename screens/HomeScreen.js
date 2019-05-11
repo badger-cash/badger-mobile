@@ -263,7 +263,7 @@ const HomeScreen = ({
               <InitialLoadCover>
                 <ActivityIndicator />
                 <Spacer small />
-                <T>Checking Balances</T>
+                <T>Initial Setup...</T>
               </InitialLoadCover>
             )}
           </View>
