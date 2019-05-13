@@ -54,7 +54,7 @@ Android
 
 For a simple .apk
 > Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
-> generate badger-mobile-alpha.keystore and put into /android
+> generate badger-mobile-production.keystore and put into /android
 > cd android
 > ./gradlew assembleRelease
 

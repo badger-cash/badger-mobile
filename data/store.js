@@ -2,7 +2,7 @@
 
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import AsyncStorage from "@react-native-community/async-storage";
 import ReduxThunk from "redux-thunk";
 
 import accountsReducer, {
@@ -24,6 +24,7 @@ import tokensReducer, {
   type State as StateTokens,
   initialState as initialTokensState
 } from "./tokens/reducer";
+
 import pricesReducer, {
   type State as StatePrices,
   initialState as initialPricesState
@@ -48,14 +49,14 @@ const initialState: FullState = {
 // TODO - Setup encryption on certain parts of the redux state
 const persistConfig = {
   key: "root",
-  storage,
+  storage: AsyncStorage,
   whitelist: ["utxos", "tokens", "transactions"]
 };
 
 // keypairs are re-computed each time the app launches, cannot persist complex objects easily.
 const accountsPersistConfig = {
   key: "accounts",
-  storage: storage,
+  storage: AsyncStorage,
   blacklist: ["keypairsByAccount"]
 };
 
