@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
   SafeAreaView,
+  StyleSheet,
   View,
   Image
 } from "react-native";
@@ -67,6 +68,15 @@ const SwipeButtonContainer = styled(View)`
 
 const ButtonsContainer = styled(View)`
   align-items: center;
+`;
+
+const ErrorHolder = styled(View)`
+  margin: 0 16px;
+  padding: 8px;
+  background-color: ${props => props.theme.danger700};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 3px;
+  border-color: ${props => props.theme.danger300};
 `;
 
 const SwipeContent = styled(View)`
@@ -270,9 +280,11 @@ const SendConfirmScreen = ({
         </T>
         <Spacer small />
         {sendError && (
-          <T center type="danger">
-            {sendError.message}
-          </T>
+          <ErrorHolder>
+            <T center type="danger">
+              {sendError.message}
+            </T>
+          </ErrorHolder>
         )}
         <Spacer fill />
         <Spacer small />
