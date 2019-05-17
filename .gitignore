@@ -12,6 +12,7 @@ android/.idea/*
 android/app/app.iml
 android/badgerMobile.iml
 android/local.properties
+android/gradle.properties
 
 Pods/
 flow-typed/
