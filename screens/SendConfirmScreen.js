@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
   SafeAreaView,
+  StyleSheet,
   View,
   Image
 } from "react-native";
@@ -69,6 +70,15 @@ const ButtonsContainer = styled(View)`
   align-items: center;
 `;
 
+const ErrorHolder = styled(View)`
+  margin: 0 16px;
+  padding: 8px;
+  background-color: ${props => props.theme.danger700};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 3px;
+  border-color: ${props => props.theme.danger300};
+`;
+
 const SwipeContent = styled(View)`
   height: 64px;
   padding-right: 10px;
@@ -117,6 +127,7 @@ const SendConfirmScreen = ({
   spotPrices
 }: Props) => {
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
+  const [sendError, setSendError] = useState(null);
 
   const [
     transactionState: "setup" | "signing" | "broadcasting" | "sent",
@@ -190,10 +201,12 @@ const SendConfirmScreen = ({
 
         await signAndPublishBchTransaction(txParams, spendableUTXOS);
       }
+      navigation.replace("SendSuccess", { txParams });
     } catch (e) {
-      throw new Error("Error sending transaction");
+      setConfirmSwipeActivated(false);
+      setTransactionState("setup");
+      setSendError(e);
     }
-    navigation.replace("SendSuccess", { txParams });
   };
   // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
@@ -265,6 +278,14 @@ const SendConfirmScreen = ({
           <T size="small">{addressMiddle}</T>
           <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
         </T>
+        <Spacer small />
+        {sendError && (
+          <ErrorHolder>
+            <T center type="danger">
+              {sendError.message}
+            </T>
+          </ErrorHolder>
+        )}
         <Spacer fill />
         <Spacer small />
 

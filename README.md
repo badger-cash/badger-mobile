@@ -54,7 +54,8 @@ Android
 
 For a simple .apk
 > Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
-> generate badger-mobile-production.keystore and put into /android
+> generate badger-mobile-release.keystore and put into /android
+> update android/grade.properties with the keystore filename and password
 > cd android
 > ./gradlew assembleRelease
 

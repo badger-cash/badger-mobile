@@ -2,7 +2,6 @@
 
 import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
-// import slpjs from 'slpjs'
 
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
@@ -202,28 +201,36 @@ const signAndPublishBchTransaction = async (
     const { from, to, value, opReturn } = txParams;
     const satoshisToSend = parseInt(value, 10);
 
-    let byteCount = SLP.BitcoinCash.getByteCount(
-      { P2PKH: spendableUtxos.length },
-      { P2PKH: 2 }
-    );
-
     const encodedOpReturn = opReturn
       ? await encodeOpReturn(opReturn.data)
       : null;
-    if (encodedOpReturn) {
-      byteCount += encodedOpReturn.byteLength + 10;
-    }
-
     const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
+    const inputUtxos = [];
+    let byteCount = 0;
     let totalUtxoAmount = 0;
-    spendableUtxos.forEach(utxo => {
+
+    for (const utxo of spendableUtxos) {
       if (utxo.spendable !== true) {
         throw new Error("Cannot spend unspendable utxo");
       }
       transactionBuilder.addInput(utxo.txid, utxo.vout);
       totalUtxoAmount += utxo.satoshis;
-    });
+
+      inputUtxos.push(utxo);
+
+      byteCount = SLP.BitcoinCash.getByteCount(
+        { P2PKH: inputUtxos.length },
+        { P2PKH: 2 }
+      );
+      if (opReturn) {
+        byteCount += encodedOpReturn.byteLength + 10;
+      }
+
+      if (totalUtxoAmount >= byteCount + satoshisToSend) {
+        break;
+      }
+    }
 
     const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
 
@@ -239,7 +246,6 @@ const signAndPublishBchTransaction = async (
     // Op Return
     // TODO: Allow dev to pass in "position" property for vout of opReturn
     if (encodedOpReturn) {
-      //  const encodedOpReturn = encodeOpReturn(opReturn.data)
       transactionBuilder.addOutput(encodedOpReturn, 0);
     }
 
@@ -249,7 +255,7 @@ const signAndPublishBchTransaction = async (
     }
 
     let redeemScript;
-    spendableUtxos.forEach((utxo, index) => {
+    inputUtxos.forEach((utxo, index) => {
       transactionBuilder.sign(
         index,
         utxo.keypair,
