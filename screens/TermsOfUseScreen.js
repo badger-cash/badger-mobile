@@ -25,7 +25,7 @@ const ToSContent = `
 
 **THIS AGREEMENT IS SUBJECT TO BINDING ARBITRATION AND A WAIVER OF CLASS ACTION RIGHTS AS DETAILED IN SECTION 13. PLEASE READ THE AGREEMENT CAREFULLY.**
 
-_Our Terms of Use have been updated as of May 10, 2019_
+_Our Terms of Use have been updated as of May 14, 2019_
 
 ## 1. Acceptance of Terms
 

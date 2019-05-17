@@ -2,7 +2,6 @@
 
 import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
-// import slpjs from 'slpjs'
 
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";

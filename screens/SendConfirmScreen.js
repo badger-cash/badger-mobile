@@ -117,6 +117,7 @@ const SendConfirmScreen = ({
   spotPrices
 }: Props) => {
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
+  const [sendError, setSendError] = useState(null);
 
   const [
     transactionState: "setup" | "signing" | "broadcasting" | "sent",
@@ -190,10 +191,12 @@ const SendConfirmScreen = ({
 
         await signAndPublishBchTransaction(txParams, spendableUTXOS);
       }
+      navigation.replace("SendSuccess", { txParams });
     } catch (e) {
-      throw new Error("Error sending transaction");
+      setConfirmSwipeActivated(false);
+      setTransactionState("setup");
+      setSendError(e);
     }
-    navigation.replace("SendSuccess", { txParams });
   };
   // Return to setup if any tx params are missing
   if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
@@ -265,6 +268,12 @@ const SendConfirmScreen = ({
           <T size="small">{addressMiddle}</T>
           <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
         </T>
+        <Spacer small />
+        {sendError && (
+          <T center type="danger">
+            {sendError.message}
+          </T>
+        )}
         <Spacer fill />
         <Spacer small />
 
