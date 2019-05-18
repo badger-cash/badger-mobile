@@ -22,7 +22,7 @@ const WelcomeScreen = ({ navigation }: Props) => {
     <StyledWrapper>
       <Spacer />
       <H1>Badger Mobile </H1>
-      <H2 type="muted2">RC.3</H2>
+      <H2 type="muted2">Open Beta</H2>
       <Spacer />
       <Image source={BadgerIcon} style={{ width: 150, height: 150 }} />
       <Spacer />
