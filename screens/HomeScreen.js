@@ -223,7 +223,7 @@ const HomeScreen = ({
             <Spacer large />
           )}
           <H1 center spacing="loose" weight="bold">
-            Badger Mobile
+            Badger
           </H1>
           <Spacer tiny />
           <T center type="muted2">
