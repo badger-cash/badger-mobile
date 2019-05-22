@@ -140,9 +140,9 @@ const BottomTabNavigator = createBottomTabNavigator(
 const MainAppStack = createStackNavigator(
   {
     MainAppTabs: BottomTabNavigator,
-    SendStack: SendStack,
-    ViewTermsOfUse: { screen: ViewTermsOfUseScreen },
-    ViewPrivacyPolicy: { screen: ViewPrivacyNoticeScreen }
+    SendStack,
+    ViewPrivacyPolicy: { screen: ViewPrivacyNoticeScreen },
+    ViewTermsOfUse: { screen: ViewTermsOfUseScreen }
   },
   {
     initialRouteName: "MainAppTabs",

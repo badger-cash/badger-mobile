@@ -13,6 +13,7 @@ import {
   TextInput,
   View
 } from "react-native";
+import { Header } from "react-navigation";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -25,6 +26,7 @@ import { type TokenData } from "../data/tokens/reducer";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { spotPricesSelector } from "../data/prices/selectors";
 
 import { formatAmount } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
@@ -96,6 +98,7 @@ const ErrorContainer = styled(View)`
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
   balances: Balances,
+  spotPrices: any,
   navigation: {
     navigate: Function,
     state?: { params: { symbol: string, tokenId: ?string } }
@@ -159,7 +162,12 @@ const parseQr = (qrData: string) => {
   };
 };
 
-const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
+const SendSetupScreen = ({
+  navigation,
+  tokensById,
+  balances,
+  spotPrices
+}: Props) => {
   const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
   const [sendAmount, setSendAmount] = useState("");
@@ -180,6 +188,15 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
   const availableFunds = parseFloat(
     formatAmount(availableAmount, adjustDecimals)
   );
+
+  const BCHFiatAmount = !tokenId
+    ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
+    : 0;
+  const fiatDisplay = !tokenId
+    ? spotPrices["bch"]["usd"].rate
+      ? `$${BCHFiatAmount.toFixed(3)} USD`
+      : "$ -.-- USD"
+    : null;
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
@@ -221,10 +238,48 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             />
           </QROverlayScreen>
         )}
+
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <Spacer small />
-          <KeyboardAvoidingView behavior="position">
-            <H1 center>Create Transaction</H1>
+          <KeyboardAvoidingView
+            behavior="position"
+            keyboardVerticalOffset={Header.HEIGHT + 20}
+          >
+            {/* <Spacer small /> */}
+
+            <Spacer small />
+            <H1 center>{coinName}</H1>
+            {tokenId && (
+              <T size="tiny" center>
+                {tokenId}
+              </T>
+            )}
+            <Spacer small />
+            <IconArea>
+              <IconImage source={imageSource} />
+            </IconArea>
+
+            <Spacer small />
+            {errors.length > 0 && (
+              <>
+                <ErrorContainer>
+                  {errors.map(error => (
+                    <T size="small" type="danger" center key={error}>
+                      {error}
+                    </T>
+                  ))}
+                </ErrorContainer>
+                <Spacer small />
+              </>
+            )}
+            <T center>Balance ({symbol})</T>
+            <H1 center>{availableFunds}</H1>
+            {fiatDisplay && (
+              <T center type="muted">
+                {fiatDisplay}
+              </T>
+            )}
+            <Spacer small />
+            {/* <H1 center>Setup Transaction</H1>
             <Spacer />
             <IconArea>
               <IconImage source={imageSource} />
@@ -238,7 +293,19 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 {tokenId}
               </T>
             )}
-            <Spacer />
+            <Spacer /> */}
+            {/* {errors.length > 0 && (
+            <>
+              <ErrorContainer>
+                {errors.map(error => (
+                  <T size="small" type="danger" center key={error}>
+                    {error}
+                  </T>
+                ))}
+              </ErrorContainer>
+              <Spacer small />
+            </>
+          )} */}
 
             <T>Send To:</T>
             <Spacer tiny />
@@ -254,6 +321,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 setToAddress(text);
               }}
             />
+
             <Spacer tiny />
             <ButtonArea>
               <StyledButton
@@ -299,6 +367,7 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 setSendAmount(formatAmountInput(text, adjustDecimals));
               }}
             />
+
             <Spacer tiny />
             <MaxButtonArea>
               <StyledButton
@@ -313,11 +382,12 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
                 </T>
               </StyledButton>
             </MaxButtonArea>
+
+            <Spacer small />
           </KeyboardAvoidingView>
 
-          {errors.length > 0 ? (
+          {/* {errors.length > 0 ? (
             <>
-              <Spacer small />
               <ErrorContainer>
                 {errors.map(error => (
                   <T size="small" type="danger" center key={error}>
@@ -329,8 +399,10 @@ const SendSetupScreen = ({ navigation, tokensById, balances }: Props) => {
             </>
           ) : (
             <Spacer fill />
-          )}
+          )} */}
+          <Spacer fill />
           <Spacer small />
+
           <ActionButtonArea>
             <Button
               onPress={() => {
@@ -395,9 +467,11 @@ const mapStateToProps = state => {
   const address = getAddressSelector(state);
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
+  const spotPrices = spotPricesSelector(state);
   return {
     tokensById,
-    balances
+    balances,
+    spotPrices
   };
 };
 

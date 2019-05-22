@@ -143,7 +143,7 @@ const WalletDetailScreen = ({
           <T center>Balance</T>
           <H1 center>{formatAmount(amount, decimals)}</H1>
           {fiatDisplay && (
-            <T center type="muted2">
+            <T center type="muted">
               {fiatDisplay}
             </T>
           )}
