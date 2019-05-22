@@ -1,7 +1,7 @@
 // @flow
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   Clipboard,
   Dimensions,
@@ -40,6 +40,29 @@ const StyledTextInput = styled(TextInput)`
   padding: 16px 8px;
 `;
 
+const StyledTextInputAmount = styled(TextInput)`
+  border-color: ${props => props.theme.accent500};
+  border-right-width: ${StyleSheet.hairlineWidth};
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  border-top-width: ${StyleSheet.hairlineWidth};
+  border-bottom-right-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 16px 8px;
+  flex: 1;
+`;
+
+const AmountLabel = styled(View)`
+  padding: 0 8px;
+  align-items: center;
+  justify-content: center;
+  border-left-width: ${StyleSheet.hairlineWidth};
+  border-top-width: ${StyleSheet.hairlineWidth};
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  border-bottom-left-radius: 3px;
+  border-top-left-radius: 3px;
+  border-color: ${props => props.theme.accent500};
+`;
+
 const ScreenWrapper = styled(View)`
   position: relative;
   margin: 0 16px;
@@ -69,6 +92,11 @@ const AmountRow = styled(View)`
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
+`;
+
+const AmountInputRow = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const QROverlayScreen = styled(View)`
@@ -335,18 +363,20 @@ const SendSetupScreen = ({
 
             <T>Send To:</T>
             <Spacer tiny />
-            <StyledTextInput
-              editable
-              multiline
-              placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
-              autoComplete="off"
-              autoCorrect={false}
-              value={toAddress}
-              onChangeText={text => {
-                setErrors([]);
-                setToAddress(text);
-              }}
-            />
+            <View>
+              <StyledTextInput
+                editable
+                multiline
+                placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
+                autoComplete="off"
+                autoCorrect={false}
+                value={toAddress}
+                onChangeText={text => {
+                  setErrors([]);
+                  setToAddress(text);
+                }}
+              />
+            </View>
 
             <Spacer tiny />
             <ButtonArea>
@@ -389,19 +419,26 @@ const SendSetupScreen = ({
               </View>
             </AmountRow>
             <Spacer tiny />
-            <StyledTextInput
-              keyboardType="numeric"
-              editable
-              placeholder="0.0"
-              autoComplete="off"
-              autoCorrect={false}
-              autoCapitalize="none"
-              value={sendAmount}
-              onChangeText={text => {
-                setErrors([]);
-                setSendAmount(formatAmountInput(text, adjustDecimals));
-              }}
-            />
+            <AmountInputRow>
+              <AmountLabel>
+                <T type="muted2" weight="bold">
+                  {amountType === "crypto" ? "BCH" : "USD"}
+                </T>
+              </AmountLabel>
+              <StyledTextInputAmount
+                keyboardType="numeric"
+                editable
+                placeholder="0.0"
+                autoComplete="off"
+                autoCorrect={false}
+                autoCapitalize="none"
+                value={sendAmount}
+                onChangeText={text => {
+                  setErrors([]);
+                  setSendAmount(formatAmountInput(text, adjustDecimals));
+                }}
+              />
+            </AmountInputRow>
 
             <Spacer tiny />
             <AmountButtonArea>
