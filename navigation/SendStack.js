@@ -30,7 +30,6 @@ const SendStack = createStackNavigator(
     }
   },
   {
-    // headerMode: "none",
     initialRouteName: "SendSetup",
     headerLayoutPreset: "center",
     defaultNavigationOptions: {
@@ -38,7 +37,7 @@ const SendStack = createStackNavigator(
         color: theme.primary500
       },
       headerTintColor: theme.primary500,
-      headerTitleStyle: { color: theme.fg200 }
+      headerTitleStyle: { color: theme.fg100 }
     }
   }
 );

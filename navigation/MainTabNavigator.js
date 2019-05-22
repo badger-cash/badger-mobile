@@ -42,7 +42,7 @@ const HomeStack = createStackNavigator(
             color: theme.primary500
           },
           headerTintColor: theme.primary500,
-          headerTitleStyle: { color: theme.fg200 }
+          headerTitleStyle: { color: theme.fg100 }
         };
       }
     }
@@ -91,7 +91,7 @@ const MenuStack = createStackNavigator(
         color: theme.primary500
       },
       headerTintColor: theme.primary500,
-      headerTitleStyle: { color: theme.fg200 }
+      headerTitleStyle: { color: theme.fg100 }
     },
 
     initialRouteName: "Menu"

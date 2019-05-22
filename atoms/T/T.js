@@ -27,6 +27,11 @@ color: ${props =>
     css`
       text-align: center;
     `}
+    ${props =>
+      props.right &&
+      css`
+        text-align: right;
+      `}
 
   ${props =>
     props.weight === "bold" &&

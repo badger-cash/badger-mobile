@@ -60,7 +60,14 @@ const ActionButtonArea = styled(View)`
   align-items: center;
 `;
 
-const MaxButtonArea = styled(View)`
+const AmountButtonArea = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const AmountRow = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
   align-items: flex-end;
 `;
 
@@ -173,6 +180,8 @@ const SendSetupScreen = ({
   const [sendAmount, setSendAmount] = useState("");
   const [errors, setErrors] = useState([]);
 
+  const [amountType, setAmountType] = useState("crypto");
+
   // Todo - Handle if send with nothing pre-selected on navigation
   const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
     symbol: null,
@@ -192,15 +201,61 @@ const SendSetupScreen = ({
   const BCHFiatAmount = !tokenId
     ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
     : 0;
+
   const fiatDisplay = !tokenId
     ? spotPrices["bch"]["usd"].rate
       ? `$${BCHFiatAmount.toFixed(3)} USD`
       : "$ -.-- USD"
     : null;
 
+  const sendAmountNumber = parseFloat(sendAmount);
+  const sendAmountFiat = !tokenId
+    ? (spotPrices["bch"]["usd"].rate * (sendAmountNumber || 0)).toFixed(3)
+    : null;
+
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
   const imageSource = getTokenImage(tokenId);
+
+  const toggleAmountType = () => {
+    if (tokenId) return;
+    setAmountType(amountType === "crypto" ? "fiat" : "crypto");
+  };
+
+  const goNextStep = () => {
+    const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    let hasErrors = false;
+    if (tokenId && !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)) {
+      setErrors([
+        "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger:`"
+      ]);
+      hasErrors = true;
+    } else if (!tokenId && !["cashaddr", "legacy"].includes(addressFormat)) {
+      setErrors([
+        "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
+      ]);
+      hasErrors = true;
+    }
+
+    if (sendAmountNumber > availableFunds) {
+      setErrors(["Cannot send more funds than are available"]);
+      hasErrors = true;
+    }
+
+    if (!sendAmount) {
+      setErrors(["Amount required"]);
+      hasErrors = true;
+    }
+
+    if (!hasErrors) {
+      navigation.navigate("SendConfirm", {
+        symbol,
+        tokenId,
+        sendAmount,
+        toAddress
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -320,10 +375,19 @@ const SendSetupScreen = ({
             </ButtonArea>
             <Spacer />
 
-            <T>Amount:</T>
-            <T size="small">
-              {availableFunds} {symbol} available
-            </T>
+            <AmountRow>
+              <T>Amount:</T>
+              <View>
+                <T size="small" monospace right>
+                  {sendAmount || "0.0"} {symbol}
+                </T>
+                {!tokenId && (
+                  <T size="small" monospace right>
+                    ${sendAmountFiat} USD
+                  </T>
+                )}
+              </View>
+            </AmountRow>
             <Spacer tiny />
             <StyledTextInput
               keyboardType="numeric"
@@ -340,7 +404,17 @@ const SendSetupScreen = ({
             />
 
             <Spacer tiny />
-            <MaxButtonArea>
+            <AmountButtonArea>
+              {!tokenId ? (
+                <StyledButton nature="ghost" onPress={toggleAmountType}>
+                  <T center spacing="loose" type="primary" size="small">
+                    <Ionicons name="ios-swap" size={18} />{" "}
+                    {amountType === "crypto" ? "USD" : "BCH"}
+                  </T>
+                </StyledButton>
+              ) : (
+                <View />
+              )}
               <StyledButton
                 nature="ghost"
                 onPress={() => {
@@ -352,59 +426,14 @@ const SendSetupScreen = ({
                   <Ionicons name="ios-color-wand" size={18} /> Send Max
                 </T>
               </StyledButton>
-            </MaxButtonArea>
+            </AmountButtonArea>
 
             <Spacer small />
           </KeyboardAvoidingView>
           <Spacer fill />
           <Spacer small />
-
           <ActionButtonArea>
-            <Button
-              onPress={() => {
-                const addressFormat = SLP.Address.detectAddressFormat(
-                  toAddress
-                );
-                let hasErrors = false;
-                if (
-                  tokenId &&
-                  !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)
-                ) {
-                  setErrors([
-                    "Can only send SLP tokens to SimpleLedger addresses.  The to address should begin with `simpleledger:`"
-                  ]);
-                  hasErrors = true;
-                } else if (
-                  !tokenId &&
-                  !["cashaddr", "legacy"].includes(addressFormat)
-                ) {
-                  setErrors([
-                    "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with `bitcoincash:`"
-                  ]);
-                  hasErrors = true;
-                }
-
-                if (parseFloat(sendAmount) > availableFunds) {
-                  setErrors(["Cannot send more funds than are available"]);
-                  hasErrors = true;
-                }
-
-                if (!sendAmount) {
-                  setErrors(["Amount required"]);
-                  hasErrors = true;
-                }
-
-                if (!hasErrors) {
-                  navigation.navigate("SendConfirm", {
-                    symbol,
-                    tokenId,
-                    sendAmount,
-                    toAddress
-                  });
-                }
-              }}
-              text="Next Step"
-            />
+            <Button onPress={goNextStep} text="Next Step" />
             <Spacer small />
             <Button
               nature="cautionGhost"
