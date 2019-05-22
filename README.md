@@ -44,6 +44,14 @@ iOS
 > pod install
 > cd ..
 > yarn run ios
+
+To run on a specific device
+> yarn run ios --simulator="iPhone Xs Max"
+> yarn run ios --simulator="iPhone 8 Plus"
+> yarn run ios --simulator="iPhone 6"
+> yarn run ios --simulator="iPhone SE"
+> yarn run ios --simulator="iPhone X"
+
 ```
 
 Android
