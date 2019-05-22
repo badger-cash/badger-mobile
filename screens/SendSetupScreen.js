@@ -285,6 +285,13 @@ const SendSetupScreen = ({
     }
   };
 
+  let sendAmountCrypto = null;
+  if (amountType === "crypto") sendAmountCrypto = sendAmount;
+  if (amountType === "fiat") {
+    // do some tstuff
+    sendAmountCrypto = 7;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScreenWrapper>
@@ -353,7 +360,7 @@ const SendSetupScreen = ({
               </>
             )}
             <T center>Balance ({symbol})</T>
-            <H1 center>{availableFunds}</H1>
+            <H2 center>{availableFunds}</H2>
             {fiatDisplay && (
               <T center type="muted">
                 {fiatDisplay}
@@ -409,7 +416,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmount || "0.0"} {symbol}
+                  {sendAmountCrypto || "0.0"} {symbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
@@ -422,7 +429,7 @@ const SendSetupScreen = ({
             <AmountInputRow>
               <AmountLabel>
                 <T type="muted2" weight="bold">
-                  {amountType === "crypto" ? "BCH" : "USD"}
+                  {amountType === "crypto" ? symbol : "USD"}
                 </T>
               </AmountLabel>
               <StyledTextInputAmount
@@ -435,7 +442,11 @@ const SendSetupScreen = ({
                 value={sendAmount}
                 onChangeText={text => {
                   setErrors([]);
-                  setSendAmount(formatAmountInput(text, adjustDecimals));
+                  if (amountType === "crypto") {
+                    setSendAmount(formatAmountInput(text, adjustDecimals));
+                  } else if (amountType === "fiat") {
+                    setSendAmount(formatAmountInput(text, 4));
+                  }
                 }}
               />
             </AmountInputRow>
@@ -446,7 +457,7 @@ const SendSetupScreen = ({
                 <StyledButton nature="ghost" onPress={toggleAmountType}>
                   <T center spacing="loose" type="primary" size="small">
                     <Ionicons name="ios-swap" size={18} />{" "}
-                    {amountType === "crypto" ? "USD" : "BCH"}
+                    {amountType === "crypto" ? "USD" : symbol}
                   </T>
                 </StyledButton>
               ) : (
