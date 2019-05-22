@@ -47,6 +47,7 @@ end
 
 
 # Remove once react-native patches the build system
+# Source: https://github.com/facebook/react-native/issues/20492#issuecomment-422958184
 post_install do |installer|
   installer.pods_project.targets.each do |target|
 
