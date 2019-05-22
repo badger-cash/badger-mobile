@@ -1,5 +1,5 @@
 // @flow
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled, { css } from "styled-components";
 import {
@@ -203,12 +203,16 @@ const SendSetupScreen = ({
   balances,
   spotPrices
 }: Props) => {
-  const [toAddress, setToAddress] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
-  const [sendAmount, setSendAmount] = useState("");
-  const [errors, setErrors] = useState([]);
 
+  const [toAddress, setToAddress] = useState("");
+
+  const [sendAmount, setSendAmount] = useState("");
+  const [sendAmountFiat, setSendAmountFiat] = useState("0");
+  const [sendAmountCrypto, setSendAmountCrypto] = useState("0");
   const [amountType, setAmountType] = useState("crypto");
+
+  const [errors, setErrors] = useState([]);
 
   // Todo - Handle if send with nothing pre-selected on navigation
   const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
@@ -226,20 +230,17 @@ const SendSetupScreen = ({
     formatAmount(availableAmount, adjustDecimals)
   );
 
-  const BCHFiatAmount = !tokenId
-    ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
-    : 0;
+  const rate = !tokenId ? spotPrices["bch"]["usd"].rate : null;
 
-  const fiatDisplay = !tokenId
-    ? spotPrices["bch"]["usd"].rate
-      ? `$${BCHFiatAmount.toFixed(3)} USD`
+  const BCHFiatAmountTotal = rate ? rate * availableFunds : 0;
+
+  const fiatDisplayTotal = !tokenId
+    ? rate
+      ? `$${BCHFiatAmountTotal.toFixed(3)} USD`
       : "$ -.-- USD"
     : null;
 
   const sendAmountNumber = parseFloat(sendAmount);
-  const sendAmountFiat = !tokenId
-    ? (spotPrices["bch"]["usd"].rate * (sendAmountNumber || 0)).toFixed(3)
-    : null;
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
@@ -285,12 +286,18 @@ const SendSetupScreen = ({
     }
   };
 
-  let sendAmountCrypto = null;
-  if (amountType === "crypto") sendAmountCrypto = sendAmount;
-  if (amountType === "fiat") {
-    // do some tstuff
-    sendAmountCrypto = 7;
-  }
+  useEffect(() => {
+    if (amountType === "crypto") {
+      setSendAmountFiat(rate ? (rate * (sendAmountNumber || 0)).toFixed(3) : 0);
+      setSendAmountCrypto(sendAmount);
+    }
+    if (amountType === "fiat") {
+      setSendAmountFiat((sendAmountNumber || 0).toFixed(3));
+      setSendAmountCrypto(
+        rate && sendAmountNumber ? (sendAmountNumber / rate).toFixed(8) : 0
+      );
+    }
+  }, [sendAmountNumber, amountType, rate]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -361,9 +368,9 @@ const SendSetupScreen = ({
             )}
             <T center>Balance ({symbol})</T>
             <H2 center>{availableFunds}</H2>
-            {fiatDisplay && (
+            {fiatDisplayTotal && (
               <T center type="muted">
-                {fiatDisplay}
+                {fiatDisplayTotal}
               </T>
             )}
             <Spacer small />
@@ -416,7 +423,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCrypto || "0.0"} {symbol}
+                  {sendAmountCrypto || "0"} {symbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
@@ -466,7 +473,11 @@ const SendSetupScreen = ({
               <StyledButton
                 nature="ghost"
                 onPress={() => {
-                  setSendAmount(`${availableFunds}`);
+                  setSendAmount(
+                    amountType === "crypto"
+                      ? `${availableFunds}`
+                      : `${BCHFiatAmountTotal}`
+                  );
                   setErrors([]);
                 }}
               >
