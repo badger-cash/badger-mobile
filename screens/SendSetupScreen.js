@@ -244,8 +244,6 @@ const SendSetupScreen = ({
             behavior="position"
             keyboardVerticalOffset={Header.HEIGHT + 20}
           >
-            {/* <Spacer small /> */}
-
             <Spacer small />
             <H1 center>{coinName}</H1>
             {tokenId && (
@@ -279,33 +277,6 @@ const SendSetupScreen = ({
               </T>
             )}
             <Spacer small />
-            {/* <H1 center>Setup Transaction</H1>
-            <Spacer />
-            <IconArea>
-              <IconImage source={imageSource} />
-            </IconArea>
-            <Spacer tiny />
-            <H2 center>
-              {coinName} ({symbol})
-            </H2>
-            {tokenId && (
-              <T size="tiny" center>
-                {tokenId}
-              </T>
-            )}
-            <Spacer /> */}
-            {/* {errors.length > 0 && (
-            <>
-              <ErrorContainer>
-                {errors.map(error => (
-                  <T size="small" type="danger" center key={error}>
-                    {error}
-                  </T>
-                ))}
-              </ErrorContainer>
-              <Spacer small />
-            </>
-          )} */}
 
             <T>Send To:</T>
             <Spacer tiny />
@@ -385,21 +356,6 @@ const SendSetupScreen = ({
 
             <Spacer small />
           </KeyboardAvoidingView>
-
-          {/* {errors.length > 0 ? (
-            <>
-              <ErrorContainer>
-                {errors.map(error => (
-                  <T size="small" type="danger" center key={error}>
-                    {error}
-                  </T>
-                ))}
-              </ErrorContainer>
-              <Spacer fill />
-            </>
-          ) : (
-            <Spacer fill />
-          )} */}
           <Spacer fill />
           <Spacer small />
 

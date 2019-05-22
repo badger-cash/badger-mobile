@@ -6,8 +6,6 @@ import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
 
-import Ionicons from "react-native-vector-icons/Ionicons";
-
 import SLPSDK from "slp-sdk";
 
 import {
