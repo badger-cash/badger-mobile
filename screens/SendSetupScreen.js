@@ -315,6 +315,9 @@ const SendSetupScreen = ({
                   const qrData = e.data;
                   const { address, amount } = parseQr(qrData);
 
+                  // QR values always in crypto amounts
+                  setAmountType("crypto");
+
                   address && setToAddress(address);
                   amount && setSendAmount(amount);
 
