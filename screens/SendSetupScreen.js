@@ -65,8 +65,14 @@ const AmountLabel = styled(View)`
 
 const ScreenWrapper = styled(View)`
   position: relative;
-  margin: 0 16px;
+  padding: 0 16px;
   flex: 1;
+`;
+
+const TitleRow = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledButton = styled(Button)`
@@ -114,11 +120,12 @@ const QROverlayScreen = styled(View)`
 const IconArea = styled(View)`
   align-items: center;
   justify-content: center;
+  margin-right: 8px;
 `;
 const IconImage = styled(Image)`
-  width: 64;
-  height: 64;
-  border-radius: 32;
+  width: 32;
+  height: 32;
+  border-radius: 16;
   overflow: hidden;
 `;
 
@@ -315,8 +322,8 @@ const SendSetupScreen = ({
                   const qrData = e.data;
                   const { address, amount } = parseQr(qrData);
 
-                  // QR values always in crypto amounts
-                  setAmountType("crypto");
+                  // If there's an amount, set the type to crypto
+                  amount && setAmountType("crypto");
 
                   address && setToAddress(address);
                   amount && setSendAmount(amount);
@@ -345,17 +352,17 @@ const SendSetupScreen = ({
             keyboardVerticalOffset={Header.HEIGHT + 20}
           >
             <Spacer small />
-            <H1 center>{coinName}</H1>
+            <TitleRow>
+              <IconArea>
+                <IconImage source={imageSource} />
+              </IconArea>
+              <H1>{coinName}</H1>
+            </TitleRow>
             {tokenId && (
               <T size="tiny" center>
                 {tokenId}
               </T>
             )}
-            <Spacer small />
-            <IconArea>
-              <IconImage source={imageSource} />
-            </IconArea>
-
             <Spacer small />
             {errors.length > 0 && (
               <>
