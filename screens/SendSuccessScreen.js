@@ -127,7 +127,7 @@ const SendSuccessScreen = ({
             {valueAdjusted} {symbol}
           </H2>
           {fiatDisplay && (
-            <T center type="muted2">
+            <T center type="muted">
               {fiatDisplay}
             </T>
           )}
