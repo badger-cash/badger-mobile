@@ -266,7 +266,7 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
-    if (sendAmountNumber > availableFunds) {
+    if (parseFloat(sendAmountCrypto) > availableFunds) {
       setErrors(["Cannot send more funds than are available"]);
       hasErrors = true;
     }
@@ -280,7 +280,7 @@ const SendSetupScreen = ({
       navigation.navigate("SendConfirm", {
         symbol,
         tokenId,
-        sendAmount,
+        sendAmount: sendAmountCrypto,
         toAddress
       });
     }
