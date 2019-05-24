@@ -5,7 +5,13 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import SLPSDK from "slp-sdk";
 
-import { SafeAreaView, View, TextInput, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  ScrollView,
+  TextInput,
+  StyleSheet
+} from "react-native";
 
 import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
@@ -13,7 +19,7 @@ import { hasMnemonicSelector } from "../data/accounts/selectors";
 
 const SLP = new SLPSDK();
 
-const Screen = styled(View)`
+const Screen = styled(ScrollView)`
   padding: 0 16px;
   height: 100%;
 `;
@@ -61,7 +67,10 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
 
   return (
     <SafeAreaView>
-      <Screen>
+      <Screen
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         <Spacer />
         <H1 center>Restore Wallet</H1>
         <Spacer />
