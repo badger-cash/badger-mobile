@@ -107,11 +107,12 @@ const AmountInputRow = styled(View)`
 
 const QROverlayScreen = styled(View)`
   position: absolute;
+  padding: 0 16px;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  width: ${Dimensions.get("window").width - 32}px;
+  width: ${Dimensions.get("window").width}px;
   height: ${Dimensions.get("window").height}px;
   z-index: 1;
   background-color: ${props => props.theme.bg900};
