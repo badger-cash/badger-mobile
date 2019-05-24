@@ -65,7 +65,6 @@ const AmountLabel = styled(View)`
 
 const ScreenWrapper = styled(View)`
   position: relative;
-  padding: 0 16px;
   flex: 1;
 `;
 
@@ -347,7 +346,13 @@ const SendSetupScreen = ({
           </QROverlayScreen>
         )}
 
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingRight: 16,
+            paddingLeft: 16
+          }}
+        >
           <KeyboardAvoidingView
             behavior="position"
             keyboardVerticalOffset={Header.HEIGHT + 20}
