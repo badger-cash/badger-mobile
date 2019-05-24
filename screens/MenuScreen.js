@@ -107,7 +107,7 @@ const MenuScreen = ({ navigation, seedViewed }: Props) => {
         <Spacer fill />
         <Spacer small />
         <T center size="small" type="muted2">
-          Version {packageJson.version}
+          Version {packageJson.version} - Beta
         </T>
         <Spacer small />
       </StyledScrollView>

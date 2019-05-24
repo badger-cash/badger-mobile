@@ -12,13 +12,11 @@ import {
   Image
 } from "react-native";
 
-import makeBlockie from "ethereum-blockies-base64";
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import SLPSDK from "slp-sdk";
 
-import BitcoinCashImage from "../assets/images/icon.png";
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
@@ -242,28 +240,25 @@ const SendConfirmScreen = ({
     <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer small />
-        <H1 center>Confirm Transaction</H1>
-        <Spacer small />
-        <IconArea>
-          <IconImage source={imageSource} />
-        </IconArea>
-        <Spacer small />
-        <H2 center>
-          {coinName} ({symbol})
-        </H2>
+        <H1 center>{coinName}</H1>
         {tokenId && (
           <T size="tiny" center>
             {tokenId}
           </T>
         )}
+        <Spacer small />
+        <IconArea>
+          <IconImage source={imageSource} />
+        </IconArea>
+
         <Spacer />
         <H2 center>Sending</H2>
         <Spacer small />
-        <H2 center>
+        <H2 center weight="bold">
           {sendAmountFormatted || "--"} {symbol}
         </H2>
         {fiatDisplay && (
-          <T center type="muted2">
+          <T center type="muted">
             {fiatDisplay}
           </T>
         )}

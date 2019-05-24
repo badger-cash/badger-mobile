@@ -87,7 +87,7 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
             {separated.map((word, idx) => (
               <WordRow key={idx}>
                 <T>
-                  <T monospace type="muted">
+                  <T monospace type="muted2">
                     {`${idx + 1}.`.padStart(3, " ")}
                   </T>
                   <T> {word}</T>

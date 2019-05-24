@@ -271,7 +271,7 @@ const signAndPublishBchTransaction = async (
     const txid = await publishTx(hex);
     return txid;
   } catch (err) {
-    throw new Error(err);
+    throw new Error(err.error || err);
   }
 };
 

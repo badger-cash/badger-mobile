@@ -8,17 +8,37 @@ import SendSetupScreen from "../screens/SendSetupScreen";
 import SendConfirmScreen from "../screens/SendConfirmScreen";
 import SendSuccessScreen from "../screens/SendSuccessScreen";
 
+import { spaceBadger as theme } from "../themes/spaceBadger";
+
 const SendStack = createStackNavigator(
   {
     SendSetup: {
-      screen: SendSetupScreen
+      screen: SendSetupScreen,
+      navigationOptions: {
+        title: "Setup Transaction"
+      }
     },
-    SendConfirm: { screen: SendConfirmScreen },
-    SendSuccess: { screen: SendSuccessScreen }
+    SendConfirm: {
+      screen: SendConfirmScreen,
+      navigationOptions: {
+        title: "Confirm & Send"
+      }
+    },
+    SendSuccess: {
+      screen: SendSuccessScreen,
+      navigationOptions: { header: null }
+    }
   },
   {
-    headerMode: "none",
-    initialRouteName: "SendSetup"
+    initialRouteName: "SendSetup",
+    headerLayoutPreset: "center",
+    defaultNavigationOptions: {
+      headerBackTitleStyle: {
+        color: theme.primary500
+      },
+      headerTintColor: theme.primary500,
+      headerTitleStyle: { color: theme.fg100 }
+    }
   }
 );
 

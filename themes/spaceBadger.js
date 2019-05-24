@@ -19,7 +19,7 @@ const spaceBadger: Theme = {
   accent500: "#F5871A",
   accent900: "#FEF5EC",
   fg100: "#131720",
-  fg200: "#353c43",
+  fg200: "#454c53",
   fg300: "#7d7d7d",
   fg500: "#ababab",
   fg700: "#ededed",

@@ -6,12 +6,7 @@ import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
 
-import makeBlockie from "ethereum-blockies-base64";
-import Ionicons from "react-native-vector-icons/Ionicons";
-
 import SLPSDK from "slp-sdk";
-
-import BitcoinCashImage from "../assets/images/icon.png";
 
 import {
   getAddressSelector,
@@ -119,9 +114,7 @@ const SendSuccessScreen = ({
             <IconImage source={imageSource} />
           </IconArea>
           <Spacer small />
-          <H2 center>
-            {coinName} ({symbol})
-          </H2>
+          <H1 center>{coinName}</H1>
           {tokenId && (
             <T size="tiny" center>
               {tokenId}
@@ -134,7 +127,7 @@ const SendSuccessScreen = ({
             {valueAdjusted} {symbol}
           </H2>
           {fiatDisplay && (
-            <T center type="muted2">
+            <T center type="muted">
               {fiatDisplay}
             </T>
           )}
