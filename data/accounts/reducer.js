@@ -20,7 +20,6 @@ export type Account = {
   address: string,
   addressSlp?: string,
   keypair?: ECPair,
-  keypairSlp?: ECPair,
   mnemonic: string,
   accountIndex: number,
   seedViewed?: boolean
@@ -30,7 +29,7 @@ type Action = { type: string, payload: any };
 
 export type State = {
   byId: { [accountId: string]: Account },
-  keypairsByAccount: { [accountId: string]: ECPair },
+  keypairsByAccount: { [accountId: string]: { bch: ECPair, slp: ECPair } },
   allIds: string[],
   activeId: ?string
 };

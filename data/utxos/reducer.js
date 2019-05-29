@@ -19,7 +19,8 @@ export type UTXO = {
   satoshis: number,
   slp: { baton: any, token: string, quantity: number },
   validSlpTx: boolean,
-  spendable: boolean
+  spendable: boolean,
+  address: string
 };
 
 type Action = { type: string, payload: any };

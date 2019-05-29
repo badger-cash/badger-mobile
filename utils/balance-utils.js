@@ -124,28 +124,17 @@ const getHistoricalSlpTransactions = async (
   return transactions;
 };
 
-const formatAmount = (
-  amount: ?BigNumber | ?number,
-  decimals: ?number
-): string => {
+const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
   if (decimals == null) {
     return "-.--------";
   }
+
   if (!amount) {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  // Convert to BigNumber if not already
-  let bigNumber = amount;
-  if (typeof amount === "number") {
-    bigNumber = new BigNumber(amount);
-  }
-
-  const adjustDecimals = bigNumber
-    .dividedBy(Math.pow(10, decimals))
-    .toFixed(decimals);
-
-  return adjustDecimals.toString();
+  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFixed(decimals);
+  return adjustDecimals;
 };
 
 export {
