@@ -14,6 +14,7 @@ import {
   View
 } from "react-native";
 import { Header } from "react-navigation";
+import BigNumber from "bignumber.js";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -227,15 +228,23 @@ const SendSetupScreen = ({
     tokenId: null
   };
 
-  const availableAmount = tokenId
-    ? balances.slpTokens[tokenId]
-    : balances.satoshisAvailable - 546;
+  let availableAmount = 0;
+  if (tokenId) {
+    availableAmount = balances.slpTokens[tokenId];
+  } else {
+    const availableRaw = balances.satoshisAvailable.minus(546);
 
-  const adjustDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+    if (availableRaw.lte(0)) {
+      availableAmount = new BigNumber(0);
+    } else {
+      availableAmount = availableRaw;
+    }
+  }
 
-  const availableFunds = parseFloat(
-    formatAmount(availableAmount, adjustDecimals)
-  );
+  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+
+  const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
+  const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
 
   const rate = !tokenId ? spotPrices["bch"]["usd"].rate : null;
 
@@ -383,7 +392,7 @@ const SendSetupScreen = ({
               </>
             )}
             <T center>Balance ({symbol})</T>
-            <H2 center>{availableFunds}</H2>
+            <H2 center>{availableFundsDisplay}</H2>
             {fiatDisplayTotal && (
               <T center type="muted">
                 {fiatDisplayTotal}
@@ -466,7 +475,7 @@ const SendSetupScreen = ({
                 onChangeText={text => {
                   setErrors([]);
                   if (amountType === "crypto") {
-                    setSendAmount(formatAmountInput(text, adjustDecimals));
+                    setSendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
                     setSendAmount(formatAmountInput(text, 4));
                   }

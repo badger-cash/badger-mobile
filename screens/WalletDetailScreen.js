@@ -11,6 +11,7 @@ import {
   Linking,
   StyleSheet
 } from "react-native";
+import BigNumber from "bignumber.js";
 
 import {
   getAddressSelector,
@@ -111,7 +112,8 @@ const WalletDetailScreen = ({
   const imageSource = getTokenImage(tokenId);
 
   const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
+    ? spotPrices["bch"]["usd"].rate *
+      balances.satoshisAvailable.shiftedBy(-1 * 8)
     : 0;
   const fiatDisplay = isBCH
     ? spotPrices["bch"]["usd"].rate
@@ -180,6 +182,10 @@ const WalletDetailScreen = ({
 
             const txType =
               to === address || to === addressSlp ? "receive" : "send";
+            const valueBigNumber = new BigNumber(value);
+            const valueAdjusted = tokenId
+              ? valueBigNumber
+              : valueBigNumber.shiftedBy(decimals * -1);
 
             return (
               <TransactionRow
@@ -192,7 +198,7 @@ const WalletDetailScreen = ({
                 fromAddress={from}
                 symbol={ticker}
                 tokenId={tokenId}
-                amount={tokenId ? value : formatAmount(value, decimals)}
+                amount={valueAdjusted.toString(10)}
               />
             );
           })}
