@@ -181,7 +181,7 @@ const formatAmountInput = (amount: string, maxDecimals: number): string => {
   return decimalAdjusted.join("");
 };
 
-const parseQr = (qrData: string) => {
+const parseQr = (qrData: string): { address: string, amount: ?string } => {
   let address = null;
   let amount = null;
 
@@ -341,6 +341,7 @@ const SendSetupScreen = ({
                   setQrOpen(false);
                 }}
                 cameraStyle={{
+                  // padding 16 for each side
                   height: Dimensions.get("window").width - 32,
                   width: Dimensions.get("window").width - 32
                 }}
@@ -420,7 +421,6 @@ const SendSetupScreen = ({
             <Spacer tiny />
             <ButtonArea>
               <StyledButton
-                style={{ marginRight: 5 }}
                 nature="ghost"
                 onPress={async () => {
                   const content = await Clipboard.getString();

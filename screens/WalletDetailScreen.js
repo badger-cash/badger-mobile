@@ -23,19 +23,17 @@ import {
   type Balances
 } from "../data/selectors";
 import { spotPricesSelector } from "../data/prices/selectors";
-
 import { tokensByIdSelector } from "../data/tokens/selectors";
+
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { formatAmount } from "../utils/balance-utils";
+import { addressToSlp } from "../utils/account-utils";
+import { getTokenImage } from "../utils/token-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 import { TransactionRow } from "../components";
-
-import { addressToSlp } from "../utils/account-utils";
-
-import { getTokenImage } from "../utils/token-utils";
 
 const TransactionArea = styled(View)`
   border-top-width: ${StyleSheet.hairlineWidth};

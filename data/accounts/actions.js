@@ -10,11 +10,7 @@ import {
 
 import { type Account } from "./reducer";
 
-import {
-  deriveAccount,
-  addressToSlp,
-  generateMnemonic
-} from "../../utils/account-utils";
+import { deriveAccount, generateMnemonic } from "../../utils/account-utils";
 
 const getAccountStart = () => ({
   type: GET_ACCOUNT_START,

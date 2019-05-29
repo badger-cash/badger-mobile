@@ -22,6 +22,9 @@ import { Button, T, H1, H2, Spacer } from "../atoms";
 import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
+import { type UTXO } from "../data/utxos/reducer";
+import { type ECPair } from "../data/accounts/reducer";
+
 import {
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction
@@ -97,8 +100,8 @@ const SwipeMainContent = styled(View)`
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
-  utxos: any,
-  keypair: any,
+  utxos: UTXO[],
+  keypair: { bch: ECPair, slp: ECPair },
   spotPrices: any,
   activeAccount: any,
   navigation: {
