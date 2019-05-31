@@ -54,4 +54,4 @@ const updateSpotPrice = (currencyCode: CurrencyCode) => {
   };
 };
 
-export { updateSpotPrice };
+export { updateSpotPrice, setFiatCurrency };

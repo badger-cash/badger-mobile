@@ -154,7 +154,7 @@ const HomeScreen = ({
       60 * 1000
     );
     return () => clearInterval(spotPriceInterval);
-  }, []);
+  }, [fiatCurrency]);
 
   const slpTokens = balances.slpTokens;
 
@@ -194,11 +194,10 @@ const HomeScreen = ({
       (balances.satoshisAvailable / 10 ** 8)
     : 0;
 
-  // currencyDecimalMap + 1 to emphasis BCH can be sub-cent
   const BCHFiatDisplay =
     spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
       ? `${currencySymbolMap[fiatCurrency]}${BCHFiatAmount.toFixed(
-          currencyDecimalMap[fiatCurrency] + 1
+          currencyDecimalMap[fiatCurrency]
         )} ${fiatCurrency}`
       : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
 
