@@ -191,7 +191,7 @@ const HomeScreen = ({
 
   const BCHFiatAmount = spotPrices["bch"][fiatCurrency]
     ? spotPrices["bch"][fiatCurrency].rate *
-      (balances.satoshisAvailable / 10 ** 8)
+      balances.satoshisAvailable.shiftedBy(-1 * 8)
     : 0;
 
   const BCHFiatDisplay =
