@@ -3,7 +3,8 @@
 import {
   UPDATE_BCH_SPOT_PRICE_START,
   UPDATE_BCH_SPOT_PRICE_SUCCESS,
-  UPDATE_BCH_SPOT_PRICE_FAIL
+  UPDATE_BCH_SPOT_PRICE_FAIL,
+  SET_FIAT_CURRENCY
 } from "./constants";
 
 export type State = {
@@ -18,7 +19,7 @@ export type State = {
 type Action = { type: string, payload: any };
 
 export const initialState = {
-  currencySelected: "usd",
+  currencySelected: "USD",
   spot: {
     bch: { usd: { rate: null, lastUpdated: null } }
   }
@@ -38,6 +39,10 @@ const updateSpotRate = (
   };
 };
 
+const updateFiatCurrency = (state: State, currencyCode: string) => {
+  return { ...state, currencySelected: currencyCode };
+};
+
 const prices = (state: State = initialState, action: Action) => {
   switch (action.type) {
     case UPDATE_BCH_SPOT_PRICE_START:
@@ -46,6 +51,8 @@ const prices = (state: State = initialState, action: Action) => {
       return updateSpotRate(state, action.payload);
     case UPDATE_BCH_SPOT_PRICE_FAIL:
       return state;
+    case SET_FIAT_CURRENCY:
+      return updateFiatCurrency(state, action.payload);
     default:
       return state;
   }

@@ -26,7 +26,7 @@ import {
   getSeedViewedSelector
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
 
 import { type TokenData } from "../data/tokens/reducer";
@@ -37,6 +37,11 @@ import { updateTokensMeta } from "../data/tokens/actions";
 import { updateSpotPrice } from "../data/prices/actions";
 
 import { formatAmount } from "../utils/balance-utils";
+import {
+  currencyDecimalMap,
+  currencySymbolMap,
+  type CurrencyCode
+} from "../utils/currency-utils";
 
 const SECOND = 1000;
 
@@ -87,6 +92,7 @@ type Props = {
   navigation: { navigate: Function },
   seedViewed: boolean,
   spotPrices: any,
+  fiatCurrency: CurrencyCode,
   tokensById: { [tokenId: string]: TokenData },
   updateSpotPrice: Function,
   updateTokensMeta: Function,
@@ -102,6 +108,7 @@ const HomeScreen = ({
   navigation,
   seedViewed,
   spotPrices,
+  fiatCurrency,
   tokensById,
   updateSpotPrice,
   updateTokensMeta,
@@ -141,8 +148,11 @@ const HomeScreen = ({
 
   // Todo - Add `currency` as a dependency to recompute
   useEffect(() => {
-    updateSpotPrice();
-    const spotPriceInterval = setInterval(() => updateSpotPrice(), 60 * 1000);
+    updateSpotPrice(fiatCurrency);
+    const spotPriceInterval = setInterval(
+      () => updateSpotPrice(fiatCurrency),
+      60 * 1000
+    );
     return () => clearInterval(spotPriceInterval);
   }, []);
 
@@ -179,12 +189,18 @@ const HomeScreen = ({
       return 0;
     });
 
-  const BCHFiatAmount =
-    spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8);
+  const BCHFiatAmount = spotPrices["bch"][fiatCurrency]
+    ? spotPrices["bch"][fiatCurrency].rate *
+      (balances.satoshisAvailable / 10 ** 8)
+    : 0;
 
-  const BCHFiatDisplay = spotPrices["bch"]["usd"].rate
-    ? `$${BCHFiatAmount.toFixed(3)} USD`
-    : "$ -.-- USD";
+  // currencyDecimalMap + 1 to emphasis BCH can be sub-cent
+  const BCHFiatDisplay =
+    spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
+      ? `${currencySymbolMap[fiatCurrency]}${BCHFiatAmount.toFixed(
+          currencyDecimalMap[fiatCurrency] + 1
+        )} ${fiatCurrency}`
+      : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
 
   const walletSections = [
     {
@@ -287,12 +303,15 @@ const mapStateToProps = (state, props) => {
 
   const initialLoadingDone = doneInitialLoadSelector(state, address);
 
+  const fiatCurrency = currencySelector(state);
+
   return {
     address,
     addressSlp,
     seedViewed,
     balances,
     spotPrices,
+    fiatCurrency,
     tokensById,
     initialLoadingDone
   };

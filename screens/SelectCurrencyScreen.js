@@ -20,7 +20,6 @@ const SelectCurrencyScreen = ({ setCurrency }: Props) => {
   return (
     <SafeAreaView>
       <ScreenWrapper>
-        <T>Select Currency Screen</T>
         <ScrollView>
           <Spacer />
           <Button text="CAD" onPress={() => setCurrency("CAD")} />

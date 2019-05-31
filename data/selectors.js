@@ -10,10 +10,10 @@ import { utxosByAccountSelector } from "./utxos/selectors";
 
 // number, but actually BigNumber.
 export type Balances = {
-  satoshisAvailable: number,
-  satoshisLockedInMintingBaton: number,
-  satoshisLockedInTokens: number,
-  slpTokens: { [tokenId: string]: number }
+  satoshisAvailable: BigNumber,
+  satoshisLockedInMintingBaton: BigNumber,
+  satoshisLockedInTokens: BigNumber,
+  slpTokens: { [tokenId: string]: BigNumber }
 };
 
 const transactionsActiveAccountSelector = createSelector(

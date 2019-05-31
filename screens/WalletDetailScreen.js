@@ -11,6 +11,7 @@ import {
   Linking,
   StyleSheet
 } from "react-native";
+import BigNumber from "bignumber.js";
 
 import {
   getAddressSelector,
@@ -22,19 +23,17 @@ import {
   type Balances
 } from "../data/selectors";
 import { spotPricesSelector } from "../data/prices/selectors";
-
 import { tokensByIdSelector } from "../data/tokens/selectors";
+
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { formatAmount } from "../utils/balance-utils";
+import { addressToSlp } from "../utils/account-utils";
+import { getTokenImage } from "../utils/token-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 import { TransactionRow } from "../components";
-
-import { addressToSlp } from "../utils/account-utils";
-
-import { getTokenImage } from "../utils/token-utils";
 
 const TransactionArea = styled(View)`
   border-top-width: ${StyleSheet.hairlineWidth};
@@ -111,7 +110,8 @@ const WalletDetailScreen = ({
   const imageSource = getTokenImage(tokenId);
 
   const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate * (balances.satoshisAvailable / 10 ** 8)
+    ? spotPrices["bch"]["usd"].rate *
+      balances.satoshisAvailable.shiftedBy(-1 * 8)
     : 0;
   const fiatDisplay = isBCH
     ? spotPrices["bch"]["usd"].rate
@@ -180,6 +180,10 @@ const WalletDetailScreen = ({
 
             const txType =
               to === address || to === addressSlp ? "receive" : "send";
+            const valueBigNumber = new BigNumber(value);
+            const valueAdjusted = tokenId
+              ? valueBigNumber
+              : valueBigNumber.shiftedBy(decimals * -1);
 
             return (
               <TransactionRow
@@ -192,7 +196,7 @@ const WalletDetailScreen = ({
                 fromAddress={from}
                 symbol={ticker}
                 tokenId={tokenId}
-                amount={tokenId ? value : formatAmount(value, decimals)}
+                amount={valueAdjusted.toString(10)}
               />
             );
           })}
