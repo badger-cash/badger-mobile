@@ -15,6 +15,9 @@ import {
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
+import { currencySymbolMap, type CurrencyCode } from "../utils/currency-utils";
+import { currencySelector } from "../data/prices/selectors";
+
 import { T, Spacer } from "../atoms";
 
 import packageJson from "../package.json";
@@ -85,10 +88,11 @@ const OptionsRow = ({
 
 type Props = {
   navigation: { navigate: Function },
-  seedViewed: boolean
+  seedViewed: boolean,
+  fiatCurrency: CurrencyCode
 };
 
-const MenuScreen = ({ navigation, seedViewed }: Props) => {
+const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
   return (
     <SafeAreaView>
       <StyledScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -104,7 +108,7 @@ const MenuScreen = ({ navigation, seedViewed }: Props) => {
           pressFn={() => {
             navigation.navigate("SelectCurrencyScreen");
           }}
-          label="USD"
+          label={`${currencySymbolMap[fiatCurrency]}${fiatCurrency}`}
         />
         <OptionsRow
           text="Terms of Use"
@@ -146,7 +150,8 @@ const MenuScreen = ({ navigation, seedViewed }: Props) => {
 
 const mapStateToProps = state => {
   const seedViewed = getSeedViewedSelector(state);
-  return { seedViewed };
+  const fiatCurrency = currencySelector(state);
+  return { seedViewed, fiatCurrency };
 };
 
 const mapDispatchToProps = {};
