@@ -7,6 +7,7 @@ import {
 } from "./constants";
 
 export type State = {
+  currencySelected: string,
   spot: {
     [coinId: string]: {
       [currency: string]: { rate: ?number, lastUpdated: ?number }
@@ -17,6 +18,7 @@ export type State = {
 type Action = { type: string, payload: any };
 
 export const initialState = {
+  currencySelected: "usd",
   spot: {
     bch: { usd: { rate: null, lastUpdated: null } }
   }

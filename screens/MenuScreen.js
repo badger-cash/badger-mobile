@@ -3,6 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 import {
   SafeAreaView,
@@ -26,12 +27,13 @@ const Row = styled(View)`
   height: 65;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   border: solid ${props => props.theme.fg500};
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
   border-bottom-width: ${StyleSheet.hairlineWidth};
-  padding-left: 16;
+  padding: 0 16px;
 `;
 
 const NotificationDot = styled(View)`
@@ -42,21 +44,41 @@ const NotificationDot = styled(View)`
   margin-left: 8px;
 `;
 
+const LeftContent = styled(View)``;
+const RightContent = styled(View)`
+  flex-direction: row;
+  align-items: center;
+`;
+
 const OptionsRow = ({
-  text,
-  pressFn,
   hasNotification,
-  muted
+  label,
+  muted,
+  pressFn,
+  text
 }: {
-  text: string,
-  pressFn: Function,
   hasNotification?: boolean,
-  muted?: boolean
+  label?: string,
+  muted?: boolean,
+  pressFn: Function,
+  text: string
 }) => (
   <TouchableOpacity onPress={pressFn}>
     <Row>
-      <T type={muted ? "muted2" : ""}>{text}</T>
-      {hasNotification && <NotificationDot />}
+      <LeftContent>
+        <T type={muted ? "muted2" : ""}>{text}</T>
+        {hasNotification && <NotificationDot />}
+      </LeftContent>
+      {label && (
+        <RightContent>
+          <T type="muted2" style={{ marginRight: 8 }}>
+            {label}
+          </T>
+          <T type="muted2">
+            <Ionicons name="ios-arrow-forward" size={20} />
+          </T>
+        </RightContent>
+      )}
     </Row>
   </TouchableOpacity>
 );
@@ -76,6 +98,13 @@ const MenuScreen = ({ navigation, seedViewed }: Props) => {
             navigation.navigate("ViewSeedPhrase");
           }}
           hasNotification={!seedViewed}
+        />
+        <OptionsRow
+          text="Currency"
+          pressFn={() => {
+            navigation.navigate("SelectCurrencyScreen");
+          }}
+          label="USD"
         />
         <OptionsRow
           text="Terms of Use"

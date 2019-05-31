@@ -14,6 +14,7 @@ import WalletDetailScreen from "../screens/WalletDetailScreen";
 import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
+import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -82,6 +83,10 @@ const MenuStack = createStackNavigator(
     LogoutScreen: {
       screen: LogoutScreen,
       navigationOptions: { title: "Logout?" }
+    },
+    SelectCurrencyScreen: {
+      screen: SelectCurrencyScreen,
+      navigationOptions: { title: "Select Currency" }
     }
   },
   {

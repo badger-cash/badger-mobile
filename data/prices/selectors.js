@@ -2,7 +2,16 @@
 
 import { createSelector } from "reselect";
 
-const pricesSelector = state => state.prices;
+import { type FullState } from "../store";
+
+const pricesSelector = (state: FullState) => state.prices;
+
+const currencySelector = createSelector(
+  pricesSelector,
+  prices => {
+    return prices.currencySelected;
+  }
+);
 
 // TODO - Create selectors to get specific amounts for currencies and coins.  Less logic in view layer.
 const spotPricesSelector = createSelector(
@@ -12,4 +21,4 @@ const spotPricesSelector = createSelector(
   }
 );
 
-export { spotPricesSelector };
+export { currencySelector, spotPricesSelector };
