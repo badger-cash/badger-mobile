@@ -47,7 +47,10 @@ const NotificationDot = styled(View)`
   margin-left: 8px;
 `;
 
-const LeftContent = styled(View)``;
+const LeftContent = styled(View)`
+  flex-direction: row;
+  align-items: center;
+`;
 const RightContent = styled(View)`
   flex-direction: row;
   align-items: center;
@@ -108,7 +111,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
           pressFn={() => {
             navigation.navigate("SelectCurrencyScreen");
           }}
-          label={`${currencySymbolMap[fiatCurrency]}${fiatCurrency}`}
+          label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
         />
         <OptionsRow
           text="Terms of Use"
