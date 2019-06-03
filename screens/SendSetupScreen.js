@@ -271,14 +271,6 @@ const SendSetupScreen = ({
     ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
     : null;
 
-  // const BCHFiatAmountTotal = rate ? rate * availableFunds : 0;
-
-  // const fiatDisplayTotal = !tokenId
-  //   ? rate
-  //     ? `$${BCHFiatAmountTotal.toFixed(3)} USD`
-  //     : "$ -.-- USD"
-  //   : null;
-
   const sendAmountNumber = parseFloat(sendAmount);
 
   const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
@@ -341,6 +333,12 @@ const SendSetupScreen = ({
       );
     }
   }, [sendAmountNumber, amountType, fiatRate]);
+
+  const sendAmountFiatFormatted = formatFiatAmount(
+    new BigNumber(sendAmountNumber),
+    fiatCurrency,
+    tokenId || "bch"
+  );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -479,7 +477,7 @@ const SendSetupScreen = ({
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
-                    ${sendAmountFiat} USD
+                    {sendAmountFiatFormatted}
                   </T>
                 )}
               </View>
@@ -488,7 +486,9 @@ const SendSetupScreen = ({
             <AmountInputRow>
               <AmountLabel>
                 <T type="muted2" weight="bold">
-                  {amountType === "crypto" ? symbol : "USD"}
+                  {amountType === "crypto"
+                    ? symbol
+                    : fiatCurrency.toUpperCase()}
                 </T>
               </AmountLabel>
               <StyledTextInputAmount
@@ -504,7 +504,9 @@ const SendSetupScreen = ({
                   if (amountType === "crypto") {
                     setSendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
-                    setSendAmount(formatAmountInput(text, 4));
+                    setSendAmount(
+                      formatAmountInput(text, currencyDecimalMap[fiatCurrency])
+                    );
                   }
                 }}
               />
@@ -516,7 +518,9 @@ const SendSetupScreen = ({
                 <StyledButton nature="ghost" onPress={toggleAmountType}>
                   <T center spacing="loose" type="primary" size="small">
                     <Ionicons name="ios-swap" size={18} />{" "}
-                    {amountType === "crypto" ? "USD" : symbol}
+                    {amountType === "crypto"
+                      ? fiatCurrency.toUpperCase()
+                      : symbol}
                   </T>
                 </StyledButton>
               ) : (

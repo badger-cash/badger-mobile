@@ -41,11 +41,7 @@ import {
   formatFiatAmount,
   computeFiatAmount
 } from "../utils/balance-utils";
-import {
-  currencyDecimalMap,
-  currencySymbolMap,
-  type CurrencyCode
-} from "../utils/currency-utils";
+import { type CurrencyCode } from "../utils/currency-utils";
 
 const SECOND = 1000;
 

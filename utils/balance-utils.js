@@ -140,7 +140,7 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFixed(decimals);
+  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
   return adjustDecimals;
 };
 
@@ -169,8 +169,8 @@ const formatFiatAmount = (
   fiatCurrency: CurrencyCode,
   coin: string
 ) => {
-  return amount
-    ? `${currencySymbolMap[fiatCurrency]}${amount.toFixed(
+  return amount && !amount.isNaN()
+    ? `${currencySymbolMap[fiatCurrency]}${amount.toFormat(
         currencyDecimalMap[fiatCurrency]
       )} ${fiatCurrency}`
     : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
