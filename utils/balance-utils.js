@@ -3,6 +3,13 @@
 import BigNumber from "bignumber.js";
 import SLPSDK from "slp-sdk";
 
+import {
+  currencyDecimalMap,
+  currencySymbolMap,
+  type CurrencyCode
+} from "./currency-utils";
+import { type Balances } from "../data/selectors";
+
 const SLP = new SLPSDK();
 
 const getHistoricalBchTransactions = async (
@@ -137,8 +144,42 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
   return adjustDecimals;
 };
 
+const computeFiatAmount = (
+  balances: Balances,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  coin: string
+): BigNumber => {
+  const coinSpotPrice = spotPrices[coin];
+  if (!coinSpotPrice) return null;
+  const spotPrice = coinSpotPrice[fiatCurrency];
+  if (!spotPrice) return null;
+  const rate = spotPrice.rate;
+
+  let amount = 0;
+  if (coin === "bch") {
+    const balance = balances.satoshisAvailable.shiftedBy(-1 * 8);
+    amount = balance.times(rate);
+  }
+  return amount;
+};
+
+const formatFiatAmount = (
+  amount: ?BigNumber,
+  fiatCurrency: CurrencyCode,
+  coin: string
+) => {
+  return amount
+    ? `${currencySymbolMap[fiatCurrency]}${amount.toFixed(
+        currencyDecimalMap[fiatCurrency]
+      )} ${fiatCurrency}`
+    : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
+};
+
 export {
+  computeFiatAmount,
   getHistoricalBchTransactions,
   getHistoricalSlpTransactions,
-  formatAmount
+  formatAmount,
+  formatFiatAmount
 };

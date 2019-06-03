@@ -28,7 +28,11 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
-import { formatAmount } from "../utils/balance-utils";
+import {
+  formatAmount,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
 import { addressToSlp } from "../utils/account-utils";
 import { getTokenImage } from "../utils/token-utils";
 import {
@@ -116,19 +120,14 @@ const WalletDetailScreen = ({
 
   const imageSource = getTokenImage(tokenId);
 
-  const BCHFiatAmount = isBCH
-    ? spotPrices["bch"][fiatCurrency]
-      ? spotPrices["bch"][fiatCurrency].rate *
-        balances.satoshisAvailable.shiftedBy(-1 * 8)
-      : 0
-    : 0;
-
+  const fiatAmount = computeFiatAmount(
+    balances,
+    spotPrices,
+    fiatCurrency,
+    tokenId || "bch"
+  );
   const fiatDisplay = isBCH
-    ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
-      ? `${currencySymbolMap[fiatCurrency]}${BCHFiatAmount.toFixed(
-          currencyDecimalMap[fiatCurrency]
-        )} ${fiatCurrency}`
-      : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`
+    ? formatFiatAmount(fiatAmount, fiatCurrency, tokenId || "bch")
     : null;
 
   const explorerUrl = isBCH

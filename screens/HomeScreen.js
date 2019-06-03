@@ -36,7 +36,11 @@ import { updateUtxos } from "../data/utxos/actions";
 import { updateTokensMeta } from "../data/tokens/actions";
 import { updateSpotPrice } from "../data/prices/actions";
 
-import { formatAmount } from "../utils/balance-utils";
+import {
+  formatAmount,
+  formatFiatAmount,
+  computeFiatAmount
+} from "../utils/balance-utils";
 import {
   currencyDecimalMap,
   currencySymbolMap,
@@ -189,17 +193,13 @@ const HomeScreen = ({
       return 0;
     });
 
-  const BCHFiatAmount = spotPrices["bch"][fiatCurrency]
-    ? spotPrices["bch"][fiatCurrency].rate *
-      balances.satoshisAvailable.shiftedBy(-1 * 8)
-    : 0;
-
-  const BCHFiatDisplay =
-    spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
-      ? `${currencySymbolMap[fiatCurrency]}${BCHFiatAmount.toFixed(
-          currencyDecimalMap[fiatCurrency]
-        )} ${fiatCurrency}`
-      : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
+  const BCHFiatAmount = computeFiatAmount(
+    balances,
+    spotPrices,
+    fiatCurrency,
+    "bch"
+  );
+  const BCHFiatDisplay = formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
 
   const walletSections = [
     {
