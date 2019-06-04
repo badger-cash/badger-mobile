@@ -7,8 +7,10 @@ import {
   SET_FIAT_CURRENCY
 } from "./constants";
 
+import { type CurrencyCode } from "../../utils/currency-utils";
+
 export type State = {
-  currencySelected: string,
+  currencySelected: CurrencyCode,
   spot: {
     [coinId: string]: {
       [currency: string]: { rate: ?number, lastUpdated: ?number }
@@ -39,7 +41,7 @@ const updateSpotRate = (
   };
 };
 
-const updateFiatCurrency = (state: State, currencyCode: string) => {
+const updateFiatCurrency = (state: State, currencyCode: CurrencyCode) => {
   return { ...state, currencySelected: currencyCode };
 };
 
