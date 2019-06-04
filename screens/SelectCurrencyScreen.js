@@ -80,7 +80,7 @@ const SelectCurrencyScreen = ({
       <ScreenWrapper>
         <ActiveSection>
           <Spacer />
-          <T center>Current Selected:</T>
+          <T center>Active Currency:</T>
           <Spacer tiny />
           <T center weight="bold">
             {`${currencySymbolMap[currencyActive]} ${currencyActive} - ${

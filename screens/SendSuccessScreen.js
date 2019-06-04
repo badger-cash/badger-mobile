@@ -131,7 +131,7 @@ const SendSuccessScreen = ({
           <Spacer />
           <H2 center>Sent</H2>
           <Spacer small />
-          <H2 center>
+          <H2 center weight="bold">
             {valueAdjusted.toFormat()} {symbol}
           </H2>
           {fiatDisplay && (

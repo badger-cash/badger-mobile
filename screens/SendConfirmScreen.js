@@ -158,7 +158,10 @@ const SendConfirmScreen = ({
   // Send the entered token amount as is
   const sendAmountAdjusted = tokenId
     ? sendAmountFormatted
-    : sendAmountFormatted.shiftedBy(-1 * decimals).floor();
+    : sendAmountFormatted
+        .shiftedBy(decimals)
+        .integerValue(BigNumber.ROUND_FLOOR);
+
   const sendAmountParam = sendAmountAdjusted.toString();
 
   const signSendTransaction = async () => {
@@ -268,7 +271,7 @@ const SendConfirmScreen = ({
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
-          {sendAmountAdjusted.toFormat() || "--"} {symbol}
+          {sendAmountFormatted.toFormat() || "--"} {symbol}
         </H2>
         {fiatDisplay && (
           <T center type="muted">
