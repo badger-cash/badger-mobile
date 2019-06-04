@@ -228,7 +228,7 @@ const currencySymbolMap = {
   WST: "WS$",
   XAF: "FCFA",
   XBT: "Ƀ",
-  XCD: "$",
+  XCD: "EC$",
   XOF: "CFA",
   XPF: "₣",
   YER: "﷼",

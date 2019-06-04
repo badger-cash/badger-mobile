@@ -170,7 +170,7 @@ const formatFiatAmount = (
   coin: string
 ) => {
   return amount && !amount.isNaN()
-    ? `${currencySymbolMap[fiatCurrency]}${amount.toFormat(
+    ? `${currencySymbolMap[fiatCurrency]} ${amount.toFormat(
         currencyDecimalMap[fiatCurrency]
       )} ${fiatCurrency}`
     : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
