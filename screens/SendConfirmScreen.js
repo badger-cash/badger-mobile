@@ -26,11 +26,7 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
-import {
-  formatAmount,
-  computeFiatAmount,
-  formatFiatAmount
-} from "../utils/balance-utils";
+import { formatFiatAmount } from "../utils/balance-utils";
 
 import { type CurrencyCode } from "../utils/currency-utils";
 
@@ -240,27 +236,10 @@ const SendConfirmScreen = ({
   const addressMiddle = address.slice(5, -6);
   const addressEnd = address.slice(-6);
 
-  // WAHT DOING
-  // SEND CONFIRM FIAT AMOUNTS
-  // SEND SUCCESS FIAT AMOUNTS
-  // SEND MAX ISSUES, SLIGHTLY TOO HIGH WHEN FIAT
-
   const isBCH = !tokenId;
   const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate * (sendAmountParam / 10 ** 8)
+    ? spotPrices["bch"][fiatCurrency].rate * (sendAmountParam / 10 ** 8)
     : 0;
-  // const fiatDisplay = isBCH
-  //   ? spotPrices["bch"]["usd"].rate
-  //     ? `$${BCHFiatAmount.toFixed(3)} USD`
-  //     : "$ -.-- USD"
-  //   : null;
-
-  // const fiatAmount = computeFiatAmount(
-  //   balances,
-  //   spotPrices,
-  //   fiatCurrency,
-  //   tokenId || "bch"
-  // );
   const fiatDisplay = isBCH
     ? formatFiatAmount(
         new BigNumber(BCHFiatAmount),
