@@ -146,7 +146,6 @@ const HomeScreen = ({
     updateTokensMeta(missingTokenIds);
   }, [tokenIdsHash]);
 
-  // Todo - Add `currency` as a dependency to recompute
   useEffect(() => {
     updateSpotPrice(fiatCurrency);
     const spotPriceInterval = setInterval(

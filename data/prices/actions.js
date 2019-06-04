@@ -36,15 +36,17 @@ const updateSpotPriceFail = () => ({
   payload: null
 });
 
-// For now assumes BCH and USD.  Add arguments to extend this
+// For now assume BCH
 const updateSpotPrice = (currencyCode: CurrencyCode) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateSpotPriceStart());
 
     const rate = await SLP.Price.current(currencyCode);
 
-    const decimalAdjustedRate =
-      rate / Math.pow(10, currencyDecimalMap[currencyCode]);
+    // API always returns as if currency has 2 decimals, even if it has none such as the JPY
+    const decimalAdjustedRate = rate / Math.pow(10, 2);
+    // const decimalAdjustedRate =
+    //   rate / Math.pow(10, currencyDecimalMap[currencyCode]);
 
     dispatch(updateSpotPriceSuccess(currencyCode, decimalAdjustedRate));
   };
