@@ -39,13 +39,9 @@ const updateSpotPriceFail = () => ({
 // For now assumes BCH and USD.  Add arguments to extend this
 const updateSpotPrice = (currencyCode: CurrencyCode) => {
   return async (dispatch: Function, getState: Function) => {
-    console.log("udpdate spot");
-    console.log(currencyCode);
     dispatch(updateSpotPriceStart());
 
     const rate = await SLP.Price.current(currencyCode);
-
-    console.log(rate);
 
     const decimalAdjustedRate =
       rate / Math.pow(10, currencyDecimalMap[currencyCode]);
