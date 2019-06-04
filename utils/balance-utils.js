@@ -145,7 +145,7 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
 };
 
 const computeFiatAmount = (
-  balances: Balances,
+  coinAmount: BigNumber,
   spotPrices: any,
   fiatCurrency: CurrencyCode,
   coin: string
@@ -158,7 +158,7 @@ const computeFiatAmount = (
 
   let amount = 0;
   if (coin === "bch") {
-    const balance = balances.satoshisAvailable.shiftedBy(-1 * 8);
+    const balance = coinAmount.shiftedBy(-1 * 8);
     amount = balance.times(rate);
   }
   return amount;

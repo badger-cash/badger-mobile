@@ -11,6 +11,7 @@ import {
   View,
   Image
 } from "react-native";
+import BigNumber from "bignumber.js";
 
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -26,6 +27,14 @@ import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
 import {
+  formatAmount,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
+
+import { type CurrencyCode } from "../utils/currency-utils";
+
+import {
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction
 } from "../utils/transaction-utils";
@@ -37,7 +46,7 @@ import {
   activeAccountSelector
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 const SLP = new SLPSDK();
 
@@ -103,6 +112,7 @@ type Props = {
   utxos: UTXO[],
   keypair: { bch: ECPair, slp: ECPair },
   spotPrices: any,
+  fiatCurrency: CurrencyCode,
   activeAccount: any,
   navigation: {
     navigate: Function,
@@ -124,6 +134,7 @@ const SendConfirmScreen = ({
   tokensById,
   activeAccount,
   utxos,
+  fiatCurrency,
   keypair,
   spotPrices
 }: Props) => {
@@ -229,14 +240,33 @@ const SendConfirmScreen = ({
   const addressMiddle = address.slice(5, -6);
   const addressEnd = address.slice(-6);
 
+  // WAHT DOING
+  // SEND CONFIRM FIAT AMOUNTS
+  // SEND SUCCESS FIAT AMOUNTS
+  // SEND MAX ISSUES, SLIGHTLY TOO HIGH WHEN FIAT
+
   const isBCH = !tokenId;
   const BCHFiatAmount = isBCH
     ? spotPrices["bch"]["usd"].rate * (sendAmountParam / 10 ** 8)
     : 0;
+  // const fiatDisplay = isBCH
+  //   ? spotPrices["bch"]["usd"].rate
+  //     ? `$${BCHFiatAmount.toFixed(3)} USD`
+  //     : "$ -.-- USD"
+  //   : null;
+
+  // const fiatAmount = computeFiatAmount(
+  //   balances,
+  //   spotPrices,
+  //   fiatCurrency,
+  //   tokenId || "bch"
+  // );
   const fiatDisplay = isBCH
-    ? spotPrices["bch"]["usd"].rate
-      ? `$${BCHFiatAmount.toFixed(3)} USD`
-      : "$ -.-- USD"
+    ? formatFiatAmount(
+        new BigNumber(BCHFiatAmount),
+        fiatCurrency,
+        tokenId || "bch"
+      )
     : null;
 
   return (
@@ -352,11 +382,13 @@ const mapStateToProps = state => {
   const utxos = utxosByAccountSelector(state, activeAccount.address);
   const keypair = getKeypairSelector(state);
   const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
 
   return {
     activeAccount,
     keypair,
     spotPrices,
+    fiatCurrency,
     tokensById,
     utxos
   };

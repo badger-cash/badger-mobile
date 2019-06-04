@@ -190,7 +190,7 @@ const HomeScreen = ({
     });
 
   const BCHFiatAmount = computeFiatAmount(
-    balances,
+    balances.satoshisAvailable,
     spotPrices,
     fiatCurrency,
     "bch"

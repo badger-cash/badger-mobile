@@ -257,12 +257,22 @@ const SendSetupScreen = ({
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
 
-  const fiatAmountTotal = computeFiatAmount(
-    balances,
-    spotPrices,
-    fiatCurrency,
-    tokenId || "bch"
-  );
+  let fiatAmountTotal = null;
+  if (tokenId) {
+    fiatAmountTotal = computeFiatAmount(
+      availableAmount,
+      spotPrices,
+      fiatCurrency,
+      tokenId
+    );
+  } else {
+    fiatAmountTotal = computeFiatAmount(
+      availableAmount,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+  }
   const fiatDisplayTotal = !tokenId
     ? formatFiatAmount(fiatAmountTotal, fiatCurrency, tokenId || "bch")
     : null;
@@ -320,12 +330,18 @@ const SendSetupScreen = ({
   useEffect(() => {
     if (amountType === "crypto") {
       setSendAmountFiat(
-        fiatRate ? (fiatRate * (sendAmountNumber || 0)).toFixed(3) : 0
+        fiatRate
+          ? (fiatRate * (sendAmountNumber || 0)).toFixed(
+              currencyDecimalMap[fiatCurrency]
+            )
+          : 0
       );
       setSendAmountCrypto(sendAmount);
     }
     if (amountType === "fiat") {
-      setSendAmountFiat((sendAmountNumber || 0).toFixed(3));
+      setSendAmountFiat(
+        (sendAmountNumber || 0).toFixed(currencyDecimalMap[fiatCurrency])
+      );
       setSendAmountCrypto(
         fiatRate && sendAmountNumber
           ? (sendAmountNumber / fiatRate).toFixed(8)
@@ -335,7 +351,7 @@ const SendSetupScreen = ({
   }, [sendAmountNumber, amountType, fiatRate]);
 
   const sendAmountFiatFormatted = formatFiatAmount(
-    new BigNumber(sendAmountNumber),
+    new BigNumber(sendAmountFiat),
     fiatCurrency,
     tokenId || "bch"
   );

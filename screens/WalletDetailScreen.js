@@ -120,12 +120,22 @@ const WalletDetailScreen = ({
 
   const imageSource = getTokenImage(tokenId);
 
-  const fiatAmount = computeFiatAmount(
-    balances,
-    spotPrices,
-    fiatCurrency,
-    tokenId || "bch"
-  );
+  let fiatAmount = null;
+  if (tokenId) {
+    fiatAmount = computeFiatAmount(
+      balances.slpTokens[tokenId],
+      spotPrices,
+      fiatCurrency,
+      tokenId
+    );
+  } else {
+    fiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+  }
   const fiatDisplay = isBCH
     ? formatFiatAmount(fiatAmount, fiatCurrency, tokenId || "bch")
     : null;
