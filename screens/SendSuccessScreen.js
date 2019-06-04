@@ -96,7 +96,8 @@ const SendSuccessScreen = ({
   const symbol = tokenId ? tokensById[tokenId].symbol : "BCH";
 
   // Tokens absolute amount, BCH it's # of satoshis
-  const valueAdjusted = tokenId ? value : value / 10 ** 8;
+  const valueRaw = new BigNumber(value);
+  const valueAdjusted = tokenId ? valueRaw : valueRaw.shiftedBy(-1 * 8);
 
   const isBCH = !tokenId;
   const BCHFiatAmount = isBCH
@@ -131,7 +132,7 @@ const SendSuccessScreen = ({
           <H2 center>Sent</H2>
           <Spacer small />
           <H2 center>
-            {valueAdjusted} {symbol}
+            {valueAdjusted.toFormat()} {symbol}
           </H2>
           {fiatDisplay && (
             <T center type="muted">

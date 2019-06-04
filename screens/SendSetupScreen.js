@@ -355,6 +355,9 @@ const SendSetupScreen = ({
     fiatCurrency,
     tokenId || "bch"
   );
+  const sendAmountCryptoFormatted = sendAmountCrypto.length
+    ? new BigNumber(sendAmountCrypto).toFormat()
+    : "0";
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -489,7 +492,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCrypto || "0"} {symbol}
+                  {sendAmountCryptoFormatted || "0"} {symbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>

@@ -152,13 +152,14 @@ const SendConfirmScreen = ({
 
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
-  const sendAmountFormatted = parseFloat(sendAmount);
+  const sendAmountFormatted = new BigNumber(sendAmount);
 
   // Convert BCH amount to satoshis
   // Send the entered token amount as is
-  const sendAmountParam = tokenId
+  const sendAmountAdjusted = tokenId
     ? sendAmountFormatted
-    : Math.floor(sendAmountFormatted * 10 ** decimals);
+    : sendAmountFormatted.shiftedBy(-1 * decimals).floor();
+  const sendAmountParam = sendAmountAdjusted.toString();
 
   const signSendTransaction = async () => {
     setTransactionState("signing");
@@ -267,7 +268,7 @@ const SendConfirmScreen = ({
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
-          {sendAmountFormatted || "--"} {symbol}
+          {sendAmountAdjusted.toFormat() || "--"} {symbol}
         </H2>
         {fiatDisplay && (
           <T center type="muted">
