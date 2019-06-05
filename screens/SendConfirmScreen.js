@@ -11,6 +11,7 @@ import {
   View,
   Image
 } from "react-native";
+import BigNumber from "bignumber.js";
 
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -25,6 +26,10 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
+import { formatFiatAmount } from "../utils/balance-utils";
+
+import { type CurrencyCode } from "../utils/currency-utils";
+
 import {
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction
@@ -37,7 +42,7 @@ import {
   activeAccountSelector
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 const SLP = new SLPSDK();
 
@@ -103,6 +108,7 @@ type Props = {
   utxos: UTXO[],
   keypair: { bch: ECPair, slp: ECPair },
   spotPrices: any,
+  fiatCurrency: CurrencyCode,
   activeAccount: any,
   navigation: {
     navigate: Function,
@@ -124,6 +130,7 @@ const SendConfirmScreen = ({
   tokensById,
   activeAccount,
   utxos,
+  fiatCurrency,
   keypair,
   spotPrices
 }: Props) => {
@@ -145,13 +152,17 @@ const SendConfirmScreen = ({
 
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
-  const sendAmountFormatted = parseFloat(sendAmount);
+  const sendAmountFormatted = new BigNumber(sendAmount);
 
   // Convert BCH amount to satoshis
   // Send the entered token amount as is
-  const sendAmountParam = tokenId
+  const sendAmountAdjusted = tokenId
     ? sendAmountFormatted
-    : Math.floor(sendAmountFormatted * 10 ** decimals);
+    : sendAmountFormatted
+        .shiftedBy(decimals)
+        .integerValue(BigNumber.ROUND_FLOOR);
+
+  const sendAmountParam = sendAmountAdjusted.toString();
 
   const signSendTransaction = async () => {
     setTransactionState("signing");
@@ -231,12 +242,14 @@ const SendConfirmScreen = ({
 
   const isBCH = !tokenId;
   const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate * (sendAmountParam / 10 ** 8)
+    ? spotPrices["bch"][fiatCurrency].rate * (sendAmountParam / 10 ** 8)
     : 0;
   const fiatDisplay = isBCH
-    ? spotPrices["bch"]["usd"].rate
-      ? `$${BCHFiatAmount.toFixed(3)} USD`
-      : "$ -.-- USD"
+    ? formatFiatAmount(
+        new BigNumber(BCHFiatAmount),
+        fiatCurrency,
+        tokenId || "bch"
+      )
     : null;
 
   return (
@@ -258,7 +271,7 @@ const SendConfirmScreen = ({
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
-          {sendAmountFormatted || "--"} {symbol}
+          {sendAmountFormatted.toFormat() || "--"} {symbol}
         </H2>
         {fiatDisplay && (
           <T center type="muted">
@@ -352,11 +365,13 @@ const mapStateToProps = state => {
   const utxos = utxosByAccountSelector(state, activeAccount.address);
   const keypair = getKeypairSelector(state);
   const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
 
   return {
     activeAccount,
     keypair,
     spotPrices,
+    fiatCurrency,
     tokensById,
     utxos
   };

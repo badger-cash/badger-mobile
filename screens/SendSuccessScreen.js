@@ -7,20 +7,23 @@ import styled from "styled-components";
 import _ from "lodash";
 
 import SLPSDK from "slp-sdk";
+import BigNumber from "bignumber.js";
 
 import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import { updateUtxos } from "../data/utxos/actions";
 import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
 
+import { type CurrencyCode } from "../utils/currency-utils";
 import { getTokenImage } from "../utils/token-utils";
+import { formatFiatAmount } from "../utils/balance-utils";
 
 const SLP = new SLPSDK();
 
@@ -46,6 +49,7 @@ type Props = {
   address: string,
   addressSlp: string,
   spotPrices: any,
+  fiatCurrency: CurrencyCode,
   updateUtxos: Function,
   updateTransactions: Function,
   tokensById: any
@@ -56,6 +60,7 @@ const SendSuccessScreen = ({
   tokensById,
   navigation,
   spotPrices,
+  fiatCurrency,
   updateUtxos,
   updateTransactions
 }: Props) => {
@@ -91,16 +96,19 @@ const SendSuccessScreen = ({
   const symbol = tokenId ? tokensById[tokenId].symbol : "BCH";
 
   // Tokens absolute amount, BCH it's # of satoshis
-  const valueAdjusted = tokenId ? value : value / 10 ** 8;
+  const valueRaw = new BigNumber(value);
+  const valueAdjusted = tokenId ? valueRaw : valueRaw.shiftedBy(-1 * 8);
 
   const isBCH = !tokenId;
   const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate * valueAdjusted
+    ? spotPrices["bch"][fiatCurrency].rate * valueAdjusted
     : 0;
   const fiatDisplay = isBCH
-    ? spotPrices["bch"]["usd"].rate
-      ? `$${BCHFiatAmount.toFixed(3)} USD`
-      : "$ -.-- USD"
+    ? formatFiatAmount(
+        new BigNumber(BCHFiatAmount),
+        fiatCurrency,
+        tokenId || "bch"
+      )
     : null;
 
   return (
@@ -123,8 +131,8 @@ const SendSuccessScreen = ({
           <Spacer />
           <H2 center>Sent</H2>
           <Spacer small />
-          <H2 center>
-            {valueAdjusted} {symbol}
+          <H2 center weight="bold">
+            {valueAdjusted.toFormat()} {symbol}
           </H2>
           {fiatDisplay && (
             <T center type="muted">
@@ -160,7 +168,8 @@ const mapStateToProps = state => ({
   address: getAddressSelector(state),
   addressSlp: getAddressSlpSelector(state),
   tokensById: tokensByIdSelector(state),
-  spotPrices: spotPricesSelector(state)
+  spotPrices: spotPricesSelector(state),
+  fiatCurrency: currencySelector(state)
 });
 
 const mapDispatchToProps = {

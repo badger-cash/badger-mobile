@@ -3,6 +3,13 @@
 import BigNumber from "bignumber.js";
 import SLPSDK from "slp-sdk";
 
+import {
+  currencyDecimalMap,
+  currencySymbolMap,
+  type CurrencyCode
+} from "./currency-utils";
+import { type Balances } from "../data/selectors";
+
 const SLP = new SLPSDK();
 
 const getHistoricalBchTransactions = async (
@@ -133,12 +140,46 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFixed(decimals);
+  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
   return adjustDecimals;
 };
 
+const computeFiatAmount = (
+  coinAmount: BigNumber,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  coin: string
+): BigNumber => {
+  const coinSpotPrice = spotPrices[coin];
+  if (!coinSpotPrice) return null;
+  const spotPrice = coinSpotPrice[fiatCurrency];
+  if (!spotPrice) return null;
+  const rate = spotPrice.rate;
+
+  let amount = 0;
+  if (coin === "bch") {
+    const balance = coinAmount.shiftedBy(-1 * 8);
+    amount = balance.times(rate);
+  }
+  return amount;
+};
+
+const formatFiatAmount = (
+  amount: ?BigNumber,
+  fiatCurrency: CurrencyCode,
+  coin: string
+) => {
+  return amount && !amount.isNaN()
+    ? `${currencySymbolMap[fiatCurrency]} ${amount.toFormat(
+        currencyDecimalMap[fiatCurrency]
+      )} ${fiatCurrency}`
+    : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
+};
+
 export {
+  computeFiatAmount,
   getHistoricalBchTransactions,
   getHistoricalSlpTransactions,
-  formatAmount
+  formatAmount,
+  formatFiatAmount
 };

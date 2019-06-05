@@ -290,10 +290,22 @@ const signAndPublishSlpTransaction = async (
   );
   const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
 
+  if (tokenSendAmount.lt(1)) {
+    throw new Error(
+      "Amount below minimum for this token. Increase the send amount and try again."
+    );
+  }
+
   let tokenBalance = new BigNumber(0);
+  const tokenUtxosToSpend = [];
   for (const tokenUtxo of spendableTokenUtxos) {
     const utxoBalance = tokenUtxo.slp.quantity;
     tokenBalance = tokenBalance.plus(utxoBalance);
+    tokenUtxosToSpend.push(tokenUtxo);
+
+    if (tokenBalance.gte(tokenSendAmount)) {
+      break;
+    }
   }
 
   if (!tokenBalance.gte(tokenSendAmount)) {
@@ -303,18 +315,41 @@ const signAndPublishSlpTransaction = async (
   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
 
   let sendOpReturn = null;
-  try {
+  if (tokenChangeAmount.isGreaterThan(0)) {
     sendOpReturn = SLPJS.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
       outputQtyArray: [tokenSendAmount, tokenChangeAmount]
     });
-  } catch (e) {
-    console.log(e);
+  } else {
+    sendOpReturn = SLPJS.buildSendOpReturn({
+      tokenIdHex: txParams.sendTokenData.tokenId,
+      outputQtyArray: [tokenSendAmount]
+    });
   }
 
-  const inputUtxos = spendableUtxos.concat(spendableTokenUtxos);
+  const tokenReceiverAddressArray = [to];
+  if (tokenChangeAmount.isGreaterThan(0)) {
+    tokenReceiverAddressArray.push(tokenChangeAddress);
+  }
 
-  const tokenReceiverAddressArray = [to, from];
+  let byteCount = 0;
+  let inputSatoshis = 0;
+  const inputUtxos = tokenUtxosToSpend;
+  for (const utxo of spendableUtxos) {
+    inputSatoshis = inputSatoshis + utxo.satoshis;
+    inputUtxos.push(utxo);
+
+    byteCount = SLPJS.calculateSendCost(
+      sendOpReturn.length,
+      inputUtxos.length,
+      tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
+      from
+    );
+
+    if (inputSatoshis >= byteCount) {
+      break;
+    }
+  }
 
   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
@@ -324,12 +359,6 @@ const signAndPublishSlpTransaction = async (
     totalUtxoAmount += utxo.satoshis;
   });
 
-  const byteCount = SLPJS.calculateSendCost(
-    sendOpReturn.length,
-    inputUtxos.length,
-    tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
-    from
-  );
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
   // SLP data output
@@ -339,7 +368,9 @@ const signAndPublishSlpTransaction = async (
   transactionBuilder.addOutput(to, 546);
 
   // Return remaining token balance output
-  transactionBuilder.addOutput(tokenChangeAddress, 546);
+  if (tokenChangeAmount.isGreaterThan(0)) {
+    transactionBuilder.addOutput(tokenChangeAddress, 546);
+  }
 
   // Return remaining bch balance output
   transactionBuilder.addOutput(from, satoshisRemaining + 546);

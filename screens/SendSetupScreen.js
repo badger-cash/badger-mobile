@@ -27,10 +27,19 @@ import { type TokenData } from "../data/tokens/reducer";
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { formatAmount } from "../utils/balance-utils";
+import {
+  formatAmount,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
+import {
+  currencySymbolMap,
+  currencyDecimalMap,
+  type CurrencyCode
+} from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
 
@@ -138,16 +147,6 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  navigation: {
-    navigate: Function,
-    state?: { params: { symbol: string, tokenId: ?string } }
-  }
-};
-
 // Only allow numbers and a single . in amount input
 const formatAmountInput = (amount: string, maxDecimals: number): string => {
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
@@ -205,11 +204,23 @@ const parseQr = (qrData: string): { address: string, amount: ?string } => {
   };
 };
 
+type Props = {
+  tokensById: { [tokenId: string]: TokenData },
+  balances: Balances,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  navigation: {
+    navigate: Function,
+    state?: { params: { symbol: string, tokenId: ?string } }
+  }
+};
+
 const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
-  spotPrices
+  spotPrices,
+  fiatCurrency
 }: Props) => {
   const [qrOpen, setQrOpen] = useState(false);
 
@@ -246,14 +257,28 @@ const SendSetupScreen = ({
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
 
-  const rate = !tokenId ? spotPrices["bch"]["usd"].rate : null;
-
-  const BCHFiatAmountTotal = rate ? rate * availableFunds : 0;
-
+  let fiatAmountTotal = null;
+  if (tokenId) {
+    fiatAmountTotal = computeFiatAmount(
+      availableAmount,
+      spotPrices,
+      fiatCurrency,
+      tokenId
+    );
+  } else {
+    fiatAmountTotal = computeFiatAmount(
+      availableAmount,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+  }
   const fiatDisplayTotal = !tokenId
-    ? rate
-      ? `$${BCHFiatAmountTotal.toFixed(3)} USD`
-      : "$ -.-- USD"
+    ? formatFiatAmount(fiatAmountTotal, fiatCurrency, tokenId || "bch")
+    : null;
+
+  const fiatRate = !tokenId
+    ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
     : null;
 
   const sendAmountNumber = parseFloat(sendAmount);
@@ -304,16 +329,35 @@ const SendSetupScreen = ({
 
   useEffect(() => {
     if (amountType === "crypto") {
-      setSendAmountFiat(rate ? (rate * (sendAmountNumber || 0)).toFixed(3) : 0);
+      setSendAmountFiat(
+        fiatRate
+          ? (fiatRate * (sendAmountNumber || 0)).toFixed(
+              currencyDecimalMap[fiatCurrency]
+            )
+          : 0
+      );
       setSendAmountCrypto(sendAmount);
     }
     if (amountType === "fiat") {
-      setSendAmountFiat((sendAmountNumber || 0).toFixed(3));
+      setSendAmountFiat(
+        (sendAmountNumber || 0).toFixed(currencyDecimalMap[fiatCurrency])
+      );
       setSendAmountCrypto(
-        rate && sendAmountNumber ? (sendAmountNumber / rate).toFixed(8) : 0
+        fiatRate && sendAmountNumber
+          ? (sendAmountNumber / fiatRate).toFixed(8)
+          : 0
       );
     }
-  }, [sendAmountNumber, amountType, rate]);
+  }, [sendAmountNumber, amountType, fiatRate]);
+
+  const sendAmountFiatFormatted = formatFiatAmount(
+    new BigNumber(sendAmountFiat),
+    fiatCurrency,
+    tokenId || "bch"
+  );
+  const sendAmountCryptoFormatted = sendAmountCrypto.length
+    ? new BigNumber(sendAmountCrypto).toFormat()
+    : "0";
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -448,11 +492,11 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCrypto || "0"} {symbol}
+                  {sendAmountCryptoFormatted || "0"} {symbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
-                    ${sendAmountFiat} USD
+                    {sendAmountFiatFormatted}
                   </T>
                 )}
               </View>
@@ -461,7 +505,9 @@ const SendSetupScreen = ({
             <AmountInputRow>
               <AmountLabel>
                 <T type="muted2" weight="bold">
-                  {amountType === "crypto" ? symbol : "USD"}
+                  {amountType === "crypto"
+                    ? symbol
+                    : fiatCurrency.toUpperCase()}
                 </T>
               </AmountLabel>
               <StyledTextInputAmount
@@ -477,7 +523,9 @@ const SendSetupScreen = ({
                   if (amountType === "crypto") {
                     setSendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
-                    setSendAmount(formatAmountInput(text, 4));
+                    setSendAmount(
+                      formatAmountInput(text, currencyDecimalMap[fiatCurrency])
+                    );
                   }
                 }}
               />
@@ -489,7 +537,9 @@ const SendSetupScreen = ({
                 <StyledButton nature="ghost" onPress={toggleAmountType}>
                   <T center spacing="loose" type="primary" size="small">
                     <Ionicons name="ios-swap" size={18} />{" "}
-                    {amountType === "crypto" ? "USD" : symbol}
+                    {amountType === "crypto"
+                      ? fiatCurrency.toUpperCase()
+                      : symbol}
                   </T>
                 </StyledButton>
               ) : (
@@ -501,7 +551,7 @@ const SendSetupScreen = ({
                   setSendAmount(
                     amountType === "crypto"
                       ? `${availableFunds}`
-                      : `${BCHFiatAmountTotal}`
+                      : `${fiatAmountTotal}`
                   );
                   setErrors([]);
                 }}
@@ -537,10 +587,12 @@ const mapStateToProps = state => {
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
   return {
     tokensById,
     balances,
-    spotPrices
+    spotPrices,
+    fiatCurrency
   };
 };
 

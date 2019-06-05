@@ -22,15 +22,24 @@ import {
   transactionsActiveAccountSelector,
   type Balances
 } from "../data/selectors";
-import { spotPricesSelector } from "../data/prices/selectors";
+import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
-import { formatAmount } from "../utils/balance-utils";
+import {
+  formatAmount,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
 import { addressToSlp } from "../utils/account-utils";
 import { getTokenImage } from "../utils/token-utils";
+import {
+  currencySymbolMap,
+  currencyDecimalMap,
+  type CurrencyCode
+} from "../utils/currency-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 import { TransactionRow } from "../components";
@@ -67,6 +76,7 @@ type Props = {
   addressSlp: string,
   balances: Balances,
   spotPrices: any,
+  fiatCurrency: CurrencyCode,
   navigation: { navigate: Function, state: { params: any } },
   tokensById: { [tokenId: string]: TokenData },
   updateTransactions: Function,
@@ -80,6 +90,7 @@ const WalletDetailScreen = ({
   navigation,
   tokensById,
   spotPrices,
+  fiatCurrency,
   transactions,
   updateTransactions
 }: Props) => {
@@ -109,14 +120,24 @@ const WalletDetailScreen = ({
 
   const imageSource = getTokenImage(tokenId);
 
-  const BCHFiatAmount = isBCH
-    ? spotPrices["bch"]["usd"].rate *
-      balances.satoshisAvailable.shiftedBy(-1 * 8)
-    : 0;
+  let fiatAmount = null;
+  if (tokenId) {
+    fiatAmount = computeFiatAmount(
+      balances.slpTokens[tokenId],
+      spotPrices,
+      fiatCurrency,
+      tokenId
+    );
+  } else {
+    fiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+  }
   const fiatDisplay = isBCH
-    ? spotPrices["bch"]["usd"].rate
-      ? `$${BCHFiatAmount.toFixed(3)} USD`
-      : "$ -.-- USD"
+    ? formatFiatAmount(fiatAmount, fiatCurrency, tokenId || "bch")
     : null;
 
   const explorerUrl = isBCH
@@ -224,6 +245,7 @@ const mapStateToProps = (state, props) => {
   const balances = balancesSelector(state, address);
   const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
 
   const transactionsAll = transactionsActiveAccountSelector(state);
 
@@ -244,7 +266,8 @@ const mapStateToProps = (state, props) => {
     balances,
     tokensById,
     transactions,
-    spotPrices
+    spotPrices,
+    fiatCurrency
   };
 };
 

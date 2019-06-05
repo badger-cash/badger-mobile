@@ -60,9 +60,15 @@ const accountsPersistConfig = {
   blacklist: ["keypairsByAccount"]
 };
 
+const pricesPersistConfig = {
+  key: "prices",
+  storage: AsyncStorage,
+  whitelist: ["currencySelected"]
+};
+
 const rootReducer = combineReducers({
   accounts: persistReducer(accountsPersistConfig, accountsReducer),
-  prices: pricesReducer,
+  prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,
   utxos: utxosReducer
