@@ -2,62 +2,110 @@
 
 type CurrencyCode =
   | "AUD"
+  | "BRL"
   | "CAD"
   | "CHF"
   | "CNY"
   | "EUR"
   | "GBP"
   | "HKD"
+  | "INR"
   | "JPY"
+  | "KRW"
+  | "MXN"
+  | "NOK"
+  | "NZD"
   | "PHP"
+  | "RUB"
+  | "SEK"
+  | "SGD"
+  | "THB"
   | "USD"
   | "VEF"
-  | "XCD";
+  | "VND"
+  | "XCD"
+  | "ZAR";
 
 // Whitelist of supported currencies
 const currencyOptions: CurrencyCode[] = [
   "AUD",
+  "BRL",
   "CAD",
   "CHF",
   "CNY",
   "EUR",
   "GBP",
   "HKD",
+  "INR",
   "JPY",
+  "KRW",
+  "MXN",
+  "NOK",
+  "NZD",
   "PHP",
+  "RUB",
+  "SEK",
+  "SGD",
+  "THB",
   "USD",
   "VEF",
-  "XCD"
+  "VND",
+  "XCD",
+  "ZAR"
 ];
 
 const currencyDecimalMap: { [code: CurrencyCode]: number } = {
   AUD: 2,
+  BRL: 2,
   CAD: 2,
   CHF: 2,
   CNY: 2,
   EUR: 2,
   GBP: 2,
   HKD: 2,
+  INR: 2,
   JPY: 0,
+  KRW: 2,
+  MXN: 2,
+  NOK: 2,
+  NZD: 2,
   PHP: 2,
+  RUB: 2,
+  SEK: 2,
+  SGD: 2,
+  THB: 2,
   USD: 2,
   VEF: 2,
-  XCD: 2
+  VND: 1,
+  XCD: 2,
+  ZAR: 2
 };
 
 const currencyNameMap: { [code: CurrencyCode]: string } = {
   AUD: "Australian Dollar",
+  BRL: "Brazilian Real",
   CAD: "Canadian Dollar",
   CHF: "Swiss Franc",
   CNY: "Chinese Yuan",
   EUR: "Euro",
   GBP: "Great British Pound",
   HKD: "Honk Kong Dollar",
+  INR: "Indian Rupee",
   JPY: "Japanese Yen",
+  KRW: "South Korean Won",
+  MXN: "Mexican Peso",
+  NOK: "Norwegian Krone",
+  NZD: "New Zealand Dollar",
   PHP: "Philippine Peso",
+  RUB: "Russian Ruble",
+  SEK: "Swedish Krona",
+  SGD: "Singapore Dollar",
+  THB: "Thai Baht",
   USD: "US Dollar",
   VEF: "Venezuelan Bolívar",
-  XCD: "Eastern Caribbean Dollar"
+  VND: "Vietnamese Dong",
+  XCD: "Eastern Caribbean Dollar",
+  ZAR: "South African Rand"
 };
 
 const currencySymbolMap = {
