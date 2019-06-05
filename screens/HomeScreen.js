@@ -166,11 +166,10 @@ const HomeScreen = ({
   const tokenData = slpTokensDisplay
     .filter(([tokenId, amount]) => amount.toNumber() !== 0)
     .map(([tokenId, amount]) => {
-      const symbol = tokensById[tokenId] ? tokensById[tokenId].symbol : "---";
-      const name = tokensById[tokenId] ? tokensById[tokenId].name : "--------";
-      const decimals = tokensById[tokenId]
-        ? tokensById[tokenId].decimals
-        : null;
+      const token = tokensById[tokenId];
+      const symbol = token ? token.symbol : "---";
+      const name = token ? token.name : "--------";
+      const decimals = token ? token.decimals : null;
       const amountFormatted = formatAmount(amount, decimals);
       return {
         symbol,
