@@ -111,9 +111,9 @@ const WalletDetailScreen = ({
 
   const isBCH = !tokenId;
 
-  const name = isBCH ? "Bitcoin Cash" : token.name;
-  const ticker = isBCH ? "BCH" : token.symbol;
-  const decimals = isBCH ? 8 : token.decimals;
+  const name = isBCH ? "Bitcoin Cash" : token ? token.name : "--------";
+  const ticker = isBCH ? "BCH" : token ? token.symbol : "---";
+  const decimals = isBCH ? 8 : token ? token.decimals : null;
   const amount = isBCH
     ? balances.satoshisAvailable
     : balances.slpTokens[tokenId];
@@ -121,20 +121,10 @@ const WalletDetailScreen = ({
   const imageSource = getTokenImage(tokenId);
 
   let fiatAmount = null;
-  if (tokenId) {
-    fiatAmount = computeFiatAmount(
-      balances.slpTokens[tokenId],
-      spotPrices,
-      fiatCurrency,
-      tokenId
-    );
+  if (isBCH) {
+    fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   } else {
-    fiatAmount = computeFiatAmount(
-      balances.satoshisAvailable,
-      spotPrices,
-      fiatCurrency,
-      "bch"
-    );
+    fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
   }
   const fiatDisplay = isBCH
     ? formatFiatAmount(fiatAmount, fiatCurrency, tokenId || "bch")

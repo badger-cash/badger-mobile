@@ -23,13 +23,11 @@ const MarkdownScrollview = styled(ScrollView)`
 
 const ToSContent = `
 
-**THIS AGREEMENT IS SUBJECT TO BINDING ARBITRATION AND A WAIVER OF CLASS ACTION RIGHTS AS DETAILED IN SECTION 13. PLEASE READ THE AGREEMENT CAREFULLY.**
-
 _Our Terms of Use have been updated as of May 14, 2019_
 
 ## 1. Acceptance of Terms
 
-Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at[https://badger.bitcoin.com/](https://badger.bitcoin.com/), browser plugin (the "Site"), and mobile application (the "App") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services.
+Badger provides a platform for managing Bitcoin Cash (or "BCH") accounts, and allowing ordinary websites to interact with the Bitcoin Cash blockchain, while keeping the user in control over what transactions they approve, through our website located at[https://badger.bitcoin.com/](https://badger.bitcoin.com/), browser plugin (the "Site"), and mobile application (the "App") — which includes text, images, audio, code and other materials (collectively, the “Content”) and all of the features, and services provided. The Site, and any other features, tools, materials, or other services offered from time to time by Badger are referred to here as the “Service.” Please read these Terms of Use (the “Terms” or “Terms of Use”) carefully before using the Service. By using or otherwise accessing the Services, or clicking to accept or agree to these Terms where that option is made available, you (1) accept and agree to these Terms (2) consent to the collection, use, disclosure and other handling of information as described in our Privacy Policy and (3) any additional terms, rules and conditions of participation issued by Badger from time to time. If you do not agree to the Terms, then you may not access or use the Content or Services. Badger is non-custodial and keeps users 100% in control of their private keys at all times.
 
 ## 2. Modification of Terms of Use
 
@@ -119,17 +117,15 @@ Badger’s Copyright Agent can be reached at:
 
 Email: badger [at] bitcoin [dot] com
 
-## 13. Binding Arbitration and Class Action Waiver
+## 13. APPLICABLE LAW AND CLASS ACTION WAIVER
 
-PLEASE READ THIS SECTION CAREFULLY – IT MAY SIGNIFICANTLY AFFECT YOUR LEGAL RIGHTS, INCLUDING YOUR RIGHT TO FILE A LAWSUIT IN COURT
+### 13.1 APPLICABLE LAW
 
-### 13.1 Binding Arbitration
+Any dispute, controversy, or claim arising out of or relating to this agreement shall be governed and construed in accordance with the laws of Saint Kitts and Nevis and resolved in the court of Saint Kitts and Nevis. Saint Kitts and Nevis shall have exclusive jurisdiction over such matters.
 
-Except where prohibited by applicable law, any dispute or difference arising out of or in connection with this agreement shall be referred to and determined by binding arbitration under the electronic transaction arbitration rules of the Hong Kong international arbitration center. Hong Kong shall be the seat of arbitration and any such dispute shall be resolved at the Hong Kong international arbitration center by a single arbitrator.
+### 13.2 CLASS ACTION WAIVER
 
-### 13.2 Class Action Waiver
-
-The parties further agree that any arbitration shall be conducted in their individual capacities only and not as a class action or other representative action, and the parties expressly waive their right to file a class action or seek relief on a class basis. YOU AND BADGER AGREE THAT EACH MAY BRING CLAIMS AGAINST THE OTHER ONLY IN YOUR OR ITS INDIVIDUAL CAPACITY, AND NOT AS A PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED CLASS OR REPRESENTATIVE PROCEEDING. If any court or arbitrator determines that the class action waiver set forth in this paragraph is void or unenforceable for any reason or that an arbitration can proceed on a class basis, then the arbitration provision set forth above shall be deemed null and void in its entirety and the parties shall be deemed to have not agreed to arbitrate disputes.
+EXCEPT WHERE PROHIBITED BY APPLICABLE LAW, YOU AGREE THAT ANY DISPUTE RESOLUTION PROCEEDING WILL BE CONDUCTED ONLY ON AN INDIVIDUAL BASIS AND NOT IN A CLASS, CONSOLIDATED, OR REPRESENTATIVE ACTION.
 
 ## 14. General Information
 
@@ -156,6 +152,7 @@ Users with questions, complaints or claims with respect to the Service may conta
 ## 15 Related Links
 
 **[Privacy](https://www.bitcoin.com/privacy-policy)**
+
 
 `;
 
