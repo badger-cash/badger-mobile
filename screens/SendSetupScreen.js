@@ -239,7 +239,7 @@ const SendSetupScreen = ({
     tokenId: null
   };
 
-  let availableAmount = 0;
+  let availableAmount = new BigNumber(0);
   if (tokenId) {
     availableAmount = balances.slpTokens[tokenId];
   } else {
@@ -250,6 +250,10 @@ const SendSetupScreen = ({
     } else {
       availableAmount = availableRaw;
     }
+  }
+
+  if (availableAmount === undefined) {
+    availableAmount = new BigNumber(0);
   }
 
   const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
