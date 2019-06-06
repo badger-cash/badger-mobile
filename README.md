@@ -52,6 +52,13 @@ To run on a specific device
 > yarn run ios --simulator="iPhone SE"
 > yarn run ios --simulator="iPhone X"
 
+Deploy Steps
+> Load project in XCode
+> Update version number
+> Product > archive
+> Sign with deployment keys
+> Launch from web console to testflight & release
+
 ```
 
 Android
@@ -62,11 +69,16 @@ Android
 
 For a simple .apk
 > Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
-> generate badger-mobile-release.keystore and put into /android
+> generate badger-mobile-release.keystore and put into /android <- Should use the one already used for deployments
 > update android/grade.properties with the keystore filename and password
+> Suggestion to not commit secrets: `git update-index --assume-unchanged android/gradle.properties`
 > Increment `versionCode` in android/app/build.gradle
 > cd android
 > ./gradlew assembleRelease
+
+> Go to Play console
+> Upload each build version for release
+> Launch to Beta group, then production
 
 To run production build locally
 > Ensure emulator is running or device is plugged in
