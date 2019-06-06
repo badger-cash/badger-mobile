@@ -436,7 +436,7 @@ const SendSetupScreen = ({
                 <Spacer small />
               </>
             )}
-            <T center>Balance ({symbol})</T>
+            <T center>Balance ({symbol || "---"})</T>
             <H2 center>{availableFundsDisplay}</H2>
             {fiatDisplayTotal && (
               <T center type="muted">

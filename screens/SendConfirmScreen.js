@@ -221,7 +221,7 @@ const SendConfirmScreen = ({
     }
   };
   // Return to setup if any tx params are missing
-  if (!symbol || (!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
+  if ((!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
     navigation.navigate("SendSetup", { symbol, tokenId });
   }
 
