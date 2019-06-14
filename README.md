@@ -86,9 +86,9 @@ To run production build locally
 > react-native log-android
 ```
 
-### Icon / Splash Screen Generation
+### Asset / Icon / Splash Screen Generation
 
-- https://github.com/bamlab/generator-rn-toolbox
+-[https://github.com/bamlab/generator-rn-toolbox](https://github.com/bamlab/generator-rn-toolbox/tree/master/generators/assets)
 
 ### Nuke all and install command, for when things don't work
 
