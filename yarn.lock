@@ -1903,13 +1903,13 @@ bip-schnorr@^0.3.0:
     random-bytes "^1.0.0"
     safe-buffer "^5.0.1"
 
-bip21@Bitcoin-com/bip21, "bip21@github:Bitcoin-com/bip21":
+bip21@Bitcoin-com/bip21:
   version "2.0.1"
   resolved "https://codeload.github.com/Bitcoin-com/bip21/tar.gz/28f8d03a3a16ed11eb5b963248ed1be8c46c6d6f"
   dependencies:
     qs "^6.3.0"
 
-bip32-utils@Bitcoin-com/bip32-utils#0.13.1, "bip32-utils@github:Bitcoin-com/bip32-utils#0.13.1":
+bip32-utils@Bitcoin-com/bip32-utils#0.13.1:
   version "0.13.1"
   resolved "https://codeload.github.com/Bitcoin-com/bip32-utils/tar.gz/b8a33ebd0a0ac39de7cd987e5c3f77a8c5d84e58"
   dependencies:
@@ -2031,7 +2031,7 @@ bitbox-sdk@^8.4.0:
     socket.io-client "^2.1.1"
     wif "^2.0.6"
 
-bitcoincash-ops@Bitcoin-com/bitcoincash-ops#2.0.0, "bitcoincash-ops@github:Bitcoin-com/bitcoincash-ops#2.0.0":
+bitcoincash-ops@Bitcoin-com/bitcoincash-ops#2.0.0:
   version "2.0.0"
   resolved "https://codeload.github.com/Bitcoin-com/bitcoincash-ops/tar.gz/6ab82cc7326c67236f3b2d9d0457258ac2ef48e3"
 
@@ -2055,7 +2055,7 @@ bitcoincashjs-lib@Bitcoin-com/bitcoincashjs-lib#v4.0.0:
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"bitcoincashjs-lib@github:Bitcoin-com/bitcoincashjs-lib#v4.0.1":
+bitcoincashjs-lib@Bitcoin-com/bitcoincashjs-lib#v4.0.1:
   version "4.0.1"
   resolved "https://codeload.github.com/Bitcoin-com/bitcoincashjs-lib/tar.gz/28447b40a4ccd23913f7ade6589dc7214c99e60a"
   dependencies:
@@ -2616,7 +2616,7 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-coininfo@Bitcoin-com/coininfo, "coininfo@github:Bitcoin-com/coininfo":
+coininfo@Bitcoin-com/coininfo:
   version "4.0.0"
   resolved "https://codeload.github.com/Bitcoin-com/coininfo/tar.gz/eece2c6141d08c3e7783929f2a1e1e681aa1a82c"
   dependencies:
@@ -8610,18 +8610,6 @@ slpjs@0.18.0:
   version "0.18.0"
   resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.18.0.tgz#b7e8910073db41ecdd06302baa4d96d8bb91c573"
   integrity sha512-DGXRX7txx34mE9rkUOZV7xYW8jbGMD7yzsIUWiTDBR4/8oNKQkaFjPKXML/jdwz0SeyEPkhQzcY5hPi0CCk3cg==
-  dependencies:
-    "@types/lodash" "^4.14.120"
-    axios "^0.18.0"
-    bchaddrjs-slp "git://github.com/simpleledger/bchaddrjs.git#master"
-    bignumber.js "^8.1.1"
-    bitcore-lib-cash "^0.19.0"
-    lodash "^4.17.11"
-
-slpjs@^0.18.4:
-  version "0.18.4"
-  resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.18.4.tgz#8a8237f16d7c74a040e9b86fea959f010c6a7ff0"
-  integrity sha512-iI0qQoJN3IWpI0GkEw0UF4ErPt3Krt+7pHG1PJcSJOSklBbZrDjocNoRu+P1q1Mv+3zU2FwslFFYLqf1cFomzQ==
   dependencies:
     "@types/lodash" "^4.14.120"
     axios "^0.18.0"
