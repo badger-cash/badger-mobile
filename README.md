@@ -52,6 +52,8 @@ To run on a specific device
 > yarn run ios --simulator="iPhone SE"
 > yarn run ios --simulator="iPhone X"
 
+> for store screenshots, use XsMax (6.5") and iPhone 8 Plus (5.5")
+
 Deploy Steps
 > Load project in XCode
 > Update version number
