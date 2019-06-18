@@ -1,8 +1,8 @@
-# Badger Mobile
+# Badger Wallet
 
 > Your gateway to the world of Bitcoin Cash (BCH) apps.
 
-Badger Mobile is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wallet. The easiest to use mobile wallet for BCH and SLP tokens.
+Badger Wallet is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wallet. The easiest to use mobile wallet for BCH and SLP tokens.
 
 ## Technologies / Patterns
 
@@ -52,6 +52,8 @@ To run on a specific device
 > yarn run ios --simulator="iPhone SE"
 > yarn run ios --simulator="iPhone X"
 
+> for store screenshots, use XsMax (6.5") and iPhone 8 Plus (5.5")
+
 Deploy Steps
 > Load project in XCode
 > Update version number
@@ -85,6 +87,10 @@ To run production build locally
 > react-native run-android --variant=release
 > react-native log-android
 ```
+
+### Asset / Icon / Splash Screen Generation
+
+-[https://github.com/bamlab/generator-rn-toolbox](https://github.com/bamlab/generator-rn-toolbox/tree/master/generators/assets)
 
 ### Nuke all and install command, for when things don't work
 

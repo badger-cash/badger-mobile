@@ -27,6 +27,11 @@ const StyledButton = styled(TouchableOpacity)`
           background-color: transparent;
           border-color: ${props.theme.primary500};
         `
+      : props.nature === "inverse"
+      ? css`
+          background-color: ${props => props.theme.bg900};
+          border-color: ${props.theme.primary700};
+        `
       : css`
           border-color: ${props.theme.primary500};
           background-color: ${props.theme.primary500};
@@ -36,12 +41,17 @@ const StyledButton = styled(TouchableOpacity)`
 type Props = {
   text?: string,
   children?: React.Node,
-  nature?: "primary" | "caution" | "cautionGhost" | "ghost",
+  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse",
   onPress: Function
 };
 
 const Button = ({ text, children, nature, ...rest }: Props) => {
-  const textType = nature === "cautionGhost" ? "accent" : "inverse";
+  const textType =
+    nature === "cautionGhost"
+      ? "accent"
+      : nature === "inverse"
+      ? "primary"
+      : "inverse";
   return (
     <StyledButton nature={nature} {...rest}>
       {children ? (

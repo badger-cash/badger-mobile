@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 
-import BadgerIcon from "../assets/images/icon.png";
+import BadgerIcon from "../assets/images/icon-full.png";
 
 const StyledWrapper = styled(SafeAreaView)`
   display: flex;

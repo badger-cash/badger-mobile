@@ -14,11 +14,11 @@ type Theme = {
 };
 
 const spaceBadger: Theme = {
-  primary400: "#2bbf96",
-  primary500: "#29B38C",
+  primary500: "#0AC18E",
+  primary700: "#11a87e",
   accent500: "#F5871A",
   accent900: "#FEF5EC",
-  fg100: "#131720",
+  fg100: "#111724",
   fg200: "#454c53",
   fg300: "#7d7d7d",
   fg500: "#ababab",

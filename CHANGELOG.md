@@ -1,5 +1,13 @@
 # Badger Wallet changelog
 
+## 0.8.0
+
+- Re-branding full app and BCH references from the previous orange colour to the new exciting green colour.
+
+## 0.7.1
+
+- Fixing an edge case app crash
+
 ## 0.7.0
 
 ### Features / Improvements
