@@ -29,7 +29,7 @@ const SLP = new SLPSDK();
 
 const ScreenCover = styled(View)`
   flex: 1;
-  background-color: ${props => props.theme.success700};
+  background-color: ${props => props.theme.primary500};
   padding: 0 16px;
 `;
 
@@ -42,6 +42,7 @@ const IconImage = styled(Image)`
   height: 64;
   border-radius: 32;
   overflow: hidden;
+  border: 2px solid ${props => props.theme.bg900};
 `;
 
 type Props = {
@@ -116,43 +117,58 @@ const SendSuccessScreen = ({
       <SafeAreaView style={{ height: "100%" }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <Spacer small />
-          <H1 center>Success!</H1>
+          <H1 center type="inverse" weight="bold">
+            Success!
+          </H1>
           <Spacer small />
           <IconArea>
             <IconImage source={imageSource} />
           </IconArea>
           <Spacer small />
-          <H1 center>{coinName}</H1>
+          <H1 center type="inverse">
+            {coinName}
+          </H1>
           {tokenId && (
-            <T size="tiny" center>
+            <T size="tiny" center type="inverse">
               {tokenId}
             </T>
           )}
           <Spacer />
-          <H2 center>Sent</H2>
+          <H2 center type="inverse">
+            Sent
+          </H2>
           <Spacer small />
-          <H2 center weight="bold">
+          <H2 center weight="bold" type="inverse">
             {valueAdjusted.toFormat()} {symbol}
           </H2>
           {fiatDisplay && (
-            <T center type="muted">
+            <T center type="inverse">
               {fiatDisplay}
             </T>
           )}
           <Spacer large />
-          <H2 center>To Address</H2>
+          <H2 center type="inverse">
+            To Address
+          </H2>
           <Spacer small />
-          <T size="small" center>
+          <T size="small" center type="inverse">
             {protocol}:
           </T>
-          <T center>
-            <T style={{ fontWeight: "bold" }}>{addressStart}</T>
-            <T size="small">{addressMiddle}</T>
-            <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
+          <T center type="inverse">
+            <T style={{ fontWeight: "bold" }} type="inverse">
+              {addressStart}
+            </T>
+            <T size="small" type="inverse">
+              {addressMiddle}
+            </T>
+            <T style={{ fontWeight: "bold" }} type="inverse">
+              {addressEnd}
+            </T>
           </T>
           <Spacer fill />
           <Spacer small />
           <Button
+            nature="inverse"
             style={{ marginLeft: 7, marginRight: 7 }}
             onPress={() => navigation.navigate("Home")}
             text="Finish"

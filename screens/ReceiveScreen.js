@@ -115,7 +115,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           )}
         </TouchableOpacity>
         <Spacer tiny />
-        <T center size="small" type="accent">
+        <T center size="small" type="primary">
           {copyNotify === "BCH" ? "Copied BCH Address" : " "}
         </T>
         <Spacer />
@@ -157,7 +157,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           )}
         </TouchableOpacity>
         <Spacer tiny />
-        <T center size="small" type="accent">
+        <T center size="small" type="primary">
           {copyNotify === "SLP" ? "Copied SLP Address" : " "}
         </T>
         <Spacer />
