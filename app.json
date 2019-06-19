@@ -1,4 +1,7 @@
 {
   "name": "badgerMobile",
-  "displayName": "Badger Wallet"
+  "displayName": "Badger Wallet",
+  "expo": {
+    "scheme": "bitcoincash"
+  }
 }
