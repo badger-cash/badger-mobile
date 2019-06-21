@@ -29,6 +29,11 @@ type Props = {
 
 const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   useEffect(() => {
+    let paymentScheme =
+      navigation.state.params !== undefined
+        ? navigation.state.params.paymentScheme
+        : "";
+
     if (mnemonic) {
       // re-generate accounts keypair then go to Main.
       getAccount(mnemonic);
