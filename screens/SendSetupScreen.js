@@ -332,6 +332,16 @@ const SendSetupScreen = ({
   };
 
   useEffect(() => {
+    const deepLinkAddress =
+      navigation.state.params !== undefined
+        ? navigation.state.params.paymentScheme
+        : "";
+    const hasDeepLinkAddress = deepLinkAddress !== "";
+
+    if (hasDeepLinkAddress !== undefined) {
+      setToAddress(deepLinkAddress.address);
+    }
+
     if (amountType === "crypto") {
       setSendAmountFiat(
         fiatRate
