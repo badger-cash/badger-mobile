@@ -13,7 +13,7 @@ export default createAppContainer(
     {
       AuthStack: { screen: AuthStack, path: "" },
       // SendStack: { screen: SendStack },
-      AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":paymentScheme" },
+      AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":address" },
       Main: { screen: MainAppStack }
     },
     {

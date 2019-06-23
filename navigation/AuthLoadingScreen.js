@@ -9,7 +9,7 @@ import { T, Spacer } from "../atoms";
 import { getMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
 
-import { parse } from "../utils/schemeParser-utils";
+import { parseAddress } from "../utils/schemeParser-utils";
 
 const Wrapper = styled(View)`
   justify-content: center;
@@ -31,18 +31,16 @@ type Props = {
 
 const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   useEffect(() => {
-    const paymentScheme =
-      navigation.state.params !== undefined
-        ? navigation.state.params.paymentScheme
-        : "";
-    const hasPaymentScheme = paymentScheme !== "";
+    const params =
+      navigation.state.params !== undefined ? navigation.state.params : "";
+    const hasParams = params !== "";
 
     if (mnemonic) {
       // re-generate accounts keypair then go to Main.
       getAccount(mnemonic);
-      if (hasPaymentScheme) {
-        let parsed = parse(paymentScheme);
-        navigation.navigate("SendStack", { paymentScheme: parsed });
+      if (hasParams) {
+        params.address = parseAddress(params.address);
+        navigation.navigate("SendStack", params);
       }
       navigation.navigate("Main");
     } else {

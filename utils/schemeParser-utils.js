@@ -16,6 +16,26 @@ const parse = (scheme: string) => {
   }
 };
 
+const parseAddress = (address: string) => {
+  let type = getType(address);
+
+  if (type === "BCH") {
+    try {
+      const isValid = checkIsValid("BCH", address);
+    } catch (error) {
+      throw new Error("invalid address");
+    }
+    return bitbox.Address.toCashAddress(address);
+  } else if (type === "SLP") {
+    try {
+      const isValid = checkIsValid("SLP", address);
+    } catch (error) {
+      throw new Error("invalid address");
+    }
+    return SLP.Address.toSLPAddress(address);
+  }
+};
+
 const parseBCH = (scheme: string) => {
   let address = scheme.split("?")[0];
   let amount, label, message;
@@ -46,7 +66,7 @@ const parseSLP = (scheme: string) => {
   let amount, label, tokenId, tokenAmount;
 
   try {
-    const isValid = checkIsValid("BCH", address);
+    const isValid = checkIsValid("SLP", address);
   } catch (error) {
     throw new Error("invalid address");
   }
@@ -99,14 +119,14 @@ const parseAmount = (value: string) => {
   return value;
 };
 
-const getType = (scheme: string) => {
-  if (bitbox.Address.isCashAddress(scheme)) {
-    return "BCH";
-  }
-  if (SLP.Address.isSLPAddress(scheme)) {
+const getType = (address: string) => {
+  if (SLP.Address.isSLPAddress(address)) {
     return "SLP";
   }
-  if (scheme.startsWith("pay.bitcoin.com")) {
+  if (bitbox.Address.isCashAddress(address)) {
+    return "BCH";
+  }
+  if (address.startsWith("pay.bitcoin.com")) {
     return "BIP70";
   }
 
@@ -127,6 +147,7 @@ const removeEmpty = (obj: object) => {
 
 export {
   parse,
+  parseAddress,
   parseBCH,
   parseSLP,
   getValue,
