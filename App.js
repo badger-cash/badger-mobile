@@ -23,7 +23,7 @@ const App = () => {
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={spaceBadger}>
           <AppWrapper>
-            <AppNavigator uriPrefix="bitcoincash" />
+            <AppNavigator uriPrefix="bitcoincash:" />
           </AppWrapper>
         </ThemeProvider>
       </PersistGate>

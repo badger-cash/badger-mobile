@@ -14,7 +14,7 @@ export default createAppContainer(
       AuthStack: { screen: AuthStack, path: "" },
       // SendStack: { screen: SendStack },
       AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":paymentScheme" },
-      Main: { screen: MainAppStack, path: "" }
+      Main: { screen: MainAppStack }
     },
     {
       initialRouteName: "AuthLoadingCheck"
