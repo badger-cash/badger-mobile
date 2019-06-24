@@ -28,6 +28,7 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
+import { getTokenId, getType, parseAmount } from "../utils/schemeParser-utils";
 
 import {
   formatAmount,
@@ -321,6 +322,11 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
+    if (!sendAmountCrypto) {
+      setErrors(["Amount required"]);
+      hasErrors = true;
+    }
+
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
         symbol,
@@ -331,15 +337,52 @@ const SendSetupScreen = ({
     }
   };
 
-  useEffect(() => {
-    const deepLinkAddress =
-      navigation.state.params !== undefined
-        ? navigation.state.params.paymentScheme
-        : "";
-    const hasDeepLinkAddress = deepLinkAddress !== "";
+  const handleDeepLink = deepLinkParams => {
+    const { address } = deepLinkParams;
+    const type = getType(address);
 
-    if (hasDeepLinkAddress !== undefined) {
-      setToAddress(deepLinkAddress.address);
+    if (type === "BCH") {
+      prefillBCH(deepLinkParams);
+    }
+  };
+
+  const prefillBCH = deepLinkParams => {
+    const { address, amount, label, message } = deepLinkParams;
+
+    const hasAmount = address !== undefined && amount !== undefined;
+    navigation.state.params.symbol = "BCH";
+    if (hasAmount) {
+      try {
+        setSendAmountCrypto(amount);
+        const numericalAmount = parseAmount(amount);
+        setAmountType("crypto");
+        setSendAmount(numericalAmount);
+        setSendAmountFiat(
+          fiatRate
+            ? (fiatRate * (numericalAmount || 0)).toFixed(
+                currencyDecimalMap[fiatCurrency]
+              )
+            : 0
+        );
+
+        goNextStep();
+      } catch (error) {
+        setErrors(["invalid amount"]);
+      }
+    }
+
+    setToAddress(address);
+  };
+
+  const prefillSLP = () => {};
+
+  useEffect(() => {
+    const deepLinkParams =
+      navigation.state.params !== undefined ? navigation.state.params : "";
+    const hasDeepLinkParams = deepLinkParams !== "";
+
+    if (hasDeepLinkParams !== undefined && fiatRate !== undefined) {
+      handleDeepLink(deepLinkParams);
     }
 
     if (amountType === "crypto") {
@@ -362,7 +405,7 @@ const SendSetupScreen = ({
           : 0
       );
     }
-  }, [sendAmountNumber, amountType, fiatRate]);
+  }, [sendAmountCrypto, sendAmountNumber, amountType, fiatRate]);
 
   const sendAmountFiatFormatted = formatFiatAmount(
     new BigNumber(sendAmountFiat),
