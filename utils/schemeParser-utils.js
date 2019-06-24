@@ -6,6 +6,8 @@ const SLP = new SLPSDK();
 const BITBOX = require("bitbox-sdk").BITBOX;
 const bitbox = new BITBOX();
 
+const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
+
 const parse = (scheme: string) => {
   let type = getType(scheme);
 
@@ -100,6 +102,9 @@ const getValue = (scheme: string, key: string) => {
 const getTokenId = (scheme: string) => {
   let value = scheme.split(":");
   value = value[1] ? value[1].split(":")[0] : value;
+  if (!tokenIdRegex.test(value)) {
+    throw new Error("Token ID is not a valid 32-bye hexideimal string");
+  }
   return value;
 };
 
