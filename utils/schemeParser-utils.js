@@ -11,9 +11,9 @@ const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
 const parse = (scheme: string) => {
   let type = getType(scheme);
 
-  if (type === "BCH") {
+  if (type === "cashaddr") {
     return parseBCH(scheme);
-  } else if (type === "SLP") {
+  } else if (type === "slpaddr") {
     return parseSLP(scheme);
   }
 };
@@ -21,21 +21,22 @@ const parse = (scheme: string) => {
 const parseAddress = (address: string) => {
   let type = getType(address);
 
-  if (type === "BCH") {
+  if (type === "cashaddr") {
     try {
-      const isValid = checkIsValid("BCH", address);
+      checkIsValid("cashaddr", address);
     } catch (error) {
       throw new Error("invalid address");
     }
     return bitbox.Address.toCashAddress(address);
-  } else if (type === "SLP") {
+  } else if (type === "slpaddr") {
     try {
-      const isValid = checkIsValid("SLP", address);
+      checkIsValid("slpaddr", address);
     } catch (error) {
       throw new Error("invalid address");
     }
     return SLP.Address.toSLPAddress(address);
   }
+  return address;
 };
 
 const parseBCH = (scheme: string) => {
@@ -43,7 +44,7 @@ const parseBCH = (scheme: string) => {
   let amount, label, message;
 
   try {
-    const isValid = checkIsValid("BCH", address);
+    checkIsValid("cashaddr", address);
   } catch (error) {
     throw new Error("invalid address");
   }
@@ -68,7 +69,7 @@ const parseSLP = (scheme: string) => {
   let amount, label, tokenId, tokenAmount;
 
   try {
-    const isValid = checkIsValid("SLP", address);
+    checkIsValid("slpaddr", address);
   } catch (error) {
     throw new Error("invalid address");
   }
@@ -125,24 +126,16 @@ const parseAmount = (value: string) => {
 };
 
 const getType = (address: string) => {
-  if (SLP.Address.isSLPAddress(address)) {
-    return "SLP";
-  }
-  if (bitbox.Address.isCashAddress(address)) {
-    return "BCH";
-  }
-  if (address.startsWith("pay.bitcoin.com")) {
-    return "BIP70";
-  }
-
-  return "invalid";
+  return SLP.Address.detectAddressFormat(address);
 };
 
 const checkIsValid = (type: string, address: string) => {
-  if (type === "BCH") {
+  if (type === "cashaddr") {
     return bitbox.Address.isCashAddress(address);
-  } else if (type === "SLP") {
+  } else if (type === "slpaddr") {
     return SLP.Address.isSLPAddress(address);
+  } else {
+    console.log("error in checkisvalid");
   }
 };
 

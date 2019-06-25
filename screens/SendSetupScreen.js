@@ -339,11 +339,23 @@ const SendSetupScreen = ({
 
   const handleDeepLink = deepLinkParams => {
     const { address } = deepLinkParams;
-    const type = getType(address);
 
-    if (type === "BCH") {
-      prefillBCH(deepLinkParams);
+    const type = getType(address);
+    if (typeof type === "object") {
+      setErrors(["Invalid Address"]);
     }
+    if (type === "cashaddr") {
+      return prefillBCH(deepLinkParams);
+    }
+    if (type === "slpaddr") {
+      prefillSLP(deepLinkParams);
+    }
+  };
+
+  const prefillSLP = deepLinkParams => {
+    const { address, amount, tokenAmount, label, tokenId } = deepLinkParams;
+
+    setToAddress(address);
   };
 
   const prefillBCH = deepLinkParams => {
@@ -373,8 +385,6 @@ const SendSetupScreen = ({
 
     setToAddress(address);
   };
-
-  const prefillSLP = () => {};
 
   useEffect(() => {
     const deepLinkParams =
