@@ -19,7 +19,7 @@ import {
 } from "../data/accounts/selectors";
 import { addressToSlp } from "../utils/account-utils";
 
-import { T, Spacer, H2 } from "../atoms";
+import { T, Spacer, H2, Button } from "../atoms";
 
 const QRHolder = styled(View)`
   justify-content: center;
@@ -43,10 +43,11 @@ const QROverlay = styled(View)`
 
 type Props = {
   address: string,
-  addressSlp: string
+  addressSlp: string,
+  navigation: { navigate: Function }
 };
 
-const ReceiveScreen = ({ address, addressSlp }: Props) => {
+const ReceiveScreen = ({ navigation, address, addressSlp }: Props) => {
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
 
@@ -75,6 +76,11 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           Scan a public key below to receive funds. Tap to reveal or copy the
           address to clipboard.
         </T>
+        <Spacer />
+        <Button
+          text="Request"
+          onPress={() => navigation.navigate("RequestSetup")}
+        />
         <Spacer />
         <H2 center>Bitcoin Cash (BCH)</H2>
         <Spacer tiny />

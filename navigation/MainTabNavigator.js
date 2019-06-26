@@ -15,6 +15,7 @@ import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
 import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
+import RequestSetupScreen from "../screens/RequestSetupScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -61,6 +62,10 @@ const ReceiveStack = createStackNavigator(
     Receive: {
       screen: ReceiveScreen,
       navigationOptions: { title: "Receive" }
+    },
+    RequestSetup: {
+      screen: RequestSetupScreen,
+      navigationOptions: { title: "Request" }
     }
   },
   { headerLayoutPreset: "center" }
