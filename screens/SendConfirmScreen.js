@@ -293,7 +293,7 @@ const SendConfirmScreen = ({
         {sendError && (
           <ErrorHolder>
             <T center type="danger">
-              {sendError.message}
+              {sendError.message || sendError.error}
             </T>
           </ErrorHolder>
         )}
