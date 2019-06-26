@@ -8,16 +8,6 @@ const bitbox = new BITBOX();
 
 const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
 
-const parse = (scheme: string) => {
-  let type = getType(scheme);
-
-  if (type === "cashaddr") {
-    return parseBCH(scheme);
-  } else if (type === "slpaddr") {
-    return parseSLP(scheme);
-  }
-};
-
 const parseAddress = (address: string) => {
   let type = getType(address);
 
@@ -39,52 +29,33 @@ const parseAddress = (address: string) => {
   return address;
 };
 
-const parseBCH = (scheme: string) => {
-  let address = scheme.split("?")[0];
-  let amount, label, message;
+const parseSLP = (params: object, tokensById: object) => {
+  let amount, symbol, tokenId, tokenAmount;
 
-  try {
-    checkIsValid("cashaddr", address);
-  } catch (error) {
-    throw new Error("invalid address");
+  const { label, amount1 } = params;
+
+  if (amount1 !== undefined) {
+    // slp amount only
+    tokenAmount = amount1.split("-")[0];
+    tokenId = amount1.split("-")[1];
+  } else if (params.amount !== undefined) {
+    // slp and bch combined
+    amount = params.amount[0];
+    tokenAmount = params.amount[1].split(":")[0];
+    tokenId = params.amount[1].split(":")[1];
+    const tokenInBalance = tokensById[tokenId];
+    symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "N/A";
   }
-  address = bitbox.Address.toCashAddress(address);
-  amount = getValue(scheme, "amount");
 
-  amount = parseAmount(amount);
+  let obj = {
+    address: params.address,
+    amount,
+    tokenAmount,
+    label,
+    symbol,
+    tokenId
+  };
 
-  label = getValue(scheme, "label");
-
-  message = getValue(scheme, "message");
-  message = message !== undefined ? message.replace(/%20/g, " ") : undefined;
-
-  let obj = { address, amount, label, message };
-  obj = removeEmpty(obj);
-
-  return obj;
-};
-
-const parseSLP = (scheme: string) => {
-  let address = scheme.split("?")[0];
-  let amount, label, tokenId, tokenAmount;
-
-  try {
-    checkIsValid("slpaddr", address);
-  } catch (error) {
-    throw new Error("invalid address");
-  }
-  address = SLP.Address.toSLPAddress(address);
-
-  amount = getValue(scheme, "amount");
-  amount = parseAmount(amount);
-
-  label = getValue(scheme, "label");
-  tokenAmount = getTokenValue(scheme);
-  tokenAmount = parseAmount(tokenAmount);
-
-  tokenId = getTokenId(scheme);
-
-  let obj = { address, amount, tokenAmount, label, tokenId };
   obj = removeEmpty(obj);
 
   return obj;
@@ -144,9 +115,7 @@ const removeEmpty = (obj: object) => {
 };
 
 export {
-  parse,
   parseAddress,
-  parseBCH,
   parseSLP,
   getValue,
   getTokenId,

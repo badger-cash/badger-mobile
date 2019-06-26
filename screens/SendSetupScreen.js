@@ -241,7 +241,7 @@ const SendSetupScreen = ({
   };
 
   let availableAmount = new BigNumber(0);
-  if (tokenId) {
+  if (tokenId && symbol !== undefined) {
     availableAmount = balances.slpTokens[tokenId];
   } else {
     const availableRaw = balances.satoshisAvailable.minus(546);
@@ -257,13 +257,14 @@ const SendSetupScreen = ({
     availableAmount = new BigNumber(0);
   }
 
-  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+  const coinDecimals =
+    tokenId && symbol !== undefined ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
 
   let fiatAmountTotal = null;
-  if (tokenId) {
+  if (tokenId && symbol !== undefined) {
     fiatAmountTotal = computeFiatAmount(
       availableAmount,
       spotPrices,
@@ -288,7 +289,9 @@ const SendSetupScreen = ({
 
   const sendAmountNumber = parseFloat(sendAmount);
 
-  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
+  const tokenName =
+    tokensById[tokenId] !== undefined ? tokensById[tokenId].name : "SLP token";
+  const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
 
   const imageSource = getTokenImage(tokenId);
 
@@ -338,8 +341,7 @@ const SendSetupScreen = ({
   };
 
   const handleDeepLink = deepLinkParams => {
-    const { address } = deepLinkParams;
-
+    const { address, tokenId, symbol } = deepLinkParams;
     const type = getType(address);
     if (typeof type === "object") {
       setErrors(["Invalid Address"]);
@@ -348,13 +350,58 @@ const SendSetupScreen = ({
       return prefillBCH(deepLinkParams);
     }
     if (type === "slpaddr") {
-      prefillSLP(deepLinkParams);
+      if (tokenId !== undefined && symbol === undefined) {
+        setErrors(["Missing Token Information"]);
+
+        setTimeout(() => {
+          navigation.navigate("Home");
+        }, 3000);
+      } else {
+        prefillSLP(deepLinkParams);
+      }
     }
   };
 
   const prefillSLP = deepLinkParams => {
-    const { address, amount, tokenAmount, label, tokenId } = deepLinkParams;
+    const {
+      address,
+      amount1,
+      amount,
+      tokenAmount,
+      label,
+      symbol,
+      tokenId
+    } = deepLinkParams;
 
+    const hasTokenAmount = address !== undefined && tokenAmount !== undefined;
+    const noTokenBalance = tokenId !== undefined && symbol === undefined;
+    if (noTokenBalance) {
+      setErrors(["Insufficient Token Balance"]);
+      return setTimeout(() => {
+        navigation.navigate("Home");
+      }, 3000);
+    }
+    if (tokenId === undefined) {
+      setErrors(["Missing Token Type"]);
+      return setTimeout(() => {
+        navigation.navigate("Home");
+      }, 3000);
+    }
+
+    if (hasTokenAmount) {
+      try {
+        setSendAmountCrypto(tokenAmount);
+        // const numericalAmount = parseAmount(tokenAmount);
+        setAmountType("crypto");
+        setSendAmount(tokenAmount);
+        goNextStep();
+      } catch (error) {
+        setErrors(["Invalid Amount"]);
+        return setTimeout(() => {
+          navigation.navigate("Home");
+        }, 3000);
+      }
+    }
     setToAddress(address);
   };
 
@@ -368,7 +415,7 @@ const SendSetupScreen = ({
         setSendAmountCrypto(amount);
         const numericalAmount = parseAmount(amount);
         setAmountType("crypto");
-        setSendAmount(numericalAmount);
+        setSendAmount(amount);
         setSendAmountFiat(
           fiatRate
             ? (fiatRate * (numericalAmount || 0)).toFixed(
