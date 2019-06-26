@@ -257,6 +257,12 @@ const SendSetupScreen = ({
     availableAmount = new BigNumber(0);
   }
 
+  const redirectHome = navigation => {
+    return setTimeout(() => {
+      navigation.navigate("Home");
+    }, 3000);
+  };
+
   const coinDecimals =
     tokenId && symbol !== undefined ? tokensById[tokenId].decimals : 8;
 
@@ -353,9 +359,7 @@ const SendSetupScreen = ({
       if (tokenId !== undefined && symbol === undefined) {
         setErrors(["Missing Token Information"]);
 
-        setTimeout(() => {
-          navigation.navigate("Home");
-        }, 3000);
+        redirectHome();
       } else {
         prefillSLP(deepLinkParams);
       }
@@ -377,15 +381,11 @@ const SendSetupScreen = ({
     const noTokenBalance = tokenId !== undefined && symbol === undefined;
     if (noTokenBalance) {
       setErrors(["Insufficient Token Balance"]);
-      return setTimeout(() => {
-        navigation.navigate("Home");
-      }, 3000);
+      redirectHome();
     }
     if (tokenId === undefined) {
       setErrors(["Missing Token Type"]);
-      return setTimeout(() => {
-        navigation.navigate("Home");
-      }, 3000);
+      redirectHome();
     }
 
     if (hasTokenAmount) {
@@ -397,9 +397,7 @@ const SendSetupScreen = ({
         goNextStep();
       } catch (error) {
         setErrors(["Invalid Amount"]);
-        return setTimeout(() => {
-          navigation.navigate("Home");
-        }, 3000);
+        redirectHome();
       }
     }
     setToAddress(address);

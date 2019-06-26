@@ -37,11 +37,9 @@ const handleDeepLink = (navigation, params, tokensById) => {
 
   if (type === "cashaddr") {
     params.address = parseAddress(params.address);
-    navigation.navigate("SendStack", params);
   }
   if (type === "slpaddr") {
     params = parseSLP(params, tokensById);
-    navigation.navigate("SendStack", params);
   }
 
   navigation.navigate("SendStack", params);
