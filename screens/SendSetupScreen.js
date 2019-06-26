@@ -358,8 +358,7 @@ const SendSetupScreen = ({
     if (type === "slpaddr") {
       if (tokenId !== undefined && symbol === undefined) {
         setErrors(["Missing Token Information"]);
-
-        redirectHome();
+        redirectHome(navigation);
       } else {
         prefillSLP(deepLinkParams);
       }
@@ -381,11 +380,11 @@ const SendSetupScreen = ({
     const noTokenBalance = tokenId !== undefined && symbol === undefined;
     if (noTokenBalance) {
       setErrors(["Insufficient Token Balance"]);
-      redirectHome();
+      redirectHome(navigation);
     }
     if (tokenId === undefined) {
       setErrors(["Missing Token Type"]);
-      redirectHome();
+      redirectHome(navigation);
     }
 
     if (hasTokenAmount) {
@@ -397,7 +396,7 @@ const SendSetupScreen = ({
         goNextStep();
       } catch (error) {
         setErrors(["Invalid Amount"]);
-        redirectHome();
+        redirectHome(navigation);
       }
     }
     setToAddress(address);
