@@ -77,11 +77,6 @@ const ReceiveScreen = ({ navigation, address, addressSlp }: Props) => {
           address to clipboard.
         </T>
         <Spacer />
-        <Button
-          text="Request"
-          onPress={() => navigation.navigate("RequestSetup")}
-        />
-        <Spacer />
         <H2 center>Bitcoin Cash (BCH)</H2>
         <Spacer tiny />
 
