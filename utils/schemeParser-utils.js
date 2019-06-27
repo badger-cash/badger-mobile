@@ -43,9 +43,9 @@ const parseSLP = (params: object, tokensById: object) => {
     amount = params.amount[0];
     tokenAmount = params.amount[1].split(":")[0];
     tokenId = params.amount[1].split(":")[1];
-    const tokenInBalance = tokensById[tokenId];
-    symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "N/A";
   }
+  const tokenInBalance = tokensById[tokenId];
+  symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "N/A";
 
   let obj = {
     address: params.address,
