@@ -23,7 +23,7 @@ const ContactUsScreen = (props: Props) => {
     <SafeAreaView style={{ height: "100%" }}>
       <ScreenWrapper contentContainerStyle={{ flexGrow: 1 }}>
         <Spacer />
-        <T center>We hope you are enjoying Badger Mobile</T>
+        <T center>We hope you are enjoying Badger Wallet</T>
         <Spacer small />
         <T center>
           If you wish to give feedback, ask a question, or contact us for
@@ -37,7 +37,7 @@ const ContactUsScreen = (props: Props) => {
         <Spacer tiny />
         <TouchableOpacity
           onPress={() =>
-            Linking.openURL("mailto:badger@bitcoin.com?subject=Badger Mobile")
+            Linking.openURL("mailto:badger@bitcoin.com?subject=Badger Wallet")
           }
         >
           <T center size="large">
