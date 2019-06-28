@@ -4,18 +4,20 @@ import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
+  Clipboard,
   SafeAreaView,
   ScrollView,
   View,
   Image,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import BigNumber from "bignumber.js";
 import QRCode from "react-native-qrcode-svg";
 
-import { Button, T, Spacer, H1 } from "../atoms";
+import { Button, T, H1, Spacer, H2 } from "../atoms";
 
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
@@ -99,6 +101,18 @@ const QRHolder = styled(View)`
   position: relative;
 `;
 
+const QROverlay = styled(View)`
+  position: absolute;
+  height: 150px;
+  width: 150px;
+  background-color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  opacity: 0.98;
+  z-index: 2;
+`;
+
 type Props = {
   navigation: {
     navigate: Function,
@@ -129,6 +143,7 @@ const RequestSetupScreen = ({
     return;
   }
 
+  const [copiedMessage, setCopiedMessage] = useState(null);
   const [requestAmount, setRequestAmount] = useState("");
   const [requestAmountFiat, setRequestAmountFiat] = useState("0");
   const [requestAmountCrypto, setRequestAmountCrypto] = useState("0");
@@ -148,8 +163,17 @@ const RequestSetupScreen = ({
   }, [addressSlp]);
 
   useEffect(() => {
-    console.log("in effect");
-  }, [baseAddress, requestAmountCrypto]);
+    let nextRequestUri;
+    if (tokenId) {
+      nextRequestUri = `${baseAddress}?amount1=${requestAmountCrypto ||
+        0}-${tokenId}`;
+    } else {
+      nextRequestUri = requestAmountCrypto
+        ? `${baseAddress}?amount=${requestAmountCrypto}`
+        : baseAddress;
+    }
+    setRequestUri(nextRequestUri);
+  });
 
   const requestAmountNumber = parseFloat(requestAmount);
   const fiatRate = !tokenId
@@ -197,8 +221,10 @@ const RequestSetupScreen = ({
     ? new BigNumber(requestAmountCrypto).toFormat()
     : "0";
 
+  const isShowing = !tokenId || requestAmountCrypto;
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ height: "100%" }}>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -272,17 +298,55 @@ const RequestSetupScreen = ({
           )}
           <View />
         </AmountButtonArea>
+        <Spacer small />
+        <T size="xsmall" type="muted2">
+          {requestUri}
+        </T>
+        <Spacer />
+        <T center size="small">
+          Requesting
+        </T>
+        <Spacer tiny />
+        <H2 center monospace>
+          {requestAmountCryptoFormatted} {symbol}
+        </H2>
+        {!tokenId && (
+          <>
+            <Spacer minimal />
+            <T type="muted" monospace center>
+              {requestAmountFiatFormatted}
+            </T>
+          </>
+        )}
         <Spacer />
 
-        <QRHolder>
-          <QRCode
-            value={requestUri}
-            size={125}
-            bgColor="black"
-            fgColor="white"
-          />
-        </QRHolder>
-        <T>{requestUri}</T>
+        <TouchableOpacity
+          onPress={() => {
+            if (isShowing) {
+              Clipboard.setString(address);
+              setCopiedMessage("Copied to clipboard");
+            }
+          }}
+        >
+          <QRHolder>
+            <QRCode
+              value={requestUri}
+              size={125}
+              bgColor="black"
+              fgColor="white"
+            />
+            {!isShowing && (
+              <QROverlay>
+                <T type="accent">Amount Required</T>
+              </QROverlay>
+            )}
+          </QRHolder>
+          <Spacer tiny />
+          <T center type="primary">
+            {copiedMessage}
+          </T>
+        </TouchableOpacity>
+        <Spacer />
       </ScrollView>
     </SafeAreaView>
   );
