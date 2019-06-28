@@ -43,11 +43,10 @@ const QROverlay = styled(View)`
 
 type Props = {
   address: string,
-  addressSlp: string,
-  navigation: { navigate: Function }
+  addressSlp: string
 };
 
-const ReceiveScreen = ({ navigation, address, addressSlp }: Props) => {
+const ReceiveScreen = ({ address, addressSlp }: Props) => {
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
 
