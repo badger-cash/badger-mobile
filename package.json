@@ -35,7 +35,7 @@
     "react-native-fs": "2.13.2",
     "react-native-gesture-handler": "^1.1.0",
     "react-native-google-drive-api-wrapper": "^1.2.0",
-    "react-native-google-sign-in": "^1.0.16",
+    "react-native-google-signin": "^2.0.0",
     "react-native-markdown-package": "^1.4.3",
     "react-native-qrcode-scanner": "^1.1.2",
     "react-native-qrcode-svg": "^5.1.2",

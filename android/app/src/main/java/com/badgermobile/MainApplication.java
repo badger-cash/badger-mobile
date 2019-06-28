@@ -3,6 +3,7 @@ package com.badgermobile;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import com.rnfs.RNFSPackage;
 import com.horcrux.svg.SvgPackage;
 import org.reactnative.camera.RNCameraPackage;
@@ -30,6 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNGoogleSigninPackage(),
             new RNFSPackage(),
             new SvgPackage(),
             new RNCameraPackage(),

@@ -42,6 +42,8 @@ target 'badgerMobile' do
 
   pod 'RNFS', :path => '../node_modules/react-native-fs'
 
+  pod 'RNGoogleSignin', :path => '../node_modules/react-native-google-signin'
+
   target 'badgerMobileTests' do
     inherit! :search_paths
   end

@@ -1772,6 +1772,11 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
+base-64@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
+  integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
+
 base-x@^3.0.2:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/base-x/-/base-x-3.0.5.tgz#d3ada59afed05b921ab581ec3112e6444ba0795a"
@@ -7634,6 +7639,22 @@ react-native-crypto@^2.1.2:
     pbkdf2 "3.0.8"
     public-encrypt "^4.0.0"
 
+react-native-fs@2.13.2:
+  version "2.13.2"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.13.2.tgz#78257c5e461d19723b51cc369eb2e161f942676d"
+  integrity sha512-eN2HReoE/T+6r180kiXppshqJ5DsO6AngUmVbz09Qzl5EXU2zN0WfOaizKR2oD5u0XlcDrNJK7/spVH1XyQzEw==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^2.1.1"
+
+react-native-fs@latest:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.13.3.tgz#a422f0ecd8a093a7e99d8d51ff51440e090a18a8"
+  integrity sha512-B62LSSAEYQGItg7KVTzTVVCxezOYFBYp4DMVFbdoZUd1mZVFdqR2sy1HY1mye1VI/Lf3IbxSyZEQ0GmrrdwLjg==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^2.1.1"
+
 react-native-gesture-handler@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.1.0.tgz#2a7d545ad2e0ca23adce22b2af441ad360ecccee"
@@ -7642,6 +7663,19 @@ react-native-gesture-handler@^1.1.0:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.2"
     prop-types "^15.5.10"
+
+react-native-google-drive-api-wrapper@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-google-drive-api-wrapper/-/react-native-google-drive-api-wrapper-1.2.0.tgz#c4c4ed5a67a99d7531a8ff3414db50fdf7f649e9"
+  integrity sha512-mCZLzWxgxWrCb358TlvLvF/BiwWeqciUvGRATg829WGA/RIM3tSuq5L/oKv7tfzYrp8CGGH/zdNxomyXR9v4jg==
+  dependencies:
+    react-native-fs latest
+    simple-common-utils latest
+
+react-native-google-signin@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-google-signin/-/react-native-google-signin-2.0.0.tgz#0d9cb128a65c0b48216716b979c1ada35900ceb0"
+  integrity sha512-9loM4lcCIdbco5BnmNio7yGaXQKCpCaY1VRmYiTSvC5NjuSf6Ui6jZRee46p/YdaU4yRnS3u5Vct6Psrvr0HNg==
 
 react-native-lightbox@^0.7.0:
   version "0.7.0"
@@ -8520,6 +8554,11 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
+
+simple-common-utils@latest:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/simple-common-utils/-/simple-common-utils-2.0.0.tgz#dfa4e175161763fdb7d7283b9b39d8aab6328483"
+  integrity sha512-m7aCUhYMH/z10GqBI8JqfRksVE7xLan8XYmLsjmYwxPh4G1K9Uxv4RoMDXx19fyngtAL8DmvW6DpEuAvAAiEIw==
 
 simple-concat@^1.0.0:
   version "1.0.0"
@@ -9465,6 +9504,11 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
+
+utf8@^2.1.1:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-2.1.2.tgz#1fa0d9270e9be850d9b05027f63519bf46457d96"
+  integrity sha1-H6DZJw6b6FDZsFAn9jUZv0ZFfZY=
 
 util-deprecate@~1.0.1:
   version "1.0.2"
