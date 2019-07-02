@@ -98,6 +98,7 @@ const parseSLPScheme = (scheme: string, tokensById: object) => {
   }
   address = SLP.Address.toSLPAddress(address);
 
+  // bch amount not applicable yet
   // amount = getValue(scheme, "amount");
   // amount = parseAmount(amount);
 
@@ -110,8 +111,6 @@ const parseSLPScheme = (scheme: string, tokensById: object) => {
   symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
 
   let obj = { address, amount, tokenAmount, label, tokenId, symbol };
-  console.log("obj", obj);
-
   obj = removeEmpty(obj);
 
   return obj;

@@ -28,7 +28,13 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
-import { getTokenId, getType, parseAmount } from "../utils/schemeParser-utils";
+import {
+  parseSLPScheme,
+  parseBCHScheme,
+  getType,
+  getAddress,
+  parseAmount
+} from "../utils/schemeParser-utils";
 
 import {
   formatAmount,
@@ -181,41 +187,6 @@ const formatAmountInput = (amount: string, maxDecimals: number): string => {
   return decimalAdjusted.join("");
 };
 
-const parseQr = (qrData: string): { address: string, amount: ?string } => {
-  let address = null;
-  let amount = null;
-
-  // Parse out address and any BIP21 relevant data
-  const parts = qrData.split("?");
-
-  address = parts[0];
-  const parameters = parts[1];
-  if (parameters) {
-    const parameterParts = parameters.split("&");
-    parameterParts.map(param => {
-      const [name, value] = param.split("=");
-      if (name === "amount") {
-        amount = value;
-      }
-    });
-  }
-  return {
-    address,
-    amount
-  };
-};
-
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  navigation: {
-    navigate: Function,
-    state?: { params: { symbol: string, tokenId: ?string } }
-  }
-};
-
 const SendSetupScreen = ({
   navigation,
   tokensById,
@@ -241,7 +212,7 @@ const SendSetupScreen = ({
   };
 
   let availableAmount = new BigNumber(0);
-  if (tokenId && symbol !== undefined) {
+  if (tokenId) {
     availableAmount = balances.slpTokens[tokenId];
   } else {
     const availableRaw = balances.satoshisAvailable.minus(546);
@@ -263,14 +234,13 @@ const SendSetupScreen = ({
     }, 3000);
   };
 
-  const coinDecimals =
-    tokenId && symbol !== undefined ? tokensById[tokenId].decimals : 8;
+  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
 
   let fiatAmountTotal = null;
-  if (tokenId && symbol !== undefined) {
+  if (tokenId) {
     fiatAmountTotal = computeFiatAmount(
       availableAmount,
       spotPrices,
@@ -346,42 +316,44 @@ const SendSetupScreen = ({
     }
   };
 
-  const handleDeepLink = deepLinkParams => {
-    const { address, tokenId, symbol } = deepLinkParams;
+  const handleDeepLink = ({
+    address,
+    amount,
+    tokenAmount,
+    label,
+    tokenId,
+    symbol
+  }): DeepLinkParams => {
     const type = getType(address);
-    if (typeof type === "object") {
+
+    if (typeof type !== "string") {
       setErrors(["Invalid Address"]);
     }
     if (type === "cashaddr") {
-      return prefillBCH(deepLinkParams);
+      return prefillBCH({ address, amount, label });
     }
     if (type === "slpaddr") {
-      if (tokenId !== undefined && symbol === undefined) {
-        setErrors(["Missing Token Information"]);
-        redirectHome(navigation);
-      } else {
-        prefillSLP(deepLinkParams);
-      }
+      prefillSLP({
+        address,
+        amount,
+        tokenAmount,
+        label,
+        tokenId,
+        symbol
+      });
     }
   };
 
-  const prefillSLP = deepLinkParams => {
-    const {
-      address,
-      amount1,
-      amount,
-      tokenAmount,
-      label,
-      symbol,
-      tokenId
-    } = deepLinkParams;
-
+  const prefillSLP = ({
+    address,
+    amount,
+    tokenAmount,
+    label,
+    tokenId,
+    symbol
+  }): DeepLinkParams => {
     const hasTokenAmount = address !== undefined && tokenAmount !== undefined;
-    const noTokenBalance = tokenId !== undefined && symbol === undefined;
-    if (noTokenBalance) {
-      setErrors(["Insufficient Token Balance"]);
-      redirectHome(navigation);
-    }
+
     if (tokenId === undefined) {
       setErrors(["Missing Token Type"]);
       redirectHome(navigation);
@@ -393,7 +365,6 @@ const SendSetupScreen = ({
         // const numericalAmount = parseAmount(tokenAmount);
         setAmountType("crypto");
         setSendAmount(tokenAmount);
-        goNextStep();
       } catch (error) {
         setErrors(["Invalid Amount"]);
         redirectHome(navigation);
@@ -402,9 +373,14 @@ const SendSetupScreen = ({
     setToAddress(address);
   };
 
-  const prefillBCH = deepLinkParams => {
-    const { address, amount, label, message } = deepLinkParams;
-
+  const prefillBCH = ({
+    address,
+    amount,
+    tokenAmount,
+    label,
+    tokenId,
+    symbol
+  }): DeepLinkParams => {
     const hasAmount = address !== undefined && amount !== undefined;
     navigation.state.params.symbol = "BCH";
     if (hasAmount) {
@@ -420,8 +396,6 @@ const SendSetupScreen = ({
               )
             : 0
         );
-
-        goNextStep();
       } catch (error) {
         setErrors(["invalid amount"]);
       }
@@ -430,13 +404,52 @@ const SendSetupScreen = ({
     setToAddress(address);
   };
 
+  const parseQr = (
+    qrData: string
+  ): {
+    address: string,
+    amount: ?string,
+    tokenAmount: ?object,
+    label: ?string,
+    tokenId: ?string,
+    symbol: ?string
+  } => {
+    const address = getAddress(qrData);
+
+    const type = getType(address);
+    if (type === "cashaddr") {
+      return parseBCHScheme(qrData);
+    }
+    if (type === "slpaddr") {
+      return parseSLPScheme(qrData, tokensById);
+    }
+  };
+
   useEffect(() => {
     const deepLinkParams =
-      navigation.state.params !== undefined ? navigation.state.params : "";
-    const hasDeepLinkParams = deepLinkParams !== "";
+      navigation.state.params !== undefined && navigation.state.params.address
+        ? navigation.state.params
+        : "";
 
-    if (hasDeepLinkParams !== undefined && fiatRate !== undefined) {
-      handleDeepLink(deepLinkParams);
+    const hasDeepLinkParams = typeof deepLinkParams !== "string";
+
+    if (hasDeepLinkParams && fiatRate !== undefined) {
+      const {
+        address,
+        amount,
+        tokenAmount,
+        label,
+        tokenId,
+        symbol
+      } = deepLinkParams;
+      handleDeepLink({
+        address,
+        amount,
+        tokenAmount,
+        label,
+        tokenId,
+        symbol
+      });
     }
 
     if (amountType === "crypto") {
@@ -459,7 +472,7 @@ const SendSetupScreen = ({
           : 0
       );
     }
-  }, [sendAmountCrypto, sendAmountNumber, amountType, fiatRate]);
+  }, [sendAmountNumber, amountType, fiatRate]);
 
   const sendAmountFiatFormatted = formatFiatAmount(
     new BigNumber(sendAmountFiat),
@@ -484,16 +497,33 @@ const SendSetupScreen = ({
                 fadeIn={false}
                 onRead={e => {
                   const qrData = e.data;
-                  const { address, amount } = parseQr(qrData);
 
-                  // If there's an amount, set the type to crypto
-                  amount && setAmountType("crypto");
-
-                  address && setToAddress(address);
-                  amount && setSendAmount(amount);
+                  const {
+                    address,
+                    amount,
+                    tokenAmount,
+                    label,
+                    tokenId,
+                    symbol
+                  } = parseQr(qrData);
 
                   setErrors([]);
                   setQrOpen(false);
+
+                  // coinName and imageSource are consts, so redirect solves the problem
+                  // of incorrect names when in bch || slp.
+                  return navigation.navigate({
+                    routeName: "SendStack",
+                    key: Math.random() * 10000,
+                    params: {
+                      address,
+                      amount,
+                      tokenAmount,
+                      label,
+                      tokenId,
+                      symbol
+                    }
+                  });
                 }}
                 cameraStyle={{
                   // padding 16 for each side
