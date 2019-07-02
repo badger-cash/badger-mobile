@@ -266,7 +266,7 @@ const SendSetupScreen = ({
   const sendAmountNumber = parseFloat(sendAmount);
 
   const tokenName =
-    tokensById[tokenId] !== undefined ? tokensById[tokenId].name : "SLP token";
+    tokensById[tokenId] !== undefined ? tokensById[tokenId].name : "---";
   const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
 
   const imageSource = getTokenImage(tokenId);
@@ -357,6 +357,7 @@ const SendSetupScreen = ({
     if (tokenId === undefined) {
       setErrors(["Missing Token Type"]);
       redirectHome(navigation);
+      return null;
     }
 
     if (hasTokenAmount) {
@@ -433,7 +434,7 @@ const SendSetupScreen = ({
 
     const hasDeepLinkParams = typeof deepLinkParams !== "string";
 
-    if (hasDeepLinkParams && fiatRate !== undefined) {
+    if (hasDeepLinkParams) {
       const {
         address,
         amount,
