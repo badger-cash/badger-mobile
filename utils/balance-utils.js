@@ -176,43 +176,10 @@ const formatFiatAmount = (
     : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
 };
 
-const formatAmountInput = (amount: string, maxDecimals: number): string => {
-  const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-  let decimalCount = 0;
-
-  const valid = amount.split("").reduce((prev, curr, idx, array) => {
-    // Only allow max 1 leading 0
-    if (idx === 1 && curr === "0" && array[0] === "0") return prev;
-
-    // Filter non-valid characters
-    if (validCharacters.includes(curr)) return [...prev, curr];
-
-    // Max of 1 decimal
-    if (curr === "." && decimalCount === 0) {
-      decimalCount++;
-      return [...prev, curr];
-    }
-    return prev;
-  }, []);
-
-  // Add a 0 if first digit is a '.'
-  const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
-
-  // Restrict decimals
-  const decimalIndex = maybeZero.indexOf(".");
-  const decimalAdjusted =
-    decimalIndex >= 0
-      ? maybeZero.slice(0, decimalIndex + maxDecimals + 1)
-      : maybeZero;
-
-  return decimalAdjusted.join("");
-};
-
 export {
   computeFiatAmount,
   getHistoricalBchTransactions,
   getHistoricalSlpTransactions,
   formatAmount,
-  formatAmountInput,
   formatFiatAmount
 };

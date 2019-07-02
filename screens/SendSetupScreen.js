@@ -1,7 +1,7 @@
 // @flow
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   Clipboard,
   Dimensions,
@@ -38,12 +38,15 @@ import {
 
 import {
   formatAmount,
-  formatAmountInput,
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
-import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
+import {
+  currencySymbolMap,
+  currencyDecimalMap,
+  type CurrencyCode
+} from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
 
@@ -182,17 +185,6 @@ const formatAmountInput = (amount: string, maxDecimals: number): string => {
       : maybeZero;
 
   return decimalAdjusted.join("");
-
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  navigation: {
-    navigate: Function,
-    state?: { params: { symbol: string, tokenId: ?string } }
-  }
-
 };
 
 const SendSetupScreen = ({

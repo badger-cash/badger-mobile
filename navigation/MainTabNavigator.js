@@ -15,7 +15,6 @@ import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
 import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
-import RequestScreen from "../screens/RequestScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -29,7 +28,8 @@ const HomeStack = createStackNavigator(
     WalletDashboard: {
       screen: HomeScreen,
       navigationOptions: {
-        header: null
+        header: null,
+        tabBarLabel: "Wallets"
       }
     },
     WalletDetailScreen: {
@@ -37,25 +37,20 @@ const HomeStack = createStackNavigator(
       navigationOptions: props => {
         const title = props.navigation.state.params.symbol;
         return {
-          title: `$${title}`
+          title: `$${title}`,
+
+          headerBackTitleStyle: {
+            color: theme.primary500
+          },
+          headerTintColor: theme.primary500,
+          headerTitleStyle: { color: theme.fg100 }
         };
       }
-    },
-    RequestSetup: {
-      screen: RequestScreen,
-      navigationOptions: { title: "Request" }
     }
   },
   {
-    defaultNavigationOptions: props => {
-      return {
-        tabBarLabel: "Wallets",
-        headerBackTitleStyle: {
-          color: theme.primary500
-        },
-        headerTintColor: theme.primary500,
-        headerTitleStyle: { color: theme.fg100 }
-      };
+    navigationOptions: {
+      tabBarLabel: "Wallets"
     },
     headerLayoutPreset: "center"
   }
