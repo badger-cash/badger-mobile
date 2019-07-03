@@ -1,11 +1,11 @@
 // @flow
 
+import SLPSDK from "slp-sdk";
+
 import {
   currencyDecimalMap,
   type CurrencyCode
 } from "../../utils/currency-utils";
-
-import { SLP } from "../../utils/slp-sdk-utils";
 
 import {
   UPDATE_BCH_SPOT_PRICE_START,
@@ -13,6 +13,8 @@ import {
   UPDATE_BCH_SPOT_PRICE_FAIL,
   SET_FIAT_CURRENCY
 } from "./constants";
+
+const SLP = new SLPSDK();
 
 const setFiatCurrency = (currencyCode: string) => ({
   type: SET_FIAT_CURRENCY,

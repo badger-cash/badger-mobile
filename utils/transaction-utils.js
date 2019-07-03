@@ -1,15 +1,15 @@
 // @flow
 
+import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
 
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
-import { SLP } from "./slp-sdk-utils";
-
 const slpjs = require("slpjs");
 
+const SLP = new SLPSDK();
 const SLPJS = new slpjs.Slp(SLP);
 
 const LOKAD_ID_HEX = "534c5000";

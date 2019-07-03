@@ -1,6 +1,7 @@
 // @flow
 
 import BigNumber from "bignumber.js";
+import SLPSDK from "slp-sdk";
 
 import {
   GET_TRANSACTIONS_START,
@@ -13,9 +14,9 @@ import {
   getHistoricalSlpTransactions
 } from "../../utils/balance-utils";
 
-import { SLP } from "../../utils/slp-sdk-utils";
-
 import { transactionsLatestBlockSelector } from "../selectors";
+
+const SLP = new SLPSDK();
 
 const getTransactionsStart = () => ({
   type: GET_TRANSACTIONS_START,

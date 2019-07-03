@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import SLPSDK from "slp-sdk";
 
 import {
   SafeAreaView,
@@ -16,7 +17,7 @@ import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
+const SLP = new SLPSDK();
 
 const Screen = styled(ScrollView)`
   padding: 0 16px;

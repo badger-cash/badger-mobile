@@ -1,5 +1,8 @@
 // @flow
-import { SLP } from "./slp-sdk-utils";
+
+import SLPSDK from "slp-sdk";
+
+const SLP = new SLPSDK();
 
 const generateMnemonic = () => {
   const mnemonic = SLP.Mnemonic.generate(128);
