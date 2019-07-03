@@ -16,8 +16,6 @@ import BigNumber from "bignumber.js";
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import SLPSDK from "slp-sdk";
-
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
@@ -44,7 +42,7 @@ import {
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-const SLP = new SLPSDK();
+import { SLP } from "../utils/slp-sdk-utils";
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 

@@ -6,7 +6,6 @@ import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
 
-import SLPSDK from "slp-sdk";
 import BigNumber from "bignumber.js";
 
 import {
@@ -25,7 +24,7 @@ import { type CurrencyCode } from "../utils/currency-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { formatFiatAmount } from "../utils/balance-utils";
 
-const SLP = new SLPSDK();
+import { SLP } from "../utils/slp-sdk-utils";
 
 const ScreenCover = styled(View)`
   flex: 1;

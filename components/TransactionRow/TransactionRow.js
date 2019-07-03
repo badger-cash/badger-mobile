@@ -6,11 +6,8 @@ import { View, Image, StyleSheet } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 
-import SLPSDK from "slp-sdk";
-
 import { T } from "../../atoms";
-
-const SLP = new SLPSDK();
+import { SLP } from "../../utils/slp-sdk-utils";
 
 const Row = styled(View)`
   padding: 16px;
