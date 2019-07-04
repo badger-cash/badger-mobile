@@ -17,13 +17,16 @@ const AppWrapper = styled(View)`
   flex: 1;
 `;
 
+const prefix = "bitcoincash:";
+const slpPrefix = "simpleledger:";
+
 const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={spaceBadger}>
           <AppWrapper>
-            <AppNavigator />
+            <AppNavigator uriPrefix={prefix || slpPrefix} />
           </AppWrapper>
         </ThemeProvider>
       </PersistGate>
