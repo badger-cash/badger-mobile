@@ -18,6 +18,7 @@ import {
   getTransactionDetails,
   decodeTxOut
 } from "../../utils/transaction-utils";
+import { SLP } from "../../utils/slp-sdk-utils";
 
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -110,28 +111,15 @@ const refreshUtxos = async (state: FullState, address: string) => {
   try {
     const validSLPTx = await Promise.all(
       chunk(slpTxidsToValidate, 20).map(async txIdsToValidate => {
-        const response = await fetch(
-          "https://rest.bitcoin.com/v2/slp/validateTxid",
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              txids: txIdsToValidate
-            })
-          }
-        );
+        const validatedTxs = await SLP.Utils.validateTxid(txIdsToValidate);
 
-        const data = await response.json();
-
-        const validSLPTxChunk = data
+        const validSLPTxChunk = validatedTxs
           .filter(chunkResult => chunkResult.valid === true)
           .map(chunkResult => chunkResult.txid);
         return validSLPTxChunk;
       })
     );
+
     const validSlpTxs = [].concat(...validSLPTx);
 
     const utxosValidSlpTx = utxosSlpOrSpendable.map(utxo =>

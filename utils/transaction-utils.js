@@ -23,6 +23,7 @@ type TxParams = {
 };
 
 const getAllUtxo = async (address: string) => {
+  // SLP SDK Doesn't respect the restURL config on Address.utxo.  Fix this inn SLPSDK
   const result = await SLP.Address.utxo(address);
   return result.utxos;
 };
