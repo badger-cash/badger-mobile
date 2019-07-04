@@ -47,6 +47,15 @@ import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
 
+type DeepLinkParams = {
+  address: string,
+  amount?: string,
+  tokenAmount?: any,
+  label?: string,
+  tokenId?: string,
+  symbol?: string
+};
+
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
   border-width: ${StyleSheet.hairlineWidth};
@@ -294,6 +303,8 @@ const SendSetupScreen = ({
 
     if (typeof type !== "string") {
       setErrors(["Invalid Address"]);
+      redirectHome(navigation);
+      return null;
     }
     if (type === "cashaddr") {
       return prefillBCH({ address, amount, label });
@@ -371,7 +382,7 @@ const SendSetupScreen = ({
     setToAddress(address);
   };
 
-  const parseQr = (qrData: string, tokensById: object) => {
+  const parseQr = (qrData: string, tokensById: any) => {
     const address = getAddress(qrData);
 
     const type = getType(address);
