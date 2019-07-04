@@ -1,7 +1,7 @@
 // @flow
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   Clipboard,
   Dimensions,
@@ -38,15 +38,12 @@ import {
 
 import {
   formatAmount,
+  formatAmountInput,
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
-import {
-  currencySymbolMap,
-  currencyDecimalMap,
-  type CurrencyCode
-} from "../utils/currency-utils";
+import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
 
@@ -154,39 +151,6 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
-// Only allow numbers and a single . in amount input
-const formatAmountInput = (amount: string, maxDecimals: number): string => {
-  const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-  let decimalCount = 0;
-
-  const valid = amount.split("").reduce((prev, curr, idx, array) => {
-    // Only allow max 1 leading 0
-    if (idx === 1 && curr === "0" && array[0] === "0") return prev;
-
-    // Filter non-valid characters
-    if (validCharacters.includes(curr)) return [...prev, curr];
-
-    // Max of 1 decimal
-    if (curr === "." && decimalCount === 0) {
-      decimalCount++;
-      return [...prev, curr];
-    }
-    return prev;
-  }, []);
-
-  // Add a 0 if first digit is a '.'
-  const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
-
-  // Restrict decimals
-  const decimalIndex = maybeZero.indexOf(".");
-  const decimalAdjusted =
-    decimalIndex >= 0
-      ? maybeZero.slice(0, decimalIndex + maxDecimals + 1)
-      : maybeZero;
-
-  return decimalAdjusted.join("");
-};
-
 const SendSetupScreen = ({
   navigation,
   tokensById,
@@ -234,7 +198,9 @@ const SendSetupScreen = ({
     }, 3000);
   };
 
-  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+  const hasToken = tokensById[tokenId] !== undefined;
+
+  const coinDecimals = tokenId && hasToken ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
@@ -316,14 +282,14 @@ const SendSetupScreen = ({
     }
   };
 
-  const handleDeepLink = ({
-    address,
-    amount,
-    tokenAmount,
-    label,
-    tokenId,
-    symbol
-  }): DeepLinkParams => {
+  const handleDeepLink = (
+    address: string,
+    amount?: string,
+    tokenAmount?: string,
+    label?: string,
+    tokenId?: string,
+    symbol?: string
+  ) => {
     const type = getType(address);
 
     if (typeof type !== "string") {
@@ -405,16 +371,7 @@ const SendSetupScreen = ({
     setToAddress(address);
   };
 
-  const parseQr = (
-    qrData: string
-  ): {
-    address: string,
-    amount: ?string,
-    tokenAmount: ?object,
-    label: ?string,
-    tokenId: ?string,
-    symbol: ?string
-  } => {
+  const parseQr = (qrData: string, tokensById: object) => {
     const address = getAddress(qrData);
 
     const type = getType(address);
@@ -506,7 +463,7 @@ const SendSetupScreen = ({
                     label,
                     tokenId,
                     symbol
-                  } = parseQr(qrData);
+                  } = parseQr(qrData, tokensById);
 
                   setErrors([]);
                   setQrOpen(false);
