@@ -2,10 +2,11 @@
 
 import BigNumber from "bignumber.js";
 import SLPSDK from "slp-sdk";
-import { Address } from "bitbox-sdk";
+// import { Address } from "bitbox-sdk";
 
-const bitboxAddress = new Address();
+// const bitboxAddress = new Address();
 const SLP = new SLPSDK();
+// const bitboxAddress = SLP.Address;
 
 const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
 
@@ -18,7 +19,7 @@ const parseAddress = (address: string) => {
     } catch (error) {
       throw new Error("invalid address");
     }
-    return bitboxAddress.toCashAddress(address);
+    return SLP.Address.toCashAddress(address);
   } else if (type === "slpaddr") {
     try {
       checkIsValid("slpaddr", address);
@@ -30,7 +31,20 @@ const parseAddress = (address: string) => {
   return address;
 };
 
-const parseSLP = (params: object, tokensById: object) => {
+// Look into if `amount` is valid here or not
+const parseSLP = (params: {
+  label?: string,
+  amount1?: string,
+  amount?: string,
+  address?: string
+}): {
+  address: string,
+  amount: string,
+  tokenAmount: string,
+  label: string,
+  symbol: string,
+  tokenId: string
+} => {
   let amount, symbol, tokenId, tokenAmount;
 
   const { label, amount1 } = params;
@@ -45,8 +59,8 @@ const parseSLP = (params: object, tokensById: object) => {
     tokenAmount = params.amount[1].split(":")[0];
     tokenId = params.amount[1].split(":")[1];
   }
-  const tokenInBalance = tokensById[tokenId];
-  symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
+  // const tokenInBalance = tokensById[tokenId];
+  // symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
 
   let obj = {
     address: params.address,
@@ -62,7 +76,9 @@ const parseSLP = (params: object, tokensById: object) => {
   return obj;
 };
 
-const parseBCHScheme = (scheme: string) => {
+const parseBCHScheme = (
+  scheme: string
+): { address: string, amount: string, label: string, message: string } => {
   let address = getAddress(scheme);
   let amount, label, message;
 
@@ -71,7 +87,7 @@ const parseBCHScheme = (scheme: string) => {
   } catch (error) {
     throw new Error("invalid address");
   }
-  address = bitboxAddress.toCashAddress(address);
+  address = SLP.Address.toCashAddress(address);
   amount = getValue(scheme, "amount");
 
   amount = parseAmount(amount);
@@ -79,7 +95,7 @@ const parseBCHScheme = (scheme: string) => {
   label = getValue(scheme, "label");
 
   message = getValue(scheme, "message");
-  message = message !== undefined ? message.replace(/%20/g, " ") : undefined;
+  message = message && message.replace(/%20/g, " ");
 
   let obj = { address, amount, label, message };
   obj = removeEmpty(obj);
@@ -87,7 +103,16 @@ const parseBCHScheme = (scheme: string) => {
   return obj;
 };
 
-const parseSLPScheme = (scheme: string, tokensById: object) => {
+const parseSLPScheme = (
+  scheme: string
+): {
+  address: string,
+  amount: string,
+  tokenAmount: string,
+  tokenId: string,
+  label: string,
+  message: string
+} => {
   let address = getAddress(scheme);
   let amount, label, tokenId, tokenAmount, symbol;
 
@@ -103,16 +128,15 @@ const parseSLPScheme = (scheme: string, tokensById: object) => {
   // amount = parseAmount(amount);
 
   label = getValue(scheme, "label");
-  tokenAmount = getTokenValue(scheme);
-  tokenAmount = parseAmount(tokenAmount);
+  const tokenAmountRaw = getTokenValue(scheme);
+  tokenAmount = parseAmount(tokenAmountRaw);
 
   tokenId = getTokenId(scheme);
-  const tokenInBalance = tokensById[tokenId];
-  symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
+  // const tokenInBalance = tokensById[tokenId];
+  // symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
 
-  let obj = { address, amount, tokenAmount, label, tokenId, symbol };
+  let obj = { address, amount, tokenAmount, label, tokenId };
   obj = removeEmpty(obj);
-
   return obj;
 };
 
@@ -120,7 +144,8 @@ const getAddress = (scheme: string) => {
   return scheme.split("?")[0];
 };
 
-const getValue = (scheme: string, key: string) => {
+const getValue = (scheme: ?string, key: string) => {
+  if (!scheme) return;
   let value = scheme.split(`${key}=`);
   if (value.length <= 1) {
     return;
@@ -147,7 +172,7 @@ const getTokenId = (scheme: string) => {
   return value;
 };
 
-const getTokenValue = (scheme: string) => {
+const getTokenValue = (scheme: string): string => {
   let value;
   let tokenOnly = scheme.split("amount1=");
   if (tokenOnly.length >= 2) {
@@ -161,7 +186,7 @@ const getTokenValue = (scheme: string) => {
 };
 
 const parseAmount = (value: string) => {
-  if (value === undefined) {
+  if (!value) {
     return;
   }
 
@@ -178,7 +203,7 @@ const getType = (address: string) => {
 
 const checkIsValid = (type: string, address: string) => {
   if (type === "cashaddr") {
-    return bitboxAddress.isCashAddress(address);
+    return SLP.address.isCashAddress(address);
   } else if (type === "slpaddr") {
     return SLP.Address.isSLPAddress(address);
   } else {
@@ -186,7 +211,7 @@ const checkIsValid = (type: string, address: string) => {
   }
 };
 
-const removeEmpty = (obj: object) => {
+const removeEmpty = (obj: any) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
