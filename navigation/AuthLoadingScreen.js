@@ -39,8 +39,6 @@ const AuthLoadingScreen = ({
   tokensById
 }: Props) => {
   const handleDeepLink = async params => {
-    console.log("IN DEEP LINK");
-    console.log(params);
     const { address, amount, amount1 } = params;
 
     const amounts = Object.entries(params).filter(
