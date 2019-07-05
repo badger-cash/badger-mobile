@@ -8618,18 +8618,6 @@ slpjs@0.18.0:
     bitcore-lib-cash "^0.19.0"
     lodash "^4.17.11"
 
-slpjs@0.18.4:
-  version "0.18.4"
-  resolved "https://registry.yarnpkg.com/slpjs/-/slpjs-0.18.4.tgz#8a8237f16d7c74a040e9b86fea959f010c6a7ff0"
-  integrity sha512-iI0qQoJN3IWpI0GkEw0UF4ErPt3Krt+7pHG1PJcSJOSklBbZrDjocNoRu+P1q1Mv+3zU2FwslFFYLqf1cFomzQ==
-  dependencies:
-    "@types/lodash" "^4.14.120"
-    axios "^0.18.0"
-    bchaddrjs-slp "git://github.com/simpleledger/bchaddrjs.git#master"
-    bignumber.js "^8.1.1"
-    bitcore-lib-cash "^0.19.0"
-    lodash "^4.17.11"
-
 snapdragon-node@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/snapdragon-node/-/snapdragon-node-2.1.1.tgz#6c175f86ff14bdb0724563e8f3c1b021a286853b"
