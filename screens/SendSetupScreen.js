@@ -313,8 +313,10 @@ const SendSetupScreen = ({
     const parameters = parts[1];
     if (parameters) {
       const parameterParts = parameters.split("&");
-      parameterParts.map(param => {
+      parameterParts.forEach(param => {
         const [name, value] = param.split("=");
+        if (amount && uriTokenId) return;
+
         if (name.startsWith("amount")) {
           if (value.includes("-")) {
             const amountSplit = value.split("-");
