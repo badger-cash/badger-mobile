@@ -2,12 +2,9 @@
 
 import BigNumber from "bignumber.js";
 import SLPSDK from "slp-sdk";
-import { Address } from "bitbox-sdk";
 import { Utils } from "slpjs";
 
-// const bitboxAddress = new Address();
 const SLP = new SLPSDK();
-// const bitboxAddress = SLP.Address;
 
 const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
 
@@ -33,12 +30,15 @@ const parseAddress = (address: string) => {
 };
 
 // Look into if `amount` is valid here or not
-const parseSLP = (params: {
-  label?: string,
-  amount1?: string,
-  amount?: string,
-  address?: string
-}): {
+const parseSLP = (
+  params: {
+    label?: string,
+    amount1?: string,
+    amount?: string,
+    address?: string
+  },
+  tokensById: any
+): {
   address: string,
   amount: string,
   tokenAmount: string,
