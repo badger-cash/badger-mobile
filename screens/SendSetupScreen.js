@@ -301,6 +301,10 @@ const SendSetupScreen = ({
   }): DeepLinkParams => {
     const type = getType(address);
 
+    if (sendAmount !== "") {
+      return;
+    }
+
     if (typeof type !== "string") {
       setErrors(["Invalid Address"]);
       redirectHome(navigation);
@@ -411,6 +415,7 @@ const SendSetupScreen = ({
         tokenId,
         symbol
       } = deepLinkParams;
+
       handleDeepLink({
         address,
         amount,
