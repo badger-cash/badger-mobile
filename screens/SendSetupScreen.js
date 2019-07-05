@@ -390,7 +390,6 @@ const SendSetupScreen = ({
                     setErrors([
                       "Sending different coin or token than selected, go to the target coin screen and try again"
                     ]);
-                    setQrOpen(false);
                     return;
                   }
 
