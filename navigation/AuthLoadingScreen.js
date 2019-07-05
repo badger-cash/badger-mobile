@@ -39,7 +39,7 @@ const AuthLoadingScreen = ({
   tokensById
 }: Props) => {
   const handleDeepLink = async params => {
-    const { address, amount, amount1 } = params;
+    const { address } = params;
 
     const amounts = Object.entries(params).filter(
       ([key: string, val: string]) => key.startsWith("amount")
@@ -48,7 +48,7 @@ const AuthLoadingScreen = ({
     // Only support sending one token type or BCH at a time
     const { amountFormatted, tokenId } = amounts.reduce(
       (acc, curr) => {
-        if (acc.tokenId || acc.amountFormatted) return acc;
+        if (acc.tokenId && acc.amountFormatted) return acc;
 
         let nextTokenId = null;
         let nextAmount = null;
