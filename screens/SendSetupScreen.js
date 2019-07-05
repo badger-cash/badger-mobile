@@ -28,13 +28,6 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
-import {
-  parseSLPScheme,
-  parseBCHScheme,
-  getType,
-  getAddress,
-  parseAmount
-} from "../utils/schemeParser-utils";
 
 import {
   formatAmount,
@@ -46,15 +39,6 @@ import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
-
-type DeepLinkParams = {
-  address: string,
-  amount?: string,
-  tokenAmount?: any,
-  label?: string,
-  tokenId?: string,
-  symbol?: string
-};
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
@@ -232,12 +216,6 @@ const SendSetupScreen = ({
     availableAmount = new BigNumber(0);
   }
 
-  // const redirectHome = navigation => {
-  //   return setTimeout(() => {
-  //     navigation.navigate("Home");
-  //   }, 3000);
-  // };
-
   const coinDecimals =
     tokenId && tokensById[tokenId] ? tokensById[tokenId].decimals : 8;
 
@@ -322,19 +300,37 @@ const SendSetupScreen = ({
   };
 
   const parseQr = (
-    qrData: string,
-    tokensById: { [tokenId: string]: TokenData }
-  ): DeepLinkParams | {} => {
-    const address = getAddress(qrData);
+    qrData: string
+  ): { address: string, amount: ?string, tokenId: ?string } => {
+    let address = null;
+    let amount = null;
+    let uriTokenId = null;
 
-    const type = getType(address);
-    if (type === "cashaddr") {
-      return parseBCHScheme(qrData);
+    // Parse out address and any other relevant data
+    const parts = qrData.split("?");
+
+    address = parts[0];
+    const parameters = parts[1];
+    if (parameters) {
+      const parameterParts = parameters.split("&");
+      parameterParts.map(param => {
+        const [name, value] = param.split("=");
+        if (name.startsWith("amount")) {
+          if (value.includes("-")) {
+            const amountSplit = value.split("-");
+            amount = amountSplit[0];
+            uriTokenId = amountSplit[1];
+          } else {
+            amount = value;
+          }
+        }
+      });
     }
-    if (type === "slpaddr") {
-      return parseSLPScheme(qrData);
-    }
-    return {};
+    return {
+      address,
+      amount,
+      tokenId: uriTokenId
+    };
   };
 
   useEffect(() => {
@@ -384,51 +380,24 @@ const SendSetupScreen = ({
                 onRead={e => {
                   const qrData = e.data;
 
-                  const parsedData = parseQr(qrData, tokensById);
-
-                  // const {
-                  //   address,
-                  //   amount,
-                  //   tokenAmount,
-                  //   // label,
-                  //   tokenId,
-                  //   // symbol
-                  // } = parseQr(qrData, tokensById);
+                  const parsedData = parseQr(qrData);
 
                   setErrors([]);
                   setQrOpen(false);
 
                   // Verify the type matches the screen we are on.
-                  if (parsedData.tokenId !== tokenId) {
+                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
                     setErrors([
-                      "Sending different coin or token than selected"
+                      "Sending different coin or token than selected, go to the target coin screen and try again"
                     ]);
                     setQrOpen(false);
                     return;
                   }
 
                   // If there's an amount, set the type to crypto
-                  (parsedData.amount || parsedData.tokenAmount) &&
-                    setAmountType("crypto");
+                  parsedData.amount && setAmountType("crypto");
                   parsedData.address && setToAddress(parsedData.address);
                   parsedData.amount && setSendAmount(parsedData.amount);
-                  parsedData.tokenAmount &&
-                    setSendAmount(parsedData.tokenAmount);
-
-                  // coinName and imageSource are type const, so redirect solves the problem
-                  // of incorrect names when in bch || slp.
-                  // return navigation.navigate({
-                  //   routeName: "SendStack",
-                  //   key: Math.random() * 10000,
-                  //   params: {
-                  //     address,
-                  //     amount,
-                  //     tokenAmount,
-                  //     label,
-                  //     tokenId,
-                  //     symbol
-                  //   }
-                  // });
                 }}
                 cameraStyle={{
                   // padding 16 for each side
