@@ -11,12 +11,6 @@ import { getAccount } from "../data/accounts/actions";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type TokenData } from "../data/tokens/reducer";
 
-// import {
-//   parseAddress,
-//   parseBCHScheme,
-//   getType,
-//   parseSLP
-// } from "../utils/schemeParser-utils";
 import { addressToSlp, addressToCash } from "../utils/account-utils";
 
 const Wrapper = styled(View)`
@@ -45,22 +39,6 @@ const AuthLoadingScreen = ({
   tokensById
 }: Props) => {
   const handleDeepLink = async params => {
-    // const { address } = params;
-
-    // const type = getType(address);
-
-    // console.log(type)
-
-    // if (type === "cashaddr") {
-    //   console.log('cashaddr')
-    //   params = parseBCHScheme(params)
-    //   // params.address = parseAddress(params.address);
-    // }
-    // if (type === "slpaddr") {
-    //   console.log('slpAddr')
-    //   params = parseSLP(params);
-    // }
-
     console.log("IN DEEP LINK");
     console.log(params);
     const { address, amount, amount1 } = params;
@@ -91,34 +69,22 @@ const AuthLoadingScreen = ({
       { tokenId: null, amountFormatted: null }
     );
 
-    console.log("amounts");
-    console.log(amounts);
-
-    // const formattedAmount = amount ? amount : amount1 && amount1.split("-")[0];
-
-    // const tokenId = amount1 && amount1.split("-")[1];
-
     const ticker = tokenId
       ? tokensById[tokenId]
         ? tokensById[tokenId].symbol
         : "---"
       : "BCH";
-    console.log({ tokenId, amount, amount1, amountFormatted });
 
     const formattedAddress = tokenId
       ? await addressToSlp(address)
       : await addressToCash(address);
-    console.log(formattedAddress);
 
-    // compute ticker and tokenId, add amount support for this also.
     navigation.navigate("SendSetup", {
-      uriAddress: formattedAddress,
       symbol: ticker,
       tokenId,
+      uriAddress: formattedAddress,
       uriAmount: amountFormatted
     });
-
-    // navigation.navigate("SendSetup", params);
   };
 
   useEffect(() => {
@@ -127,12 +93,7 @@ const AuthLoadingScreen = ({
     if (mnemonic) {
       // re-generate accounts keypair then go to Main.
       getAccount(mnemonic);
-
-      console.log("AUTH LOADING");
-      console.log(navParams);
-      console.log("!!!!!");
       if (navParams) {
-        console.log("handle deep link");
         handleDeepLink(navParams);
         return;
       }
