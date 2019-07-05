@@ -3,6 +3,7 @@
 import BigNumber from "bignumber.js";
 import SLPSDK from "slp-sdk";
 import { Address } from "bitbox-sdk";
+import { Utils } from "slpjs";
 
 const bitboxAddress = new Address();
 const SLP = new SLPSDK();
@@ -33,13 +34,19 @@ const parseAddress = (address: string) => {
 const parseSLP = (params: object, tokensById: object) => {
   let amount, symbol, tokenId, tokenAmount;
 
-  const { label, amount1 } = params;
+  const { label, amount1, amount2 } = params;
 
   if (amount1 !== undefined) {
     // slp amount only
     tokenAmount = amount1.split("-")[0];
     tokenId = amount1.split("-")[1];
-  } else if (params.amount !== undefined) {
+  }
+  if (amount2 !== undefined) {
+    // slp amount only
+    tokenAmount = amount2.split("-")[0];
+    tokenId = amount2.split("-")[1];
+  }
+  if (params.amount !== undefined) {
     // slp and bch combined
     amount = params.amount[0];
     tokenAmount = params.amount[1].split(":")[0];
@@ -47,6 +54,9 @@ const parseSLP = (params: object, tokensById: object) => {
   }
   const tokenInBalance = tokensById[tokenId];
   symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
+  if (tokenAmount !== "") {
+    tokenAmount = parseAmount(tokenAmount);
+  }
 
   let obj = {
     address: params.address,
@@ -88,29 +98,26 @@ const parseBCHScheme = (scheme: string) => {
 };
 
 const parseSLPScheme = (scheme: string, tokensById: object) => {
+  let parsed = Utils.parseSlpUri(scheme);
+
+  const { amountBch, amountToken, tokenId } = parsed;
   let address = getAddress(scheme);
-  let amount, label, tokenId, tokenAmount, symbol;
-
-  try {
-    checkIsValid("slpaddr", address);
-  } catch (error) {
-    throw new Error("invalid address");
-  }
-  address = SLP.Address.toSLPAddress(address);
-
-  // bch amount not applicable yet
-  // amount = getValue(scheme, "amount");
-  // amount = parseAmount(amount);
+  let label, symbol;
 
   label = getValue(scheme, "label");
-  tokenAmount = getTokenValue(scheme);
-  tokenAmount = parseAmount(tokenAmount);
 
-  tokenId = getTokenId(scheme);
-  const tokenInBalance = tokensById[tokenId];
+  const tokenInBalance = tokenId !== undefined ? tokensById[tokenId] : tokenId;
   symbol = tokenInBalance !== undefined ? tokenInBalance.symbol : "---";
 
-  let obj = { address, amount, tokenAmount, label, tokenId, symbol };
+  let obj = {
+    address,
+    amount: parseAmount(amountBch),
+    tokenAmount: parseAmount(amountToken),
+    label,
+    tokenId,
+    symbol
+  };
+
   obj = removeEmpty(obj);
 
   return obj;
@@ -130,37 +137,7 @@ const getValue = (scheme: string, key: string) => {
   return value;
 };
 
-const getTokenId = (scheme: string) => {
-  let value;
-  let tokenOnly = scheme.split("amount1=");
-
-  if (tokenOnly.length >= 2) {
-    value = tokenOnly[1].split("-");
-    value = value[1];
-  } else {
-    value = scheme.split(":");
-    value = value[1] ? value[1].split(":")[0] : value;
-  }
-  if (!tokenIdRegex.test(value)) {
-    throw new Error("Token ID is not a valid 32-bye hexideimal string");
-  }
-  return value;
-};
-
-const getTokenValue = (scheme: string) => {
-  let value;
-  let tokenOnly = scheme.split("amount1=");
-  if (tokenOnly.length >= 2) {
-    value = tokenOnly[1].split("-")[0];
-    return value;
-  } else {
-    value = scheme.split("&amount=");
-    value = value[1] ? value[1].split(":")[0] : value;
-    return value;
-  }
-};
-
-const parseAmount = (value: string) => {
+const parseAmount = (value: any) => {
   if (value === undefined) {
     return;
   }
@@ -197,8 +174,6 @@ export {
   parseSLPScheme,
   getAddress,
   getValue,
-  getTokenId,
-  getTokenValue,
   parseAmount,
   getType,
   checkIsValid,

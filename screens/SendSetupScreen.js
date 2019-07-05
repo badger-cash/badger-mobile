@@ -298,7 +298,7 @@ const SendSetupScreen = ({
     label,
     tokenId,
     symbol
-  }): DeepLinkParams => {
+  }: DeepLinkParams) => {
     const type = getType(address);
 
     if (sendAmount !== "") {
