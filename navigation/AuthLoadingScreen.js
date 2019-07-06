@@ -80,7 +80,7 @@ const AuthLoadingScreen = ({
     navigation.navigate("SendSetup", {
       symbol: ticker,
       tokenId,
-      uriAddress: formattedAddress,
+      uriAddress: typeof formattedAddress === "string" ? formattedAddress : "",
       uriAmount: amountFormatted
     });
   };

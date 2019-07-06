@@ -397,7 +397,15 @@ const SendSetupScreen = ({
 
                   // If there's an amount, set the type to crypto
                   parsedData.amount && setAmountType("crypto");
-                  parsedData.address && setToAddress(parsedData.address);
+                  if (parsedData.address) {
+                    setToAddress(parsedData.address);
+                    const isValidAddress =
+                      SLP.Address.isCashAddress(parsedData.address) ||
+                      SLP.Address.isSLPAddress(parsedData.address);
+                    if (isValidAddress.message) {
+                      setErrors([isValidAddress.message]);
+                    }
+                  }
                   parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{

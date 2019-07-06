@@ -172,7 +172,7 @@ const getType = (address: string) => {
 
 const checkIsValid = (type: string, address: string) => {
   if (type === "cashaddr") {
-    return SLP.address.isCashAddress(address);
+    return SLP.Address.isCashAddress(address);
   } else if (type === "slpaddr") {
     return SLP.Address.isSLPAddress(address);
   } else {
