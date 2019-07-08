@@ -167,9 +167,7 @@ const WalletDetailScreen = ({
               text="Request"
             />
             <Button
-              onPress={() =>
-                navigation.navigate("SendSetup", { symbol: ticker, tokenId })
-              }
+              onPress={() => navigation.navigate("SendSetup", { tokenId })}
               text="Send"
             />
           </ButtonGroup>
