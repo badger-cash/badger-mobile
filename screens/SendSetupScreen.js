@@ -40,24 +40,6 @@ import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
 
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  navigation: {
-    navigate: Function,
-    state?: {
-      params: {
-        symbol: string,
-        tokenId: ?string,
-        uriAmount?: ?string,
-        uriAddress?: ?string
-      }
-    }
-  }
-};
-
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
   border-width: ${StyleSheet.hairlineWidth};
@@ -162,6 +144,41 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
+const parseQr = (qrData: string): { address: string, amount: ?string } => {
+  let address = null;
+  let amount = null;
+
+  // Parse out address and any BIP21 relevant data
+  const parts = qrData.split("?");
+
+  address = parts[0];
+  const parameters = parts[1];
+  if (parameters) {
+    const parameterParts = parameters.split("&");
+    parameterParts.map(param => {
+      const [name, value] = param.split("=");
+      if (name === "amount") {
+        amount = value;
+      }
+    });
+  }
+  return {
+    address,
+    amount
+  };
+};
+
+type Props = {
+  tokensById: { [tokenId: string]: TokenData },
+  balances: Balances,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  navigation: {
+    navigate: Function,
+    state?: { params: { symbol: string, tokenId: ?string } }
+  }
+};
+
 const SendSetupScreen = ({
   navigation,
   tokensById,
@@ -180,24 +197,11 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState([]);
 
-  const { symbol, tokenId, uriAddress, uriAmount } = (navigation.state &&
-    navigation.state.params) || {
+  // Todo - Handle if send with nothing pre-selected on navigation
+  const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
     symbol: null,
-    tokenId: null,
-    uriAddress: null,
-    uriAmount: null
+    tokenId: null
   };
-
-  // Set initial values from params
-  useEffect(() => {
-    if (uriAddress) {
-      setToAddress(uriAddress);
-    }
-    if (uriAmount) {
-      setAmountType("crypto");
-      setSendAmount(uriAmount);
-    }
-  }, []);
 
   let availableAmount = new BigNumber(0);
   if (tokenId) {
@@ -212,12 +216,11 @@ const SendSetupScreen = ({
     }
   }
 
-  if (!availableAmount) {
+  if (availableAmount === undefined) {
     availableAmount = new BigNumber(0);
   }
 
-  const coinDecimals =
-    tokenId && tokensById[tokenId] ? tokensById[tokenId].decimals : 8;
+  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
@@ -248,9 +251,7 @@ const SendSetupScreen = ({
 
   const sendAmountNumber = parseFloat(sendAmount);
 
-  const tokenName =
-    tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
-  const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
+  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
 
   const imageSource = getTokenImage(tokenId);
 
@@ -284,11 +285,6 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
-    if (!sendAmountCrypto) {
-      setErrors(["Amount required"]);
-      hasErrors = true;
-    }
-
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
         symbol,
@@ -297,42 +293,6 @@ const SendSetupScreen = ({
         toAddress
       });
     }
-  };
-
-  const parseQr = (
-    qrData: string
-  ): { address: string, amount: ?string, tokenId: ?string } => {
-    let address = null;
-    let amount = null;
-    let uriTokenId = null;
-
-    // Parse out address and any other relevant data
-    const parts = qrData.split("?");
-
-    address = parts[0];
-    const parameters = parts[1];
-    if (parameters) {
-      const parameterParts = parameters.split("&");
-      parameterParts.forEach(param => {
-        const [name, value] = param.split("=");
-        if (amount && uriTokenId) return;
-
-        if (name.startsWith("amount")) {
-          if (value.includes("-")) {
-            const amountSplit = value.split("-");
-            amount = amountSplit[0];
-            uriTokenId = amountSplit[1];
-          } else {
-            amount = value;
-          }
-        }
-      });
-    }
-    return {
-      address,
-      amount,
-      tokenId: uriTokenId
-    };
   };
 
   useEffect(() => {
@@ -381,32 +341,16 @@ const SendSetupScreen = ({
                 fadeIn={false}
                 onRead={e => {
                   const qrData = e.data;
+                  const { address, amount } = parseQr(qrData);
 
-                  const parsedData = parseQr(qrData);
+                  // If there's an amount, set the type to crypto
+                  amount && setAmountType("crypto");
+
+                  address && setToAddress(address);
+                  amount && setSendAmount(amount);
 
                   setErrors([]);
                   setQrOpen(false);
-
-                  // Verify the type matches the screen we are on.
-                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
-                    setErrors([
-                      "Sending different coin or token than selected, go to the target coin screen and try again"
-                    ]);
-                    return;
-                  }
-
-                  // If there's an amount, set the type to crypto
-                  parsedData.amount && setAmountType("crypto");
-                  if (parsedData.address) {
-                    setToAddress(parsedData.address);
-                    const isValidAddress =
-                      SLP.Address.isCashAddress(parsedData.address) ||
-                      SLP.Address.isSLPAddress(parsedData.address);
-                    if (isValidAddress.message) {
-                      setErrors([isValidAddress.message]);
-                    }
-                  }
-                  parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
