@@ -307,7 +307,6 @@ const SendSetupScreen = ({
 
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
-        displaySymbol,
         tokenId,
         sendAmount: sendAmountCrypto,
         toAddress
