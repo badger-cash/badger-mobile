@@ -67,18 +67,11 @@ const AuthLoadingScreen = ({
       { tokenId: null, amountFormatted: null }
     );
 
-    const ticker = tokenId
-      ? tokensById[tokenId]
-        ? tokensById[tokenId].symbol
-        : "---"
-      : "BCH";
-
     const formattedAddress = tokenId
       ? await addressToSlp(address)
       : await addressToCash(address);
 
     navigation.navigate("SendSetup", {
-      symbol: ticker,
       tokenId,
       uriAddress: typeof formattedAddress === "string" ? formattedAddress : "",
       uriAmount: amountFormatted

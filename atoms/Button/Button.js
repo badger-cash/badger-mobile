@@ -7,7 +7,7 @@ import T from "../T";
 
 const StyledButton = styled(TouchableOpacity)`
   border-width: ${StyleSheet.hairlineWidth};
-  min-width: 150px;
+  min-width: 135px;
 
   padding: 8px 12px;
   border-radius: 3px;
