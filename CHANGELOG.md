@@ -1,4 +1,12 @@
-# Badger Wallet changelog
+# Badger Wallet - Changelog
+
+## 0.9.0
+
+- Request amount of any token from the detail screen
+- Scan and parse URI's and QR codes for SLP tokens
+- Open Badger Wallet directly from any valid URI
+- Adding in more token icons
+- Icon is now centered correctly
 
 ## 0.8.0
 
