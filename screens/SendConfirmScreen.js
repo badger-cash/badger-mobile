@@ -222,7 +222,7 @@ const SendConfirmScreen = ({
   };
   // Return to setup if any tx params are missing
   if ((!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
-    navigation.navigate("SendSetup", { symbol, tokenId });
+    navigation.navigate("SendSetup", { tokenId });
   }
 
   const imageSource = getTokenImage(tokenId);

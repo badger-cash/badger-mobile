@@ -24,6 +24,8 @@ import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
 
+import { updateTokensMeta } from "../data/tokens/actions";
+
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -45,6 +47,7 @@ type Props = {
   balances: Balances,
   spotPrices: any,
   fiatCurrency: CurrencyCode,
+  updateTokensMeta: Function,
   navigation: {
     navigate: Function,
     state?: {
@@ -167,7 +170,8 @@ const SendSetupScreen = ({
   tokensById,
   balances,
   spotPrices,
-  fiatCurrency
+  fiatCurrency,
+  updateTokensMeta
 }: Props) => {
   const [qrOpen, setQrOpen] = useState(false);
 
@@ -180,13 +184,18 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState([]);
 
-  const { symbol, tokenId, uriAddress, uriAmount } = (navigation.state &&
+  const { tokenId, uriAddress, uriAmount } = (navigation.state &&
     navigation.state.params) || {
-    symbol: null,
     tokenId: null,
     uriAddress: null,
     uriAmount: null
   };
+
+  const displaySymbol = tokenId
+    ? tokensById[tokenId]
+      ? tokensById[tokenId].symbol
+      : "---"
+    : "BCH";
 
   // Set initial values from params
   useEffect(() => {
@@ -198,6 +207,13 @@ const SendSetupScreen = ({
       setSendAmount(uriAmount);
     }
   }, []);
+
+  // Fetch token Metadata if it is unknown
+  useEffect(() => {
+    if (!tokensById[tokenId]) {
+      updateTokensMeta([tokenId]);
+    }
+  }, [tokenId]);
 
   let availableAmount = new BigNumber(0);
   if (tokenId) {
@@ -291,7 +307,7 @@ const SendSetupScreen = ({
 
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
-        symbol,
+        displaySymbol,
         tokenId,
         sendAmount: sendAmountCrypto,
         toAddress
@@ -460,7 +476,7 @@ const SendSetupScreen = ({
                 <Spacer small />
               </>
             )}
-            <T center>Balance ({symbol || "---"})</T>
+            <T center>Balance ({displaySymbol || "---"})</T>
             <H2 center>{availableFundsDisplay}</H2>
             {fiatDisplayTotal && (
               <T center type="muted">
@@ -516,7 +532,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCryptoFormatted || "0"} {symbol}
+                  {sendAmountCryptoFormatted || "0"} {displaySymbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
@@ -530,7 +546,7 @@ const SendSetupScreen = ({
               <AmountLabel>
                 <T type="muted2" weight="bold">
                   {amountType === "crypto"
-                    ? symbol
+                    ? displaySymbol
                     : fiatCurrency.toUpperCase()}
                 </T>
               </AmountLabel>
@@ -563,7 +579,7 @@ const SendSetupScreen = ({
                     <Ionicons name="ios-swap" size={18} />{" "}
                     {amountType === "crypto"
                       ? fiatCurrency.toUpperCase()
-                      : symbol}
+                      : displaySymbol}
                   </T>
                 </StyledButton>
               ) : (
@@ -620,4 +636,11 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(SendSetupScreen);
+const mapDispatchToProps = {
+  updateTokensMeta
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SendSetupScreen);
