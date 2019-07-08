@@ -209,6 +209,7 @@ const SendSetupScreen = ({
 
   // Fetch token Metadata if it is unknown
   useEffect(() => {
+    if (!tokenId) return;
     if (!tokensById[tokenId]) {
       updateTokensMeta([tokenId]);
     }
