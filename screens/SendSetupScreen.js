@@ -52,7 +52,6 @@ type Props = {
     navigate: Function,
     state?: {
       params: {
-        symbol: string,
         tokenId: ?string,
         uriAmount?: ?string,
         uriAddress?: ?string
