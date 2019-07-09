@@ -1,7 +1,7 @@
 // @flow
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   Clipboard,
   Dimensions,
@@ -24,6 +24,8 @@ import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
 
+import { updateTokensMeta } from "../data/tokens/actions";
+
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -31,17 +33,32 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import {
   formatAmount,
+  formatAmountInput,
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
-import {
-  currencySymbolMap,
-  currencyDecimalMap,
-  type CurrencyCode
-} from "../utils/currency-utils";
+import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 const SLP = new SLPSDK();
+
+type Props = {
+  tokensById: { [tokenId: string]: TokenData },
+  balances: Balances,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  updateTokensMeta: Function,
+  navigation: {
+    navigate: Function,
+    state?: {
+      params: {
+        tokenId: ?string,
+        uriAmount?: ?string,
+        uriAddress?: ?string
+      }
+    }
+  }
+};
 
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
@@ -147,80 +164,13 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
-// Only allow numbers and a single . in amount input
-const formatAmountInput = (amount: string, maxDecimals: number): string => {
-  const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-  let decimalCount = 0;
-
-  const valid = amount.split("").reduce((prev, curr, idx, array) => {
-    // Only allow max 1 leading 0
-    if (idx === 1 && curr === "0" && array[0] === "0") return prev;
-
-    // Filter non-valid characters
-    if (validCharacters.includes(curr)) return [...prev, curr];
-
-    // Max of 1 decimal
-    if (curr === "." && decimalCount === 0) {
-      decimalCount++;
-      return [...prev, curr];
-    }
-    return prev;
-  }, []);
-
-  // Add a 0 if first digit is a '.'
-  const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
-
-  // Restrict decimals
-  const decimalIndex = maybeZero.indexOf(".");
-  const decimalAdjusted =
-    decimalIndex >= 0
-      ? maybeZero.slice(0, decimalIndex + maxDecimals + 1)
-      : maybeZero;
-
-  return decimalAdjusted.join("");
-};
-
-const parseQr = (qrData: string): { address: string, amount: ?string } => {
-  let address = null;
-  let amount = null;
-
-  // Parse out address and any BIP21 relevant data
-  const parts = qrData.split("?");
-
-  address = parts[0];
-  const parameters = parts[1];
-  if (parameters) {
-    const parameterParts = parameters.split("&");
-    parameterParts.map(param => {
-      const [name, value] = param.split("=");
-      if (name === "amount") {
-        amount = value;
-      }
-    });
-  }
-  return {
-    address,
-    amount
-  };
-};
-
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  navigation: {
-    navigate: Function,
-    state?: { params: { symbol: string, tokenId: ?string } }
-  }
-};
-
 const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
   spotPrices,
-  fiatCurrency
+  fiatCurrency,
+  updateTokensMeta
 }: Props) => {
   const [qrOpen, setQrOpen] = useState(false);
 
@@ -233,11 +183,37 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState([]);
 
-  // Todo - Handle if send with nothing pre-selected on navigation
-  const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
-    symbol: null,
-    tokenId: null
+  const { tokenId, uriAddress, uriAmount } = (navigation.state &&
+    navigation.state.params) || {
+    tokenId: null,
+    uriAddress: null,
+    uriAmount: null
   };
+
+  const displaySymbol = tokenId
+    ? tokensById[tokenId]
+      ? tokensById[tokenId].symbol
+      : "---"
+    : "BCH";
+
+  // Set initial values from params
+  useEffect(() => {
+    if (uriAddress) {
+      setToAddress(uriAddress);
+    }
+    if (uriAmount) {
+      setAmountType("crypto");
+      setSendAmount(uriAmount);
+    }
+  }, []);
+
+  // Fetch token Metadata if it is unknown
+  useEffect(() => {
+    if (!tokenId) return;
+    if (!tokensById[tokenId]) {
+      updateTokensMeta([tokenId]);
+    }
+  }, [tokenId]);
 
   let availableAmount = new BigNumber(0);
   if (tokenId) {
@@ -252,11 +228,12 @@ const SendSetupScreen = ({
     }
   }
 
-  if (availableAmount === undefined) {
+  if (!availableAmount) {
     availableAmount = new BigNumber(0);
   }
 
-  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+  const coinDecimals =
+    tokenId && tokensById[tokenId] ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
@@ -287,7 +264,9 @@ const SendSetupScreen = ({
 
   const sendAmountNumber = parseFloat(sendAmount);
 
-  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
+  const tokenName =
+    tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
+  const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
 
   const imageSource = getTokenImage(tokenId);
 
@@ -321,14 +300,54 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
+    if (!sendAmountCrypto) {
+      setErrors(["Amount required"]);
+      hasErrors = true;
+    }
+
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
-        symbol,
         tokenId,
         sendAmount: sendAmountCrypto,
         toAddress
       });
     }
+  };
+
+  const parseQr = (
+    qrData: string
+  ): { address: string, amount: ?string, tokenId: ?string } => {
+    let address = null;
+    let amount = null;
+    let uriTokenId = null;
+
+    // Parse out address and any other relevant data
+    const parts = qrData.split("?");
+
+    address = parts[0];
+    const parameters = parts[1];
+    if (parameters) {
+      const parameterParts = parameters.split("&");
+      parameterParts.forEach(param => {
+        const [name, value] = param.split("=");
+        if (amount && uriTokenId) return;
+
+        if (name.startsWith("amount")) {
+          if (value.includes("-")) {
+            const amountSplit = value.split("-");
+            amount = amountSplit[0];
+            uriTokenId = amountSplit[1];
+          } else {
+            amount = value;
+          }
+        }
+      });
+    }
+    return {
+      address,
+      amount,
+      tokenId: uriTokenId
+    };
   };
 
   useEffect(() => {
@@ -377,16 +396,32 @@ const SendSetupScreen = ({
                 fadeIn={false}
                 onRead={e => {
                   const qrData = e.data;
-                  const { address, amount } = parseQr(qrData);
 
-                  // If there's an amount, set the type to crypto
-                  amount && setAmountType("crypto");
-
-                  address && setToAddress(address);
-                  amount && setSendAmount(amount);
+                  const parsedData = parseQr(qrData);
 
                   setErrors([]);
                   setQrOpen(false);
+
+                  // Verify the type matches the screen we are on.
+                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
+                    setErrors([
+                      "Sending different coin or token than selected, go to the target coin screen and try again"
+                    ]);
+                    return;
+                  }
+
+                  // If there's an amount, set the type to crypto
+                  parsedData.amount && setAmountType("crypto");
+                  if (parsedData.address) {
+                    setToAddress(parsedData.address);
+                    const isValidAddress =
+                      SLP.Address.isCashAddress(parsedData.address) ||
+                      SLP.Address.isSLPAddress(parsedData.address);
+                    if (isValidAddress.message) {
+                      setErrors([isValidAddress.message]);
+                    }
+                  }
+                  parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
@@ -440,7 +475,7 @@ const SendSetupScreen = ({
                 <Spacer small />
               </>
             )}
-            <T center>Balance ({symbol || "---"})</T>
+            <T center>Balance ({displaySymbol || "---"})</T>
             <H2 center>{availableFundsDisplay}</H2>
             {fiatDisplayTotal && (
               <T center type="muted">
@@ -496,7 +531,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCryptoFormatted || "0"} {symbol}
+                  {sendAmountCryptoFormatted || "0"} {displaySymbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
@@ -510,7 +545,7 @@ const SendSetupScreen = ({
               <AmountLabel>
                 <T type="muted2" weight="bold">
                   {amountType === "crypto"
-                    ? symbol
+                    ? displaySymbol
                     : fiatCurrency.toUpperCase()}
                 </T>
               </AmountLabel>
@@ -543,7 +578,7 @@ const SendSetupScreen = ({
                     <Ionicons name="ios-swap" size={18} />{" "}
                     {amountType === "crypto"
                       ? fiatCurrency.toUpperCase()
-                      : symbol}
+                      : displaySymbol}
                   </T>
                 </StyledButton>
               ) : (
@@ -600,4 +635,11 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(SendSetupScreen);
+const mapDispatchToProps = {
+  updateTokensMeta
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SendSetupScreen);

@@ -35,5 +35,8 @@ const deriveAccount = (
 const addressToSlp = async (address: string) => {
   return await SLP.Address.toSLPAddress(address);
 };
+const addressToCash = async (address: string) => {
+  return await SLP.Address.toCashAddress(address);
+};
 
-export { deriveAccount, addressToSlp, generateMnemonic };
+export { deriveAccount, addressToSlp, addressToCash, generateMnemonic };
