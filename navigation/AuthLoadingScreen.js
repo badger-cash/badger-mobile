@@ -12,6 +12,7 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { addressToSlp, addressToCash } from "../utils/account-utils";
+import { getType } from "../utils/schemeParser-utils";
 
 const Wrapper = styled(View)`
   justify-content: center;
@@ -41,39 +42,48 @@ const AuthLoadingScreen = ({
   const handleDeepLink = async params => {
     const { address } = params;
 
+    let amountFormatted = null;
+    let addressFormatted = null;
+    let tokenId = null;
+    let parseError = null;
+
     const amounts = Object.entries(params).filter(
       ([key: string, val: string]) => key.startsWith("amount")
     );
 
-    // Only support sending one token type or BCH at a time
-    const { amountFormatted, tokenId } = amounts.reduce(
-      (acc, curr) => {
-        if (acc.tokenId && acc.amountFormatted) return acc;
+    const amountsFormatted = amounts.map(curr => {
+      const amountRaw = curr[1];
+      let currTokenId = null;
+      let currAmount = null;
 
-        let nextTokenId = null;
-        let nextAmount = null;
+      if (amountRaw.includes("-")) {
+        [currAmount, currTokenId] = amountRaw.split("-");
+      } else {
+        currAmount = amountRaw;
+      }
+      return { tokenId: currTokenId, paramAmount: currAmount };
+    });
 
-        const amountRaw = curr[1];
-        if (amountRaw.includes("-")) {
-          [nextAmount, nextTokenId] = amountRaw.split("-");
-        } else {
-          nextAmount = amountRaw;
-        }
-        return {
-          tokenId: nextTokenId,
-          amountFormatted: nextAmount
-        };
-      },
-      { tokenId: null, amountFormatted: null }
-    );
+    if (amountsFormatted.length > 1) {
+      parseError =
+        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+    } else if (amountsFormatted.length === 1) {
+      const target = amountsFormatted[0];
+      tokenId = target.tokenId;
+      amountFormatted = target.paramAmount;
+    }
 
-    const formattedAddress = tokenId
-      ? await addressToSlp(address)
-      : await addressToCash(address);
+    const type = getType(address);
+
+    addressFormatted =
+      type === "cashaddr"
+        ? await addressToCash(address)
+        : await addressToSlp(address);
 
     navigation.navigate("SendSetup", {
       tokenId,
-      uriAddress: typeof formattedAddress === "string" ? formattedAddress : "",
+      uriError: parseError,
+      uriAddress: typeof addressFormatted === "string" ? addressFormatted : "",
       uriAmount: amountFormatted
     });
   };
