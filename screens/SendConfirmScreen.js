@@ -221,7 +221,14 @@ const SendConfirmScreen = ({
     } catch (e) {
       setConfirmSwipeActivated(false);
       setTransactionState("setup");
-      setSendError(e);
+      const errorFormatted =
+        {
+          "66: insufficient priority": new Error(
+            "SLP transactions require a small amount of BCH to pay the transaction fee.  Please add a small amount of BCH to your wallet and try again"
+          )
+        }[e.error] || e;
+
+      setSendError(errorFormatted);
     }
   };
   // Return to setup if any tx params are missing
