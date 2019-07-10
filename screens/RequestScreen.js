@@ -337,7 +337,9 @@ const RequestSetupScreen = ({
             />
             {!isShowing && (
               <QROverlay>
-                <T type="accent">Amount Required</T>
+                <T type="accent" center>
+                  Amount Required
+                </T>
               </QROverlay>
             )}
           </QRHolder>

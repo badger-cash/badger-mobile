@@ -183,11 +183,12 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState([]);
 
-  const { tokenId, uriAddress, uriAmount } = (navigation.state &&
+  const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
     navigation.state.params) || {
     tokenId: null,
     uriAddress: null,
-    uriAmount: null
+    uriAmount: null,
+    uriError: null
   };
 
   const displaySymbol = tokenId
@@ -204,6 +205,9 @@ const SendSetupScreen = ({
     if (uriAmount) {
       setAmountType("crypto");
       setSendAmount(uriAmount);
+    }
+    if (uriError) {
+      setErrors([uriError]);
     }
   }, []);
 
@@ -320,6 +324,9 @@ const SendSetupScreen = ({
     let address = null;
     let amount = null;
     let uriTokenId = null;
+    let parseError = null;
+
+    let amounts = [];
 
     // Parse out address and any other relevant data
     const parts = qrData.split("?");
@@ -330,22 +337,32 @@ const SendSetupScreen = ({
       const parameterParts = parameters.split("&");
       parameterParts.forEach(param => {
         const [name, value] = param.split("=");
-        if (amount && uriTokenId) return;
-
         if (name.startsWith("amount")) {
+          let currTokenId;
+          let currAmount;
           if (value.includes("-")) {
-            const amountSplit = value.split("-");
-            amount = amountSplit[0];
-            uriTokenId = amountSplit[1];
+            [currAmount, currTokenId] = value.split("-");
           } else {
-            amount = value;
+            currAmount = value;
           }
+          amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
         }
       });
     }
+
+    if (amounts.length > 1) {
+      parseError =
+        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+    } else if (amounts.length === 1) {
+      const target = amounts[0];
+      uriTokenId = target.tokenId;
+      amount = target.paramAmount;
+    }
+
     return {
       address,
       amount,
+      parseError,
       tokenId: uriTokenId
     };
   };
@@ -409,6 +426,8 @@ const SendSetupScreen = ({
                     ]);
                     return;
                   }
+
+                  parsedData.parseError && setErrors([parsedData.parseError]);
 
                   // If there's an amount, set the type to crypto
                   parsedData.amount && setAmountType("crypto");
