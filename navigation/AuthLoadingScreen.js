@@ -12,6 +12,7 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { addressToSlp, addressToCash } from "../utils/account-utils";
+import { getType } from "../utils/schemeParser-utils";
 
 const Wrapper = styled(View)`
   justify-content: center;
@@ -72,9 +73,12 @@ const AuthLoadingScreen = ({
       amountFormatted = target.paramAmount;
     }
 
-    addressFormatted = tokenId
-      ? await addressToSlp(address)
-      : await addressToCash(address);
+    const type = getType(address);
+
+    addressFormatted =
+      type === "cashaddr"
+        ? await addressToCash(address)
+        : await addressToSlp(address);
 
     navigation.navigate("SendSetup", {
       tokenId,
