@@ -48,15 +48,69 @@ const signIn = async setUserInfo => {
     }
   }
   return asdf;
+const requestWriteStoragePermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: "Write your android storage Permission",
+        message: "Write your android storage to save your data"
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can write storage");
+    } else {
+      console.log("Write Storage permission denied");
+    }
+  } catch (err) {
+    console.log("cannot write", err);
+  }
 };
+
+const requestReadStoragePermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      {
+        title: "Read your android storage Permission",
+        message: "Read your android storage to save your data"
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can Read storage");
+    } else {
+      console.log("Read Storage permission denied");
+    }
+  } catch (err) {
+    console.log("cannot read", err);
+  }
+};
+
+async function checkPermissions() {
+  const canWrite = await PermissionsAndroid.check(
+    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+  );
+  if (!canWrite) {
+    requestWriteStoragePermission();
+  }
+
+  const canRead = await PermissionsAndroid.check(
+    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+  );
+
+  if (!canRead) {
+    requestReadStoragePermission();
+  }
+}
 
 type Props = {};
 const GoogleDriveBackup = (props: Props) => {
-  // useEffect(async () => {
-  //   // signIn();
-  // }, []);
+  useEffect(() => {
+    checkPermissions();
+  }, []);
 
   const [userInfo, setUserInfo] = useState("");
+  const [accessToken, setAccessToken] = useState("");
 
   console.log("state", userInfo);
 
@@ -76,6 +130,8 @@ const GoogleDriveBackup = (props: Props) => {
             console.log("result", result);
 
             setUserInfo(result);
+            const { accessToken } = await GoogleSignin.getTokens();
+            setAccessToken(accessToken);
           }}
           disabled={false}
         />
