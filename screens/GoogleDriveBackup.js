@@ -30,13 +30,12 @@ const ScreenWrapper = styled(ScrollView)`
 
 GoogleSignin.configure();
 
-const signIn = async setUserInfo => {
-  let asdf;
+const signIn = async () => {
+  let info;
   try {
-    asdf = await GoogleSignin.signIn();
+    info = await GoogleSignin.signIn();
   } catch (error) {
-    console.log("error", error);
-
+    console.log("error signing in ", error);
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       // user cancelled the login flow
     } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -47,7 +46,9 @@ const signIn = async setUserInfo => {
       // some other error happened
     }
   }
-  return asdf;
+  return info;
+};
+
 const requestWriteStoragePermission = async () => {
   try {
     const granted = await PermissionsAndroid.request(
