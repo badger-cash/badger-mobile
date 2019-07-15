@@ -135,7 +135,7 @@ const SendSuccessScreen = ({
           <H2 center type="inverse">
             Sent
           </H2>
-          <Spacer small />
+          <Spacer tiny />
           <H2 center weight="bold" type="inverse">
             {valueAdjusted.toFormat()} {symbol}
           </H2>

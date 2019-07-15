@@ -23,6 +23,8 @@ import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
 
+import { updateTokensMeta } from "../data/tokens/actions";
+
 import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -38,6 +40,24 @@ import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
+
+type Props = {
+  tokensById: { [tokenId: string]: TokenData },
+  balances: Balances,
+  spotPrices: any,
+  fiatCurrency: CurrencyCode,
+  updateTokensMeta: Function,
+  navigation: {
+    navigate: Function,
+    state?: {
+      params: {
+        tokenId: ?string,
+        uriAmount?: ?string,
+        uriAddress?: ?string
+      }
+    }
+  }
+};
 
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
@@ -167,23 +187,13 @@ const parseQr = (qrData: string): { address: string, amount: ?string } => {
   };
 };
 
-type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  balances: Balances,
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  navigation: {
-    navigate: Function,
-    state?: { params: { symbol: string, tokenId: ?string } }
-  }
-};
-
 const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
   spotPrices,
-  fiatCurrency
+  fiatCurrency,
+  updateTokensMeta
 }: Props) => {
   const [qrOpen, setQrOpen] = useState(false);
 
@@ -196,11 +206,41 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState([]);
 
-  // Todo - Handle if send with nothing pre-selected on navigation
-  const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
-    symbol: null,
-    tokenId: null
+  const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
+    navigation.state.params) || {
+    tokenId: null,
+    uriAddress: null,
+    uriAmount: null,
+    uriError: null
   };
+
+  const displaySymbol = tokenId
+    ? tokensById[tokenId]
+      ? tokensById[tokenId].symbol
+      : "---"
+    : "BCH";
+
+  // Set initial values from params
+  useEffect(() => {
+    if (uriAddress) {
+      setToAddress(uriAddress);
+    }
+    if (uriAmount) {
+      setAmountType("crypto");
+      setSendAmount(uriAmount);
+    }
+    if (uriError) {
+      setErrors([uriError]);
+    }
+  }, []);
+
+  // Fetch token Metadata if it is unknown
+  useEffect(() => {
+    if (!tokenId) return;
+    if (!tokensById[tokenId]) {
+      updateTokensMeta([tokenId]);
+    }
+  }, [tokenId]);
 
   let availableAmount = new BigNumber(0);
   if (tokenId) {
@@ -215,11 +255,12 @@ const SendSetupScreen = ({
     }
   }
 
-  if (availableAmount === undefined) {
+  if (!availableAmount) {
     availableAmount = new BigNumber(0);
   }
 
-  const coinDecimals = tokenId ? tokensById[tokenId].decimals : 8;
+  const coinDecimals =
+    tokenId && tokensById[tokenId] ? tokensById[tokenId].decimals : 8;
 
   const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
   const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
@@ -250,7 +291,9 @@ const SendSetupScreen = ({
 
   const sendAmountNumber = parseFloat(sendAmount);
 
-  const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
+  const tokenName =
+    tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
+  const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
 
   const imageSource = getTokenImage(tokenId);
 
@@ -284,14 +327,67 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
+    if (!sendAmountCrypto) {
+      setErrors(["Amount required"]);
+      hasErrors = true;
+    }
+
     if (!hasErrors) {
       navigation.navigate("SendConfirm", {
-        symbol,
         tokenId,
         sendAmount: sendAmountCrypto,
         toAddress
       });
     }
+  };
+
+  const parseQr = (
+    qrData: string
+  ): { address: string, amount: ?string, tokenId: ?string } => {
+    let address = null;
+    let amount = null;
+    let uriTokenId = null;
+    let parseError = null;
+
+    let amounts = [];
+
+    // Parse out address and any other relevant data
+    const parts = qrData.split("?");
+
+    address = parts[0];
+    const parameters = parts[1];
+    if (parameters) {
+      const parameterParts = parameters.split("&");
+      parameterParts.forEach(param => {
+        const [name, value] = param.split("=");
+        if (name.startsWith("amount")) {
+          let currTokenId;
+          let currAmount;
+          if (value.includes("-")) {
+            [currAmount, currTokenId] = value.split("-");
+          } else {
+            currAmount = value;
+          }
+          amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
+        }
+      });
+    }
+
+    if (amounts.length > 1) {
+      parseError =
+        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+    } else if (amounts.length === 1) {
+      const target = amounts[0];
+      uriTokenId = target.tokenId;
+      amount = target.paramAmount;
+    }
+
+    return {
+      address,
+      amount,
+      parseError,
+      tokenId: uriTokenId
+    };
   };
 
   useEffect(() => {
@@ -340,16 +436,34 @@ const SendSetupScreen = ({
                 fadeIn={false}
                 onRead={e => {
                   const qrData = e.data;
-                  const { address, amount } = parseQr(qrData);
 
-                  // If there's an amount, set the type to crypto
-                  amount && setAmountType("crypto");
-
-                  address && setToAddress(address);
-                  amount && setSendAmount(amount);
+                  const parsedData = parseQr(qrData);
 
                   setErrors([]);
                   setQrOpen(false);
+
+                  // Verify the type matches the screen we are on.
+                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
+                    setErrors([
+                      "Sending different coin or token than selected, go to the target coin screen and try again"
+                    ]);
+                    return;
+                  }
+
+                  parsedData.parseError && setErrors([parsedData.parseError]);
+
+                  // If there's an amount, set the type to crypto
+                  parsedData.amount && setAmountType("crypto");
+                  if (parsedData.address) {
+                    setToAddress(parsedData.address);
+                    const isValidAddress =
+                      SLP.Address.isCashAddress(parsedData.address) ||
+                      SLP.Address.isSLPAddress(parsedData.address);
+                    if (isValidAddress.message) {
+                      setErrors([isValidAddress.message]);
+                    }
+                  }
+                  parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
@@ -403,7 +517,7 @@ const SendSetupScreen = ({
                 <Spacer small />
               </>
             )}
-            <T center>Balance ({symbol || "---"})</T>
+            <T center>Balance ({displaySymbol || "---"})</T>
             <H2 center>{availableFundsDisplay}</H2>
             {fiatDisplayTotal && (
               <T center type="muted">
@@ -459,7 +573,7 @@ const SendSetupScreen = ({
               <T>Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCryptoFormatted || "0"} {symbol}
+                  {sendAmountCryptoFormatted || "0"} {displaySymbol}
                 </T>
                 {!tokenId && (
                   <T size="small" monospace right>
@@ -473,7 +587,7 @@ const SendSetupScreen = ({
               <AmountLabel>
                 <T type="muted2" weight="bold">
                   {amountType === "crypto"
-                    ? symbol
+                    ? displaySymbol
                     : fiatCurrency.toUpperCase()}
                 </T>
               </AmountLabel>
@@ -506,7 +620,7 @@ const SendSetupScreen = ({
                     <Ionicons name="ios-swap" size={18} />{" "}
                     {amountType === "crypto"
                       ? fiatCurrency.toUpperCase()
-                      : symbol}
+                      : displaySymbol}
                   </T>
                 </StyledButton>
               ) : (
@@ -563,4 +677,11 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(SendSetupScreen);
+const mapDispatchToProps = {
+  updateTokensMeta
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SendSetupScreen);

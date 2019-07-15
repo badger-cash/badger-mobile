@@ -114,7 +114,6 @@ type Props = {
     replace: Function,
     state?: {
       params: {
-        symbol: string,
         tokenId: ?string,
         sendAmount: string,
         toAddress: string
@@ -140,13 +139,18 @@ const SendConfirmScreen = ({
     setTransactionState
   ] = useState("setup");
 
-  const { symbol, tokenId, sendAmount, toAddress } = (navigation.state &&
+  const { tokenId, sendAmount, toAddress } = (navigation.state &&
     navigation.state.params) || {
-    symbol: null,
     tokenId: null,
     sendAmount: null,
     toAddress: ""
   };
+
+  const displaySymbol = tokenId
+    ? tokensById[tokenId]
+      ? tokensById[tokenId].symbol
+      : "---"
+    : "BCH";
 
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
@@ -215,12 +219,19 @@ const SendConfirmScreen = ({
     } catch (e) {
       setConfirmSwipeActivated(false);
       setTransactionState("setup");
-      setSendError(e);
+      const errorFormatted =
+        {
+          "66: insufficient priority": new Error(
+            "SLP transactions require a small amount of BCH to pay the transaction fee.  Please add a small amount of BCH to your wallet and try again"
+          )
+        }[e.error] || e;
+
+      setSendError(errorFormatted);
     }
   };
   // Return to setup if any tx params are missing
-  if ((!tokenId && symbol !== "BCH") || !sendAmount || !toAddress) {
-    navigation.navigate("SendSetup", { symbol, tokenId });
+  if ((!tokenId && displaySymbol !== "BCH") || !sendAmount || !toAddress) {
+    navigation.navigate("SendSetup", { tokenId });
   }
 
   const imageSource = getTokenImage(tokenId);
@@ -269,7 +280,7 @@ const SendConfirmScreen = ({
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
-          {sendAmountFormatted.toFormat() || "--"} {symbol}
+          {sendAmountFormatted.toFormat() || "--"} {displaySymbol}
         </H2>
         {fiatDisplay && (
           <T center type="muted">

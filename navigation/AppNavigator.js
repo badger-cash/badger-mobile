@@ -11,10 +11,10 @@ import AuthStack from "./AuthStack";
 export default createAppContainer(
   createSwitchNavigator(
     {
-      AuthStack,
+      AuthStack: { screen: AuthStack, path: "" },
       // SendStack: { screen: SendStack },
-      AuthLoadingCheck: AuthLoadingScreen,
-      Main: MainAppStack
+      AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":address" },
+      Main: { screen: MainAppStack, path: "" }
     },
     {
       initialRouteName: "AuthLoadingCheck"
