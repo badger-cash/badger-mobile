@@ -54,7 +54,8 @@ type Props = {
       params: {
         tokenId: ?string,
         uriAmount?: ?string,
-        uriAddress?: ?string
+        uriAddress?: ?string,
+        uriError?: ?string
       }
     }
   }

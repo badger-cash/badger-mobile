@@ -8,8 +8,6 @@ import { ActivityIndicator, View } from "react-native";
 import { T, Spacer } from "../atoms";
 import { getMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
-import { tokensByIdSelector } from "../data/tokens/selectors";
-import { type TokenData } from "../data/tokens/reducer";
 
 import { addressToSlp, addressToCash } from "../utils/account-utils";
 import { getType } from "../utils/schemeParser-utils";
@@ -29,16 +27,10 @@ const InnerWrapper = styled(View)`
 type Props = {
   navigation: { navigate: Function, state: { params: any } },
   mnemonic: string,
-  tokensById: { [tokenId: string]: TokenData },
   getAccount: Function
 };
 
-const AuthLoadingScreen = ({
-  navigation,
-  mnemonic,
-  getAccount,
-  tokensById
-}: Props) => {
+const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   const handleDeepLink = async params => {
     const { address } = params;
 
@@ -56,7 +48,7 @@ const AuthLoadingScreen = ({
       let currTokenId = null;
       let currAmount = null;
 
-      if (amountRaw.includes("-")) {
+      if (amountRaw && amountRaw.includes("-")) {
         [currAmount, currTokenId] = amountRaw.split("-");
       } else {
         currAmount = amountRaw;
@@ -117,7 +109,6 @@ const AuthLoadingScreen = ({
 
 const mapStateToProps = state => {
   return {
-    tokensById: tokensByIdSelector(state),
     mnemonic: getMnemonicSelector(state)
   };
 };
