@@ -1,4 +1,12 @@
-# Badger Wallet changelog
+# Badger Wallet - Changelog
+
+## 0.9.0
+
+- Request amount of any token from the detail screen
+- Scan and parse URI's and QR codes for SLP tokens
+- Open Badger Wallet directly from any valid URI
+- Adding in more token icons
+- Icon is now centered correctly
 
 ## 0.8.0
 
@@ -14,13 +22,13 @@
 
 - Currency select screen from Menu
 - Change to any base currency to display your BCH balance as.
-  - At first enabling a whistelist of 24 top used currencies
+  - At first enabling a whitelist of 24 top used currencies
 - Number formatting improvements throughout to better match selected currency
 - Improved fee calculations when sending SLP
 
 ### Bug fixes
 
-- Updating bitbox to reduce server load
+- Updating bitbox-sdk to reduce server load
 - Fixed SLP issue sending tokens when user has a large number of SLP related UTXO
 - Fixed bug where new users see negative balance in sending flow
 - Allow sending non fungible tokens without ticker symbols

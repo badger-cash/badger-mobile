@@ -42,7 +42,6 @@ const IconImage = styled(Image)`
   height: 64;
   border-radius: 32;
   overflow: hidden;
-  border: 2px solid ${props => props.theme.bg900};
 `;
 
 type Props = {
@@ -137,7 +136,7 @@ const SendSuccessScreen = ({
           <H2 center type="inverse">
             Sent
           </H2>
-          <Spacer small />
+          <Spacer tiny />
           <H2 center weight="bold" type="inverse">
             {valueAdjusted.toFormat()} {symbol}
           </H2>
