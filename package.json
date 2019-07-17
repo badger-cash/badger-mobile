@@ -15,7 +15,9 @@
     "start": "react-native start",
     "test": "jest",
     "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm,url --hack",
-    "format": "pretty-quick"
+    "format": "pretty-quick",
+    "android-build": "cd android && ./gradelew buildRelease",
+    "android-bundle": "cd android && ./gradlew bundleRelease"
   },
   "engines": {
     "node": ">=10.16.0"
