@@ -151,8 +151,9 @@ yarn run android-bundle
 ##### Distribute
 
 - Go to [Play console](https://play.google.com/apps/publish/)
-- Upload each build version for release
+- Upload the `bundle` for release
 - Launch to Beta/Alpha group, test, then production
+- Add the universal `.apk` on badger.bitcoin.com
 
 ##### To run production build locally
 
