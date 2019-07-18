@@ -163,8 +163,6 @@ yarn run android-bundle
 
 ### Asset / Icon / Splash Screen Generation
 
-#### Android
-
 - Android Studio has a build in asset management tool, use that.
 - iOS convert icons to appropriate sizes, then upload through xCode
 
