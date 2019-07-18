@@ -143,7 +143,7 @@ yarn run android-build
 
 ```bash
 cd android
-./gradlew assembleRelease
+./gradlew bundleRelease
 or
 yarn run android-bundle
 ```
