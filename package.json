@@ -16,7 +16,7 @@
     "test": "jest",
     "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm,url --hack",
     "format": "pretty-quick",
-    "android-build": "cd android && ./gradelew buildRelease",
+    "android-build": "cd android && ./gradlew buildRelease",
     "android-bundle": "cd android && ./gradlew bundleRelease"
   },
   "engines": {
