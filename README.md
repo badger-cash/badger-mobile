@@ -14,6 +14,9 @@ Badger Wallet mobile app is primarily built on the following technologies.
   - styled-components
 - bitbox-sdk
 - slp-sdk
+- flowjs
+- prettier
+- yarn
 
 The file structure is as follows...
 
