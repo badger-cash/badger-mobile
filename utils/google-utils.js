@@ -11,48 +11,146 @@ const badgerDirMeta = {
 };
 
 const boundaryString = "badgerString"; // can be anything
+
+const backupBadgerKeys = async (accessToken, fileContents) => {
   try {
-    const { data } = await axios.get(`${baseUrl}/files?q=${queryParams}`, {
-      headers: {
-        authorization: `Bearer ${accessToken}`
-      }
-    });
-    return data.files;
+    const badgerDir = await getBadgerFolderId(accessToken);
+    const folderExists = !!badgerDir;
+
+    const badgerKeys = await getFile(accessToken, badgerKeysQuery);
+    const fileExists = badgerKeys.length >= 1;
+
+    if (!folderExists) {
+      await createBadgerDir(accessToken);
+    }
+
+    if (!fileExists) {
+      await createFile(accessToken, fileContents);
+    } else {
+      await createFile(accessToken, fileContents, badgerKeys[0].id);
+    }
   } catch (error) {
-    console.log("invalid access token", error);
+    console.log(error);
+
+    throw new Error("error backing up", error);
   }
 };
 
-const createFile = async (accessToken, data) => {
-  await axios
-    .post(`${baseUrl}/files`, data, {
+const getFile = async (accessToken, params = "", fileID = "") => {
+  let queryParams = constructParams(params);
+
+  try {
+    let response = await fetch(`${baseUrl}/files/${fileID}?q=${queryParams}`, {
+      method: "GET",
       headers: {
-        authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`
       }
-    })
-    .then(x => {
-      console.log("x?", x.data);
-
-      return x.data;
     });
-};
 
-const checkFolderExists = async accessToken => {
-  let exists = await getFile(accessToken, badgerFolderQuery);
-  return exists.length >= 1;
+    const { files } = await response.json();
+
+    return files;
+  } catch (error) {
+    throw new Error("error getting file", error);
+  }
 };
 
 const createBadgerDir = async accessToken => {
-  const exists = await checkFolderExists(accessToken);
-  if (!exists) {
-    createFile(accessToken, BadgerDirMeta);
+  try {
+    let response = await fetch(`${baseUrl}/files/`, {
+      method: "POST",
+      body: JSON.stringify(badgerDirMeta),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    let data = await response.json();
+
+    return data;
+  } catch (error) {
+    throw new Error("error in createBadgerDir", error);
   }
 };
 
-const constructParams = query => {
-  return query
-    ? encodeURIComponent(query)
-    : encodeURIComponent("name = 'BadgerKeys.json'");
+const createFile = async (accessToken, fileContents, existingFileId) => {
+  // https://developers.google.com/drive/api/v3/reference/files/create
+
+  const folderID = await getBadgerFolderId(accessToken);
+
+  const body = createMultipartBody(fileContents, folderID, !!existingFileId);
+  const options = configurePostOptions(
+    body.length,
+    accessToken,
+    !!existingFileId
+  );
+
+  try {
+    let response = await fetch(
+      `${uploadUrl}/files${
+        existingFileId ? `/${existingFileId}` : ""
+      }?uploadType=multipart`,
+      {
+        ...options,
+        body
+      }
+    );
+    let data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.log("error ", error);
+
+    throw new Error("error creating file", error);
+  }
+};
+const createMultipartBody = (body, folderID, fileExists = false) => {
+  // https://developers.google.com/drive/v3/web/multipart-upload
+
+  const badgerKeysMetaData = {
+    name: "BadgerKeys.json",
+    description:
+      "Your secret keys for your Badger Wallet. Do not share with anyone.",
+    mimeType: "application/json",
+    parents: fileExists ? "" : [folderID]
+  };
+
+  const multipartBody = `\r\n--${boundaryString}\r\nContent-Type: application/json; charset=UTF-8\r\n\n${JSON.stringify(
+    badgerKeysMetaData
+  )}\r\n--${boundaryString}\r\nContent-Type: application/json\r\n\r\n\n${JSON.stringify(
+    body
+  )}\r\n--${boundaryString}--`;
+
+  return multipartBody;
 };
 
-export { createFile, checkFolderExists, createBadgerDir, getFile };
+const configurePostOptions = (bodyLength, accessToken, fileExists = false) => {
+  return {
+    method: fileExists ? "PATCH" : "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": `multipart/related; boundary=${boundaryString}`,
+      "Content-Length": bodyLength
+    }
+  };
+};
+
+const getBadgerFolderId = async accessToken => {
+  const folder = await getFile(accessToken, badgerFolderQuery);
+
+  if (folder === undefined || folder.length < 1) {
+    return false;
+  }
+
+  return folder[0].id;
+};
+
+const constructParams = query => {
+  if (query) {
+    return encodeURIComponent(query);
+  }
+  return encodeURIComponent("name = 'BadgerKeys.json'");
+};
+
+export { backupBadgerKeys };
