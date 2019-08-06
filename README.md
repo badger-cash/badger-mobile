@@ -117,7 +117,7 @@ To run on a specific device, such as required for taking screenshots for the sto
 #### Android .apk
 
 - Follow the steps at https://facebook.github.io/react-native/docs/signed-apk-android
-- generate `badger-mobile-release.keystore` file and put into /android
+- generate `badger-mobile-release.keystore` file and put into `/android/app`
 - update `android/gradle.properties` with the keystore filename and password
 
 ```
