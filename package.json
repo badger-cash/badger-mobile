@@ -15,7 +15,7 @@
     "start": "react-native start",
     "test": "jest",
     "link": "eslint",
-    "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,vm,url --hack",
+    "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,http,https,vm,url --hack",
     "format": "pretty-quick",
     "android-build": "cd android && ./gradlew buildRelease",
     "android-bundle": "cd android && ./gradlew bundleRelease"
@@ -25,10 +25,12 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.6.1",
+    "@tradle/react-native-http": "^2.0.1",
     "bignumber.js": "^9.0.0",
     "bitbox-sdk": "^8.7.0",
     "ethereum-blockies-base64": "^1.0.2",
-    "events": "^1.1.1",
+    "events": "^3.0.0",
+    "https-browserify": "1.0.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "react": "16.8.6",
@@ -50,7 +52,7 @@
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "slp-sdk": "^4.6.0",
+    "slp-sdk": "^4.7.0",
     "slpjs": "0.21.1",
     "stream-browserify": "^2.0.2",
     "styled-components": "^4.3.2",
@@ -94,7 +96,9 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify",
-    "vm": "vm-browserify"
+    "vm": "vm-browserify",
+    "https": "https-browserify",
+    "http": "@tradle/react-native-http"
   },
   "browser": {
     "crypto": "react-native-crypto",
@@ -104,6 +108,8 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify",
-    "vm": "vm-browserify"
+    "vm": "vm-browserify",
+    "https": "https-browserify",
+    "http": "@tradle/react-native-http"
   }
 }
