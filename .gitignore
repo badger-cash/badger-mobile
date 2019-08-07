@@ -67,7 +67,6 @@ android/.idea/*
 android/local.properties
 android/gradle.properties
 
-Pods/
 flow-typed/
 
 ios/badgerMobile.xcworkspace/xcuserdata/

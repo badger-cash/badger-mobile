@@ -120,6 +120,10 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 def enableHermes = project.ext.react.get("enableHermes", false);
 
 android {
+    dexOptions {
+        javaMaxHeapSize "4g"
+    } 
+    
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -135,6 +139,14 @@ android {
         versionName "1.7.0"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk true  // If true, also generate a universal APK
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+    }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -142,7 +154,6 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-    
         release {
             if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
                 storeFile file(MYAPP_RELEASE_STORE_FILE)
@@ -152,14 +163,7 @@ android {
             }
         }
     }
-    splits {
-        abi {
-            reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk true  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-        }
-    }
+    
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -196,7 +200,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     if (enableHermes) {
