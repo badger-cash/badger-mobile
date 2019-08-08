@@ -36,12 +36,12 @@ target 'badgerMobile' do
   use_native_modules!
 end
 
-target 'badgerMobile-tvOS' do
-  # Pods for RnDiffApp-tvOS
+# target 'badgerMobile-tvOS' do
+#   # Pods for RnDiffApp-tvOS
 
-  target 'badgerMobile-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+#   target 'badgerMobile-tvOSTests' do
+#     inherit! :search_paths
+#     # Pods for testing
+#   end
 
-end
+# end
