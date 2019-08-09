@@ -9,6 +9,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { T, Spacer } from "../../atoms";
 
 import { getTokenImage } from "../../utils/token-utils";
+
 type Props = {
   amount: string,
   extra: string,
@@ -56,6 +57,16 @@ const CoinRow = ({
 }: Props) => {
   const imageSource = getTokenImage(tokenId);
 
+  let [amountWhole, amountDecimal] = (amount && amount.split(".")) || [
+    null,
+    null
+  ];
+
+  amountDecimal =
+    amountDecimal && [...amountDecimal].every(v => v === "0")
+      ? null
+      : amountDecimal;
+
   return (
     <Outer onPress={onPress}>
       <IconArea>
@@ -67,7 +78,10 @@ const CoinRow = ({
           <T type="muted2"> - {name}</T>
         </T>
         <Spacer minimal />
-        <T size="large">{amount}</T>
+        <T size="large">
+          {amountWhole}
+          {amountDecimal && <T type="muted">{`.${amountDecimal}`}</T>}
+        </T>
         {valueDisplay && (
           <T type="muted2" size="small">
             {valueDisplay}
