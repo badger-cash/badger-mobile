@@ -108,7 +108,8 @@ To run on a specific device, such as required for taking screenshots for the sto
 
 - Generate a debug keystore in `android/app`
 
-  - `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
+  - `cd android/app`
+  - `keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android`
 
 ```bash
 > yarn install
