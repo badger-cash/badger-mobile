@@ -115,6 +115,7 @@ To run on a specific device, such as required for taking screenshots for the sto
 > Start an Android device - either
   > Start an Android emulator from Android Studio
   > Or plug in an Android device + enable USB debugging
+> yarn run jetify
 > yarn run android
 ```
 

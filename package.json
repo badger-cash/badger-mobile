@@ -17,6 +17,7 @@
     "link": "eslint",
     "postinstall": "rn-nodeify --install crypto,randombytes,stream,events,http,https,vm,url --hack",
     "format": "pretty-quick",
+    "jetify": "npx jetify",
     "android-build": "cd android && ./gradlew assembleRelease",
     "android-bundle": "cd android && ./gradlew bundleRelease"
   },
