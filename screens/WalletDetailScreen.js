@@ -157,7 +157,7 @@ const WalletDetailScreen = ({
               }}
             >
               <T size="tiny" center>
-                {tokenId}!!
+                {tokenId}
               </T>
             </TouchableOpacity>
           )}

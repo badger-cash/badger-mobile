@@ -533,12 +533,17 @@ const SendSetupScreen = ({
                 onPress={async () => {
                   const content = await Clipboard.getString();
                   let pasteError = null;
+                  let invalidURIError = null;
                   const parsedData = parseQr(content);
 
                   // Verify the type matches the screen we are on.
-                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
-                    pasteError =
-                      "Sending different coin or token than selected, go to the target coin screen and try again";
+                  if (
+                    (parsedData.tokenId == null && tokenId) ||
+                    (parsedData.tokenId && parsedData.tokenId !== tokenId)
+                  ) {
+                    invalidURIError =
+                      "Sending different coin or token from the pasted URI";
+                    setErrors([invalidURIError]);
                     return;
                   }
 
