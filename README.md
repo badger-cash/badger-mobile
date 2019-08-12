@@ -20,7 +20,7 @@ Badger Wallet mobile app is primarily built on the following technologies.
 
 The file structure is as follows...
 
-```
+```bash
 /
   - Config files and project setup
   /assets/
@@ -109,7 +109,9 @@ To run on a specific device, such as required for taking screenshots for the sto
 - Generate a debug keystore in `android/app`
 
   - `cd android/app`
-  - `keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android`
+  - `keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000`
+
+-
 
 ```bash
 > yarn install
@@ -126,7 +128,7 @@ To run on a specific device, such as required for taking screenshots for the sto
 - generate `badger-mobile-release.keystore` file and put into `/android/app`
 - update `android/gradle.properties` with the keystore filename and password
 
-```
+```bash
 MYAPP_RELEASE_STORE_FILE=badger-mobile-release.keystore
 MYAPP_RELEASE_KEY_ALIAS=badger-mobile-release
 MYAPP_RELEASE_STORE_PASSWORD=**********
@@ -158,8 +160,10 @@ yarn run android-bundle
 
 - Go to [Play console](https://play.google.com/apps/publish/)
 - Upload the `bundle` for release
-- Launch to Beta/Alpha group, test, then production
-- Add the universal `.apk` on badger.bitcoin.com
+- Launch to Internal Test group
+- QA
+- Launch to production
+- Update the universal `.apk` on badger.bitcoin.com
 
 ##### To run production build locally
 
@@ -169,11 +173,11 @@ yarn run android-bundle
 
 ### Asset / Icon / Splash Screen Generation
 
-- Android Studio has a build in asset management tool, use that.
+- Android Studio has a built in asset management tool, use that.
 - iOS convert icons to appropriate sizes, then upload through xCode
 
 ###### Nuke All and Reset Local Environment
 
 ```bash
-rm -rf node_modules && yarn install && react-native link && cd ios && pod install && cd .. && yarn run ios
+rm -rf node_modules && yarn install && cd ios && pod install && cd .. && yarn run ios
 ```
