@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
+import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
 import {
   Clipboard,
@@ -139,6 +140,11 @@ const WalletDetailScreen = ({
 
   return (
     <SafeAreaView>
+      <NavigationEvents
+        onWillBlur={() => {
+          setNotifyCopyTokenId(false);
+        }}
+      />
       <ScrollView style={{ height: "100%" }}>
         <View>
           <Spacer small />
@@ -156,9 +162,12 @@ const WalletDetailScreen = ({
             </TouchableOpacity>
           )}
           {notifyCopyTokenId && (
-            <T center size="small" type="primary">
-              Token ID copied to clipboard
-            </T>
+            <>
+              <Spacer minimal />
+              <T center size="small" type="primary">
+                Token ID copied to clipboard
+              </T>
+            </>
           )}
           <Spacer small />
           <IconArea>
