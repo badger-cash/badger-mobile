@@ -44,7 +44,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>3</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -68,6 +68,10 @@
 	<string>Not used by app</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to the camera to scan QR codes</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Not use by app</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Not used by app</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Not used by app</string>
 	<key>NSMotionUsageDescription</key>
@@ -78,10 +82,6 @@
 	<string>Not used by app</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Not used by app</string>
-	<key>NSLocationAlwaysUsageDescription </key>
-	<string>Not used by app</string>
-	<key>NSContactsUsageDescription</key>
-	<string>Not use by app</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
