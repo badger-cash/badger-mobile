@@ -84,6 +84,7 @@ This project use `react-native`. Please refer to the React Native documentation 
 > pod install
 > cd ..
 > yarn run ios
+> yarn start
 ```
 
 To run on a specific device, such as required for taking screenshots for the store (6.5" & 5.5"). Xs Max and iPhone 8 plus are good store screenshot phones.
