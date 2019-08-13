@@ -67,7 +67,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Not used by app</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow access to the camera to scan QR codes?</string>
+	<string>Allow access to the camera to scan QR codes</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Not used by app</string>
 	<key>NSMotionUsageDescription</key>
