@@ -19,10 +19,10 @@ const Row = styled(View)`
   ${props =>
     props.type === "send"
       ? css`
-          background-color: ${props => props.theme.danger700};
+          background-color: ${props => props.theme.accent900};
         `
       : css`
-          background-color: ${props => props.theme.success700};
+          background-color: ${props => props.theme.primary900};
         `}
 `;
 
