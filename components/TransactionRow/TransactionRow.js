@@ -112,9 +112,9 @@ const TransactionRow = ({
   const imageSource = { uri: blockie };
 
   const typeFormatted = {
-    send: "Send",
+    send: "Sent",
     interwallet: "Sent to self",
-    receive: "Receive",
+    receive: "Received",
     payout: "Payout"
   }[type];
 

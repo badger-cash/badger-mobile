@@ -223,7 +223,7 @@ const WalletDetailScreen = ({
               if ([address, addressSlp].includes(from)) {
                 txType = "interwallet";
               } else {
-                if (toAddresses.length > 50) {
+                if (toAddresses.length > 30) {
                   txType = "payout";
                 } else {
                   txType = "receive";
