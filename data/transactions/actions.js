@@ -37,6 +37,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
   return async (dispatch: Function, getState: Function) => {
     if (!address || !addressSlp) return;
 
+    console.log("IN UPDATE RTSANSACTIONS");
+
     dispatch(getTransactionsStart());
 
     const currentState = getState();
@@ -58,13 +60,22 @@ const updateTransactions = (address: string, addressSlp: string) => {
       latestBlock
     );
 
+    // console.log("latest");
+    // console.log(latestBlock);
+
     const [bch145History, bch245History, slpHistory] = await Promise.all([
       transactionsBCH145,
       transactionsBCH245,
       transactionsSlp
     ]);
 
+    // console.log(bch245History.length);
+    // console.log(bch145History.length);
+    // console.log("----");
+
     const transactionsBCH = [...bch145History, ...bch245History];
+
+    console.log(transactionsBCH);
 
     const formattedTransactionsBCH = transactionsBCH.map(tx => {
       const fromAddresses = tx.in
@@ -81,6 +92,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
         fromAddress = address;
       }
 
+      // Show all fromAddresses, maybe highlight own address, but can happen in display section?
+      // Think we can remove the singular from address
+
       const toAddresses = tx.out
         .filter(output => output.e && output.e.a)
         .map(output => `bitcoincash:${output.e.a}`)
@@ -90,15 +104,23 @@ const updateTransactions = (address: string, addressSlp: string) => {
           }
           return accumulator;
         }, []);
+
+      // If one to address, use that.
       let toAddress = toAddresses.length === 1 ? toAddresses[0] : null;
+
       if (
         !toAddress &&
         toAddresses.length === 2 &&
         toAddresses.find(element => element === fromAddress)
       ) {
         toAddress = toAddresses.filter(element => element !== fromAddress)[0];
-      } else if (!toAddress && toAddresses.includes(address)) {
-        toAddress = address;
+      } else if (!toAddress) {
+        // && toAddresses.includes(address)) {
+        toAddress = toAddresses.includes(address)
+          ? address
+          : toAddresses.includes(addressSlp)
+          ? addressSlp
+          : null;
       }
 
       // Determine value
@@ -114,6 +136,26 @@ const updateTransactions = (address: string, addressSlp: string) => {
           }
           return accumulator;
         }, 0);
+      }
+
+      if (
+        tx.tx.h ===
+        "aa8436e9c8c15ab43782bf2e176b74f80a3dc242621adb465c3e3ffef23a6a13"
+      ) {
+        console.log({
+          hash: tx.tx.h,
+          txParams: {
+            from: fromAddress,
+            to: toAddress,
+            fromAddresses,
+            toAddresses,
+            value
+          },
+          time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
+          block: tx.blk && tx.blk.i ? tx.blk.i : 0,
+          status: "confirmed",
+          network: "mainnet"
+        });
       }
 
       return {
@@ -182,6 +224,10 @@ const updateTransactions = (address: string, addressSlp: string) => {
         toAddress = toAddresses.includes(addressSlp)
           ? addressSlp
           : toAddresses.includes(address) && address;
+
+        // console.log(tx.tx.h);
+        // console.log("TO ADDRESS?");
+        // console.log(toAddress);
       }
 
       // Else from and to us?
@@ -231,6 +277,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
         network: "mainnet"
       };
     });
+
+    // console.log(formattedTransactionsBCH.length)
+    // console.log(formattedTransactionsBCH);
+
+    // console.log(address)
+    // console.log(addressSlp)
 
     const formattedTransactionsNew = [
       ...formattedTransactionsBCH,

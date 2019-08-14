@@ -227,6 +227,7 @@ const WalletDetailScreen = ({
             return (
               <TransactionRow
                 key={hash}
+                txId={hash}
                 type={txType}
                 timestamp={time}
                 toAddress={to}
@@ -277,6 +278,10 @@ const mapStateToProps = (state, props) => {
       return !txTokenId;
     })
     .slice(0, 30);
+
+  // console.log('tx length')
+  // console.log(transactions.length)
+  // console.log(transactions)
 
   return {
     address,

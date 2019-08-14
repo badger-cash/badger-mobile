@@ -14,8 +14,9 @@ const SLP = new SLPSDK();
 
 const Row = styled(View)`
   padding: 16px;
-  border-bottom-color: ${props => props.theme.fg700};
-  border-bottom-width: ${StyleSheet.hairlineWidth};
+  margin-bottom: 8px;
+  /* border-bottom-color: ${props => props.theme.bg900};
+  border-bottom-width: 3px; */
   ${props =>
     props.type === "send"
       ? css`
@@ -57,6 +58,7 @@ let blockieCache = {};
 
 type Props = {
   type: "send" | "receive",
+  txId: string,
   timestamp: number,
   toAddress: string,
   toAddresses: string[],
@@ -69,6 +71,7 @@ type Props = {
 
 const TransactionRow = ({
   type,
+  txId,
   timestamp,
   toAddresses,
   toAddress,
@@ -104,11 +107,19 @@ const TransactionRow = ({
   const imageSource = { uri: blockie };
 
   const typeFormatted = type === "send" ? "Sent" : "Received";
+
+  // from addresses, all
+
+  // received - amount
+  // to/from: [address]
+  // txid
+  // timestamp -
   return (
     <Row type={type}>
       <TopRow>
+        <T>{txId}</T>
         <T size="small" type="muted">
-          {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
+          {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
         </T>
         {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
       </TopRow>
