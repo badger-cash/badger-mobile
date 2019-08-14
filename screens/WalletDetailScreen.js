@@ -295,10 +295,6 @@ const mapStateToProps = (state, props) => {
     })
     .slice(0, 30);
 
-  // console.log('tx length')
-  // console.log(transactions.length)
-  // console.log(transactions)
-
   return {
     address,
     addressSlp,
