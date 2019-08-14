@@ -143,7 +143,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer fill />
         <Spacer small />
         <T center size="small" type="muted2">
-          Version 0.10.2 - Beta
+          Version 0.10.3 - Beta
           {/* Version {packageJson.version} - Beta */}
         </T>
         <Spacer small />
