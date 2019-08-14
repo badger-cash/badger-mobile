@@ -538,7 +538,9 @@ const SendSetupScreen = ({
 
                   // Verify the type matches the screen we are on.
                   if (
-                    (parsedData.tokenId == null && tokenId) ||
+                    (parsedData.amount &&
+                      parsedData.tokenId == null &&
+                      tokenId) ||
                     (parsedData.tokenId && parsedData.tokenId !== tokenId)
                   ) {
                     invalidURIError =
