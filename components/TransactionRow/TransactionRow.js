@@ -15,23 +15,14 @@ const SLP = new SLPSDK();
 const Row = styled(View)`
   padding: 16px;
   margin-bottom: 8px;
-  /* border-bottom-color: ${props => props.theme.bg900};
-  border-bottom-width: 3px; */
 
   background-color: ${props =>
     ({
       send: props.theme.accent900,
       receive: props.theme.primary900,
-      interwallet: props.theme.fg800
-    }[props.type] || props.theme.fg800)}
-  /* ${props =>
-    props.type === "send"
-      ? css`
-          background-color: ${props => props.theme.accent900};
-        `
-      : css`
-          background-color: ${props => props.theme.primary900};
-        `} */
+      interwallet: props.theme.fg800,
+      payout: props.theme.payout900
+    }[props.type] || props.theme.fg800)};
 `;
 
 const DateRow = styled(View)`
@@ -67,7 +58,7 @@ const AmountArea = styled(View)`
 let blockieCache = {};
 
 type Props = {
-  type: "send" | "receive",
+  type: "send" | "receive" | "payout" | "interwallet",
   txId: string,
   timestamp: number,
   toAddress: string,
@@ -94,9 +85,9 @@ const TransactionRow = ({
   const transactionAddress = {
     send: toAddress,
     interwallet: null,
+    payout: fromAddress,
     receive: fromAddress
   }[type];
-  // type === "send" ? toAddress : fromAddress || fromAddresses[0];
 
   let formattedTransactionAddress = null;
   try {
@@ -123,15 +114,10 @@ const TransactionRow = ({
   const typeFormatted = {
     send: "Send",
     interwallet: "Sent to self",
-    receive: "Receive"
+    receive: "Receive",
+    payout: "Payout"
   }[type];
 
-  // from addresses, all
-
-  // received - amount
-  // to/from: [address]
-  // txid
-  // timestamp -
   return (
     <Row type={type}>
       <DateRow>

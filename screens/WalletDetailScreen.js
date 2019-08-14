@@ -218,11 +218,16 @@ const WalletDetailScreen = ({
             } = txParams;
 
             let txType = null;
+            // Determine transaction type, consider moving this code to action.?
             if ([address, addressSlp].includes(to)) {
               if ([address, addressSlp].includes(from)) {
                 txType = "interwallet";
               } else {
-                txType = "receive";
+                if (toAddresses.length > 50) {
+                  txType = "payout";
+                } else {
+                  txType = "receive";
+                }
               }
             } else if ([address, addressSlp].includes(from)) {
               txType = "send";
@@ -230,10 +235,6 @@ const WalletDetailScreen = ({
               txType = "unrecognized";
             }
 
-            {
-              /* const txType =
-              to === address || to === addressSlp ? "receive" : "send"; */
-            }
             const valueBigNumber = new BigNumber(value);
             const valueAdjusted = tokenId
               ? valueBigNumber

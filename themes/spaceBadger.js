@@ -2,6 +2,11 @@
 
 type Theme = {
   primary500: string,
+  primary700: string,
+  primary900: string,
+  accent500: string,
+  accent900: string,
+  payout900: string,
   fg100: string,
   fg200: string,
   fg300: string,
@@ -20,6 +25,7 @@ const spaceBadger: Theme = {
   primary900: "#edfaf6",
   accent500: "#F5871A",
   accent900: "#faf6ed",
+  payout900: "#f6edfa",
   fg100: "#111724",
   fg200: "#454c53",
   fg300: "#7d7d7d",
