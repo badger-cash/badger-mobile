@@ -17,20 +17,30 @@ const Row = styled(View)`
   margin-bottom: 8px;
   /* border-bottom-color: ${props => props.theme.bg900};
   border-bottom-width: 3px; */
-  ${props =>
+
+  background-color: ${props =>
+    ({
+      send: props.theme.accent900,
+      receive: props.theme.primary900,
+      interwallet: props.theme.fg800
+    }[props.type] || props.theme.fg800)}
+  /* ${props =>
     props.type === "send"
       ? css`
           background-color: ${props => props.theme.accent900};
         `
       : css`
           background-color: ${props => props.theme.primary900};
-        `}
+        `} */
 `;
 
-const TopRow = styled(View)`
-  margin-bottom: 5px;
+const DateRow = styled(View)`
+  margin-bottom: 4px;
 `;
-const BottomRow = styled(View)`
+const MetaRow = styled(View)`
+  margin-top: 4px;
+`;
+const AmountRow = styled(View)`
   flex-direction: row;
 `;
 
@@ -81,8 +91,12 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
-  const transactionAddress =
-    type === "send" ? toAddress : fromAddress || fromAddresses[0];
+  const transactionAddress = {
+    send: toAddress,
+    interwallet: null,
+    receive: fromAddress
+  }[type];
+  // type === "send" ? toAddress : fromAddress || fromAddresses[0];
 
   let formattedTransactionAddress = null;
   try {
@@ -106,7 +120,11 @@ const TransactionRow = ({
   }
   const imageSource = { uri: blockie };
 
-  const typeFormatted = type === "send" ? "Sent" : "Received";
+  const typeFormatted = {
+    send: "Send",
+    interwallet: "Sent to self",
+    receive: "Receive"
+  }[type];
 
   // from addresses, all
 
@@ -116,14 +134,12 @@ const TransactionRow = ({
   // timestamp -
   return (
     <Row type={type}>
-      <TopRow>
-        <T>{txId}</T>
+      <DateRow>
         <T size="small" type="muted">
           {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
         </T>
-        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
-      </TopRow>
-      <BottomRow>
+      </DateRow>
+      <AmountRow>
         <IconArea>
           <IconImage source={imageSource} />
         </IconArea>
@@ -131,12 +147,20 @@ const TransactionRow = ({
           <T>{typeFormatted}</T>
         </InfoArea>
         <AmountArea>
-          <T>
-            {type === "send" ? "-" : "+"}
-            {amount}
-          </T>
+          {type !== "interwallet" && (
+            <T>
+              {type === "send" ? "-" : "+"}
+              {amount}
+            </T>
+          )}
         </AmountArea>
-      </BottomRow>
+      </AmountRow>
+      <MetaRow>
+        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
+        <T size="tiny" type="muted">
+          {txId}
+        </T>
+      </MetaRow>
     </Row>
   );
 };

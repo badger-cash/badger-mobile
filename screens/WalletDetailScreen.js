@@ -217,8 +217,23 @@ const WalletDetailScreen = ({
               value
             } = txParams;
 
-            const txType =
-              to === address || to === addressSlp ? "receive" : "send";
+            let txType = null;
+            if ([address, addressSlp].includes(to)) {
+              if ([address, addressSlp].includes(from)) {
+                txType = "interwallet";
+              } else {
+                txType = "receive";
+              }
+            } else if ([address, addressSlp].includes(from)) {
+              txType = "send";
+            } else {
+              txType = "unrecognized";
+            }
+
+            {
+              /* const txType =
+              to === address || to === addressSlp ? "receive" : "send"; */
+            }
             const valueBigNumber = new BigNumber(value);
             const valueAdjusted = tokenId
               ? valueBigNumber
