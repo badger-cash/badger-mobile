@@ -166,30 +166,6 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
-const parseQr = (qrData: string): { address: string, amount: ?string } => {
-  let address = null;
-  let amount = null;
-
-  // Parse out address and any BIP21 relevant data
-  const parts = qrData.split("?");
-
-  address = parts[0];
-  const parameters = parts[1];
-  if (parameters) {
-    const parameterParts = parameters.split("&");
-    parameterParts.map(param => {
-      const [name, value] = param.split("=");
-      if (name === "amount") {
-        amount = value;
-      }
-    });
-  }
-  return {
-    address,
-    amount
-  };
-};
-
 const SendSetupScreen = ({
   navigation,
   tokensById,
