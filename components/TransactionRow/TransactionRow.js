@@ -14,22 +14,24 @@ const SLP = new SLPSDK();
 
 const Row = styled(View)`
   padding: 16px;
-  border-bottom-color: ${props => props.theme.fg700};
-  border-bottom-width: ${StyleSheet.hairlineWidth};
-  ${props =>
-    props.type === "send"
-      ? css`
-          background-color: ${props => props.theme.danger700};
-        `
-      : css`
-          background-color: ${props => props.theme.success700};
-        `}
+  margin-bottom: 8px;
+
+  background-color: ${props =>
+    ({
+      send: props.theme.accent900,
+      receive: props.theme.primary900,
+      interwallet: props.theme.fg800,
+      payout: props.theme.payout900
+    }[props.type] || props.theme.fg800)};
 `;
 
-const TopRow = styled(View)`
-  margin-bottom: 5px;
+const DateRow = styled(View)`
+  margin-bottom: 4px;
 `;
-const BottomRow = styled(View)`
+const MetaRow = styled(View)`
+  margin-top: 4px;
+`;
+const AmountRow = styled(View)`
   flex-direction: row;
 `;
 
@@ -56,7 +58,8 @@ const AmountArea = styled(View)`
 let blockieCache = {};
 
 type Props = {
-  type: "send" | "receive",
+  type: "send" | "receive" | "payout" | "interwallet",
+  txId: string,
   timestamp: number,
   toAddress: string,
   toAddresses: string[],
@@ -69,6 +72,7 @@ type Props = {
 
 const TransactionRow = ({
   type,
+  txId,
   timestamp,
   toAddresses,
   toAddress,
@@ -78,8 +82,12 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
-  const transactionAddress =
-    type === "send" ? toAddress : fromAddress || fromAddresses[0];
+  const transactionAddress = {
+    send: toAddress,
+    interwallet: null,
+    payout: fromAddress,
+    receive: fromAddress
+  }[type];
 
   let formattedTransactionAddress = null;
   try {
@@ -103,16 +111,21 @@ const TransactionRow = ({
   }
   const imageSource = { uri: blockie };
 
-  const typeFormatted = type === "send" ? "Sent" : "Received";
+  const typeFormatted = {
+    send: "Sent",
+    interwallet: "Sent to self",
+    receive: "Received",
+    payout: "Payout"
+  }[type];
+
   return (
     <Row type={type}>
-      <TopRow>
+      <DateRow>
         <T size="small" type="muted">
-          {moment(timestamp).format("MMMM Do YYYY, h:mm:ss a")}
+          {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
         </T>
-        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
-      </TopRow>
-      <BottomRow>
+      </DateRow>
+      <AmountRow>
         <IconArea>
           <IconImage source={imageSource} />
         </IconArea>
@@ -120,12 +133,20 @@ const TransactionRow = ({
           <T>{typeFormatted}</T>
         </InfoArea>
         <AmountArea>
-          <T>
-            {type === "send" ? "-" : "+"}
-            {amount}
-          </T>
+          {type !== "interwallet" && (
+            <T>
+              {type === "send" ? "-" : "+"}
+              {amount}
+            </T>
+          )}
         </AmountArea>
-      </BottomRow>
+      </AmountRow>
+      <MetaRow>
+        {transactionAddress && <T size="tiny">{formattedTransactionAddress}</T>}
+        <T size="tiny" type="muted">
+          {txId}
+        </T>
+      </MetaRow>
     </Row>
   );
 };

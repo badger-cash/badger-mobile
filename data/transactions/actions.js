@@ -81,6 +81,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
         fromAddress = address;
       }
 
+      // Show all fromAddresses, maybe highlight own address, but can happen in display section?
+      // Think we can remove the singular from address
+
       const toAddresses = tx.out
         .filter(output => output.e && output.e.a)
         .map(output => `bitcoincash:${output.e.a}`)
@@ -90,15 +93,22 @@ const updateTransactions = (address: string, addressSlp: string) => {
           }
           return accumulator;
         }, []);
+
+      // If one to address, use that.
       let toAddress = toAddresses.length === 1 ? toAddresses[0] : null;
+
       if (
         !toAddress &&
         toAddresses.length === 2 &&
         toAddresses.find(element => element === fromAddress)
       ) {
         toAddress = toAddresses.filter(element => element !== fromAddress)[0];
-      } else if (!toAddress && toAddresses.includes(address)) {
-        toAddress = address;
+      } else if (!toAddress) {
+        toAddress = toAddresses.includes(address)
+          ? address
+          : toAddresses.includes(addressSlp)
+          ? addressSlp
+          : null;
       }
 
       // Determine value
