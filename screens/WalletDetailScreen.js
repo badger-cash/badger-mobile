@@ -2,14 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
+import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
 import {
-  SafeAreaView,
-  View,
-  ScrollView,
+  Clipboard,
   Image,
   Linking,
-  StyleSheet
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from "react-native";
 import BigNumber from "bignumber.js";
 
@@ -98,6 +101,7 @@ const WalletDetailScreen = ({
   const token = tokensById[tokenId];
 
   const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
+  const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
 
   async function convertToSimpleLedger() {
     const simpleLedger = await addressToSlp(addressSlp);
@@ -136,14 +140,34 @@ const WalletDetailScreen = ({
 
   return (
     <SafeAreaView>
+      <NavigationEvents
+        onWillBlur={() => {
+          setNotifyCopyTokenId(false);
+        }}
+      />
       <ScrollView style={{ height: "100%" }}>
         <View>
           <Spacer small />
           <H1 center>{name}</H1>
           {tokenId && (
-            <T size="tiny" center>
-              {tokenId}
-            </T>
+            <TouchableOpacity
+              onPress={() => {
+                Clipboard.setString(tokenId);
+                setNotifyCopyTokenId(true);
+              }}
+            >
+              <T size="tiny" center>
+                {tokenId}
+              </T>
+            </TouchableOpacity>
+          )}
+          {notifyCopyTokenId && (
+            <>
+              <Spacer minimal />
+              <T center size="small" type="primary">
+                Token ID copied to clipboard
+              </T>
+            </>
           )}
           <Spacer small />
           <IconArea>
@@ -193,8 +217,24 @@ const WalletDetailScreen = ({
               value
             } = txParams;
 
-            const txType =
-              to === address || to === addressSlp ? "receive" : "send";
+            let txType = null;
+            // Determine transaction type, consider moving this code to action.?
+            if ([address, addressSlp].includes(to)) {
+              if ([address, addressSlp].includes(from)) {
+                txType = "interwallet";
+              } else {
+                if (toAddresses.length > 30) {
+                  txType = "payout";
+                } else {
+                  txType = "receive";
+                }
+              }
+            } else if ([address, addressSlp].includes(from)) {
+              txType = "send";
+            } else {
+              txType = "unrecognized";
+            }
+
             const valueBigNumber = new BigNumber(value);
             const valueAdjusted = tokenId
               ? valueBigNumber
@@ -203,6 +243,7 @@ const WalletDetailScreen = ({
             return (
               <TransactionRow
                 key={hash}
+                txId={hash}
                 type={txType}
                 timestamp={time}
                 toAddress={to}

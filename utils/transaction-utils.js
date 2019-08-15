@@ -317,12 +317,12 @@ const signAndPublishSlpTransaction = async (
 
   let sendOpReturn = null;
   if (tokenChangeAmount.isGreaterThan(0)) {
-    sendOpReturn = SLPJS.buildSendOpReturn({
+    sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
       outputQtyArray: [tokenSendAmount, tokenChangeAmount]
     });
   } else {
-    sendOpReturn = SLPJS.buildSendOpReturn({
+    sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
       outputQtyArray: [tokenSendAmount]
     });

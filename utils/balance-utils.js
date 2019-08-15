@@ -89,7 +89,7 @@ const getHistoricalSlpTransactions = async (
               "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
             },
             {
-              "in.e.a": slpAddress.slice(12)
+              "in.e.a": SLP.Address.toSLPAddress(slpAddress)
             },
             {
               "slp.detail.outputs.address": SLP.Address.toSLPAddress(slpAddress)
