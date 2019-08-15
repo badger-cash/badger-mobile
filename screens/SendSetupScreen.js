@@ -291,7 +291,14 @@ const SendSetupScreen = ({
   };
 
   const goNextStep = () => {
-    const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    let addressFormat = null;
+    try {
+      addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    } catch (e) {
+      setErrors(["Invalid address, double check and try again."]);
+      return;
+    }
+
     let hasErrors = false;
     if (tokenId && !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)) {
       setErrors([
