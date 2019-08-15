@@ -1,5 +1,15 @@
 # Badger Wallet - Changelog
 
+## 0.10.3
+
+- React Native 0.60 upgrade
+  - Smaller builds
+  - Faster app
+- Improved history screen
+  - Detects self send
+  - Basic payout detection
+- SLP unknown types un-spendable
+
 ## 0.9.0
 
 - Request amount of any token from the detail screen
