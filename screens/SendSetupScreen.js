@@ -30,6 +30,8 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
+import { activeAccountSelector } from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
 
 import {
   formatAmount,
@@ -169,6 +171,7 @@ const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
+  utxos,
   spotPrices,
   fiatCurrency,
   updateTokensMeta
@@ -224,7 +227,14 @@ const SendSetupScreen = ({
   if (tokenId) {
     availableAmount = balances.slpTokens[tokenId];
   } else {
-    const availableRaw = balances.satoshisAvailable.minus(546);
+    const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+    const allUTXOFee = SLP.BitcoinCash.getByteCount(
+      { P2PKH: spendableUTXOS.length },
+      { P2PKH: 2 }
+    );
+
+    // Available = total satoshis - fee for including all UTXO
+    const availableRaw = balances.satoshisAvailable.minus(allUTXOFee);
 
     if (availableRaw.lte(0)) {
       availableAmount = new BigNumber(0);
@@ -684,11 +694,15 @@ const mapStateToProps = state => {
   const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
   const fiatCurrency = currencySelector(state);
+
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
   return {
     tokensById,
     balances,
     spotPrices,
-    fiatCurrency
+    fiatCurrency,
+    utxos
   };
 };
 
