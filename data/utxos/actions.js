@@ -94,6 +94,10 @@ const refreshUtxos = async (state: FullState, address: string) => {
       const slpDecoded = decodeTxOut(utxo);
       return { ...utxo, slp: slpDecoded, spendable: false };
     } catch (e) {
+      // Prevent spending of unknown SLP types
+      if (e.message === "Unknown token type") {
+        return { ...utxo, spendable: false };
+      }
       return { ...utxo, spendable: true };
     }
   });

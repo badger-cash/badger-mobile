@@ -218,7 +218,7 @@ const SendSetupScreen = ({
     if (!tokensById[tokenId]) {
       updateTokensMeta([tokenId]);
     }
-  }, [tokenId]);
+  }, [tokenId, tokensById, updateTokensMeta]);
 
   let availableAmount = new BigNumber(0);
   if (tokenId) {
@@ -321,7 +321,12 @@ const SendSetupScreen = ({
 
   const parseQr = (
     qrData: string
-  ): { address: string, amount: ?string, tokenId: ?string } => {
+  ): {
+    address: string,
+    amount: ?string,
+    tokenId: ?string,
+    parseError: ?string
+  } => {
     let address = null;
     let amount = null;
     let uriTokenId = null;
@@ -527,8 +532,40 @@ const SendSetupScreen = ({
                 nature="ghost"
                 onPress={async () => {
                   const content = await Clipboard.getString();
-                  setErrors([]);
-                  setToAddress(content);
+                  let pasteError = null;
+                  let invalidURIError = null;
+                  const parsedData = parseQr(content);
+
+                  // Verify the type matches the screen we are on.
+                  if (
+                    (parsedData.amount &&
+                      parsedData.tokenId == null &&
+                      tokenId) ||
+                    (parsedData.tokenId && parsedData.tokenId !== tokenId)
+                  ) {
+                    invalidURIError =
+                      "Sending different coin or token from the pasted URI";
+                    setErrors([invalidURIError]);
+                    return;
+                  }
+
+                  if (parsedData.parseError) {
+                    pasteError = parsedData.parseError;
+                  }
+
+                  // If there's an amount, set the type to crypto
+                  parsedData.amount && setAmountType("crypto");
+                  if (parsedData.address) {
+                    const isValidAddress =
+                      SLP.Address.isCashAddress(parsedData.address) ||
+                      SLP.Address.isSLPAddress(parsedData.address);
+                    if (isValidAddress.message) {
+                      pasteError = isValidAddress.message;
+                    }
+                    setToAddress(parsedData.address);
+                  }
+                  parsedData.amount && setSendAmount(parsedData.amount);
+                  pasteError ? setErrors([pasteError]) : setErrors([]);
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">

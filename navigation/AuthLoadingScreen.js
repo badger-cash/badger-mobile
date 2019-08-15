@@ -48,7 +48,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       let currTokenId = null;
       let currAmount = null;
 
-      if (amountRaw && amountRaw.includes("-")) {
+      if (amountRaw != null && amountRaw.includes("-")) {
         [currAmount, currTokenId] = amountRaw.split("-");
       } else {
         currAmount = amountRaw;
@@ -65,12 +65,16 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       amountFormatted = target.paramAmount;
     }
 
-    const type = getType(address);
-
-    addressFormatted =
-      type === "cashaddr"
-        ? await addressToCash(address)
-        : await addressToSlp(address);
+    let type = null;
+    try {
+      type = getType(address);
+      addressFormatted =
+        type === "cashaddr"
+          ? await addressToCash(address)
+          : await addressToSlp(address);
+    } catch (e) {
+      parseError = `Invalid address detected`;
+    }
 
     navigation.navigate("SendSetup", {
       tokenId,

@@ -138,10 +138,6 @@ const RequestSetupScreen = ({
     symbol: null,
     tokenId: null
   };
-  if (!symbol && !tokenId) {
-    navigation.goBack();
-    return;
-  }
 
   const [copiedMessage, setCopiedMessage] = useState(null);
   const [requestAmount, setRequestAmount] = useState("");
@@ -160,7 +156,7 @@ const RequestSetupScreen = ({
       setBaseAddress(convertedAddress);
     };
     convertAddress();
-  }, [addressSlp]);
+  }, [addressSlp, tokenId]);
 
   useEffect(() => {
     let nextRequestUri;
@@ -173,7 +169,7 @@ const RequestSetupScreen = ({
         : baseAddress;
     }
     setRequestUri(nextRequestUri);
-  });
+  }, [tokenId, baseAddress, requestAmountCrypto]);
 
   const requestAmountNumber = parseFloat(requestAmount);
   const fiatRate = !tokenId
@@ -201,7 +197,12 @@ const RequestSetupScreen = ({
           : 0
       );
     }
-  }, [requestAmountNumber, amountType, fiatRate]);
+  }, [requestAmountNumber, amountType, fiatRate, fiatCurrency, requestAmount]);
+
+  if (!symbol && !tokenId) {
+    navigation.goBack();
+    return;
+  }
 
   const toggleAmountType = () => {
     if (tokenId) return;
@@ -323,7 +324,7 @@ const RequestSetupScreen = ({
         <TouchableOpacity
           onPress={() => {
             if (isShowing) {
-              Clipboard.setString(address);
+              Clipboard.setString(requestUri);
               setCopiedMessage("Copied to clipboard");
             }
           }}
