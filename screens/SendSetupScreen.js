@@ -18,7 +18,6 @@ import BigNumber from "bignumber.js";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import SLPSDK from "slp-sdk";
 
 import { T, H1, H2, Button, Spacer } from "../atoms";
 
@@ -42,7 +41,7 @@ import {
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
-const SLP = new SLPSDK();
+import { SLP } from "../utils/slp-sdk-utils";
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },

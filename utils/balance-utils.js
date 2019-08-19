@@ -1,7 +1,6 @@
 // @flow
 
 import BigNumber from "bignumber.js";
-import SLPSDK from "slp-sdk";
 
 import {
   currencyDecimalMap,
@@ -10,7 +9,7 @@ import {
 } from "./currency-utils";
 import { type Balances } from "../data/selectors";
 
-const SLP = new SLPSDK();
+import { SLP } from "./slp-sdk-utils";
 
 const getHistoricalBchTransactions = async (
   address: string,
