@@ -16,8 +16,6 @@ const getHistoricalBchTransactions = async (
   addressSlp: string,
   latestBlock: number
 ) => {
-  console.log(address);
-  console.log("fetching");
   if (!address) {
     return [];
   }
