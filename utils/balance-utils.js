@@ -13,6 +13,7 @@ import { SLP } from "./slp-sdk-utils";
 
 const getHistoricalBchTransactions = async (
   address: string,
+  addressSlp: string,
   latestBlock: number
 ) => {
   console.log(address);
@@ -31,6 +32,12 @@ const getHistoricalBchTransactions = async (
             },
             {
               "out.e.a": address.slice(12)
+            },
+            {
+              "in.e.a": addressSlp.slice(12)
+            },
+            {
+              "out.e.a": addressSlp.slice(12)
             }
           ],
           "out.h1": {
@@ -62,13 +69,8 @@ const getHistoricalBchTransactions = async (
   const b64 = Buffer.from(s).toString("base64");
   const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
-  console.log(url);
-
   const request = await fetch(url);
   const result = await request.json();
-
-  console.log("result");
-  console.log(result);
 
   // combine confirmed and unconfirmed
   const transactions = result.errors ? [] : [...result.c, ...result.u];
@@ -78,7 +80,7 @@ const getHistoricalBchTransactions = async (
 
 const getHistoricalSlpTransactions = async (
   address: string,
-  slpAddress: string,
+  addressSlp: string,
   latestBlock: number
 ) => {
   if (!address) return [];
@@ -96,10 +98,10 @@ const getHistoricalSlpTransactions = async (
               "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
             },
             {
-              "in.e.a": SLP.Address.toSLPAddress(slpAddress)
+              "in.e.a": SLP.Address.toSLPAddress(addressSlp)
             },
             {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(slpAddress)
+              "slp.detail.outputs.address": SLP.Address.toSLPAddress(addressSlp)
             }
           ],
           "slp.valid": true,

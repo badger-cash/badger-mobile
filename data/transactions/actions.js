@@ -38,21 +38,11 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     dispatch(getTransactionsStart());
 
-    console.log(1);
-
     const currentState = getState();
     const latestBlock = transactionsLatestBlockSelector(currentState);
 
-    console.log(2);
-    console.log(latestBlock);
-
-    const transactionsBCH145 = getHistoricalBchTransactions(
+    const transactionsBCH = getHistoricalBchTransactions(
       address,
-      latestBlock
-    );
-
-    console.log("0000---");
-    const transactionsBCH245 = getHistoricalBchTransactions(
       addressSlp,
       latestBlock
     );
@@ -63,23 +53,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
       latestBlock
     );
 
-    const [bch145History, bch245History, slpHistory] = await Promise.all([
-      transactionsBCH145,
-      transactionsBCH245,
+    const [bchHistory, slpHistory] = await Promise.all([
+      transactionsBCH,
       transactionsSlp
     ]);
 
-    console.log("got all 3");
-    console.log(bch145History);
-    console.log(bch245History);
-    console.log(slpHistory);
-
-    const transactionsBCH = [...bch145History, ...bch245History];
-
-    console.log(transactionsBCH.length);
-    console.log(slpHistory.length);
-
-    const formattedTransactionsBCH = transactionsBCH.map(tx => {
+    const formattedTransactionsBCH = bchHistory.map(tx => {
       const fromAddresses = tx.in
         .filter(input => input.e && input.e.a)
         .map(input => `bitcoincash:${input.e.a}`)
