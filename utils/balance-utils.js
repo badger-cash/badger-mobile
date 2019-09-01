@@ -15,6 +15,8 @@ const getHistoricalBchTransactions = async (
   address: string,
   latestBlock: number
 ) => {
+  console.log(address);
+  console.log("fetching");
   if (!address) {
     return [];
   }
@@ -60,11 +62,16 @@ const getHistoricalBchTransactions = async (
   const b64 = Buffer.from(s).toString("base64");
   const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
+  console.log(url);
+
   const request = await fetch(url);
   const result = await request.json();
 
+  console.log("result");
+  console.log(result);
+
   // combine confirmed and unconfirmed
-  const transactions = [...result.c, ...result.u];
+  const transactions = result.errors ? [] : [...result.c, ...result.u];
 
   return transactions;
 };
