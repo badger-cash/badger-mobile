@@ -7,6 +7,7 @@ import {
   Clipboard,
   SafeAreaView,
   ScrollView,
+  Dimensions,
   View,
   Image,
   TextInput,
@@ -103,12 +104,15 @@ const QRHolder = styled(View)`
 
 const QROverlay = styled(View)`
   position: absolute;
-  height: 150px;
-  width: 150px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
   background-color: white;
   align-items: center;
   justify-content: center;
-  padding: 15px;
   opacity: 0.98;
   z-index: 2;
 `;
@@ -148,6 +152,9 @@ const RequestSetupScreen = ({
     tokenId ? addressSlp : address
   );
   const [requestUri, setRequestUri] = useState(baseAddress);
+
+  const totalWidth = Dimensions.get("window").width;
+  const QRSize = totalWidth > 300 ? totalWidth * 0.6 : totalWidth * 0.7;
 
   useEffect(() => {
     if (!addressSlp || !tokenId) return;
@@ -333,7 +340,7 @@ const RequestSetupScreen = ({
           <QRHolder>
             <QRCode
               value={requestUri}
-              size={125}
+              size={QRSize}
               bgColor="black"
               fgColor="white"
             />
