@@ -2,9 +2,17 @@
 
 import React from "react";
 import styled, { css } from "styled-components";
-import { View, Image, StyleSheet } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Linking,
+  TouchableOpacity
+} from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
+
+import Feather from "react-native-vector-icons/Feather";
 
 import { T } from "../../atoms";
 import { SLP } from "../../utils/slp-sdk-utils";
@@ -143,6 +151,15 @@ const TransactionRow = ({
         <T size="tiny" type="muted">
           {txId}
         </T>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
+          }
+        >
+          <T size="small" type="muted">
+            Explorer <Feather name="external-link" />
+          </T>
+        </TouchableOpacity>
       </MetaRow>
     </Row>
   );
