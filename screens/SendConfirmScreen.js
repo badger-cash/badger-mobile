@@ -68,6 +68,8 @@ const SwipeButtonContainer = styled(View)`
   border-radius: 32px;
   width: ${SWIPEABLE_WIDTH_PERCENT}%;
   align-self: center;
+  border-width: 2px;
+  border-color: ${props => props.theme.primary700};
 `;
 
 const ButtonsContainer = styled(View)`
@@ -88,8 +90,7 @@ const SwipeContent = styled(View)`
   padding-right: 10px;
   align-items: flex-end;
   justify-content: center;
-  border-width: 3px;
-  border-color: ${props => props.theme.fg100};
+
   background-color: ${props =>
     props.activated ? props.theme.success500 : props.theme.pending500};
 `;
