@@ -159,6 +159,7 @@ const RequestSetupScreen = ({
   }, [addressSlp, tokenId]);
 
   useEffect(() => {
+    setCopiedMessage(null);
     let nextRequestUri;
     if (tokenId) {
       nextRequestUri = `${baseAddress}?amount1=${requestAmountCrypto ||
