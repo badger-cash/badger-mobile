@@ -99,6 +99,7 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Fontisto.ttf</string>
 	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
