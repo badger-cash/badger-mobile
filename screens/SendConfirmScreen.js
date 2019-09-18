@@ -68,6 +68,8 @@ const SwipeButtonContainer = styled(View)`
   border-radius: 32px;
   width: ${SWIPEABLE_WIDTH_PERCENT}%;
   align-self: center;
+  border-width: 2px;
+  border-color: ${props => props.theme.primary700};
 `;
 
 const ButtonsContainer = styled(View)`
@@ -88,6 +90,7 @@ const SwipeContent = styled(View)`
   padding-right: 10px;
   align-items: flex-end;
   justify-content: center;
+
   background-color: ${props =>
     props.activated ? props.theme.success500 : props.theme.pending500};
 `;
@@ -318,7 +321,7 @@ const SendConfirmScreen = ({
                 leftActionActivationDistance={
                   Dimensions.get("window").width *
                   (SWIPEABLE_WIDTH_PERCENT / 100) *
-                  0.8
+                  0.7
                 }
                 leftContent={
                   <SwipeContent activated={confirmSwipeActivated}>

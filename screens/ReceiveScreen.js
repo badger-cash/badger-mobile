@@ -1,15 +1,17 @@
 // @flow
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
 import {
+  Clipboard,
+  Dimensions,
+  Image,
   SafeAreaView,
-  View,
   ScrollView,
   TouchableOpacity,
-  Clipboard
+  View
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 
@@ -21,6 +23,9 @@ import { addressToSlp } from "../utils/account-utils";
 
 import { T, Spacer, H2 } from "../atoms";
 
+import BitcoinCashImage from "../assets/images/icon.png";
+import SLPImage from "../assets/images/slp-logo.png";
+
 const QRHolder = styled(View)`
   justify-content: center;
   align-items: center;
@@ -29,16 +34,38 @@ const QRHolder = styled(View)`
   position: relative;
 `;
 
+const TypeOverlay = styled(View)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+`;
+
+const TypeImage = styled(Image)`
+  height: ${props => props.size * 0.15}px;
+  width: ${props => props.size * 0.15}px;
+  border-radius: ${props => props.size * 0.075}px;
+  border-width: 3px;
+  border-color: ${props => props.theme.bg900};
+`;
+
 const QROverlay = styled(View)`
   position: absolute;
-  height: 150px;
-  width: 150px;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background-color: white;
   align-items: center;
   justify-content: center;
-  padding: 15px;
   opacity: 0.98;
-  z-index: 2;
+  z-index: 3;
 `;
 
 type Props = {
@@ -47,17 +74,20 @@ type Props = {
 };
 
 const ReceiveScreen = ({ address, addressSlp }: Props) => {
+  const scrollRef = useRef();
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
 
   const [simpleLedgerAddr, setSimpleLedgerAddr] = useState(addressSlp);
 
-  const convertAddress = async () => {
-    const convertedAddress = await addressToSlp(addressSlp);
-    setSimpleLedgerAddr(convertedAddress);
-  };
+  const QRSize = Dimensions.get("window").width * 0.65;
 
   useEffect(() => {
+    const convertAddress = async () => {
+      const convertedAddress = await addressToSlp(addressSlp);
+      setSimpleLedgerAddr(convertedAddress);
+    };
+
     if (!addressSlp) return;
     convertAddress();
   }, [addressSlp]);
@@ -69,7 +99,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           setCopyNotify("");
         }}
       />
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ padding: 10 }} ref={scrollRef}>
         <Spacer small />
         <T center>
           Scan a public key below to receive funds. Tap to reveal or copy the
@@ -87,6 +117,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
               return;
             }
             setShowing("BCH");
+            scrollRef.current.scrollTo({ y: 0 });
             setCopyNotify("");
           }}
         >
@@ -102,10 +133,13 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             <QRHolder>
               <QRCode
                 value={address}
-                size={125}
+                size={QRSize}
                 bgColor="black"
                 fgColor="white"
               />
+              <TypeOverlay>
+                <TypeImage source={BitcoinCashImage} size={QRSize} />
+              </TypeOverlay>
               {showing !== "BCH" && (
                 <QROverlay>
                   <T>Tap to show</T>
@@ -130,6 +164,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             }
             setShowing("SLP");
             setCopyNotify("");
+            scrollRef.current.scrollToEnd();
           }}
         >
           <T size="xsmall" center>
@@ -144,10 +179,13 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             <QRHolder>
               <QRCode
                 value={simpleLedgerAddr}
-                size={125}
+                size={QRSize}
                 bgColor="black"
                 fgColor="white"
               />
+              <TypeOverlay>
+                <TypeImage source={SLPImage} size={QRSize} />
+              </TypeOverlay>
               {showing !== "SLP" && (
                 <QROverlay>
                   <T>Tap to show</T>
