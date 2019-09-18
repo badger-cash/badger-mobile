@@ -114,6 +114,12 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
           label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
         />
         <OptionsRow
+          text="Frequently Asked Questions - FAQ"
+          pressFn={() => {
+            navigation.navigate("FAQScreen");
+          }}
+        />
+        <OptionsRow
           text="Terms of Use"
           muted
           pressFn={() => {

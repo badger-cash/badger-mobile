@@ -16,6 +16,7 @@ import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
 import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
 import RequestScreen from "../screens/RequestScreen";
+import FAQScreen from "../screens/FAQScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -80,6 +81,10 @@ const MenuStack = createStackNavigator(
     ViewSeedPhrase: {
       screen: ViewSeedScreen,
       navigationOptions: { title: "Seed Phrase" }
+    },
+    FAQScreen: {
+      screen: FAQScreen,
+      navigationOptions: { title: "F.A.Q." }
     },
     ContactUsScreen: {
       screen: ContactUsScreen,
