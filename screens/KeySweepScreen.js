@@ -127,11 +127,7 @@ const KeySweepScreen = ({ address }: Props) => {
             <Spacer />
             <T weight="bold">1. Scan QR</T>
             <Spacer small />
-            <Button
-              // nature="ghost"
-              text="Open QR Scanner"
-              onPress={() => setCameraOpen(true)}
-            >
+            <Button text="Open QR Scanner" onPress={() => setCameraOpen(true)}>
               <T center spacing="loose" type="inverse">
                 <Ionicons name="ios-qr-scanner" size={18} /> Open Camera
               </T>
