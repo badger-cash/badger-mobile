@@ -20,7 +20,7 @@ import { currencySelector } from "../data/prices/selectors";
 
 import { T, Spacer } from "../atoms";
 
-// import packageJson from "../package.json";
+import packageJson from "../package.json";
 
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
@@ -155,8 +155,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer fill />
         <Spacer small />
         <T center size="small" type="muted2">
-          Version 0.10.4 - Beta
-          {/* Version {packageJson.version} - Beta */}
+          Version {packageJson.version} - Beta
         </T>
         <Spacer small />
       </StyledScrollView>
