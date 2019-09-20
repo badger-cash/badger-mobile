@@ -79,7 +79,7 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const Logger = ({ getState }) => {
   return next => action => {
     if (__DEV__) {
-      // console.log("::LOG_ACTION::", action);
+      console.log("::LOG_ACTION::", action);
     }
     return next(action);
   };

@@ -1,13 +1,11 @@
 // @flow
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
   View,
   StyleSheet,
-  Linking,
-  TouchableOpacity,
   ActivityIndicator,
   Dimensions
 } from "react-native";
@@ -66,70 +64,13 @@ const KeySweepScreen = ({ address }: Props) => {
   const [sweepError: ?string, setSweepError] = useState(null);
   const [sweepState: SweepStates, setSweepState] = useState("neutral");
 
-  // const step1Active = true;
-  // const isPending =
-  // const isScanned = sweepState === 'scal'
-  // const isError =
-  // const isSuccess =
-
-  // const step2Active = ["scanned", "pending"].includes(sweepState);
-  // const step3Active = ["scanned", "pending", "fail"].includes(sweepState);
-
   const parseQr = (qrData: string): string => {
-    console.log(qrData);
     return qrData ? qrData : "";
-    // let address = null;
-    // let amount = null;
-    // let uriTokenId = null;
-    // let parseError = null;
-
-    // let amounts = [];
-
-    // Parse out address and any other relevant data
-    // const parts = qrData.split("?");
-
-    // address = parts[0];
-    // const parameters = parts[1];
-    // if (parameters) {
-    //   const parameterParts = parameters.split("&");
-    //   parameterParts.forEach(param => {
-    //     const [name, value] = param.split("=");
-    //     if (name.startsWith("amount")) {
-    //       let currTokenId;
-    //       let currAmount;
-    //       if (value.includes("-")) {
-    //         [currAmount, currTokenId] = value.split("-");
-    //       } else {
-    //         currAmount = value;
-    //       }
-    //       amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
-    //     }
-    //   });
-    // }
-
-    // if (amounts.length > 1) {
-    //   parseError =
-    //     "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
-    // } else if (amounts.length === 1) {
-    //   const target = amounts[0];
-    //   uriTokenId = target.tokenId;
-    //   amount = target.paramAmount;
-    // }
-
-    // return {
-    //   address,
-    //   amount,
-    //   parseError,
-    //   tokenId: uriTokenId
-    // };
   };
 
   const handleQRData = async qrData => {
-    console.log("!!!!!!!!!");
-    console.log(qrData);
     try {
       const balance = await sweep(qrData, null, true);
-      console.log(balance);
       setWif(qrData);
       setPaperBalance(balance);
       setSweepState("scanned");
@@ -156,10 +97,6 @@ const KeySweepScreen = ({ address }: Props) => {
                   const qrData = e.data;
                   const parsedData = parseQr(qrData);
                   setSweepState("pending");
-
-                  console.log("parsed?");
-                  console.log(parsedData);
-
                   handleQRData(parsedData);
                   setCameraOpen(false);
                 }}
@@ -262,9 +199,6 @@ const KeySweepScreen = ({ address }: Props) => {
                     setSweepState("success");
                   } catch (e) {
                     setSweepState("error");
-                    console.log("--------------!!!!!!!0000");
-                    console.log(e);
-                    console.log("--------------!!!!!!!0000");
                     setSweepError("Sweep failed, please try again");
                   }
                 }}

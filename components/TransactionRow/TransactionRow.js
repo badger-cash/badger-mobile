@@ -162,15 +162,6 @@ const TransactionRow = ({
         <T size="tiny" type="muted">
           {txId}
         </T>
-        {/* <TouchableOpacity
-          onPress={() =>
-            Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
-          }
-        >
-          <T size="small" type="muted">
-            Explorer <Feather name="external-link" />
-          </T>
-        </TouchableOpacity> */}
       </MetaRow>
     </Row>
   );
