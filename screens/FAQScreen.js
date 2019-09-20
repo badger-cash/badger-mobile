@@ -8,10 +8,8 @@ import {
   TouchableOpacity
 } from "react-native";
 import styled from "styled-components";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-import { T, H2, Spacer } from "../atoms";
+import { T, Spacer } from "../atoms";
 
 const ScreenWrapper = styled(ScrollView)`
   padding: 7px 16px;

@@ -393,11 +393,111 @@ const signAndPublishSlpTransaction = async (
   return txid;
 };
 
+const sweep = async (
+  wif: string,
+  toAddr: string,
+  balanceOnly: boolean = false
+) => {
+  try {
+    // Input validation
+    if (!wif || wif === "") {
+      throw new Error(
+        `wif private key must be included in Compressed WIF format.`
+      );
+    }
+    // Input validation
+    if (!balanceOnly) {
+      if (!toAddr || toAddr === "") {
+        throw new Error(
+          `Address to receive swept funds must be included unless balanceOnly flag is true.`
+        );
+      }
+    }
+    // Generate a keypair from the WIF.
+    const keyPair = SLP.ECPair.fromWIF(wif);
+
+    // Generate the public address associated with the private key.
+    const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
+
+    // Check the BCH balance of that public address.
+    const details = await SLP.Address.details(fromAddr);
+    const balance: number = details.balance;
+
+    // If balance is zero or balanceOnly flag is passed in, exit.
+    if (balance === 0 || balanceOnly) return balance;
+
+    // Get UTXOs associated with public address.
+    const u = await SLP.Address.utxo(fromAddr);
+    const utxos: utxo[] = u.utxos;
+
+    // Prepare to generate a transaction to sweep funds.
+
+    const transactionBuilder: TransactionBuilder = new SLP.TransactionBuilder(
+      SLP.Address.detectAddressNetwork(fromAddr)
+    );
+    let originalAmount: number = 0;
+
+    // Add all UTXOs to the transaction inputs.
+    for (let i = 0; i < utxos.length; i++) {
+      const utxo: utxo = utxos[i];
+      originalAmount = originalAmount + utxo.satoshis;
+      transactionBuilder.addInput(utxo.txid, utxo.vout);
+    }
+
+    if (originalAmount < 1) {
+      throw new Error(`Original amount is zero. No BCH to send.`);
+    }
+
+    // get byte count to calculate fee. paying 1.1 sat/byte
+    const byteCount: number = SLP.BitcoinCash.getByteCount(
+      { P2PKH: utxos.length },
+      { P2PKH: 1 }
+    );
+    const fee: number = Math.ceil(1.1 * byteCount);
+
+    // amount to send to receiver. It's the original amount - 1 sat/byte for tx size
+    const sendAmount: number = originalAmount - fee;
+
+    // add output w/ address and amount to send
+    transactionBuilder.addOutput(
+      SLP.Address.toLegacyAddress(toAddr),
+      sendAmount
+    );
+
+    // Loop through each input and sign it with the private key.
+    let redeemScript;
+    for (let i: number = 0; i < utxos.length; i++) {
+      const utxo = utxos[i];
+      transactionBuilder.sign(
+        i,
+        keyPair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        utxo.satoshis
+      );
+    }
+
+    // build tx
+    const tx: any = transactionBuilder.build();
+
+    // output rawhex
+    const hex: string = tx.toHex();
+
+    // Broadcast the transaction to the BCH network.
+    let txid: string = await SLP.RawTransactions.sendRawTransaction(hex);
+    return txid;
+  } catch (error) {
+    if (error.response && error.response.data) throw error.response.data;
+    else throw error;
+  }
+};
+
 export {
   decodeTokenMetadata,
   decodeTxOut,
   getAllUtxo,
   getTransactionDetails,
   signAndPublishBchTransaction,
-  signAndPublishSlpTransaction
+  signAndPublishSlpTransaction,
+  sweep
 };
