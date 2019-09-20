@@ -120,7 +120,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
           }}
         />
         <OptionsRow
-          text="Key Sweep"
+          text="Paper Wallet Sweep"
           pressFn={() => {
             navigation.navigate("SweepScreen");
           }}

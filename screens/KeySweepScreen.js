@@ -7,6 +7,7 @@ import {
   View,
   Linking,
   TouchableOpacity,
+  ActivityIndicator,
   Dimensions
 } from "react-native";
 import { connect } from "react-redux";
@@ -37,23 +38,28 @@ const QROverlayScreen = styled(View)`
   background-color: ${props => props.theme.bg900};
 `;
 
+type SweepStates = "neutral" | "scanned" | "pending" | "error" | "success";
+
 type Props = {
   address: string
 };
 const KeySweepScreen = ({ address }: Props) => {
-  const [isCameraOpen, setCameraOpen] = useState(false);
-  const [wif, setWif] = useState(null);
-  const [paperBalance, setPaperBalance] = useState(0);
-  const [sweepError, setSweepError] = useState(null);
-  const [sweepState, setSweepState] = useState("neutral");
+  const [isCameraOpen: boolean, setCameraOpen] = useState(false);
+  const [wif: ?string, setWif] = useState(null);
+  const [paperBalance: number, setPaperBalance] = useState(0);
+  const [sweepError: ?string, setSweepError] = useState(null);
+  const [sweepState: SweepStates, setSweepState] = useState("neutral");
 
-  const parseQr = (
-    qrData: string
-  ): {
-    privateKey: ?string
-  } => {
-    let privateKey = null;
+  // const step1Active = true;
+  // const isPending =
+  // const isScanned = sweepState === 'scal'
+  // const isError =
+  // const isSuccess =
 
+  // const step2Active = ["scanned", "pending"].includes(sweepState);
+  // const step3Active = ["scanned", "pending", "fail"].includes(sweepState);
+
+  const parseQr = (qrData: string): string => {
     console.log(qrData);
     return qrData ? qrData : "";
     // let address = null;
@@ -105,12 +111,17 @@ const KeySweepScreen = ({ address }: Props) => {
   const handleQRData = async qrData => {
     console.log("!!!!!!!!!");
     console.log(qrData);
-    const balance = await sweep(qrData, null, true);
-
-    console.log(balance);
-    setWif(qrData);
-    setPaperBalance(balance);
-    return null;
+    try {
+      const balance = await sweep(qrData, null, true);
+      console.log(balance);
+      setWif(qrData);
+      setPaperBalance(balance);
+      setSweepState("scanned");
+    } catch (e) {
+      setSweepState("error");
+      setSweepError(e.message || "Error scanning wallet");
+    }
+    return;
   };
 
   return (
@@ -119,7 +130,7 @@ const KeySweepScreen = ({ address }: Props) => {
         {isCameraOpen && (
           <QROverlayScreen>
             <Spacer small />
-            <H2 center>Scan QR Code</H2>
+            <H2 center>Scan QR Code ?</H2>
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
@@ -128,6 +139,7 @@ const KeySweepScreen = ({ address }: Props) => {
                 onRead={e => {
                   const qrData = e.data;
                   const parsedData = parseQr(qrData);
+                  setSweepState("pending");
 
                   console.log("parsed?");
                   console.log(parsedData);
@@ -158,46 +170,77 @@ const KeySweepScreen = ({ address }: Props) => {
             paddingLeft: 16
           }}
         >
-          <Spacer small />
-          <T weight="bold" center>
-            Sweep funds from a paper wallet {sweepState}
-          </T>
+          <View>
+            <Spacer />
+            <T weight="bold">1. Scan QR</T>
+            <Spacer small />
+            <Button
+              // nature="ghost"
+              text="Open QR Scanner"
+              onPress={() => setCameraOpen(true)}
+            >
+              <T center spacing="loose" type="inverse">
+                <Ionicons name="ios-qr-scanner" size={18} /> Open Camera
+              </T>
+            </Button>
+            <Spacer />
+          </View>
 
-          <Spacer />
-          <Button
-            nature="ghost"
-            text="Open QR Scanner"
-            onPress={() => setCameraOpen(true)}
-          >
-            <T center spacing="loose" type="primary" size="small">
-              <Ionicons name="ios-qr-scanner" size={18} /> Open QR Scanner
-            </T>
-          </Button>
-          <Spacer />
-          <T weight="bold">Wif</T>
-          <T>{wif}</T>
-          <Spacer />
+          <View style={{ flex: 1 }}>
+            {sweepState === "scanned" && (
+              <>
+                <T weight="bold">2. Review Details</T>
+                <Spacer small />
+                <T>Wif</T>
+                <T>{wif}</T>
+                <Spacer small />
 
-          <T weight="bold">Amount</T>
-          <T>{paperBalance} BCH</T>
+                <T>Amount</T>
+                <T>{paperBalance} BCH</T>
 
-          <Spacer />
-          <Button
-            text="Confirm Sweep"
-            onPress={async () => {
-              try {
-                setSweepState("pending");
-                await sweep(wif, address);
-                setSweepState("success");
-              } catch (e) {
-                setSweepState("fail");
-                console.log("--------------!!!!!!!0000");
-                console.log(e);
-                console.log("--------------!!!!!!!0000");
-                setSweepError("Sweep failed, try again");
-              }
-            }}
-          />
+                <Spacer />
+              </>
+            )}
+            {sweepState === "pending" && (
+              <View style={{ alignItems: "center", justifyContent: "center" }}>
+                <ActivityIndicator size="large" />
+              </View>
+            )}
+            {sweepState === "success" && (
+              <View style={{ alignItems: "center", justifyContent: "center" }}>
+                <T>success</T>
+              </View>
+            )}
+            {sweepState === "error" && (
+              <View style={{ alignItems: "center", justifyContent: "center" }}>
+                <T>{sweepError}</T>
+              </View>
+            )}
+          </View>
+
+          {sweepState === "scanned" && (
+            <View>
+              <T weight="bold">3. Sweep Funds</T>
+              <Spacer small />
+              <Button
+                text="Confirm Sweep"
+                onPress={async () => {
+                  try {
+                    setSweepState("pending");
+                    await sweep(wif, address);
+                    setSweepState("success");
+                  } catch (e) {
+                    setSweepState("error");
+                    console.log("--------------!!!!!!!0000");
+                    console.log(e);
+                    console.log("--------------!!!!!!!0000");
+                    setSweepError("Sweep failed, please try again");
+                  }
+                }}
+              />
+              <Spacer />
+            </View>
+          )}
         </ScrollView>
       </ScreenWrapper>
     </SafeAreaView>

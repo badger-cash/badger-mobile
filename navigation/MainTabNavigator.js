@@ -89,7 +89,7 @@ const MenuStack = createStackNavigator(
     },
     SweepScreen: {
       screen: KeySweepScreen,
-      navigationOptions: { title: "Sweep Key" }
+      navigationOptions: { title: "Sweep" }
     },
     ContactUsScreen: {
       screen: ContactUsScreen,
