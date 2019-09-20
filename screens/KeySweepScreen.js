@@ -87,7 +87,7 @@ const KeySweepScreen = ({ address }: Props) => {
         {isCameraOpen && (
           <QROverlayScreen>
             <Spacer small />
-            <H2 center>Scan QR Code ?</H2>
+            <H2 center>Scan QR Code</H2>
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
