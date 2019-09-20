@@ -32,6 +32,8 @@ const Row = styled(View)`
 
 const DateRow = styled(View)`
   margin-bottom: 4px;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 const MetaRow = styled(View)`
   margin-top: 4px;
@@ -129,6 +131,15 @@ const TransactionRow = ({
         <T size="small" type="muted">
           {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
         </T>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
+          }
+        >
+          <T size="small" type="muted">
+            Explorer <Feather name="external-link" />
+          </T>
+        </TouchableOpacity>
       </DateRow>
       <AmountRow>
         <IconArea>
@@ -151,15 +162,6 @@ const TransactionRow = ({
         <T size="tiny" type="muted">
           {txId}
         </T>
-        <TouchableOpacity
-          onPress={() =>
-            Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
-          }
-        >
-          <T size="small" type="muted">
-            Explorer <Feather name="external-link" />
-          </T>
-        </TouchableOpacity>
       </MetaRow>
     </Row>
   );
