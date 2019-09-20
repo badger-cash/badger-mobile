@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   View,
+  StyleSheet,
   Linking,
   TouchableOpacity,
   ActivityIndicator,
@@ -36,6 +37,21 @@ const QROverlayScreen = styled(View)`
   height: ${Dimensions.get("window").height}px;
   z-index: 1;
   background-color: ${props => props.theme.bg900};
+`;
+
+const ErrorContainer = styled(View)`
+  border-color: ${props => props.theme.accent500};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
+  padding: 16px 8px;
+  background-color: ${props => props.theme.accent900};
+`;
+const SuccessContainer = styled(View)`
+  border-color: ${props => props.theme.primary500};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
+  padding: 16px 8px;
+  background-color: ${props => props.theme.primary900};
 `;
 
 type SweepStates = "neutral" | "scanned" | "pending" | "error" | "success";
@@ -194,27 +210,42 @@ const KeySweepScreen = ({ address }: Props) => {
                 <T>Wif</T>
                 <T>{wif}</T>
                 <Spacer small />
-
                 <T>Amount</T>
                 <T>{paperBalance} BCH</T>
-
                 <Spacer />
               </>
             )}
             {sweepState === "pending" && (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
                 <ActivityIndicator size="large" />
               </View>
             )}
             {sweepState === "success" && (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <T>success</T>
-              </View>
+              <SuccessContainer>
+                <T type="primary" center weight="bold">
+                  Sweep Complete
+                </T>
+                <Spacer small />
+                <T type="primary" center weight="bold">
+                  {paperBalance} BCH
+                </T>
+              </SuccessContainer>
             )}
             {sweepState === "error" && (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <T>{sweepError}</T>
-              </View>
+              <ErrorContainer>
+                <T type="accent" center>
+                  {sweepError}
+                </T>
+                <T type="accent" center>
+                  Please try again
+                </T>
+              </ErrorContainer>
             )}
           </View>
 

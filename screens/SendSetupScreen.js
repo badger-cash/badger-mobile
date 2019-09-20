@@ -466,6 +466,7 @@ const SendSetupScreen = ({
 
                   const parsedData = parseQr(qrData);
                   handleAddressData(parsedData);
+                  setQrOpen(false);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
