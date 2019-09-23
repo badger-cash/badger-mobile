@@ -1,5 +1,14 @@
 # Badger Wallet - Changelog
 
+## 0.11.0
+
+- Larger QR codes
+- Slide to send improvements
+  - Activates earlier in swipe
+- FAQ Page to address common questions
+- Direct link to explorer from each transaction
+- Paper Wallet Sweeping screen added
+
 ## 0.10.3
 
 - React Native 0.60 upgrade

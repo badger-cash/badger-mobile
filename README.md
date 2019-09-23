@@ -90,6 +90,7 @@ To run on a specific device, such as required for taking screenshots for the sto
 
 ```bash
 > yarn run ios --simulator="iPhone Xs Max"
+> yarn run ios --simulator="iPhone 11 Pro"
 > yarn run ios --simulator="iPhone 8 Plus"
 > yarn run ios --simulator="iPhone 6"
 > yarn run ios --simulator="iPhone SE"
