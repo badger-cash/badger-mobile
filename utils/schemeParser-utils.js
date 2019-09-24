@@ -1,10 +1,8 @@
 // @flow
 
 import BigNumber from "bignumber.js";
-import SLPSDK from "slp-sdk";
 import { Utils } from "slpjs";
-
-const SLP = new SLPSDK();
+import { SLP } from "./slp-sdk-utils";
 
 const tokenIdRegex = /^([A-Fa-f0-9]{2}){32,32}$/;
 

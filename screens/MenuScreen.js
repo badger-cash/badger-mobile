@@ -114,6 +114,18 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
           label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
         />
         <OptionsRow
+          text="Frequently Asked Questions - FAQ"
+          pressFn={() => {
+            navigation.navigate("FAQScreen");
+          }}
+        />
+        <OptionsRow
+          text="Paper Wallet Sweep"
+          pressFn={() => {
+            navigation.navigate("SweepScreen");
+          }}
+        />
+        <OptionsRow
           text="Terms of Use"
           muted
           pressFn={() => {
@@ -143,8 +155,8 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer fill />
         <Spacer small />
         <T center size="small" type="muted2">
-          Version 0.10.3 - Beta
           {/* Version {packageJson.version} - Beta */}
+          Version 0.11.0 - Beta
         </T>
         <Spacer small />
       </StyledScrollView>

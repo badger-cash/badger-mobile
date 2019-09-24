@@ -2,15 +2,20 @@
 
 import React from "react";
 import styled, { css } from "styled-components";
-import { View, Image, StyleSheet } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Linking,
+  TouchableOpacity
+} from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 
-import SLPSDK from "slp-sdk";
+import Feather from "react-native-vector-icons/Feather";
 
 import { T } from "../../atoms";
-
-const SLP = new SLPSDK();
+import { SLP } from "../../utils/slp-sdk-utils";
 
 const Row = styled(View)`
   padding: 16px;
@@ -27,6 +32,8 @@ const Row = styled(View)`
 
 const DateRow = styled(View)`
   margin-bottom: 4px;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 const MetaRow = styled(View)`
   margin-top: 4px;
@@ -124,6 +131,15 @@ const TransactionRow = ({
         <T size="small" type="muted">
           {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
         </T>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
+          }
+        >
+          <T size="small" type="muted">
+            Explorer <Feather name="external-link" />
+          </T>
+        </TouchableOpacity>
       </DateRow>
       <AmountRow>
         <IconArea>

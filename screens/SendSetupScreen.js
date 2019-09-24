@@ -18,7 +18,6 @@ import BigNumber from "bignumber.js";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import SLPSDK from "slp-sdk";
 
 import { T, H1, H2, Button, Spacer } from "../atoms";
 
@@ -30,6 +29,8 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
+import { activeAccountSelector } from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
 
 import {
   formatAmount,
@@ -40,7 +41,7 @@ import {
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
-const SLP = new SLPSDK();
+import { SLP } from "../utils/slp-sdk-utils";
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
@@ -169,6 +170,7 @@ const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
+  utxos,
   spotPrices,
   fiatCurrency,
   updateTokensMeta
@@ -224,7 +226,14 @@ const SendSetupScreen = ({
   if (tokenId) {
     availableAmount = balances.slpTokens[tokenId];
   } else {
-    const availableRaw = balances.satoshisAvailable.minus(546);
+    const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+    const allUTXOFee = SLP.BitcoinCash.getByteCount(
+      { P2PKH: spendableUTXOS.length },
+      { P2PKH: 2 }
+    );
+
+    // Available = total satoshis - fee for including all UTXO
+    const availableRaw = balances.satoshisAvailable.minus(allUTXOFee);
 
     if (availableRaw.lte(0)) {
       availableAmount = new BigNumber(0);
@@ -281,7 +290,14 @@ const SendSetupScreen = ({
   };
 
   const goNextStep = () => {
-    const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    let addressFormat = null;
+    try {
+      addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    } catch (e) {
+      setErrors(["Invalid address, double check and try again."]);
+      return;
+    }
+
     let hasErrors = false;
     if (tokenId && !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)) {
       setErrors([
@@ -373,6 +389,34 @@ const SendSetupScreen = ({
     };
   };
 
+  const handleAddressData = parsedData => {
+    setErrors([]);
+
+    // Verify the type matches the screen we are on.
+    if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
+      setErrors([
+        "Sending different coin or token than selected, go to the target coin screen and try again"
+      ]);
+      return;
+    }
+
+    parsedData.parseError && setErrors([parsedData.parseError]);
+
+    // If there's an amount, set the type to crypto
+    parsedData.amount && setAmountType("crypto");
+    if (parsedData.address) {
+      setToAddress(parsedData.address);
+
+      try {
+        SLP.Address.isCashAddress(parsedData.address) ||
+          SLP.Address.isSLPAddress(parsedData.address);
+      } catch (e) {
+        setErrors([e.message]);
+      }
+    }
+    parsedData.amount && setSendAmount(parsedData.amount);
+  };
+
   useEffect(() => {
     if (amountType === "crypto") {
       setSendAmountFiat(
@@ -394,7 +438,7 @@ const SendSetupScreen = ({
           : 0
       );
     }
-  }, [sendAmountNumber, amountType, fiatRate]);
+  }, [sendAmountNumber, amountType, fiatRate, fiatCurrency, sendAmount]);
 
   const sendAmountFiatFormatted = formatFiatAmount(
     new BigNumber(sendAmountFiat),
@@ -421,32 +465,8 @@ const SendSetupScreen = ({
                   const qrData = e.data;
 
                   const parsedData = parseQr(qrData);
-
-                  setErrors([]);
+                  handleAddressData(parsedData);
                   setQrOpen(false);
-
-                  // Verify the type matches the screen we are on.
-                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
-                    setErrors([
-                      "Sending different coin or token than selected, go to the target coin screen and try again"
-                    ]);
-                    return;
-                  }
-
-                  parsedData.parseError && setErrors([parsedData.parseError]);
-
-                  // If there's an amount, set the type to crypto
-                  parsedData.amount && setAmountType("crypto");
-                  if (parsedData.address) {
-                    setToAddress(parsedData.address);
-                    const isValidAddress =
-                      SLP.Address.isCashAddress(parsedData.address) ||
-                      SLP.Address.isSLPAddress(parsedData.address);
-                    if (isValidAddress.message) {
-                      setErrors([isValidAddress.message]);
-                    }
-                  }
-                  parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
@@ -532,40 +552,9 @@ const SendSetupScreen = ({
                 nature="ghost"
                 onPress={async () => {
                   const content = await Clipboard.getString();
-                  let pasteError = null;
-                  let invalidURIError = null;
                   const parsedData = parseQr(content);
 
-                  // Verify the type matches the screen we are on.
-                  if (
-                    (parsedData.amount &&
-                      parsedData.tokenId == null &&
-                      tokenId) ||
-                    (parsedData.tokenId && parsedData.tokenId !== tokenId)
-                  ) {
-                    invalidURIError =
-                      "Sending different coin or token from the pasted URI";
-                    setErrors([invalidURIError]);
-                    return;
-                  }
-
-                  if (parsedData.parseError) {
-                    pasteError = parsedData.parseError;
-                  }
-
-                  // If there's an amount, set the type to crypto
-                  parsedData.amount && setAmountType("crypto");
-                  if (parsedData.address) {
-                    const isValidAddress =
-                      SLP.Address.isCashAddress(parsedData.address) ||
-                      SLP.Address.isSLPAddress(parsedData.address);
-                    if (isValidAddress.message) {
-                      pasteError = isValidAddress.message;
-                    }
-                    setToAddress(parsedData.address);
-                  }
-                  parsedData.amount && setSendAmount(parsedData.amount);
-                  pasteError ? setErrors([pasteError]) : setErrors([]);
+                  handleAddressData(parsedData);
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">
@@ -684,11 +673,15 @@ const mapStateToProps = state => {
   const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
   const fiatCurrency = currencySelector(state);
+
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
   return {
     tokensById,
     balances,
     spotPrices,
-    fiatCurrency
+    fiatCurrency,
+    utxos
   };
 };
 

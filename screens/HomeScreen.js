@@ -124,7 +124,7 @@ const HomeScreen = ({
       10 * SECOND
     );
     return () => clearInterval(utxoInterval);
-  }, [address]);
+  }, [address, addressSlp, updateUtxos]);
 
   // Update transaction history
   useEffect(() => {
@@ -135,7 +135,7 @@ const HomeScreen = ({
       15 * 1000
     );
     return () => clearInterval(transactionInterval);
-  }, [address]);
+  }, [address, addressSlp, updateTransactions]);
 
   const tokenIds = Object.keys(balances.slpTokens);
   const tokenIdsHash = uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
@@ -153,7 +153,7 @@ const HomeScreen = ({
       60 * 1000
     );
     return () => clearInterval(spotPriceInterval);
-  }, [fiatCurrency]);
+  }, [fiatCurrency, updateSpotPrice]);
 
   const slpTokens = balances.slpTokens;
 

@@ -1,7 +1,6 @@
 // @flow
 
 import BigNumber from "bignumber.js";
-import SLPSDK from "slp-sdk";
 
 import {
   GET_TRANSACTIONS_START,
@@ -14,9 +13,9 @@ import {
   getHistoricalSlpTransactions
 } from "../../utils/balance-utils";
 
-import { transactionsLatestBlockSelector } from "../selectors";
+import { SLP } from "../../utils/slp-sdk-utils";
 
-const SLP = new SLPSDK();
+import { transactionsLatestBlockSelector } from "../selectors";
 
 const getTransactionsStart = () => ({
   type: GET_TRANSACTIONS_START,
@@ -42,12 +41,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
     const currentState = getState();
     const latestBlock = transactionsLatestBlockSelector(currentState);
 
-    const transactionsBCH145 = getHistoricalBchTransactions(
+    const transactionsBCH = getHistoricalBchTransactions(
       address,
-      latestBlock
-    );
-
-    const transactionsBCH245 = getHistoricalBchTransactions(
       addressSlp,
       latestBlock
     );
@@ -58,15 +53,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
       latestBlock
     );
 
-    const [bch145History, bch245History, slpHistory] = await Promise.all([
-      transactionsBCH145,
-      transactionsBCH245,
+    const [bchHistory, slpHistory] = await Promise.all([
+      transactionsBCH,
       transactionsSlp
     ]);
 
-    const transactionsBCH = [...bch145History, ...bch245History];
-
-    const formattedTransactionsBCH = transactionsBCH.map(tx => {
+    const formattedTransactionsBCH = bchHistory.map(tx => {
       const fromAddresses = tx.in
         .filter(input => input.e && input.e.a)
         .map(input => `bitcoincash:${input.e.a}`)
