@@ -136,6 +136,22 @@ const KeySweepScreen = ({ address }: Props) => {
           </View>
 
           <View style={{ flex: 1 }}>
+            {sweepState === "neutral" && (
+              <>
+                <T size="small" center>
+                  To recover Bitcoin Cash (BCH) from a paper wallet, follow the
+                  three outlined steps.
+                </T>
+                <Spacer small />
+                <T size="small">
+                  1. Scan the private QR code on the paper wallet.
+                </T>
+                <Spacer small />
+                <T size="small">2. Review details.</T>
+                <Spacer small />
+                <T size="small">3. Sweep to your Badger wallet.</T>
+              </>
+            )}
             {sweepState === "scanned" && (
               <>
                 <T weight="bold">2. Review Details</T>

@@ -33,10 +33,10 @@ const FAQScreen = (props: Props) => {
   return (
     <SafeAreaView style={{ height: "100%" }}>
       <ScreenWrapper contentContainerStyle={{ flexGrow: 1 }}>
-        <FAQItem title="What is Badger wallet?">
+        <FAQItem title="What is Badger Wallet?">
           <T>
             Badger Wallet is a Bitcoin Cash (BCH) and Simple Token (SLP) wallet,
-            made to prioritize simplicity for everyday use.
+            designed to prioritize simplicity for everyday use.
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://badger.bitcoin.com")}
@@ -44,10 +44,13 @@ const FAQScreen = (props: Props) => {
             <T type="accent">badger.bitcoin.com</T>
           </TouchableOpacity>
         </FAQItem>
+        <FAQItem title="Which currencies does Badger wallet support?">
+          <T>Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) tokens</T>
+        </FAQItem>
         <FAQItem title="What is Bitcoin Cash (BCH)?">
           <T>
             Bitcoin Cash (BCH) is a version of bitcoin which focuses on being
-            peer to peer electronic cash for everyone. Learn more at
+            peer to peer for the world. Learn more at
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://bitcoincash.org")}
@@ -56,11 +59,11 @@ const FAQScreen = (props: Props) => {
           </TouchableOpacity>
         </FAQItem>
 
-        <FAQItem title="What are Simple Tokens (SLP)?">
+        <FAQItem title="What are Simple Ledger Protocol (SLP) tokens?">
           <T>
-            Simple tokens are tokens following the Simple Ledger Protocol
-            specification which is built upon the Bitcoin Cash network. With
-            simple tokens you can tokenize anything and everything easily.
+            SLP tokens are tokens following the Simple Ledger Protocol
+            specification which is built upon the Bitcoin Cash network. With SLP
+            tokens can be created and shared by anyone easily.
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://simpleledger.cash")}
@@ -69,12 +72,11 @@ const FAQScreen = (props: Props) => {
           </TouchableOpacity>
         </FAQItem>
 
-        <FAQItem title="Why can't I send SLP tokens?">
+        <FAQItem title="Why can't I send tokens?">
           <T>
-            To send SLP tokens, a small amount of BCH is used to pay for the
-            transaction fee. Make sure you have some BCH in your wallet before
-            sending SLP tokens. If this isn't the case, and the problem persists
-            then please get in contact with the team from the Contact Us page.
+            Receiving tokens is free, but sending requires a little bit of
+            Bitcoin Cash (BCH) to pay the transaction fee. Make sure your wallet
+            has a little bit of BCH before sending SLP tokens.
           </T>
         </FAQItem>
         <Spacer large />
