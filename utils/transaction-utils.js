@@ -14,12 +14,14 @@ const SLPJS = new slpjs.Slp(SLP);
 
 const LOKAD_ID_HEX = "534c5000";
 
-type TxParams = {
+export type TxParams = {
   from: string,
   to: string,
   value: number,
   opReturn?: { data: string },
-  sendTokenData?: { tokenId: string }
+  sendTokenData?: { tokenId: string },
+  valueArray: ?any, // Put in proper ?
+  paymentRequestUrl?: string
 };
 
 const getAllUtxo = async (address: string) => {
@@ -283,6 +285,18 @@ const signAndPublishSlpTransaction = async (
   tokenChangeAddress: string
 ) => {
   const from = txParams.from;
+
+  // Get to addresses from payment request
+  if (!txParams.to && txParams.paymentRequestUrl) {
+    txParams.to = [];
+    let outputs = txParams.paymentData.outputs;
+    for (let i = 1; i < outputs.length; i++) {
+      txParams.to.push(
+        SLP.Address.fromOutputScript(Buffer.from(outputs[i].script, "hex"))
+      );
+    }
+  }
+
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;
   const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
@@ -315,19 +329,25 @@ const signAndPublishSlpTransaction = async (
   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
 
   let sendOpReturn = null;
+  // Handle multi-output SLP
+  let tokenSendArray = txParams.valueArray
+    ? txParams.valueArray.map(num => new BigNumber(num))
+    : [tokenSendAmount];
+
   if (tokenChangeAmount.isGreaterThan(0)) {
+    tokenSendArray.push(tokenChangeAmount);
     sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
-      outputQtyArray: [tokenSendAmount, tokenChangeAmount]
+      outputQtyArray: tokenSendArray
     });
   } else {
     sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
-      outputQtyArray: [tokenSendAmount]
+      outputQtyArray: tokenSendArray
     });
   }
 
-  const tokenReceiverAddressArray = [to];
+  const tokenReceiverAddressArray = Array.isArray(to) ? to.slice(0) : [to];
   if (tokenChangeAmount.isGreaterThan(0)) {
     tokenReceiverAddressArray.push(tokenChangeAddress);
   }
@@ -365,7 +385,15 @@ const signAndPublishSlpTransaction = async (
   transactionBuilder.addOutput(sendOpReturn, 0);
 
   // Token destination output
-  transactionBuilder.addOutput(to, 546);
+  if (to) {
+    if (Array.isArray(to)) {
+      for (const addr of to) {
+        transactionBuilder.addOutput(addr, 546);
+      }
+    } else {
+      transactionBuilder.addOutput(to, 546);
+    }
+  }
 
   // Return remaining token balance output
   if (tokenChangeAmount.isGreaterThan(0)) {

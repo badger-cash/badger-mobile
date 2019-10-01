@@ -40,6 +40,7 @@ import {
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
+import { decodePaymentRequest } from "../utils/bip70-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
 
@@ -60,6 +61,13 @@ type Props = {
       }
     }
   }
+};
+
+type AddressData = {
+  tokenId: ?string,
+  parseError: ?string,
+  amount: ?number,
+  address: ?string
 };
 
 const StyledTextInput = styled(TextInput)`
@@ -350,6 +358,8 @@ const SendSetupScreen = ({
 
     let amounts = [];
 
+    // add r? for payment request amounts
+
     // Parse out address and any other relevant data
     const parts = qrData.split("?");
 
@@ -357,7 +367,7 @@ const SendSetupScreen = ({
     const parameters = parts[1];
     if (parameters) {
       const parameterParts = parameters.split("&");
-      parameterParts.forEach(param => {
+      parameterParts.forEach(async param => {
         const [name, value] = param.split("=");
         if (name.startsWith("amount")) {
           let currTokenId;
@@ -369,12 +379,68 @@ const SendSetupScreen = ({
           }
           amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
         }
+        // Payment Request
+        if (name === "r") {
+          console.log("payment request detected");
+          console.log(name);
+          console.log(value);
+
+          // Check for payment url
+          // TODO: Payment requests
+          // if (value) {
+          let headers = {
+            Accept: "application/bitcoincash-paymentrequest",
+            "Content-Type": "application/octet-stream"
+          };
+
+          // Assume BCH, but fail over to SLP
+          let paymentResponse;
+          let paymentRequest;
+          let txType;
+
+          try {
+            paymentRequest = await fetch(value, {
+              headers
+            });
+
+            paymentResponse = await paymentRequest.text();
+
+            txType = "BCH";
+          } catch (err) {
+            headers = {
+              ...headers,
+              Accept: "application/simpleledger-paymentrequest"
+            };
+            paymentRequest = await fetch(value, {
+              headers
+            });
+            paymentResponse = await paymentRequest.text();
+            txType = "SLP";
+          }
+
+          console.log(paymentRequest);
+          // debugger;
+
+          // decode payment request
+          // set appropriate values
+          // set timer valid until time?
+
+          console.log("payment response");
+          console.log(paymentResponse);
+
+          const details = await decodePaymentRequest(paymentResponse);
+
+          console.log("after");
+          console.log(details);
+
+          //   amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
+        }
       });
     }
 
     if (amounts.length > 1) {
       parseError =
-        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+        "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
     } else if (amounts.length === 1) {
       const target = amounts[0];
       uriTokenId = target.tokenId;
@@ -389,7 +455,7 @@ const SendSetupScreen = ({
     };
   };
 
-  const handleAddressData = parsedData => {
+  const handleAddressData = (parsedData: AddressData) => {
     setErrors([]);
 
     // Verify the type matches the screen we are on.

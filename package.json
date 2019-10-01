@@ -11,7 +11,7 @@
   "contributors": [],
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "react-native run-ios --simulator=\"iPhone 11 Pro\"",
     "start": "react-native start",
     "test": "jest",
     "link": "eslint",
@@ -29,6 +29,7 @@
     "@tradle/react-native-http": "^2.0.1",
     "bignumber.js": "^9.0.0",
     "bitbox-sdk": "~8.7.0",
+    "bitcore-payment-protocol": "git+https://github.com/vinarmani/bitcore-payment-protocol.git#new_deps",
     "ethereum-blockies-base64": "^1.0.2",
     "events": "^3.0.0",
     "https-browserify": "1.0.0",
