@@ -112,6 +112,12 @@ const SwipeMainContent = styled(View)`
     props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
+const FullView = styled(View)`
+  flex: 1;
+  justify-content: center;
+  padding: 0 16px;
+`;
+
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
   utxos: UTXO[],
@@ -198,7 +204,20 @@ const Bip70ConfirmScreen = ({
   return (
     <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Spacer small />
+        {step === "fetching" && (
+          <>
+            <FullView>
+              <View>
+                <T center type="muted" size="large">
+                  Loading Transaction Details...
+                </T>
+                <Spacer />
+                <ActivityIndicator />
+              </View>
+            </FullView>
+          </>
+        )}
+        {/* <Spacer small />
         <H2 center>{stepDisplay}</H2>
         {tokenId && (
           <T size="tiny" center>
@@ -209,7 +228,6 @@ const Bip70ConfirmScreen = ({
         <IconArea>
           <IconImage source={coinImageSource} />
         </IconArea>
-        {/* <Progress indicator /> // loading payment, review details, sending, success */}
         <T>expires requestor Description amount - crypto amount - fiat</T>
         <Spacer />
         <H2 center>Sending</H2>
@@ -223,7 +241,7 @@ const Bip70ConfirmScreen = ({
             {paymentAmountFiat}
           </T>
         )}
-        <Spacer large />
+        <Spacer large /> */}
         {/* <H2 center>To Address</H2>
         <Spacer small />
         <T size="small" center>
@@ -244,7 +262,7 @@ const Bip70ConfirmScreen = ({
         )}
         <Spacer fill />
         <Spacer small />*/}
-        <ButtonsContainer>
+        {/* <ButtonsContainer>
           <SwipeButtonContainer>
             {step === "signing" ? (
               <ActivityIndicator size="large" />
@@ -296,7 +314,7 @@ const Bip70ConfirmScreen = ({
               onPress={() => navigation.goBack()}
             />
           )}
-        </ButtonsContainer>
+        </ButtonsContainer> */}
         <Spacer small />
       </ScrollView>
     </ScreenWrapper>
