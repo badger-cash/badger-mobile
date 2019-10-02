@@ -7,7 +7,7 @@
 // - Confirm screen updates for this payment type.
 
 // @flow
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -51,6 +51,7 @@ import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import { SLP } from "../utils/slp-sdk-utils";
+import { decodePaymentRequest, getAsArrayBuffer } from "../utils/bip70-utils";
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 
@@ -157,6 +158,8 @@ const Bip70ConfirmScreen = ({
   const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
   const [sendError, setSendError] = useState(null);
 
+  const [paymentDetails, setPaymentDetails] = useState(null);
+
   const [tokenId, setTokenId] = useState(null);
   const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
     null
@@ -170,9 +173,54 @@ const Bip70ConfirmScreen = ({
       | "creating"
       | "sending"
       | "confirmed"
-      | "error",
+      | "error"
+      | "expired",
     setStep
   ] = useState("fetching");
+
+  useEffect(() => {
+    setStep("fetching");
+    const fetchDetails = async () => {
+      let headers = {
+        Accept: "application/bitcoincash-paymentrequest",
+        "Content-Type": "application/octet-stream"
+      };
+
+      // Assume BCH, but fail over to SLP
+      let paymentResponse;
+      let paymentRequest;
+      let txType;
+
+      try {
+        paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
+        txType = "BCH";
+      } catch (err) {
+        console.log(err);
+        headers = {
+          ...headers,
+          Accept: "application/simpleledger-paymentrequest"
+        };
+        paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
+        txType = "SLP";
+      }
+
+      let details = null;
+      try {
+        details = await decodePaymentRequest(paymentResponse);
+      } catch (e) {
+        console.log("decode failed");
+        console.warn(e);
+        setStep("expired");
+      }
+      setPaymentDetails(details);
+      setStep("review");
+
+      console.log("after");
+      console.log(details);
+    };
+
+    fetchDetails();
+  }, [paymentURL]);
 
   const displaySymbol = tokenId
     ? tokensById[tokenId]
@@ -205,17 +253,28 @@ const Bip70ConfirmScreen = ({
     <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {step === "fetching" && (
+          <FullView>
+            <View>
+              <T center type="muted" size="large">
+                Loading Transaction Details...
+              </T>
+              <Spacer />
+              <ActivityIndicator />
+            </View>
+          </FullView>
+        )}
+        {step === "review" && (
           <>
-            <FullView>
-              <View>
-                <T center type="muted" size="large">
-                  Loading Transaction Details...
-                </T>
-                <Spacer />
-                <ActivityIndicator />
-              </View>
-            </FullView>
+            <Spacer small />
+            <T>Review view</T>
           </>
+        )}
+        {step === "expired" && (
+          <FullView>
+            <View>
+              <T type="danger">Payment expired, please try again.</T>
+            </View>
+          </FullView>
         )}
         {/* <Spacer small />
         <H2 center>{stepDisplay}</H2>

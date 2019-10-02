@@ -198,7 +198,7 @@ const signAndPublishPaymentRequestTransaction = async (
 
 const getAsArrayBuffer = (
   url: string,
-  headers: { key: string, value: string }[]
+  headers: { Accept: string, "Content-Type": string }
 ): Promise<any> => {
   return new Promise((accept, reject) => {
     let req = new XMLHttpRequest();
@@ -232,6 +232,7 @@ const decodePaymentRequest = async requestData => {
   //   console.log(e);
   // }
   console.log("before");
+  console.log(requestData);
 
   let buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
   console.log(buffer);
