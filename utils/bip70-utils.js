@@ -196,6 +196,30 @@ const signAndPublishPaymentRequestTransaction = async (
   // }
 };
 
+const getAsArrayBuffer = (
+  url: string,
+  headers: { key: string, value: string }[]
+): Promise<any> => {
+  return new Promise((accept, reject) => {
+    let req = new XMLHttpRequest();
+    req.open("GET", url, true);
+    Object.entries(headers).forEach(([key, value]) => {
+      req.setRequestHeader(key, value);
+    });
+
+    req.responseType = "arraybuffer";
+
+    req.onload = function(event) {
+      var resp = req.response;
+      if (resp) {
+        accept(resp);
+      }
+    };
+
+    req.send(null);
+  });
+};
+
 // From Badger extension
 const decodePaymentRequest = async requestData => {
   // let buffer = null;
@@ -300,5 +324,6 @@ const decodePaymentRequest = async requestData => {
 export {
   signAndPublishPaymentRequestTransaction,
   decodePaymentResponse,
-  decodePaymentRequest
+  decodePaymentRequest,
+  getAsArrayBuffer
 };

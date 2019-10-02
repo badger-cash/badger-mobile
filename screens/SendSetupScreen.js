@@ -40,7 +40,7 @@ import {
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
-import { decodePaymentRequest } from "../utils/bip70-utils";
+import { decodePaymentRequest, getAsArrayBuffer } from "../utils/bip70-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
 
@@ -385,58 +385,62 @@ const SendSetupScreen = ({
           console.log(name);
           console.log(value);
 
+          navigation.navigate("Bip70Confirm", {
+            paymentURL: value
+            // details
+            // tokenId,
+            // sendAmount: sendAmountCrypto,
+            // toAddress
+          });
+
+          // catch this case earlier, and redirect to the BIP70 stack?
+
           // Check for payment url
           // TODO: Payment requests
           // if (value) {
-          let headers = {
-            Accept: "application/bitcoincash-paymentrequest",
-            "Content-Type": "application/octet-stream"
-          };
+          // let headers = {
+          //   Accept: "application/bitcoincash-paymentrequest",
+          //   "Content-Type": "application/octet-stream"
+          // };
 
-          // Assume BCH, but fail over to SLP
-          let paymentResponse;
-          let paymentRequest;
-          let txType;
+          // // Assume BCH, but fail over to SLP
+          // let paymentResponse;
+          // let paymentRequest;
+          // let txType;
 
-          try {
-            paymentRequest = await fetch(value, {
-              headers
-            });
+          // try {
+          //   paymentResponse = await getAsArrayBuffer(value, headers); //paymentRequest.blob();
+          //   txType = "BCH";
+          // } catch (err) {
+          //   headers = {
+          //     ...headers,
+          //     Accept: "application/simpleledger-paymentrequest"
+          //   };
+          //   paymentResponse = await getAsArrayBuffer(value, headers); //paymentRequest.blob();
+          //   txType = "SLP";
+          // }
 
-            paymentResponse = await paymentRequest.text();
+          // const details = await decodePaymentRequest(paymentResponse);
 
-            txType = "BCH";
-          } catch (err) {
-            headers = {
-              ...headers,
-              Accept: "application/simpleledger-paymentrequest"
-            };
-            paymentRequest = await fetch(value, {
-              headers
-            });
-            paymentResponse = await paymentRequest.text();
-            txType = "SLP";
-          }
+          // console.log("after");
+          // console.log(details);
 
-          console.log(paymentRequest);
-          // debugger;
+          // // if BIP70, go straight to confirm screen with details + timer
 
-          // decode payment request
-          // set appropriate values
-          // set timer valid until time?
-
-          console.log("payment response");
-          console.log(paymentResponse);
-
-          const details = await decodePaymentRequest(paymentResponse);
-
-          console.log("after");
-          console.log(details);
+          // navigation.navigate("ConfirmBIP70", {
+          //   details
+          //   // tokenId,
+          //   // sendAmount: sendAmountCrypto,
+          //   // toAddress
+          // });
 
           //   amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
         }
       });
     }
+
+    // bitcoincash:qzcpa4yns9hz5x7tukcggrl009f8mmxnfv76nr8fex?r=https://pay.bitcoin.com/i/EcKnCr7aPpCMB5HRb99zF3
+    // bitcoincash:?r=https://pay.bitcoin.com/i/EcKnCr7aPpCMB5HRb99zF3
 
     if (amounts.length > 1) {
       parseError =
