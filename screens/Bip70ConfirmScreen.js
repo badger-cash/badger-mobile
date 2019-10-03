@@ -130,11 +130,12 @@ type Props = {
     navigate: Function,
     goBack: Function,
     replace: Function,
-    state?: {
+    state: {
       params: {
         tokenId: ?string,
         sendAmount: string,
-        toAddress: string
+        toAddress: string,
+        paymentURL: string
       }
     }
   }
@@ -150,6 +151,7 @@ const Bip70ConfirmScreen = ({
   spotPrices
 }: Props) => {
   const { paymentURL } = navigation.state && navigation.state.params;
+
   if (!paymentURL) {
     console.warn("No BIP70 payment URL found, returning to previous screen");
     navigation.goBack();
@@ -190,6 +192,16 @@ const Bip70ConfirmScreen = ({
       let paymentResponse;
       let paymentRequest;
       let txType;
+      console.log("FETCHING EFFECT?");
+
+      const merchantURL = paymentURL.replace("/i/", "/m/");
+
+      const test = await fetch(merchantURL);
+      console.log(test);
+      const test2 = await test.json();
+      // const test2 = await test.text();
+      console.log(test);
+      console.log(test2);
 
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
@@ -230,9 +242,6 @@ const Bip70ConfirmScreen = ({
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   // const paymentAmountCrypto = new BigNumber(paymentAmountCrypto || 0);
-
-  console.log("IN BIP70");
-  console.log(paymentURL);
 
   const coinImageSource = getTokenImage(tokenId);
 
