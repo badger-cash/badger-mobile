@@ -126,7 +126,7 @@ const getHistoricalSlpTransactions = async (
   };
   const s = JSON.stringify(query);
   const b64 = Buffer.from(s).toString("base64");
-  const url = `https://slpdb.bitcoin.com/q/${b64}`;
+  const url = `https://slpdb.bchtest.net/q/${b64}`;
 
   const request = await fetch(url);
   const result = await request.json();
