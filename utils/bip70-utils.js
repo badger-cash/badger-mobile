@@ -24,6 +24,12 @@ export type PaymentRequest = {
   verified: boolean
 };
 
+export type MerchantData = {
+  fiat_symbol: string,
+  fiat_rate: number,
+  fiat_amount: number
+};
+
 const txidFromHex = hex => {
   const buffer = Buffer.from(hex, "hex");
   const hash = SLP.Crypto.hash256(buffer).toString("hex");

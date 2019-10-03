@@ -54,7 +54,8 @@ import { SLP } from "../utils/slp-sdk-utils";
 import {
   decodePaymentRequest,
   getAsArrayBuffer,
-  type PaymentRequest
+  type PaymentRequest,
+  type MerchantData
 } from "../utils/bip70-utils";
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
@@ -282,8 +283,31 @@ const Bip70ConfirmScreen = ({
       error: "Oop, something went wrong."
     }[step] || "";
 
+  1570138850440;
   console.log("details");
   console.log(paymentDetails);
+
+  const remainingTime = paymentDetails
+    ? paymentDetails.expires - tickTime / 1000
+    : 0;
+  const minutes = (Math.floor(remainingTime / 60) % 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor(remainingTime % 60)
+    .toString()
+    .padStart(2, "0");
+
+  useEffect(() => {
+    if (remainingTime < 0) {
+      setStep("invalid");
+    }
+  }, [remainingTime]);
+
+  const merchantData: MerchantData = paymentDetails
+    ? JSON.parse(paymentDetails.merchantData)
+    : null;
+  console.log("md");
+  console.log(merchantData);
 
   return (
     <ScreenWrapper>
@@ -299,10 +323,51 @@ const Bip70ConfirmScreen = ({
             </View>
           </FullView>
         )}
+
+        {/* expires: number,
+  memo: string,
+  merchantData: string, //"{"fiat_symbol":"BCH","fiat_rate":1,"fiat_amount":0.00005}"
+  network: string,
+  outputs: { amount: number, script: string }[],
+  paymentUrl: string,
+  requiredFeeRate: ?number,
+  time: number,
+  totalValue: number,
+  verified: boolean */}
         {step === "review" && (
           <>
+            <Spacer />
+            <T center monospace size="large">{`${minutes}:${seconds}`}</T>
             <Spacer small />
-            <T>Review view</T>
+            <T center size="small">
+              {paymentDetails.network === "main"
+                ? "Main Network"
+                : "Test Network"}
+            </T>
+            <T
+              size="small"
+              type={paymentDetails.verified ? "primary" : "danger"}
+              center
+            >
+              {paymentDetails.verified ? "Verified" : "Not verified"}
+            </T>
+            <Spacer />
+            <T center size="small" type="muted">
+              Payment URL
+            </T>
+            <T center>{paymentDetails.paymentUrl}</T>
+            <Spacer small />
+            <T center size="small" type="muted">
+              Memo
+            </T>
+            <T center>{paymentDetails.memo}</T>
+            <Spacer small />
+            <T center size="small" type="muted">
+              Amount
+            </T>
+            <T center monospace size="large">
+              {`${merchantData.fiat_amount} ${merchantData.fiat_symbol}`}
+            </T>
           </>
         )}
         {step === "invalid" && (
