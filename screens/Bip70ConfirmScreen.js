@@ -51,7 +51,11 @@ import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import { SLP } from "../utils/slp-sdk-utils";
-import { decodePaymentRequest, getAsArrayBuffer } from "../utils/bip70-utils";
+import {
+  decodePaymentRequest,
+  getAsArrayBuffer,
+  type PaymentRequest
+} from "../utils/bip70-utils";
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 
@@ -150,6 +154,7 @@ const Bip70ConfirmScreen = ({
   keypair,
   spotPrices
 }: Props) => {
+  // Props / state variables
   const { paymentURL } = navigation.state && navigation.state.params;
 
   if (!paymentURL) {
@@ -157,15 +162,17 @@ const Bip70ConfirmScreen = ({
     navigation.goBack();
   }
 
-  const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
+  // Setup state hooks
+  const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false); // Consider moving Swipe + state to own component, used in 3 places now.
   const [sendError, setSendError] = useState(null);
+  const [tickTime: number, setTickTime] = useState(Date.now());
 
-  const [paymentDetails, setPaymentDetails] = useState(null);
+  const [paymentDetails: ?PaymentRequest, setPaymentDetails] = useState(null);
 
   const [tokenId, setTokenId] = useState(null);
   const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
     null
-  );
+  ); // maybe not needed, can get from payment details?
   const [paymentAmountFiat: ?number, setPaymentAmountFiat] = useState(null);
 
   const [
@@ -176,11 +183,13 @@ const Bip70ConfirmScreen = ({
       | "sending"
       | "confirmed"
       | "error"
-      | "expired",
+      | "invalid",
     setStep
   ] = useState("fetching");
 
+  // Setup effect hooks
   useEffect(() => {
+    // Fetch payment details on initial load
     setStep("fetching");
     const fetchDetails = async () => {
       let headers = {
@@ -194,19 +203,22 @@ const Bip70ConfirmScreen = ({
       let txType;
       console.log("FETCHING EFFECT?");
 
-      const merchantURL = paymentURL.replace("/i/", "/m/");
+      // Good, but not neede for now
+      // const merchantURL = paymentURL.replace("/i/", "/m/");
 
-      const test = await fetch(merchantURL);
-      console.log(test);
-      const test2 = await test.json();
-      // const test2 = await test.text();
-      console.log(test);
-      console.log(test2);
+      // const test = await fetch(merchantURL);
+      // console.log(test);
+      // const test2 = await test.json();
+      // // const test2 = await test.text();
+      // console.log(test);
+      // console.log(test2);
 
       try {
+        console.log("path a");
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
         txType = "BCH";
       } catch (err) {
+        console.log("path b");
         console.log(err);
         headers = {
           ...headers,
@@ -216,13 +228,16 @@ const Bip70ConfirmScreen = ({
         txType = "SLP";
       }
 
-      let details = null;
+      let details: ?PaymentRequest = null;
+
+      console.log("....?  a");
       try {
         details = await decodePaymentRequest(paymentResponse);
       } catch (e) {
         console.log("decode failed");
         console.warn(e);
-        setStep("expired");
+        setStep("invalid");
+        return;
       }
       setPaymentDetails(details);
       setStep("review");
@@ -233,6 +248,14 @@ const Bip70ConfirmScreen = ({
 
     fetchDetails();
   }, [paymentURL]);
+
+  useEffect(() => {
+    // Timer tick
+    const tickInterval = setInterval(() => setTickTime(Date.now()), 1000);
+    return () => clearInterval(tickInterval);
+  }, []);
+
+  // Compute render values
 
   const displaySymbol = tokenId
     ? tokensById[tokenId]
@@ -249,6 +272,7 @@ const Bip70ConfirmScreen = ({
     console.log("SEND PAYMENT CALLED");
   };
 
+  // remove unused?
   const stepDisplay =
     {
       fetching: "Getting Details",
@@ -257,6 +281,9 @@ const Bip70ConfirmScreen = ({
       sending: "Sending...",
       error: "Oop, something went wrong."
     }[step] || "";
+
+  console.log("details");
+  console.log(paymentDetails);
 
   return (
     <ScreenWrapper>
@@ -278,10 +305,13 @@ const Bip70ConfirmScreen = ({
             <T>Review view</T>
           </>
         )}
-        {step === "expired" && (
+        {step === "invalid" && (
           <FullView>
             <View>
-              <T type="danger">Payment expired, please try again.</T>
+              <T type="accent" center>
+                Payment request invalid, please check with the merchant and try
+                again.
+              </T>
             </View>
           </FullView>
         )}

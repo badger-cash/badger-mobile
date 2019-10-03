@@ -11,6 +11,19 @@ import { type TxParams } from "./transaction-utils";
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 
+export type PaymentRequest = {
+  expires: number,
+  memo: string,
+  merchantData: string, //"{"fiat_symbol":"BCH","fiat_rate":1,"fiat_amount":0.00005}"
+  network: string,
+  outputs: { amount: number, script: string }[],
+  paymentUrl: string,
+  requiredFeeRate: ?number,
+  time: number,
+  totalValue: number,
+  verified: boolean
+};
+
 const txidFromHex = hex => {
   const buffer = Buffer.from(hex, "hex");
   const hash = SLP.Crypto.hash256(buffer).toString("hex");
@@ -202,20 +215,32 @@ const getAsArrayBuffer = (
 ): Promise<any> => {
   return new Promise((accept, reject) => {
     let req = new XMLHttpRequest();
+
+    console.log("r1");
     req.open("GET", url, true);
     Object.entries(headers).forEach(([key, value]) => {
       req.setRequestHeader(key, value);
     });
 
+    console.log("r2");
+
     req.responseType = "arraybuffer";
 
     req.onload = function(event) {
-      var resp = req.response;
+      console.log("r4");
+      let resp = req.response;
       if (resp) {
+        console.log("r5");
         accept(resp);
       }
     };
+    req.onerror = function(err) {
+      console.log("re");
+      console.log(err);
+      reject(err);
+    };
 
+    console.log("r3");
     req.send(null);
   });
 };
