@@ -371,16 +371,9 @@ const SendSetupScreen = ({
         const [name, value] = param.split("=");
 
         if (name === "r") {
-          console.log("payment request detected");
-          console.log(name);
-          console.log(value);
-
+          // BIP70 detected, go to BIP70 flow
           navigation.navigate("Bip70Confirm", {
             paymentURL: value
-            // details
-            // tokenId,
-            // sendAmount: sendAmountCrypto,
-            // toAddress
           });
         }
 
@@ -394,68 +387,8 @@ const SendSetupScreen = ({
           }
           amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
         }
-        // Payment Request
-        // if (name === "r") {
-        //   console.log("payment request detected");
-        //   console.log(name);
-        //   console.log(value);
-
-        //   navigation.navigate("Bip70Confirm", {
-        //     paymentURL: value
-        //     // details
-        //     // tokenId,
-        //     // sendAmount: sendAmountCrypto,
-        //     // toAddress
-        //   });
-
-        // catch this case earlier, and redirect to the BIP70 stack?
-
-        // Check for payment url
-        // TODO: Payment requests
-        // if (value) {
-        // let headers = {
-        //   Accept: "application/bitcoincash-paymentrequest",
-        //   "Content-Type": "application/octet-stream"
-        // };
-
-        // // Assume BCH, but fail over to SLP
-        // let paymentResponse;
-        // let paymentRequest;
-        // let txType;
-
-        // try {
-        //   paymentResponse = await getAsArrayBuffer(value, headers); //paymentRequest.blob();
-        //   txType = "BCH";
-        // } catch (err) {
-        //   headers = {
-        //     ...headers,
-        //     Accept: "application/simpleledger-paymentrequest"
-        //   };
-        //   paymentResponse = await getAsArrayBuffer(value, headers); //paymentRequest.blob();
-        //   txType = "SLP";
-        // }
-
-        // const details = await decodePaymentRequest(paymentResponse);
-
-        // console.log("after");
-        // console.log(details);
-
-        // // if BIP70, go straight to confirm screen with details + timer
-
-        // navigation.navigate("ConfirmBIP70", {
-        //   details
-        //   // tokenId,
-        //   // sendAmount: sendAmountCrypto,
-        //   // toAddress
-        // });
-
-        //   amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
-        // }
       });
     }
-
-    // bitcoincash:qzcpa4yns9hz5x7tukcggrl009f8mmxnfv76nr8fex?r=https://pay.bitcoin.com/i/EcKnCr7aPpCMB5HRb99zF3
-    // bitcoincash:?r=https://pay.bitcoin.com/i/EcKnCr7aPpCMB5HRb99zF3
 
     if (amounts.length > 1) {
       parseError =

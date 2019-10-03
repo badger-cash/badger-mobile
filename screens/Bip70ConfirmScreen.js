@@ -7,7 +7,7 @@
 // - Confirm screen updates for this payment type.
 
 // @flow
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -32,7 +32,12 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
-import { formatFiatAmount } from "../utils/balance-utils";
+import {
+  formatAmount,
+  formatAmountInput,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
 
 import { type CurrencyCode } from "../utils/currency-utils";
 
@@ -188,6 +193,8 @@ const Bip70ConfirmScreen = ({
     setStep
   ] = useState("fetching");
 
+  const coinImageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
+
   // Setup effect hooks
   useEffect(() => {
     // Fetch payment details on initial load
@@ -267,23 +274,21 @@ const Bip70ConfirmScreen = ({
 
   // const paymentAmountCrypto = new BigNumber(paymentAmountCrypto || 0);
 
-  const coinImageSource = getTokenImage(tokenId);
-
   const sendPayment = async () => {
     console.log("SEND PAYMENT CALLED");
   };
 
   // remove unused?
-  const stepDisplay =
-    {
-      fetching: "Getting Details",
-      review: "Confirm Payment",
-      creating: "Creating Payment",
-      sending: "Sending...",
-      error: "Oop, something went wrong."
-    }[step] || "";
+  // const stepDisplay =
+  //   {
+  //     fetching: "Getting Details",
+  //     review: "Confirm Payment",
+  //     creating: "Creating Payment",
+  //     sending: "Sending...",
+  //     error: "Oop, something went wrong."
+  //   }[step] || "";
 
-  1570138850440;
+  // 1570138850440;
   console.log("details");
   console.log(paymentDetails);
 
@@ -303,11 +308,63 @@ const Bip70ConfirmScreen = ({
     }
   }, [remainingTime]);
 
-  const merchantData: MerchantData = paymentDetails
-    ? JSON.parse(paymentDetails.merchantData)
-    : null;
+  const merchantData = useMemo(
+    () => (paymentDetails ? JSON.parse(paymentDetails.merchantData) : null),
+    [paymentDetails]
+  );
+  const fiatAmountTotal = useMemo(() => {
+    if (merchantData) {
+      if (tokenId) {
+        return computeFiatAmount(
+          new BigNumber(merchantData.fiat_amount),
+          spotPrices,
+          fiatCurrency,
+          tokenId
+        );
+      } else {
+        return computeFiatAmount(
+          new BigNumber(merchantData.fiat_amount),
+          spotPrices,
+          fiatCurrency,
+          "bch"
+        );
+      }
+    }
+    return null;
+  }, [merchantData, tokenId, fiatCurrency, spotPrices]);
+
+  const coinName = useMemo(() => {
+    if (!merchantData) return "----";
+    if (merchantData.fiat_symbol === "BCH") return "Bitcoin Cash";
+    return "SLP Token";
+  }, [merchantData]);
+  // const merchantData: MerchantData = paymentDetails
+  //   ? JSON.parse(paymentDetails.merchantData)
+  //   : null;
   console.log("md");
   console.log(merchantData);
+
+  // const fiatRate = !tokenId
+  //   ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
+  //   : null;
+
+  // let fiatAmountTotal = null;
+  // if(merchantData) {
+  // if (tokenId) {
+  //   fiatAmountTotal = computeFiatAmount(
+  //     availableAmount,
+  //     spotPrices,
+  //     fiatCurrency,
+  //     tokenId
+  //   );
+  // } else {
+  //   fiatAmountTotal = computeFiatAmount(
+  //     availableAmount,
+  //     spotPrices,
+  //     fiatCurrency,
+  //     "bch"
+  //   );
+  // }
 
   return (
     <ScreenWrapper>
@@ -334,11 +391,39 @@ const Bip70ConfirmScreen = ({
   time: number,
   totalValue: number,
   verified: boolean */}
-        {step === "review" && (
+        {step === "review" && paymentDetails && (
           <>
+            <Spacer small />
+            <T center>{`${coinName} (${merchantData.fiat_symbol})`}</T>
+            {tokenId && (
+              <T size="tiny" center>
+                {tokenId}
+              </T>
+            )}
+            <Spacer tiny />
+            <IconArea>
+              <IconImage source={coinImageSource} />
+            </IconArea>
+
             <Spacer />
             <T center monospace size="large">{`${minutes}:${seconds}`}</T>
             <Spacer small />
+            <T center size="small" type="muted">
+              Payment Amount
+            </T>
+            <Spacer tiny />
+            <T center monospace size="large">
+              {`${merchantData.fiat_amount} ${merchantData.fiat_symbol}`}
+            </T>
+            <Spacer tiny />
+            <T center monospace>
+              {formatFiatAmount(
+                fiatAmountTotal,
+                fiatCurrency,
+                tokenId || "bch"
+              )}
+            </T>
+            <Spacer />
             <T center size="small">
               {paymentDetails.network === "main"
                 ? "Main Network"
@@ -351,7 +436,7 @@ const Bip70ConfirmScreen = ({
             >
               {paymentDetails.verified ? "Verified" : "Not verified"}
             </T>
-            <Spacer />
+            <Spacer small />
             <T center size="small" type="muted">
               Payment URL
             </T>
@@ -361,21 +446,15 @@ const Bip70ConfirmScreen = ({
               Memo
             </T>
             <T center>{paymentDetails.memo}</T>
-            <Spacer small />
-            <T center size="small" type="muted">
-              Amount
-            </T>
-            <T center monospace size="large">
-              {`${merchantData.fiat_amount} ${merchantData.fiat_symbol}`}
-            </T>
+            <Spacer fill />
           </>
         )}
         {step === "invalid" && (
           <FullView>
             <View>
               <T type="accent" center>
-                Payment request invalid, please check with the merchant and try
-                again.
+                This payment request is invalid or expired, please check with
+                the merchant and try again.
               </T>
             </View>
           </FullView>
