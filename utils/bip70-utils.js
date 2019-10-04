@@ -30,28 +30,29 @@ export type MerchantData = {
   fiat_amount: number
 };
 
-const getAsArrayBuffer = (
+const postAsArrayBuffer = (
   url: string,
-  headers: { Accept: string, "Content-Type": string }
+  headers: {
+    Accept: string,
+    "Content-Type": string,
+    "Content-Transfer-Encoding": string
+  },
+  body: any
 ): Promise<any> => {
+  console.log("begin POST");
   return new Promise((accept, reject) => {
     let req = new XMLHttpRequest();
-
-    console.log("r1");
-    req.open("GET", url, true);
+    req.open("POST", url, true);
     Object.entries(headers).forEach(([key, value]) => {
       req.setRequestHeader(key, value);
     });
-
-    console.log("r2");
-
+    // req.body = body;
     req.responseType = "arraybuffer";
-
     req.onload = function(event) {
-      console.log("r4");
+      console.log("ON LOAD");
       let resp = req.response;
+      console.log(resp);
       if (resp) {
-        console.log("r5");
         accept(resp);
       }
     };
@@ -60,8 +61,34 @@ const getAsArrayBuffer = (
       console.log(err);
       reject(err);
     };
+    req.send(body);
+  });
+};
 
-    console.log("r3");
+const getAsArrayBuffer = (
+  url: string,
+  headers: { Accept: string, "Content-Type": string }
+): Promise<any> => {
+  return new Promise((accept, reject) => {
+    let req = new XMLHttpRequest();
+    req.open("GET", url, true);
+    Object.entries(headers).forEach(([key, value]) => {
+      req.setRequestHeader(key, value);
+    });
+
+    req.responseType = "arraybuffer";
+
+    req.onload = function(event) {
+      let resp = req.response;
+      if (resp) {
+        accept(resp);
+      }
+    };
+    req.onerror = function(err) {
+      console.log("re");
+      console.log(err);
+      reject(err);
+    };
     req.send(null);
   });
 };
@@ -77,7 +104,7 @@ const txidFromHex = hex => {
 };
 
 const decodePaymentResponse = async responseData => {
-  let buffer = null;
+  // let buffer = null;
   console.log("DECODE PAYMENT DETAILS START-- ------- - ---- ----- -- ---");
   console.log(responseData);
 
@@ -371,29 +398,19 @@ const signAndPublishPaymentRequestTransaction = async (
 
   // POST payment
   // change to fetch
-  const request = await fetch(paymentRequest.paymentUrl, {
-    method: "POST",
-    body: rawbody,
-    headers
-  });
-  const response = request.blob();
+  const paymentResponse = await postAsArrayBuffer(
+    paymentRequest.paymentUrl,
+    headers,
+    rawbody
+  );
+  // const response = request.blob();
 
   console.log("MADE IT TO THE END IT'S A MIRACLE?");
-  console.log(response);
+  console.log(paymentResponse);
 
-  const responseTxHex = await decodePaymentResponse(response.data);
+  const responseTxHex = await decodePaymentResponse(paymentResponse);
   const txid = txidFromHex(responseTxHex);
-
-  console.log("end end");
-  console.log(txid);
-
   return txid;
-
-  // resolve(txid)
-  // } catch (err) {
-  //   reject(err)
-  // }
-  // }
 };
 
 export {

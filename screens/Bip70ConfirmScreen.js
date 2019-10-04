@@ -211,7 +211,7 @@ const Bip70ConfirmScreen = ({
       try {
         details = await decodePaymentRequest(paymentResponse);
       } catch (e) {
-        console.log("decode failed");
+        console.warn("decoding payment request failed");
         console.warn(e);
         setStep("invalid");
         return;
