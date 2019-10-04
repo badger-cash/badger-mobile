@@ -7,7 +7,7 @@
 // - Confirm screen updates for this payment type.
 
 // @flow
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -24,7 +24,7 @@ import BigNumber from "bignumber.js";
 import Swipeable from "react-native-swipeable";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import { Button, T, H1, H2, Spacer } from "../atoms";
+import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -63,8 +63,6 @@ import {
   type MerchantData
 } from "../utils/bip70-utils";
 
-const SWIPEABLE_WIDTH_PERCENT = 78;
-
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
   padding: 0 16px;
@@ -80,17 +78,6 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
-const SwipeButtonContainer = styled(View)`
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 32px;
-  width: ${SWIPEABLE_WIDTH_PERCENT}%;
-  align-self: center;
-  border-width: 2px;
-  border-color: ${props => props.theme.primary700};
-`;
-
 const ButtonsContainer = styled(View)`
   align-items: center;
 `;
@@ -102,25 +89,6 @@ const ErrorHolder = styled(View)`
   border-width: ${StyleSheet.hairlineWidth};
   border-radius: 3px;
   border-color: ${props => props.theme.danger300};
-`;
-
-const SwipeContent = styled(View)`
-  height: 64px;
-  padding-right: 10px;
-  align-items: flex-end;
-  justify-content: center;
-
-  background-color: ${props =>
-    props.activated ? props.theme.success500 : props.theme.pending500};
-`;
-
-const SwipeMainContent = styled(View)`
-  height: 64px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  background-color: ${props =>
-    props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
 const FullView = styled(View)`
@@ -263,32 +231,20 @@ const Bip70ConfirmScreen = ({
     return () => clearInterval(tickInterval);
   }, []);
 
-  // Compute render values
+  const sendPayment = useCallback(async () => {
+    setStep("creating");
+    signAndPublishPaymentRequestTransaction();
+    console.log("SEND PAYMENT CALLED");
+  }, []);
 
-  const displaySymbol = tokenId
-    ? tokensById[tokenId]
-      ? tokensById[tokenId].symbol
-      : "---"
-    : "BCH";
+  // Compute render values
+  // const displaySymbol = tokenId
+  //   ? tokensById[tokenId]
+  //     ? tokensById[tokenId].symbol
+  //     : "---"
+  //   : "BCH";
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
-  // const paymentAmountCrypto = new BigNumber(paymentAmountCrypto || 0);
-
-  const sendPayment = async () => {
-    console.log("SEND PAYMENT CALLED");
-  };
-
-  // remove unused?
-  // const stepDisplay =
-  //   {
-  //     fetching: "Getting Details",
-  //     review: "Confirm Payment",
-  //     creating: "Creating Payment",
-  //     sending: "Sending...",
-  //     error: "Oop, something went wrong."
-  //   }[step] || "";
-
-  // 1570138850440;
   console.log("details");
   console.log(paymentDetails);
 
@@ -312,6 +268,7 @@ const Bip70ConfirmScreen = ({
     () => (paymentDetails ? JSON.parse(paymentDetails.merchantData) : null),
     [paymentDetails]
   );
+
   const fiatAmountTotal = useMemo(() => {
     if (merchantData) {
       if (tokenId) {
@@ -338,33 +295,9 @@ const Bip70ConfirmScreen = ({
     if (merchantData.fiat_symbol === "BCH") return "Bitcoin Cash";
     return "SLP Token";
   }, [merchantData]);
-  // const merchantData: MerchantData = paymentDetails
-  //   ? JSON.parse(paymentDetails.merchantData)
-  //   : null;
+
   console.log("md");
   console.log(merchantData);
-
-  // const fiatRate = !tokenId
-  //   ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
-  //   : null;
-
-  // let fiatAmountTotal = null;
-  // if(merchantData) {
-  // if (tokenId) {
-  //   fiatAmountTotal = computeFiatAmount(
-  //     availableAmount,
-  //     spotPrices,
-  //     fiatCurrency,
-  //     tokenId
-  //   );
-  // } else {
-  //   fiatAmountTotal = computeFiatAmount(
-  //     availableAmount,
-  //     spotPrices,
-  //     fiatCurrency,
-  //     "bch"
-  //   );
-  // }
 
   return (
     <ScreenWrapper>
@@ -380,17 +313,6 @@ const Bip70ConfirmScreen = ({
             </View>
           </FullView>
         )}
-
-        {/* expires: number,
-  memo: string,
-  merchantData: string, //"{"fiat_symbol":"BCH","fiat_rate":1,"fiat_amount":0.00005}"
-  network: string,
-  outputs: { amount: number, script: string }[],
-  paymentUrl: string,
-  requiredFeeRate: ?number,
-  time: number,
-  totalValue: number,
-  verified: boolean */}
         {step === "review" && paymentDetails && (
           <>
             <Spacer small />
@@ -413,8 +335,18 @@ const Bip70ConfirmScreen = ({
             </T>
             <Spacer tiny />
             <T center monospace size="large">
-              {`${merchantData.fiat_amount} ${merchantData.fiat_symbol}`}
+              {`${formatAmount(
+                BigNumber(paymentDetails.totalValue),
+                decimals,
+                true
+              )} ${merchantData.fiat_symbol}`}
             </T>
+            {/* <T center monospace size="large">
+              {`${formatAmount(
+                BigNumber(paymentDetails.totalValue),
+                decimals
+              )}`}
+            </T> */}
             <Spacer tiny />
             <T center monospace>
               {formatFiatAmount(
@@ -447,6 +379,20 @@ const Bip70ConfirmScreen = ({
             </T>
             <T center>{paymentDetails.memo}</T>
             <Spacer fill />
+            <ButtonsContainer>
+              <SwipeButton
+                swipeFn={sendPayment}
+                labelAction="To pay"
+                labelRelease="Release to pay"
+                labelHalfway="Keep going"
+              />
+              <Spacer small />
+              <Button
+                nature="cautionGhost"
+                text="Cancel payment"
+                onPress={() => navigation.goBack()}
+              />
+            </ButtonsContainer>
           </>
         )}
         {step === "invalid" && (
@@ -459,341 +405,10 @@ const Bip70ConfirmScreen = ({
             </View>
           </FullView>
         )}
-        {/* <Spacer small />
-        <H2 center>{stepDisplay}</H2>
-        {tokenId && (
-          <T size="tiny" center>
-            {tokenId}
-          </T>
-        )}
-        <Spacer small />
-        <IconArea>
-          <IconImage source={coinImageSource} />
-        </IconArea>
-        <T>expires requestor Description amount - crypto amount - fiat</T>
-        <Spacer />
-        <H2 center>Sending</H2>
-        <Spacer small />
-        <H2 center weight="bold">
-          {paymentAmountCrypto ? paymentAmountCrypto.toFormat() : "--"}{" "}
-          {displaySymbol}
-        </H2>
-        {paymentAmountFiat && (
-          <T center type="muted">
-            {paymentAmountFiat}
-          </T>
-        )}
-        <Spacer large /> */}
-        {/* <H2 center>To Address</H2>
-        <Spacer small />
-        <T size="small" center>
-          {protocol}:
-        </T>
-        <T center>
-          <T style={{ fontWeight: "bold" }}>{addressStart}</T>
-          <T size="small">{addressMiddle}</T>
-          <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
-        </T>
-        <Spacer small />
-        {sendError && (
-          <ErrorHolder>
-            <T center type="danger">
-              {sendError.message || sendError.error}
-            </T>
-          </ErrorHolder>
-        )}
-        <Spacer fill />
-        <Spacer small />*/}
-        {/* <ButtonsContainer>
-          <SwipeButtonContainer>
-            {step === "signing" ? (
-              <ActivityIndicator size="large" />
-            ) : (
-              <Swipeable
-                leftActionActivationDistance={
-                  Dimensions.get("window").width *
-                  (SWIPEABLE_WIDTH_PERCENT / 100) *
-                  0.7
-                }
-                leftContent={
-                  <SwipeContent activated={confirmSwipeActivated}>
-                    {confirmSwipeActivated ? (
-                      <T weight="bold" type="inverse">
-                        Release to send
-                      </T>
-                    ) : (
-                      <T weight="bold" type="inverse">
-                        Keep pulling
-                      </T>
-                    )}
-                  </SwipeContent>
-                }
-                onLeftActionActivate={() => setConfirmSwipeActivated(true)}
-                onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-                onLeftActionComplete={() => sendPayment()}
-              >
-                <SwipeMainContent triggered={step === "signing"}>
-                  <T weight="bold" type="inverse">
-                    Swipe{" "}
-                  </T>
-                  <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
-                    <Ionicons name="ios-arrow-round-forward" size={25} />
-                  </T>
-                  <T weight="bold" type="inverse">
-                    {" "}
-                    To Send
-                  </T>
-                </SwipeMainContent>
-              </Swipeable>
-            )}
-          </SwipeButtonContainer>
-          <Spacer />
-          {step !== "signing" && (
-            <Button
-              nature="cautionGhost"
-              text="Cancel Transaction"
-              style={{ width: `${SWIPEABLE_WIDTH_PERCENT}%` }}
-              onPress={() => navigation.goBack()}
-            />
-          )}
-        </ButtonsContainer> */}
         <Spacer small />
       </ScrollView>
     </ScreenWrapper>
   );
-
-  // ---- BELOW IS OLD.P
-
-  // const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
-  // const [sendError, setSendError] = useState(null);
-
-  // const [
-  //   transactionState: "setup" | "signing" | "broadcasting" | "sent",
-  //   setTransactionState
-  // ] = useState("setup");
-
-  // const displaySymbol = tokenId
-  //   ? tokensById[tokenId]
-  //     ? tokensById[tokenId].symbol
-  //     : "---"
-  //   : "BCH";
-
-  // const decimals = tokenId ? tokensById[tokenId].decimals : 8;
-
-  // const sendAmountFormatted = new BigNumber(sendAmount);
-
-  /// ---- CONVERTED UNTIL HERE
-
-  // Convert BCH amount to satoshis
-  // Send the entered token amount as is
-  // const sendAmountAdjusted = tokenId
-  //   ? sendAmountFormatted
-  //   : sendAmountFormatted
-  //       .shiftedBy(decimals)
-  //       .integerValue(BigNumber.ROUND_FLOOR);
-
-  // const sendAmountParam = sendAmountAdjusted.toString();
-
-  // const signSendTransaction = async () => {
-  //   setTransactionState("signing");
-
-  //   const utxoWithKeypair = utxos.map(utxo => ({
-  //     ...utxo,
-  //     keypair:
-  //       utxo.address === activeAccount.address ? keypair.bch : keypair.slp
-  //   }));
-
-  //   const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
-
-  //   let txParams = {};
-  //   try {
-  //     if (tokenId) {
-  //       const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
-  //         return (
-  //           utxo.slp &&
-  //           utxo.slp.baton === false &&
-  //           utxo.validSlpTx === true &&
-  //           utxo.slp.token === tokenId
-  //         );
-  //       });
-  //       // Sign and send SLP Token tx
-  //       txParams = {
-  //         to: SLP.Address.toCashAddress(toAddress),
-  //         from: activeAccount.address,
-  //         value: sendAmountParam,
-  //         sendTokenData: { tokenId }
-  //       };
-
-  //       await signAndPublishSlpTransaction(
-  //         txParams,
-  //         spendableUTXOS,
-  //         {
-  //           decimals
-  //         },
-  //         spendableTokenUtxos,
-  //         activeAccount.addressSlp
-  //       );
-  //     } else {
-  //       // Sign and send BCH tx
-  //       txParams = {
-  //         to: toAddress,
-  //         from: activeAccount.address,
-  //         value: sendAmountParam
-  //       };
-
-  //       await signAndPublishBchTransaction(txParams, spendableUTXOS);
-  //     }
-  //     navigation.replace("SendSuccess", { txParams });
-  //   } catch (e) {
-  //     setConfirmSwipeActivated(false);
-  //     setTransactionState("setup");
-  //     const errorFormatted =
-  //       {
-  //         "66: insufficient priority": new Error(
-  //           "SLP transactions require a small amount of BCH to pay the transaction fee.  Please add a small amount of BCH to your wallet and try again"
-  //         )
-  //       }[e.error] || e;
-
-  //     setSendError(errorFormatted);
-  //   }
-  // };
-  // // Return to setup if any tx params are missing
-  // if ((!tokenId && displaySymbol !== "BCH") || !sendAmount || !toAddress) {
-  //   navigation.navigate("SendSetup", { tokenId });
-  // }
-
-  // const imageSource = getTokenImage(tokenId);
-
-  // const coinName = !tokenId ? "Bitcoin Cash" : tokensById[tokenId].name;
-
-  // // toAddress like
-  // // -> simpleledger:qq2addressHash
-  // // -> l344f3legacyFormatted
-  // const addressParts = toAddress.split(":");
-  // const address = addressParts.length === 2 ? addressParts[1] : addressParts[0];
-  // const protocol = addressParts.length === 2 ? addressParts[0] : "legacy";
-
-  // const addressStart = address.slice(0, 5);
-  // const addressMiddle = address.slice(5, -6);
-  // const addressEnd = address.slice(-6);
-
-  // const isBCH = !tokenId;
-  // const BCHFiatAmount = isBCH
-  //   ? spotPrices["bch"][fiatCurrency].rate * (sendAmountParam / 10 ** 8)
-  //   : 0;
-  // const fiatDisplay = isBCH
-  //   ? formatFiatAmount(
-  //       new BigNumber(BCHFiatAmount),
-  //       fiatCurrency,
-  //       tokenId || "bch"
-  //     )
-  //   : null;
-
-  // return (
-  //   <ScreenWrapper>
-  //     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-  //       <Spacer small />
-  //       <H1 center>{coinName}</H1>
-  //       {tokenId && (
-  //         <T size="tiny" center>
-  //           {tokenId}
-  //         </T>
-  //       )}
-  //       <Spacer small />
-  //       <IconArea>
-  //         <IconImage source={imageSource} />
-  //       </IconArea>
-
-  //       <Spacer />
-  //       <H2 center>Sending</H2>
-  //       <Spacer small />
-  //       <H2 center weight="bold">
-  //         {sendAmountFormatted.toFormat() || "--"} {displaySymbol}
-  //       </H2>
-  //       {fiatDisplay && (
-  //         <T center type="muted">
-  //           {fiatDisplay}
-  //         </T>
-  //       )}
-  //       <Spacer large />
-  //       <H2 center>To Address</H2>
-  //       <Spacer small />
-  //       <T size="small" center>
-  //         {protocol}:
-  //       </T>
-  //       <T center>
-  //         <T style={{ fontWeight: "bold" }}>{addressStart}</T>
-  //         <T size="small">{addressMiddle}</T>
-  //         <T style={{ fontWeight: "bold" }}>{addressEnd}</T>
-  //       </T>
-  //       <Spacer small />
-  //       {sendError && (
-  //         <ErrorHolder>
-  //           <T center type="danger">
-  //             {sendError.message || sendError.error}
-  //           </T>
-  //         </ErrorHolder>
-  //       )}
-  //       <Spacer fill />
-  //       <Spacer small />
-
-  //       <ButtonsContainer>
-  //         <SwipeButtonContainer>
-  //           {transactionState === "signing" ? (
-  //             <ActivityIndicator size="large" />
-  //           ) : (
-  //             <Swipeable
-  //               leftActionActivationDistance={
-  //                 Dimensions.get("window").width *
-  //                 (SWIPEABLE_WIDTH_PERCENT / 100) *
-  //                 0.7
-  //               }
-  //               leftContent={
-  //                 <SwipeContent activated={confirmSwipeActivated}>
-  //                   {confirmSwipeActivated ? (
-  //                     <T weight="bold" type="inverse">
-  //                       Release to send
-  //                     </T>
-  //                   ) : (
-  //                     <T weight="bold" type="inverse">
-  //                       Keep pulling
-  //                     </T>
-  //                   )}
-  //                 </SwipeContent>
-  //               }
-  //               onLeftActionActivate={() => setConfirmSwipeActivated(true)}
-  //               onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-  //               onLeftActionComplete={() => signSendTransaction()}
-  //             >
-  //               <SwipeMainContent triggered={transactionState === "signing"}>
-  //                 <T weight="bold" type="inverse">
-  //                   Swipe{" "}
-  //                 </T>
-  //                 <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
-  //                   <Ionicons name="ios-arrow-round-forward" size={25} />
-  //                 </T>
-  //                 <T weight="bold" type="inverse">
-  //                   {" "}
-  //                   To Send
-  //                 </T>
-  //               </SwipeMainContent>
-  //             </Swipeable>
-  //           )}
-  //         </SwipeButtonContainer>
-  //         <Spacer />
-  //         {transactionState !== "signing" && (
-  //           <Button
-  //             nature="cautionGhost"
-  //             text="Cancel Transaction"
-  //             style={{ width: `${SWIPEABLE_WIDTH_PERCENT}%` }}
-  //             onPress={() => navigation.goBack()}
-  //           />
-  //         )}
-  //       </ButtonsContainer>
-  //       <Spacer small />
-  //     </ScrollView>
-  //   </ScreenWrapper>
-  // );
 };
 
 const mapStateToProps = state => {

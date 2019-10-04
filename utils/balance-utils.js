@@ -137,7 +137,18 @@ const getHistoricalSlpTransactions = async (
   return transactions;
 };
 
-const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
+const removeTrailingChars = (word: string, target: string) => {
+  if (word.slice(-1) === target) {
+    return removeTrailingChars(word.slice(0, -1), target);
+  }
+  return word;
+};
+
+const formatAmount = (
+  amount: ?BigNumber,
+  decimals: ?number,
+  trimEnd?: boolean
+): string => {
   if (decimals == null) {
     return "-.--------";
   }
@@ -146,7 +157,10 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  let adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  if (trimEnd) {
+    adjustDecimals = removeTrailingChars(adjustDecimals, "0");
+  }
   return adjustDecimals;
 };
 

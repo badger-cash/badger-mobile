@@ -171,7 +171,7 @@ const signAndPublishPaymentRequestTransaction = async (
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
   // calculate refund script pubkey
-  const refundPubkey = SLP.ECPair.toPublicKey(keyPair); // ? figure out how the refund part works?
+  const refundPubkey = SLP.ECPair.toPublicKey(keyPair);
   const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey));
   const refundScriptPubkey = SLP.Script.pubKeyHash.output.encode(
     Buffer.from(refundHash160, "hex")
@@ -196,15 +196,21 @@ const signAndPublishPaymentRequestTransaction = async (
   };
 
   // change to fetch
-  const response = await fetch(txParams.paymentData.paymentUrl, {
+  const request = await fetch(txParams.paymentData.paymentUrl, {
     method: "POST",
     body: rawbody,
-    headers,
-    responsetype: "blob"
+    headers
   });
+  const response = request.blob();
+
+  console.log("MADE IT TO THE END IT'S A MIRACLE?");
+  console.log(response);
 
   const responseTxHex = await decodePaymentResponse(response.data);
   const txid = txidFromHex(responseTxHex);
+
+  console.log("end end");
+  console.log(txid);
 
   return txid;
 
