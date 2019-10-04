@@ -5,9 +5,7 @@
 import { SLP } from "./slp-sdk-utils";
 
 import PaymentProtocol from "bitcore-payment-protocol";
-// import toBuffer from "blob-to-buffer";
 
-import { type TxParams } from "./transaction-utils";
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 
@@ -104,10 +102,6 @@ const txidFromHex = hex => {
 };
 
 const decodePaymentResponse = async responseData => {
-  // let buffer = null;
-  console.log("DECODE PAYMENT DETAILS START-- ------- - ---- ----- -- ---");
-  console.log(responseData);
-
   const buffer = await Buffer.from(responseData);
 
   try {
@@ -120,70 +114,29 @@ const decodePaymentResponse = async responseData => {
     const responsePayment = new PaymentProtocol().makePayment(
       responseDecodedPayment
     );
-    const txHex = responsePayment.message.transactions[0].toHex();
+    return { responsePayment, responseAck };
 
-    console.log("DECODE PAYMENT DETAILS-- ------- - ---- ----- -- ---");
-    console.log(responseDecodedPayment);
-    console.log(responseDecodedPayment);
-    return txHex;
-    // resolve(txHex);
+    // console.log('RESPONSE PAYMENT, probably?')
+    // console.log(responsePayment)
+    // console.log(responseAck);
+    // console.log(responseDecodedPayment);
+    // const txHex = responsePayment.message.transactions[0].toHex();
+
+    // console.log("DECODE PAYMENT DETAILS-- ------- - ---- ----- -- ---");
+    // console.log(responseDecodedPayment);
+    // console.log(responseDecodedPayment);
+    // return txHex;
   } catch (ex) {
     throw ex;
-    // reject(ex);
   }
-
-  // blob-to-buffer
-  // return new Promise((resolve, reject) => {
-  //   // toBuffer(responseData, function(err, buffer) {
-  //     // if (err) reject(err);
-
-  //     try {
-  //       const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
-  //       const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
-  //       const responseSerializedPayment = responseAck.get("payment");
-  //       const responseDecodedPayment = PaymentProtocol.Payment.decode(
-  //         responseSerializedPayment
-  //       );
-  //       const responsePayment = new PaymentProtocol().makePayment(
-  //         responseDecodedPayment
-  //       );
-  //       const txHex = responsePayment.message.transactions[0].toHex();
-  //       resolve(txHex);
-  //     } catch (ex) {
-  //       reject(ex);
-  //     }
-  //   });
-  // });
 };
 
 // Inspired by Badger extension
 const decodePaymentRequest = async requestData => {
-  // let buffer = null;
-  // console.log("hmmm?");
-  // /* Use the await keyword to wait for the Promise to resolve */
-  // try {
-  //   buffer = await new Response(requestData).arrayBuffer(); //: ArrayBuffer
-  // } catch (e) {
-  //   console.log("CAUGHT");
-  //   console.log(e);
-  // }
-  console.log("before");
-  console.log(requestData);
-
   const buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
-  console.log(buffer);
-
-  // console.log("test?");
-  // console.log(buffer);
-
-  // return new Promise((resolve, reject) => {
-  //   toBuffer(requestData, function(err, buffer) {
-  // if (err) reject(err);
 
   try {
-    console.log("1");
     let body = PaymentProtocol.PaymentRequest.decode(buffer);
-    console.log("2?");
     let request = new PaymentProtocol().makePaymentRequest(body);
 
     const detailsData = {};
@@ -254,26 +207,13 @@ const decodePaymentRequest = async requestData => {
   } catch (ex) {
     throw ex;
   }
-  //   });
-  // });
 };
-
-// from
-//  satoshis to send (BigBumber?), why not amount?
-// spendable UTXO's
-// outputs from paymentData
-// paymentURL form paymentData
-
 const signAndPublishPaymentRequestTransaction = async (
   paymentRequest: PaymentRequest,
   fromAddress: string,
   refundKeypair: ECPair,
   spendableUtxos: UTXO[]
 ) => {
-  // return new Promise(async (resolve, reject) => {
-  // try {
-
-  console.log("---- 1");
   const from = fromAddress;
 
   const satoshisToSend = parseInt(paymentRequest.totalValue, 10); // Use this, or calculate when going through outputs...?
@@ -281,8 +221,6 @@ const signAndPublishPaymentRequestTransaction = async (
   if (!spendableUtxos || spendableUtxos.length === 0) {
     throw new Error("Insufficient funds");
   }
-
-  console.log("---- 2");
 
   // Calculate fee
   let byteCount = 0;
@@ -293,7 +231,6 @@ const signAndPublishPaymentRequestTransaction = async (
   let totalUtxoAmount = 0;
   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
-  console.log("---- 3");
   for (const utxo of sortedSpendableUtxos) {
     if (utxo.spendable !== true) {
       throw new Error("Cannot spend unspendable utxo");
@@ -312,8 +249,6 @@ const signAndPublishPaymentRequestTransaction = async (
     }
   }
 
-  console.log("---- 4");
-
   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
 
   // Verify sufficient fee
@@ -331,8 +266,6 @@ const signAndPublishPaymentRequestTransaction = async (
     );
   }
 
-  console.log("---- 5");
-
   // Return remaining balance output
   if (satoshisRemaining >= 546) {
     transactionBuilder.addOutput(from, satoshisRemaining);
@@ -349,11 +282,7 @@ const signAndPublishPaymentRequestTransaction = async (
     );
   });
 
-  console.log("---- 6");
-
   const hex = transactionBuilder.build().toHex();
-
-  console.log("---- 7");
 
   // send the payment transaction
   var payment = new PaymentProtocol().makePayment();
@@ -363,16 +292,12 @@ const signAndPublishPaymentRequestTransaction = async (
   );
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
-  console.log("---- 8");
-
   // calculate refund script pubkey
   const refundPubkey = SLP.ECPair.toPublicKey(refundKeypair);
   const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey));
   const refundScriptPubkey = SLP.Script.pubKeyHash.output.encode(
     Buffer.from(refundHash160, "hex")
   );
-
-  console.log("---- 9");
 
   // define the refund outputs
   var refundOutputs = [];
@@ -383,8 +308,6 @@ const signAndPublishPaymentRequestTransaction = async (
   payment.set("refund_to", refundOutputs);
   payment.set("memo", "");
 
-  console.log("---- 10");
-
   // serialize and send
   const rawbody = payment.serialize();
   const headers = {
@@ -394,28 +317,29 @@ const signAndPublishPaymentRequestTransaction = async (
     "Content-Transfer-Encoding": "binary"
   };
 
-  console.log("---- 11");
-
   // POST payment
-  // change to fetch
-  const paymentResponse = await postAsArrayBuffer(
+  const rawPaymentResponse = await postAsArrayBuffer(
     paymentRequest.paymentUrl,
     headers,
     rawbody
   );
-  // const response = request.blob();
 
-  console.log("MADE IT TO THE END IT'S A MIRACLE?");
-  console.log(paymentResponse);
+  return rawPaymentResponse;
 
-  const responseTxHex = await decodePaymentResponse(paymentResponse);
-  const txid = txidFromHex(responseTxHex);
-  return txid;
+  // console.log("MADE IT TO THE END IT'S A MIRACLE?");
+  // console.log(paymentResponse);
+  // // debugger;
+
+  // const paymentResponse = await decodePaymentResponse(rawPaymentResponse);
+
+  // const txid = txidFromHex(responseTxHex);
+  // return txid;
 };
 
 export {
   signAndPublishPaymentRequestTransaction,
   decodePaymentResponse,
   decodePaymentRequest,
-  getAsArrayBuffer
+  getAsArrayBuffer,
+  txidFromHex
 };

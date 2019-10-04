@@ -20,7 +20,6 @@ export type TxParams = {
   value: number,
   opReturn?: { data: string },
   sendTokenData?: { tokenId: string },
-  // valueArray: ?any, // Put in proper ?
   paymentRequestUrl?: string
 };
 

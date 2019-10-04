@@ -12,18 +12,6 @@ import Bip70SuccessScreen from "../screens/Bip70SuccessScreen";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
-// const Bip70Stack = createStackNavigator(
-//   {
-//     Bip70RConfirm: {
-//       screen: Bip70ConfirmScreen
-//     },
-//     Bip70Success: {
-//       screen: Bip70SuccessScreen
-//     }
-//   },
-//   { defaultNavigationOptions: { header: null } }
-// );
-
 const SendStack = createStackNavigator(
   {
     SendSetup: {
@@ -45,14 +33,9 @@ const SendStack = createStackNavigator(
       }
     },
     Bip70Success: {
-      screen: Bip70SuccessScreen
+      screen: Bip70SuccessScreen,
+      title: "Payment Success"
     },
-    // SendBip70Flow: {
-    //   screen: Bip70Stack
-    //   // navigationOptions: {
-    //   //   title: 'Send BIP70 Payment',
-    //   // }
-    // },
     SendSuccess: {
       screen: SendSuccessScreen,
       navigationOptions: { header: null }

@@ -1,28 +1,17 @@
-// TODO -
-
-// - Show the BIP70 details here + countdown
-// - Swipe to send BIP70 payment
-// - Work on SLP BIP70
-// - LOTS of testing
-// - Confirm screen updates for this payment type.
-
 // @flow
+
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
   ActivityIndicator,
   ScrollView,
-  Dimensions,
   SafeAreaView,
   StyleSheet,
   View,
   Image
 } from "react-native";
 import BigNumber from "bignumber.js";
-
-import Swipeable from "react-native-swipeable";
-import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
 
@@ -33,35 +22,28 @@ import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
 import {
-  formatAmount,
-  formatAmountInput,
-  computeFiatAmount,
-  formatFiatAmount
-} from "../utils/balance-utils";
-
-import { type CurrencyCode } from "../utils/currency-utils";
-
-import {
-  signAndPublishBchTransaction,
-  signAndPublishSlpTransaction
-} from "../utils/transaction-utils";
-
-import { getTokenImage } from "../utils/token-utils";
-
-import {
   getKeypairSelector,
   activeAccountSelector
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
+import {
+  formatAmount,
+  computeFiatAmount,
+  formatFiatAmount
+} from "../utils/balance-utils";
+import { type CurrencyCode } from "../utils/currency-utils";
+import { getTokenImage } from "../utils/token-utils";
+// import { SLP } from "../utils/slp-sdk-utils";
 import {
   decodePaymentRequest,
+  decodePaymentResponse,
   getAsArrayBuffer,
   signAndPublishPaymentRequestTransaction,
-  type PaymentRequest,
-  type MerchantData
+  txidFromHex,
+  type PaymentRequest
+  // type MerchantData
 } from "../utils/bip70-utils";
 
 const ScreenWrapper = styled(SafeAreaView)`
@@ -138,7 +120,6 @@ const Bip70ConfirmScreen = ({
   }
 
   // Setup state hooks
-  const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false); // Consider moving Swipe + state to own component, used in 3 places now.
   const [sendError, setSendError] = useState(null);
   const [tickTime: number, setTickTime] = useState(Date.now());
 
@@ -178,25 +159,11 @@ const Bip70ConfirmScreen = ({
       let paymentResponse;
       let paymentRequest;
       let txType;
-      console.log("FETCHING EFFECT?");
-
-      // Good, but not neede for now
-      // const merchantURL = paymentURL.replace("/i/", "/m/");
-
-      // const test = await fetch(merchantURL);
-      // console.log(test);
-      // const test2 = await test.json();
-      // // const test2 = await test.text();
-      // console.log(test);
-      // console.log(test2);
 
       try {
-        console.log("path a");
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
         txType = "BCH";
       } catch (err) {
-        console.log("path b");
-        console.log(err);
         headers = {
           ...headers,
           Accept: "application/simpleledger-paymentrequest"
@@ -207,7 +174,6 @@ const Bip70ConfirmScreen = ({
 
       let details: ?PaymentRequest = null;
 
-      console.log("....?  a");
       try {
         details = await decodePaymentRequest(paymentResponse);
       } catch (e) {
@@ -218,9 +184,6 @@ const Bip70ConfirmScreen = ({
       }
       setPaymentDetails(details);
       setStep("review");
-
-      console.log("after");
-      console.log(details);
     };
 
     fetchDetails();
@@ -246,28 +209,48 @@ const Bip70ConfirmScreen = ({
 
     try {
       const refundKeypair = tokenId ? keypair.slp : keypair.bch;
-      await signAndPublishPaymentRequestTransaction(
+      const paymentResponse = await signAndPublishPaymentRequestTransaction(
         paymentDetails,
         activeAccount.address,
         refundKeypair,
         spendableUTXOS
       );
+
+      console.log("MADE IT TO THE END IT'S A MIRACLE?");
+      console.log(paymentResponse);
+      // debugger;
+
+      const { responsePayment, responseAck } = await decodePaymentResponse(
+        paymentResponse
+      );
+
+      const txHex = responsePayment.message.transactions[0].toHex();
+      const txid = txidFromHex(txHex);
+
+      console.log("VERY END");
+      console.log(txid);
+      console.log(responsePayment, responseAck);
+      // return tx;
     } catch (e) {
       console.log("ERROR ENDING");
       console.log(e);
+      setStep("error");
+      return;
     }
 
     setStep("success");
     console.log("Success, go to next page");
 
     console.log("SEND PAYMENT CALLED");
+    navigation.navigate("Bip70Success");
   }, [
     paymentDetails,
     utxos,
     activeAccount.address,
     keypair.bch,
     keypair.slp,
-    tokenId
+    tokenId,
+    navigation
   ]);
 
   // Compute render values
@@ -277,9 +260,6 @@ const Bip70ConfirmScreen = ({
   //     : "---"
   //   : "BCH";
   const decimals = tokenId ? tokensById[tokenId].decimals : 8;
-
-  console.log("details");
-  console.log(paymentDetails);
 
   const remainingTime = paymentDetails
     ? paymentDetails.expires - tickTime / 1000
@@ -329,9 +309,6 @@ const Bip70ConfirmScreen = ({
     return "SLP Token";
   }, [merchantData]);
 
-  console.log("md");
-  console.log(merchantData);
-
   return (
     <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -374,12 +351,6 @@ const Bip70ConfirmScreen = ({
                 true
               )} ${merchantData.fiat_symbol}`}
             </T>
-            {/* <T center monospace size="large">
-              {`${formatAmount(
-                BigNumber(paymentDetails.totalValue),
-                decimals
-              )}`}
-            </T> */}
             <Spacer tiny />
             <T center monospace>
               {formatFiatAmount(
@@ -434,6 +405,16 @@ const Bip70ConfirmScreen = ({
               <T type="accent" center>
                 This payment request is invalid or expired, please check with
                 the merchant and try again.
+              </T>
+            </View>
+          </FullView>
+        )}
+        {step === "error" && (
+          <FullView>
+            <View>
+              <T type="danger" center>
+                Error while sending payment, please verify with the merchant and
+                try again.
               </T>
             </View>
           </FullView>
