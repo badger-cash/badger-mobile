@@ -183,7 +183,6 @@ const SendConfirmScreen = ({
       }
       navigation.replace("SendSuccess", { txParams });
     } catch (e) {
-      setConfirmSwipeActivated(false);
       setTransactionState("setup");
       const errorFormatted =
         {

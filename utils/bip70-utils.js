@@ -30,197 +30,6 @@ export type MerchantData = {
   fiat_amount: number
 };
 
-const txidFromHex = hex => {
-  const buffer = Buffer.from(hex, "hex");
-  const hash = SLP.Crypto.hash256(buffer).toString("hex");
-  const txid = hash
-    .match(/[a-fA-F0-9]{2}/g)
-    .reverse()
-    .join("");
-  return txid;
-};
-
-const decodePaymentResponse = async responseData => {
-  let buffer = null;
-  /* Use the await keyword to wait for the Promise to resolve */
-  buffer = await new Response(responseData).arrayBuffer(); //: ArrayBuffer
-
-  try {
-    const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
-    const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
-    const responseSerializedPayment = responseAck.get("payment");
-    const responseDecodedPayment = PaymentProtocol.Payment.decode(
-      responseSerializedPayment
-    );
-    const responsePayment = new PaymentProtocol().makePayment(
-      responseDecodedPayment
-    );
-    const txHex = responsePayment.message.transactions[0].toHex();
-    return txHex;
-    // resolve(txHex);
-  } catch (ex) {
-    throw ex;
-    // reject(ex);
-  }
-
-  // blob-to-buffer
-  // return new Promise((resolve, reject) => {
-  //   // toBuffer(responseData, function(err, buffer) {
-  //     // if (err) reject(err);
-
-  //     try {
-  //       const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
-  //       const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
-  //       const responseSerializedPayment = responseAck.get("payment");
-  //       const responseDecodedPayment = PaymentProtocol.Payment.decode(
-  //         responseSerializedPayment
-  //       );
-  //       const responsePayment = new PaymentProtocol().makePayment(
-  //         responseDecodedPayment
-  //       );
-  //       const txHex = responsePayment.message.transactions[0].toHex();
-  //       resolve(txHex);
-  //     } catch (ex) {
-  //       reject(ex);
-  //     }
-  //   });
-  // });
-};
-
-const signAndPublishPaymentRequestTransaction = async (
-  txParams: TxParams,
-  keyPair: ECPair,
-  spendableUtxos: UTXO[]
-) => {
-  // return new Promise(async (resolve, reject) => {
-  // try {
-  const from = txParams.from;
-  const satoshisToSend = parseInt(txParams.value);
-
-  if (!spendableUtxos || spendableUtxos.length === 0) {
-    throw new Error("Insufficient funds");
-  }
-
-  // Calculate fee
-  let byteCount = 0;
-  const sortedSpendableUtxos = spendableUtxos.sort((a, b) => {
-    return b.satoshis - a.satoshis;
-  });
-  const inputUtxos = [];
-  let totalUtxoAmount = 0;
-  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
-  for (const utxo of sortedSpendableUtxos) {
-    if (utxo.spendable !== true) {
-      throw new Error("Cannot spend unspendable utxo");
-    }
-    transactionBuilder.addInput(utxo.txid, utxo.vout);
-    totalUtxoAmount += utxo.satoshis;
-    inputUtxos.push(utxo);
-
-    byteCount = SLP.BitcoinCash.getByteCount(
-      { P2PKH: inputUtxos.length },
-      { P2PKH: txParams.paymentData.outputs.length + 1 }
-    );
-
-    if (totalUtxoAmount >= byteCount + satoshisToSend) {
-      break;
-    }
-  }
-
-  const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
-
-  // Verify sufficient fee
-  if (satoshisRemaining < 0) {
-    throw new Error(
-      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
-    );
-  }
-
-  // Destination outputs
-  for (const output of txParams.paymentData.outputs) {
-    transactionBuilder.addOutput(
-      Buffer.from(output.script, "hex"),
-      output.amount
-    );
-  }
-
-  // Return remaining balance output
-  if (satoshisRemaining >= 546) {
-    transactionBuilder.addOutput(from, satoshisRemaining);
-  }
-
-  let redeemScript;
-  inputUtxos.forEach((utxo, index) => {
-    transactionBuilder.sign(
-      index,
-      utxo.keyPair,
-      redeemScript,
-      transactionBuilder.hashTypes.SIGHASH_ALL,
-      utxo.satoshis
-    );
-  });
-
-  const hex = transactionBuilder.build().toHex();
-
-  // send the payment transaction
-  var payment = new PaymentProtocol().makePayment();
-  payment.set(
-    "merchant_data",
-    Buffer.from(txParams.paymentData.merchantData, "utf-8")
-  );
-  payment.set("transactions", [Buffer.from(hex, "hex")]);
-
-  // calculate refund script pubkey
-  const refundPubkey = SLP.ECPair.toPublicKey(keyPair);
-  const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey));
-  const refundScriptPubkey = SLP.Script.pubKeyHash.output.encode(
-    Buffer.from(refundHash160, "hex")
-  );
-
-  // define the refund outputs
-  var refundOutputs = [];
-  var refundOutput = new PaymentProtocol().makeOutput();
-  refundOutput.set("amount", 0);
-  refundOutput.set("script", refundScriptPubkey);
-  refundOutputs.push(refundOutput.message);
-  payment.set("refund_to", refundOutputs);
-  payment.set("memo", "");
-
-  // serialize and send
-  const rawbody = payment.serialize();
-  const headers = {
-    Accept:
-      "application/bitcoincash-paymentrequest, application/bitcoincash-paymentack",
-    "Content-Type": "application/bitcoincash-payment",
-    "Content-Transfer-Encoding": "binary"
-  };
-
-  // change to fetch
-  const request = await fetch(txParams.paymentData.paymentUrl, {
-    method: "POST",
-    body: rawbody,
-    headers
-  });
-  const response = request.blob();
-
-  console.log("MADE IT TO THE END IT'S A MIRACLE?");
-  console.log(response);
-
-  const responseTxHex = await decodePaymentResponse(response.data);
-  const txid = txidFromHex(responseTxHex);
-
-  console.log("end end");
-  console.log(txid);
-
-  return txid;
-
-  // resolve(txid)
-  // } catch (err) {
-  //   reject(err)
-  // }
-  // }
-};
-
 const getAsArrayBuffer = (
   url: string,
   headers: { Accept: string, "Content-Type": string }
@@ -257,7 +66,70 @@ const getAsArrayBuffer = (
   });
 };
 
-// From Badger extension
+const txidFromHex = hex => {
+  const buffer = Buffer.from(hex, "hex");
+  const hash = SLP.Crypto.hash256(buffer).toString("hex");
+  const txid = hash
+    .match(/[a-fA-F0-9]{2}/g)
+    .reverse()
+    .join("");
+  return txid;
+};
+
+const decodePaymentResponse = async responseData => {
+  let buffer = null;
+  console.log("DECODE PAYMENT DETAILS START-- ------- - ---- ----- -- ---");
+  console.log(responseData);
+
+  const buffer = await Buffer.from(responseData);
+
+  try {
+    const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
+    const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
+    const responseSerializedPayment = responseAck.get("payment");
+    const responseDecodedPayment = PaymentProtocol.Payment.decode(
+      responseSerializedPayment
+    );
+    const responsePayment = new PaymentProtocol().makePayment(
+      responseDecodedPayment
+    );
+    const txHex = responsePayment.message.transactions[0].toHex();
+
+    console.log("DECODE PAYMENT DETAILS-- ------- - ---- ----- -- ---");
+    console.log(responseDecodedPayment);
+    console.log(responseDecodedPayment);
+    return txHex;
+    // resolve(txHex);
+  } catch (ex) {
+    throw ex;
+    // reject(ex);
+  }
+
+  // blob-to-buffer
+  // return new Promise((resolve, reject) => {
+  //   // toBuffer(responseData, function(err, buffer) {
+  //     // if (err) reject(err);
+
+  //     try {
+  //       const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
+  //       const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
+  //       const responseSerializedPayment = responseAck.get("payment");
+  //       const responseDecodedPayment = PaymentProtocol.Payment.decode(
+  //         responseSerializedPayment
+  //       );
+  //       const responsePayment = new PaymentProtocol().makePayment(
+  //         responseDecodedPayment
+  //       );
+  //       const txHex = responsePayment.message.transactions[0].toHex();
+  //       resolve(txHex);
+  //     } catch (ex) {
+  //       reject(ex);
+  //     }
+  //   });
+  // });
+};
+
+// Inspired by Badger extension
 const decodePaymentRequest = async requestData => {
   // let buffer = null;
   // console.log("hmmm?");
@@ -271,7 +143,7 @@ const decodePaymentRequest = async requestData => {
   console.log("before");
   console.log(requestData);
 
-  let buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
+  const buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
   console.log(buffer);
 
   // console.log("test?");
@@ -357,6 +229,171 @@ const decodePaymentRequest = async requestData => {
   }
   //   });
   // });
+};
+
+// from
+//  satoshis to send (BigBumber?), why not amount?
+// spendable UTXO's
+// outputs from paymentData
+// paymentURL form paymentData
+
+const signAndPublishPaymentRequestTransaction = async (
+  paymentRequest: PaymentRequest,
+  fromAddress: string,
+  refundKeypair: ECPair,
+  spendableUtxos: UTXO[]
+) => {
+  // return new Promise(async (resolve, reject) => {
+  // try {
+
+  console.log("---- 1");
+  const from = fromAddress;
+
+  const satoshisToSend = parseInt(paymentRequest.totalValue, 10); // Use this, or calculate when going through outputs...?
+
+  if (!spendableUtxos || spendableUtxos.length === 0) {
+    throw new Error("Insufficient funds");
+  }
+
+  console.log("---- 2");
+
+  // Calculate fee
+  let byteCount = 0;
+  const sortedSpendableUtxos = spendableUtxos.sort((a, b) => {
+    return b.satoshis - a.satoshis;
+  });
+  const inputUtxos = [];
+  let totalUtxoAmount = 0;
+  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+
+  console.log("---- 3");
+  for (const utxo of sortedSpendableUtxos) {
+    if (utxo.spendable !== true) {
+      throw new Error("Cannot spend unspendable utxo");
+    }
+    transactionBuilder.addInput(utxo.txid, utxo.vout);
+    totalUtxoAmount += utxo.satoshis;
+    inputUtxos.push(utxo);
+
+    byteCount = SLP.BitcoinCash.getByteCount(
+      { P2PKH: inputUtxos.length },
+      { P2PKH: paymentRequest.outputs.length + 1 }
+    );
+
+    if (totalUtxoAmount >= byteCount + satoshisToSend) {
+      break;
+    }
+  }
+
+  console.log("---- 4");
+
+  const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
+
+  // Verify sufficient fee
+  if (satoshisRemaining < 0) {
+    throw new Error(
+      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+    );
+  }
+
+  // Destination outputs
+  for (const output of paymentRequest.outputs) {
+    transactionBuilder.addOutput(
+      Buffer.from(output.script, "hex"),
+      output.amount
+    );
+  }
+
+  console.log("---- 5");
+
+  // Return remaining balance output
+  if (satoshisRemaining >= 546) {
+    transactionBuilder.addOutput(from, satoshisRemaining);
+  }
+
+  let redeemScript;
+  inputUtxos.forEach((utxo, index) => {
+    transactionBuilder.sign(
+      index,
+      utxo.keypair,
+      redeemScript,
+      transactionBuilder.hashTypes.SIGHASH_ALL,
+      utxo.satoshis
+    );
+  });
+
+  console.log("---- 6");
+
+  const hex = transactionBuilder.build().toHex();
+
+  console.log("---- 7");
+
+  // send the payment transaction
+  var payment = new PaymentProtocol().makePayment();
+  payment.set(
+    "merchant_data",
+    Buffer.from(paymentRequest.merchantData, "utf-8")
+  );
+  payment.set("transactions", [Buffer.from(hex, "hex")]);
+
+  console.log("---- 8");
+
+  // calculate refund script pubkey
+  const refundPubkey = SLP.ECPair.toPublicKey(refundKeypair);
+  const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey));
+  const refundScriptPubkey = SLP.Script.pubKeyHash.output.encode(
+    Buffer.from(refundHash160, "hex")
+  );
+
+  console.log("---- 9");
+
+  // define the refund outputs
+  var refundOutputs = [];
+  var refundOutput = new PaymentProtocol().makeOutput();
+  refundOutput.set("amount", 0);
+  refundOutput.set("script", refundScriptPubkey);
+  refundOutputs.push(refundOutput.message);
+  payment.set("refund_to", refundOutputs);
+  payment.set("memo", "");
+
+  console.log("---- 10");
+
+  // serialize and send
+  const rawbody = payment.serialize();
+  const headers = {
+    Accept:
+      "application/bitcoincash-paymentrequest, application/bitcoincash-paymentack",
+    "Content-Type": "application/bitcoincash-payment",
+    "Content-Transfer-Encoding": "binary"
+  };
+
+  console.log("---- 11");
+
+  // POST payment
+  // change to fetch
+  const request = await fetch(paymentRequest.paymentUrl, {
+    method: "POST",
+    body: rawbody,
+    headers
+  });
+  const response = request.blob();
+
+  console.log("MADE IT TO THE END IT'S A MIRACLE?");
+  console.log(response);
+
+  const responseTxHex = await decodePaymentResponse(response.data);
+  const txid = txidFromHex(responseTxHex);
+
+  console.log("end end");
+  console.log(txid);
+
+  return txid;
+
+  // resolve(txid)
+  // } catch (err) {
+  //   reject(err)
+  // }
+  // }
 };
 
 export {

@@ -20,7 +20,7 @@ export type TxParams = {
   value: number,
   opReturn?: { data: string },
   sendTokenData?: { tokenId: string },
-  valueArray: ?any, // Put in proper ?
+  // valueArray: ?any, // Put in proper ?
   paymentRequestUrl?: string
 };
 
@@ -286,16 +286,19 @@ const signAndPublishSlpTransaction = async (
 ) => {
   const from = txParams.from;
 
+  // Separate flow entirely for payment requests.
+  // Can DRY out the common parts next.
+
   // Get to addresses from payment request
-  if (!txParams.to && txParams.paymentRequestUrl) {
-    txParams.to = [];
-    let outputs = txParams.paymentData.outputs;
-    for (let i = 1; i < outputs.length; i++) {
-      txParams.to.push(
-        SLP.Address.fromOutputScript(Buffer.from(outputs[i].script, "hex"))
-      );
-    }
-  }
+  // if (!txParams.to && txParams.paymentRequestUrl) {
+  //   txParams.to = [];
+  //   let outputs = txParams.paymentData.outputs;
+  //   for (let i = 1; i < outputs.length; i++) {
+  //     txParams.to.push(
+  //       SLP.Address.fromOutputScript(Buffer.from(outputs[i].script, "hex"))
+  //     );
+  //   }
+  // }
 
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;

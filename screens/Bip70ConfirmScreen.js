@@ -59,6 +59,7 @@ import { SLP } from "../utils/slp-sdk-utils";
 import {
   decodePaymentRequest,
   getAsArrayBuffer,
+  signAndPublishPaymentRequestTransaction,
   type PaymentRequest,
   type MerchantData
 } from "../utils/bip70-utils";
@@ -232,10 +233,42 @@ const Bip70ConfirmScreen = ({
   }, []);
 
   const sendPayment = useCallback(async () => {
+    if (!paymentDetails) return null;
+
     setStep("creating");
-    signAndPublishPaymentRequestTransaction();
+    const utxoWithKeypair = utxos.map(utxo => ({
+      ...utxo,
+      keypair:
+        utxo.address === activeAccount.address ? keypair.bch : keypair.slp
+    }));
+
+    const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+
+    try {
+      const refundKeypair = tokenId ? keypair.slp : keypair.bch;
+      await signAndPublishPaymentRequestTransaction(
+        paymentDetails,
+        activeAccount.address,
+        refundKeypair,
+        spendableUTXOS
+      );
+    } catch (e) {
+      console.log("ERROR ENDING");
+      console.log(e);
+    }
+
+    setStep("success");
+    console.log("Success, go to next page");
+
     console.log("SEND PAYMENT CALLED");
-  }, []);
+  }, [
+    paymentDetails,
+    utxos,
+    activeAccount.address,
+    keypair.bch,
+    keypair.slp,
+    tokenId
+  ]);
 
   // Compute render values
   // const displaySymbol = tokenId
