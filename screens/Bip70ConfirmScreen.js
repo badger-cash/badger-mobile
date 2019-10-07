@@ -15,7 +15,7 @@ import BigNumber from "bignumber.js";
 
 import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
 
-import { type TokenData } from "../data/tokens/reducer";
+import { type TokenData } from "../`data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { type UTXO } from "../data/utxos/reducer";
@@ -150,19 +150,19 @@ const Bip70ConfirmScreen = ({
 
       // Assume BCH, but fail over to SLP
       let paymentResponse;
-      let paymentRequest;
-      let txType;
+      // let paymentRequest;
+      // let txType;
 
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-        txType = "BCH";
+        // txType = "BCH";
       } catch (err) {
         headers = {
           ...headers,
           Accept: "application/simpleledger-paymentrequest"
         };
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-        txType = "SLP";
+        // txType = "SLP";
       }
 
       let details: ?PaymentRequest = null;
@@ -270,17 +270,17 @@ const Bip70ConfirmScreen = ({
   );
 
   const fiatAmountTotal = useMemo(() => {
-    if (merchantData) {
+    if (paymentDetails) {
       if (tokenId) {
         return computeFiatAmount(
-          new BigNumber(merchantData.fiat_amount),
+          new BigNumber(paymentDetails.totalValue),
           spotPrices,
           fiatCurrency,
           tokenId
         );
       } else {
         return computeFiatAmount(
-          new BigNumber(merchantData.fiat_amount),
+          new BigNumber(paymentDetails.totalValue),
           spotPrices,
           fiatCurrency,
           "bch"
@@ -288,7 +288,7 @@ const Bip70ConfirmScreen = ({
       }
     }
     return null;
-  }, [merchantData, tokenId, fiatCurrency, spotPrices]);
+  }, [paymentDetails, tokenId, fiatCurrency, spotPrices]);
 
   const coinName = useMemo(() => {
     if (!merchantData) return "----";
