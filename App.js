@@ -17,8 +17,8 @@ const AppWrapper = styled(View)`
   flex: 1;
 `;
 
-const bchPrefix = "bitcoincash:";
-const slpPrefix = "simpleledger:";
+const bchPrefix = "bitcoincash";
+const slpPrefix = "simpleledger";
 
 const App = () => {
   return (

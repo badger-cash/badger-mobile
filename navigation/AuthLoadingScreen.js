@@ -34,6 +34,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   const handleDeepLink = useCallback(
     async params => {
       const { uri, r } = params;
+      const formattedURI = uri && uri.startsWith(":") ? uri.slice(1) : uri;
 
       if (r) {
         navigation.navigate("Bip70Confirm", { paymentURL: r });
@@ -73,11 +74,11 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
 
       let type = null;
       try {
-        type = getType(uri);
+        type = getType(formattedURI);
         addressFormatted =
           type === "cashaddr"
-            ? await addressToCash(uri)
-            : await addressToSlp(uri);
+            ? await addressToCash(formattedURI)
+            : await addressToSlp(formattedURI);
       } catch (e) {
         parseError = `Invalid address detected`;
       }

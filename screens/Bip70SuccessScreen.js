@@ -37,7 +37,6 @@ type Props = {
 };
 
 const Bip70SuccessScreen = ({ navigation }: Props) => {
-  const { paymentData } = navigation.state.params;
   return (
     <ScreenCover>
       <SafeAreaView style={{ height: "100%" }}>
