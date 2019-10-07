@@ -1,18 +1,15 @@
 // @flow
 
-// TODO:  Consider moving the contents of this file in to `transaction-utils`
-
-import { SLP } from "./slp-sdk-utils";
-
 import PaymentProtocol from "bitcore-payment-protocol";
 
+import { SLP } from "./slp-sdk-utils";
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 
 export type PaymentRequest = {
   expires: number,
   memo: string,
-  merchantData: string, //"{"fiat_symbol":"BCH","fiat_rate":1,"fiat_amount":0.00005}"
+  merchantData: string,
   network: string,
   outputs: { amount: number, script: string }[],
   paymentUrl: string,
