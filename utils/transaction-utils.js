@@ -19,8 +19,7 @@ export type TxParams = {
   to: string,
   value: number,
   opReturn?: { data: string },
-  sendTokenData?: { tokenId: string },
-  paymentRequestUrl?: string
+  sendTokenData?: { tokenId: string }
 };
 
 const getAllUtxo = async (address: string) => {
