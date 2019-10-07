@@ -1,22 +1,11 @@
 // @flow
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { ScrollView, SafeAreaView, View, Image } from "react-native";
-// import BigNumber from "bignumber.js";
+import { ScrollView, SafeAreaView, View } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-import { Button, T, H1, H2, Spacer } from "../atoms";
-
-// import { type TokenData } from "../data/tokens/reducer";
-// import { tokensByIdSelector } from "../data/tokens/selectors";
-
-// import { formatFiatAmount } from "../utils/balance-utils";
-
-// import { type CurrencyCode } from "../utils/currency-utils";
-
-// import { getTokenImage } from "../utils/token-utils";
-// import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
+import { Button, T, H1, Spacer } from "../atoms";
 
 const ScreenCover = styled(View)`
   flex: 1;

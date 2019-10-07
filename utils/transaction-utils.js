@@ -285,20 +285,6 @@ const signAndPublishSlpTransaction = async (
 ) => {
   const from = txParams.from;
 
-  // Separate flow entirely for payment requests.
-  // Can DRY out the common parts next.
-
-  // Get to addresses from payment request
-  // if (!txParams.to && txParams.paymentRequestUrl) {
-  //   txParams.to = [];
-  //   let outputs = txParams.paymentData.outputs;
-  //   for (let i = 1; i < outputs.length; i++) {
-  //     txParams.to.push(
-  //       SLP.Address.fromOutputScript(Buffer.from(outputs[i].script, "hex"))
-  //     );
-  //   }
-  // }
-
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;
   const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
@@ -331,25 +317,20 @@ const signAndPublishSlpTransaction = async (
   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
 
   let sendOpReturn = null;
-  // Handle multi-output SLP
-  let tokenSendArray = txParams.valueArray
-    ? txParams.valueArray.map(num => new BigNumber(num))
-    : [tokenSendAmount];
 
   if (tokenChangeAmount.isGreaterThan(0)) {
-    tokenSendArray.push(tokenChangeAmount);
     sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
-      outputQtyArray: tokenSendArray
+      outputQtyArray: [tokenSendAmount, tokenChangeAmount]
     });
   } else {
     sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
-      outputQtyArray: tokenSendArray
+      outputQtyArray: [tokenSendAmount]
     });
   }
 
-  const tokenReceiverAddressArray = Array.isArray(to) ? to.slice(0) : [to];
+  const tokenReceiverAddressArray = [to];
   if (tokenChangeAmount.isGreaterThan(0)) {
     tokenReceiverAddressArray.push(tokenChangeAddress);
   }
@@ -387,15 +368,7 @@ const signAndPublishSlpTransaction = async (
   transactionBuilder.addOutput(sendOpReturn, 0);
 
   // Token destination output
-  if (to) {
-    if (Array.isArray(to)) {
-      for (const addr of to) {
-        transactionBuilder.addOutput(addr, 546);
-      }
-    } else {
-      transactionBuilder.addOutput(to, 546);
-    }
-  }
+  transactionBuilder.addOutput(to, 546);
 
   // Return remaining token balance output
   if (tokenChangeAmount.isGreaterThan(0)) {

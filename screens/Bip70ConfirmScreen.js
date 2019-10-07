@@ -209,9 +209,6 @@ const Bip70ConfirmScreen = ({
         spendableUTXOS
       );
 
-      console.log("MADE IT TO THE END IT'S A MIRACLE?");
-      console.log(paymentResponse);
-
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
@@ -219,9 +216,6 @@ const Bip70ConfirmScreen = ({
       const txHex = responsePayment.message.transactions[0].toHex();
       const txid = txidFromHex(txHex);
 
-      console.log("VERY END");
-      console.log(txid);
-      console.log(responsePayment, responseAck);
       // return tx;
     } catch (e) {
       setStep("error");
@@ -380,7 +374,7 @@ const Bip70ConfirmScreen = ({
             <View>
               <ActivityIndicator />
               <Spacer small />
-              <T center type="muted" size="large">
+              <T center type="muted" monospace>
                 Loading Transaction Details...
               </T>
             </View>
@@ -391,7 +385,7 @@ const Bip70ConfirmScreen = ({
             <View>
               <ActivityIndicator />
               <Spacer small />
-              <T center type="muted" size="large">
+              <T center type="muted" monospace>
                 Sending Payment
               </T>
             </View>

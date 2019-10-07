@@ -37,7 +37,6 @@ const postAsArrayBuffer = (
   },
   body: any
 ): Promise<any> => {
-  console.log("begin POST");
   return new Promise((accept, reject) => {
     let req = new XMLHttpRequest();
     req.open("POST", url, true);
@@ -47,16 +46,13 @@ const postAsArrayBuffer = (
     // req.body = body;
     req.responseType = "arraybuffer";
     req.onload = function(event) {
-      console.log("ON LOAD");
       let resp = req.response;
-      console.log(resp);
       if (resp) {
         accept(resp);
       }
     };
     req.onerror = function(err) {
-      console.log("re");
-      console.log(err);
+      console.warn(err);
       reject(err);
     };
     req.send(body);
@@ -83,8 +79,7 @@ const getAsArrayBuffer = (
       }
     };
     req.onerror = function(err) {
-      console.log("re");
-      console.log(err);
+      console.warn(err);
       reject(err);
     };
     req.send(null);
@@ -115,17 +110,6 @@ const decodePaymentResponse = async responseData => {
       responseDecodedPayment
     );
     return { responsePayment, responseAck };
-
-    // console.log('RESPONSE PAYMENT, probably?')
-    // console.log(responsePayment)
-    // console.log(responseAck);
-    // console.log(responseDecodedPayment);
-    // const txHex = responsePayment.message.transactions[0].toHex();
-
-    // console.log("DECODE PAYMENT DETAILS-- ------- - ---- ----- -- ---");
-    // console.log(responseDecodedPayment);
-    // console.log(responseDecodedPayment);
-    // return txHex;
   } catch (ex) {
     throw ex;
   }
@@ -325,15 +309,6 @@ const signAndPublishPaymentRequestTransaction = async (
   );
 
   return rawPaymentResponse;
-
-  // console.log("MADE IT TO THE END IT'S A MIRACLE?");
-  // console.log(paymentResponse);
-  // // debugger;
-
-  // const paymentResponse = await decodePaymentResponse(rawPaymentResponse);
-
-  // const txid = txidFromHex(responseTxHex);
-  // return txid;
 };
 
 export {

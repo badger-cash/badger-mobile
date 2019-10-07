@@ -110,8 +110,6 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
     }
   }, [mnemonic, handleDeepLink, navigation, getAccount]);
 
-  console.log("IN AUTH LOADING AT ALL?");
-
   return (
     <Wrapper>
       <InnerWrapper>
