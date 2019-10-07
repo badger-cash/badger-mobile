@@ -132,14 +132,7 @@ const Bip70ConfirmScreen = ({
   const [paymentAmountFiat: ?number, setPaymentAmountFiat] = useState(null);
 
   const [
-    step:
-      | "fetching"
-      | "review"
-      | "creating"
-      | "sending"
-      | "confirmed"
-      | "error"
-      | "invalid",
+    step: "fetching" | "review" | "sending" | "confirmed" | "error" | "invalid",
     setStep
   ] = useState("fetching");
 
@@ -198,7 +191,7 @@ const Bip70ConfirmScreen = ({
   const sendPayment = useCallback(async () => {
     if (!paymentDetails) return null;
 
-    setStep("creating");
+    setStep("sending");
     const utxoWithKeypair = utxos.map(utxo => ({
       ...utxo,
       keypair:
@@ -218,7 +211,6 @@ const Bip70ConfirmScreen = ({
 
       console.log("MADE IT TO THE END IT'S A MIRACLE?");
       console.log(paymentResponse);
-      // debugger;
 
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
@@ -232,17 +224,12 @@ const Bip70ConfirmScreen = ({
       console.log(responsePayment, responseAck);
       // return tx;
     } catch (e) {
-      console.log("ERROR ENDING");
-      console.log(e);
       setStep("error");
       return;
     }
 
     setStep("success");
-    console.log("Success, go to next page");
-
-    console.log("SEND PAYMENT CALLED");
-    navigation.navigate("Bip70Success");
+    navigation.replace("Bip70Success");
   }, [
     paymentDetails,
     utxos,
@@ -312,17 +299,6 @@ const Bip70ConfirmScreen = ({
   return (
     <ScreenWrapper>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {step === "fetching" && (
-          <FullView>
-            <View>
-              <T center type="muted" size="large">
-                Loading Transaction Details...
-              </T>
-              <Spacer />
-              <ActivityIndicator />
-            </View>
-          </FullView>
-        )}
         {step === "review" && paymentDetails && (
           <>
             <Spacer small />
@@ -370,7 +346,7 @@ const Bip70ConfirmScreen = ({
               type={paymentDetails.verified ? "primary" : "danger"}
               center
             >
-              {paymentDetails.verified ? "Verified" : "Not verified"}
+              {/* {paymentDetails.verified ? "Verified" : "Not verified"} */}
             </T>
             <Spacer small />
             <T center size="small" type="muted">
@@ -399,12 +375,34 @@ const Bip70ConfirmScreen = ({
             </ButtonsContainer>
           </>
         )}
+        {step === "fetching" && (
+          <FullView>
+            <View>
+              <ActivityIndicator />
+              <Spacer small />
+              <T center type="muted" size="large">
+                Loading Transaction Details...
+              </T>
+            </View>
+          </FullView>
+        )}
+        {step === "sending" && (
+          <FullView>
+            <View>
+              <ActivityIndicator />
+              <Spacer small />
+              <T center type="muted" size="large">
+                Sending Payment
+              </T>
+            </View>
+          </FullView>
+        )}
         {step === "invalid" && (
           <FullView>
             <View>
               <T type="accent" center>
-                This payment request is invalid or expired, please check with
-                the merchant and try again.
+                This payment request is invalid, expired or already paid, please
+                check with the merchant and try again.
               </T>
             </View>
           </FullView>

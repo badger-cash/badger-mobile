@@ -6,14 +6,11 @@ import MainAppStack from "./MainTabNavigator";
 import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthStack from "./AuthStack";
 
-// import SendStack from "./SendStack";
-
 export default createAppContainer(
   createSwitchNavigator(
     {
       AuthStack: { screen: AuthStack, path: "" },
-      // SendStack: { screen: SendStack },
-      AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":address" },
+      AuthLoadingCheck: { screen: AuthLoadingScreen, path: ":uri" },
       Main: { screen: MainAppStack, path: "" }
     },
     {

@@ -2,163 +2,79 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Image
-} from "react-native";
+import { ScrollView, SafeAreaView, View, Image } from "react-native";
 import BigNumber from "bignumber.js";
-
-import Swipeable from "react-native-swipeable";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
-import { type UTXO } from "../data/utxos/reducer";
-import { type ECPair } from "../data/accounts/reducer";
-
 import { formatFiatAmount } from "../utils/balance-utils";
 
 import { type CurrencyCode } from "../utils/currency-utils";
 
-import {
-  signAndPublishBchTransaction,
-  signAndPublishSlpTransaction
-} from "../utils/transaction-utils";
-
 import { getTokenImage } from "../utils/token-utils";
-
-import {
-  getKeypairSelector,
-  activeAccountSelector
-} from "../data/accounts/selectors";
-import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
-
-const SWIPEABLE_WIDTH_PERCENT = 78;
-
-const ScreenWrapper = styled(SafeAreaView)`
-  height: 100%;
+const ScreenCover = styled(View)`
+  flex: 1;
+  background-color: ${props => props.theme.primary500};
   padding: 0 16px;
 `;
-const IconArea = styled(View)`
-  align-items: center;
+
+const TopArea = styled(View)``;
+
+const BottomArea = styled(View)``;
+const ReceiptArea = styled(View)`
+  flex: 1;
   justify-content: center;
-`;
-const IconImage = styled(Image)`
-  width: 64;
-  height: 64;
-  border-radius: 32;
-  overflow: hidden;
-`;
-
-const SwipeButtonContainer = styled(View)`
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 32px;
-  width: ${SWIPEABLE_WIDTH_PERCENT}%;
-  align-self: center;
-  border-width: 2px;
-  border-color: ${props => props.theme.primary700};
-`;
-
-const ButtonsContainer = styled(View)`
-  align-items: center;
-`;
-
-const ErrorHolder = styled(View)`
-  margin: 0 16px;
-  padding: 8px;
-  background-color: ${props => props.theme.danger700};
-  border-width: ${StyleSheet.hairlineWidth};
-  border-radius: 3px;
-  border-color: ${props => props.theme.danger300};
-`;
-
-const SwipeContent = styled(View)`
-  height: 64px;
-  padding-right: 10px;
-  align-items: flex-end;
-  justify-content: center;
-
-  background-color: ${props =>
-    props.activated ? props.theme.success500 : props.theme.pending500};
-`;
-
-const SwipeMainContent = styled(View)`
-  height: 64px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  background-color: ${props =>
-    props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
 type Props = {
-  tokensById: { [tokenId: string]: TokenData },
-  utxos: UTXO[],
-  keypair: { bch: ECPair, slp: ECPair },
-  spotPrices: any,
-  fiatCurrency: CurrencyCode,
-  activeAccount: any,
-  navigation: {
-    navigate: Function,
-    goBack: Function,
-    replace: Function,
-    state?: {
-      params: {
-        tokenId: ?string,
-        sendAmount: string,
-        toAddress: string
-      }
-    }
-  }
+  navigation: { navigate: Function, state: { params: { paymentData: any } } }
 };
 
-const Bip70SuccessScreen = ({
-  navigation,
-  tokensById,
-  activeAccount,
-  utxos,
-  fiatCurrency,
-  keypair,
-  spotPrices
-}: Props) => {
+const Bip70SuccessScreen = ({ navigation }: Props) => {
+  const { paymentData } = navigation.state.params;
   return (
-    <ScreenWrapper>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <H1>Payment success.</H1>
-      </ScrollView>
-    </ScreenWrapper>
+    <ScreenCover>
+      <SafeAreaView style={{ height: "100%" }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <TopArea>
+            <Spacer />
+            <H1 center type="inverse" weight="bold">
+              Success!
+            </H1>
+            <Spacer tiny />
+            <T size="large" type="inverse" center>
+              Payment sent to merchant
+            </T>
+          </TopArea>
+          <ReceiptArea>
+            <T center type="inverse">
+              <FontAwesome name="check-circle" size={96} />
+            </T>
+          </ReceiptArea>
+          <BottomArea>
+            <Spacer small />
+            <Button
+              nature="inverse"
+              style={{ marginLeft: 8, marginRight: 8 }}
+              onPress={() => navigation.navigate("Home")}
+              text="Finish"
+            />
+            <Spacer small />
+          </BottomArea>
+        </ScrollView>
+      </SafeAreaView>
+    </ScreenCover>
   );
 };
 
 const mapStateToProps = state => {
-  const tokensById = tokensByIdSelector(state);
-  const activeAccount = activeAccountSelector(state);
-  const utxos = utxosByAccountSelector(state, activeAccount.address);
-  const keypair = getKeypairSelector(state);
-  const spotPrices = spotPricesSelector(state);
-  const fiatCurrency = currencySelector(state);
-
-  return {
-    activeAccount,
-    keypair,
-    spotPrices,
-    fiatCurrency,
-    tokensById,
-    utxos
-  };
+  return {};
 };
 
 export default connect(mapStateToProps)(Bip70SuccessScreen);

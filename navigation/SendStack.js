@@ -34,7 +34,7 @@ const SendStack = createStackNavigator(
     },
     Bip70Success: {
       screen: Bip70SuccessScreen,
-      title: "Payment Success"
+      navigationOptions: { header: null }
     },
     SendSuccess: {
       screen: SendSuccessScreen,

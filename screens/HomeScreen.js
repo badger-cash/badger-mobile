@@ -121,7 +121,7 @@ const HomeScreen = ({
     updateUtxos(address, addressSlp);
     const utxoInterval = setInterval(
       () => updateUtxos(address, addressSlp),
-      10 * SECOND
+      15 * SECOND
     );
     return () => clearInterval(utxoInterval);
   }, [address, addressSlp, updateUtxos]);
@@ -132,7 +132,7 @@ const HomeScreen = ({
     updateTransactions(address, addressSlp);
     const transactionInterval = setInterval(
       () => updateTransactions(address, addressSlp),
-      15 * 1000
+      25 * 1000
     );
     return () => clearInterval(transactionInterval);
   }, [address, addressSlp, updateTransactions]);

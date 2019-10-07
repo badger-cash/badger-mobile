@@ -22,6 +22,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
+import { type UTXO } from "../data/utxos/reducer";
 
 import { updateTokensMeta } from "../data/tokens/actions";
 
@@ -40,7 +41,6 @@ import {
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
-import { decodePaymentRequest, getAsArrayBuffer } from "../utils/bip70-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
 
@@ -48,6 +48,7 @@ type Props = {
   tokensById: { [tokenId: string]: TokenData },
   balances: Balances,
   spotPrices: any,
+  utxos: UTXO[],
   fiatCurrency: CurrencyCode,
   updateTokensMeta: Function,
   navigation: {
@@ -357,8 +358,6 @@ const SendSetupScreen = ({
     let parseError = null;
 
     let amounts = [];
-
-    // add r? for payment request amounts
 
     // Parse out address and any other relevant data
     const parts = qrData.split("?");

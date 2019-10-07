@@ -67,13 +67,18 @@ const getHistoricalBchTransactions = async (
   const b64 = Buffer.from(s).toString("base64");
   const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
-  const request = await fetch(url);
-  const result = await request.json();
+  try {
+    const request = await fetch(url);
+    const result = await request.json();
 
-  // combine confirmed and unconfirmed
-  const transactions = result.errors ? [] : [...result.c, ...result.u];
+    // combine confirmed and unconfirmed
+    const transactions = result.errors ? [] : [...result.c, ...result.u];
 
-  return transactions;
+    return transactions;
+  } catch (e) {
+    console.warn(e);
+    return [];
+  }
 };
 
 const getHistoricalSlpTransactions = async (

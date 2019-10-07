@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { ActivityIndicator, View } from "react-native";
@@ -31,58 +31,67 @@ type Props = {
 };
 
 const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
-  const handleDeepLink = async params => {
-    const { address } = params;
+  const handleDeepLink = useCallback(
+    async params => {
+      const { uri, r } = params;
 
-    let amountFormatted = null;
-    let addressFormatted = null;
-    let tokenId = null;
-    let parseError = null;
-
-    const amounts = Object.entries(params).filter(
-      ([key: string, val: string]) => key.startsWith("amount")
-    );
-
-    const amountsFormatted = amounts.map(curr => {
-      const amountRaw = curr[1];
-      let currTokenId = null;
-      let currAmount = null;
-
-      if (amountRaw != null && amountRaw.includes("-")) {
-        [currAmount, currTokenId] = amountRaw.split("-");
-      } else {
-        currAmount = amountRaw;
+      if (r) {
+        navigation.navigate("Bip70Confirm", { paymentURL: r });
+        return;
       }
-      return { tokenId: currTokenId, paramAmount: currAmount };
-    });
 
-    if (amountsFormatted.length > 1) {
-      parseError =
-        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
-    } else if (amountsFormatted.length === 1) {
-      const target = amountsFormatted[0];
-      tokenId = target.tokenId;
-      amountFormatted = target.paramAmount;
-    }
+      let amountFormatted = null;
+      let addressFormatted = null;
+      let tokenId = null;
+      let parseError = null;
 
-    let type = null;
-    try {
-      type = getType(address);
-      addressFormatted =
-        type === "cashaddr"
-          ? await addressToCash(address)
-          : await addressToSlp(address);
-    } catch (e) {
-      parseError = `Invalid address detected`;
-    }
+      const amounts = Object.entries(params).filter(
+        ([key: string, val: string]) => key.startsWith("amount")
+      );
 
-    navigation.navigate("SendSetup", {
-      tokenId,
-      uriError: parseError,
-      uriAddress: typeof addressFormatted === "string" ? addressFormatted : "",
-      uriAmount: amountFormatted
-    });
-  };
+      const amountsFormatted = amounts.map(curr => {
+        const amountRaw = curr[1];
+        let currTokenId = null;
+        let currAmount = null;
+
+        if (amountRaw != null && amountRaw.includes("-")) {
+          [currAmount, currTokenId] = amountRaw.split("-");
+        } else {
+          currAmount = amountRaw;
+        }
+        return { tokenId: currTokenId, paramAmount: currAmount };
+      });
+
+      if (amountsFormatted.length > 1) {
+        parseError =
+          "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+      } else if (amountsFormatted.length === 1) {
+        const target = amountsFormatted[0];
+        tokenId = target.tokenId;
+        amountFormatted = target.paramAmount;
+      }
+
+      let type = null;
+      try {
+        type = getType(uri);
+        addressFormatted =
+          type === "cashaddr"
+            ? await addressToCash(uri)
+            : await addressToSlp(uri);
+      } catch (e) {
+        parseError = `Invalid address detected`;
+      }
+
+      navigation.navigate("SendSetup", {
+        tokenId,
+        uriError: parseError,
+        uriAddress:
+          typeof addressFormatted === "string" ? addressFormatted : "",
+        uriAmount: amountFormatted
+      });
+    },
+    [navigation]
+  );
 
   useEffect(() => {
     const navParams = navigation.state.params;
@@ -98,7 +107,9 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
     } else {
       navigation.navigate("AuthStack");
     }
-  });
+  }, [mnemonic, handleDeepLink, navigation, getAccount]);
+
+  console.log("IN AUTH LOADING AT ALL?");
 
   return (
     <Wrapper>
