@@ -71,8 +71,13 @@ const getHistoricalBchTransactions = async (
     const request = await fetch(url);
     const result = await request.json();
 
+    console.log("?result");
+    console.log(result);
+
     // combine confirmed and unconfirmed
-    const transactions = result.errors ? [] : [...result.c, ...result.u];
+    // errors = slpdb, error = REST rate limit
+    const transactions =
+      result.errors || result.error ? [] : [...result.c, ...result.u];
 
     return transactions;
   } catch (e) {

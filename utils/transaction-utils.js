@@ -2,7 +2,6 @@
 
 import BigNumber from "bignumber.js";
 
-import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
@@ -430,7 +429,7 @@ const sweep = async (
 
     // Get UTXOs associated with public address.
     const u = await SLP.Address.utxo(fromAddr);
-    const utxos: utxo[] = u.utxos;
+    const utxos: UTXO[] = u.utxos;
 
     // Prepare to generate a transaction to sweep funds.
 

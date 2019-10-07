@@ -22,10 +22,11 @@ const ReceiptArea = styled(View)`
 `;
 
 type Props = {
-  navigation: { navigate: Function, state: { params: { paymentData: any } } }
+  navigation: { navigate: Function, state: { params: { txid: string } } }
 };
 
 const Bip70SuccessScreen = ({ navigation }: Props) => {
+  const { txid } = navigation.state.params;
   return (
     <ScreenCover>
       <SafeAreaView style={{ height: "100%" }}>
@@ -43,6 +44,14 @@ const Bip70SuccessScreen = ({ navigation }: Props) => {
           <ReceiptArea>
             <T center type="inverse">
               <FontAwesome name="check-circle" size={96} />
+            </T>
+            <Spacer />
+            <T center type="inverse" size="small" monospace>
+              Transaction ID
+            </T>
+            <Spacer tiny />
+            <T cente type="inverse" size="small" monospace>
+              {txid}
             </T>
           </ReceiptArea>
           <BottomArea>

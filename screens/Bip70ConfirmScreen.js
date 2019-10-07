@@ -35,7 +35,7 @@ import {
 } from "../utils/balance-utils";
 import { type CurrencyCode } from "../utils/currency-utils";
 import { getTokenImage } from "../utils/token-utils";
-// import { SLP } from "../utils/slp-sdk-utils";
+
 import {
   decodePaymentRequest,
   decodePaymentResponse,
@@ -48,7 +48,6 @@ import {
 
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
-  padding: 0 16px;
 `;
 const IconArea = styled(View)`
   align-items: center;
@@ -213,17 +212,18 @@ const Bip70ConfirmScreen = ({
         paymentResponse
       );
 
+      // TODO - Error / failed payment states?
+      // Pay with empty wallet?
+
       const txHex = responsePayment.message.transactions[0].toHex();
       const txid = txidFromHex(txHex);
 
-      // return tx;
+      setStep("success");
+      navigation.replace("Bip70Success", { txid });
     } catch (e) {
       setStep("error");
       return;
     }
-
-    setStep("success");
-    navigation.replace("Bip70Success");
   }, [
     paymentDetails,
     utxos,
@@ -292,7 +292,13 @@ const Bip70ConfirmScreen = ({
 
   return (
     <ScreenWrapper>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingLeft: 16,
+          paddingRight: 16
+        }}
+      >
         {step === "review" && paymentDetails && (
           <>
             <Spacer small />
