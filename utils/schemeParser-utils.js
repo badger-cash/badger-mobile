@@ -174,7 +174,7 @@ const checkIsValid = (type: string, address: string) => {
   } else if (type === "slpaddr") {
     return SLP.Address.isSLPAddress(address);
   } else {
-    console.log("error in checkisvalid");
+    console.warn("error in checkisvalid");
   }
 };
 

@@ -358,6 +358,7 @@ const SendSetupScreen = ({
     let parseError = null;
 
     let amounts = [];
+    let quitEarly = false;
 
     // Parse out address and any other relevant data
     const parts = qrData.split("?");
@@ -371,6 +372,8 @@ const SendSetupScreen = ({
 
         if (name === "r") {
           // BIP70 detected, go to BIP70 flow
+          setToAddress(null);
+          quitEarly = true;
           navigation.navigate("Bip70Confirm", {
             paymentURL: value
           });
@@ -398,6 +401,7 @@ const SendSetupScreen = ({
       amount = target.paramAmount;
     }
 
+    if (quitEarly) return {};
     return {
       address,
       amount,

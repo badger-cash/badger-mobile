@@ -211,16 +211,13 @@ const Bip70ConfirmScreen = ({
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
-
-      // TODO - Error / failed payment states?
-      // Pay with empty wallet?
-
       const txHex = responsePayment.message.transactions[0].toHex();
       const txid = txidFromHex(txHex);
 
       setStep("success");
       navigation.replace("Bip70Success", { txid });
     } catch (e) {
+      setSendError(e.message);
       setStep("error");
       return;
     }
@@ -411,8 +408,11 @@ const Bip70ConfirmScreen = ({
           <FullView>
             <View>
               <T type="danger" center>
-                Error while sending payment, please verify with the merchant and
-                try again.
+                Error while sending payment.
+              </T>
+              <Spacer small />
+              <T type="danger" center>
+                {sendError}
               </T>
             </View>
           </FullView>
