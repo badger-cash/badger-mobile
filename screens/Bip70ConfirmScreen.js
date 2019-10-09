@@ -125,10 +125,10 @@ const Bip70ConfirmScreen = ({
   const [paymentDetails: ?PaymentRequest, setPaymentDetails] = useState(null);
 
   const [tokenId, setTokenId] = useState(null);
-  const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
-    null
-  ); // maybe not needed, can get from payment details?
-  const [paymentAmountFiat: ?number, setPaymentAmountFiat] = useState(null);
+  // const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
+  //   null
+  // ); // maybe not needed, can get from payment details?
+  // const [paymentAmountFiat: ?number, setPaymentAmountFiat] = useState(null);
 
   const [
     step: "fetching" | "review" | "sending" | "confirmed" | "error" | "invalid",
@@ -149,19 +149,15 @@ const Bip70ConfirmScreen = ({
 
       // Assume BCH, but fail over to SLP
       let paymentResponse;
-      // let paymentRequest;
-      // let txType;
 
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-        // txType = "BCH";
       } catch (err) {
         headers = {
           ...headers,
           Accept: "application/simpleledger-paymentrequest"
         };
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-        // txType = "SLP";
       }
 
       let details: ?PaymentRequest = null;
