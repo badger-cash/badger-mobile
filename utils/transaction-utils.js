@@ -45,6 +45,9 @@ const decodeTxOut = (txOut: UTXO) => {
 
   const vout = parseInt(txOut.vout, 10);
 
+  // console.log(txOut)
+  // console.log(vout);
+
   const script = SLP.Script.toASM(
     Buffer.from(txOut.tx.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
@@ -57,7 +60,11 @@ const decodeTxOut = (txOut: UTXO) => {
     throw new Error("Not a SLP OP_RETURN");
   }
 
-  if (script[2] !== "OP_1") {
+  if (
+    script[2] !== "OP_1" &&
+    script[2] !== "OP_1NEGATE" &&
+    script[2] !== "41"
+  ) {
     // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
     throw new Error("Unknown token type");
   }

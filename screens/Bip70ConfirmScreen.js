@@ -121,10 +121,11 @@ const Bip70ConfirmScreen = ({
   // Setup state hooks
   const [sendError, setSendError] = useState(null);
   const [tickTime: number, setTickTime] = useState(Date.now());
+  const [coinType, setCoinType] = useState(null);
 
   const [paymentDetails: ?PaymentRequest, setPaymentDetails] = useState(null);
 
-  const [tokenId, setTokenId] = useState(null);
+  // const [tokenId, setTokenId] = useState(null);
   // const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
   //   null
   // ); // maybe not needed, can get from payment details?
@@ -135,7 +136,29 @@ const Bip70ConfirmScreen = ({
     setStep
   ] = useState("fetching");
 
-  const coinImageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
+  const coinImageSource = useMemo(
+    () => getTokenImage(paymentDetails ? paymentDetails.tokenId : null),
+    [paymentDetails]
+  );
+
+  const coinName = useMemo(() => {
+    if (!paymentDetails) return null;
+    const tokenId = paymentDetails.tokenId;
+    return tokenId ? tokensById[tokenId].name : "Bitcoin Cash";
+  }, [paymentDetails, tokensById]);
+
+  const coinSymbol = useMemo(() => {
+    if (!paymentDetails) return null;
+    const tokenId = paymentDetails.tokenId;
+    return tokenId ? tokensById[tokenId].symbol : "BCH";
+  }, [paymentDetails, tokensById]);
+
+  const coinDecimals = useMemo(() => {
+    if (!paymentDetails) return 8;
+    return tokensById[paymentDetails.tokenId]
+      ? tokensById[paymentDetails.tokenId].decimals
+      : 8;
+  }, [paymentDetails, tokensById]);
 
   // Setup effect hooks
   useEffect(() => {
@@ -149,27 +172,54 @@ const Bip70ConfirmScreen = ({
 
       // Assume BCH, but fail over to SLP
       let paymentResponse;
+      let details: PaymentRequest;
+
+      let trySLP = false;
 
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-      } catch (err) {
-        headers = {
-          ...headers,
-          Accept: "application/simpleledger-paymentrequest"
-        };
-        paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-      }
-
-      let details: ?PaymentRequest = null;
-
-      try {
+        console.log("????1");
         details = await decodePaymentRequest(paymentResponse);
-      } catch (e) {
-        console.warn("decoding payment request failed");
-        console.warn(e);
-        setStep("invalid");
-        return;
+        console.log("????2  ");
+
+        // NOT GETTING HERE - NEED TO GET DECODE TO WORK WITH NON-OP-RETURN THINGS?
+        // FIGURE IT OUT.
+
+        setCoinType("BCH");
+      } catch (err) {
+        trySLP = true;
       }
+
+      if (trySLP) {
+        try {
+          headers = {
+            ...headers,
+            Accept: "application/simpleledger-paymentrequest"
+          };
+          paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();s
+          details = await decodePaymentRequest(paymentResponse);
+
+          setCoinType("SLP");
+        } catch (e) {
+          console.warn("decoding payment request failed");
+          console.warn(e);
+          setStep("invalid");
+          return;
+        }
+      }
+
+      // Console.log(SLP info and amounts should be set on here at this time.)
+      console.log("seting details");
+      console.log(details);
+
+      //
+      //
+      // TODO monday
+      // Use these new totals and amounts
+      // To display SLP info
+      // + and create BIP70 transactions.
+      //
+      //
       setPaymentDetails(details);
       setStep("review");
     };
@@ -177,8 +227,8 @@ const Bip70ConfirmScreen = ({
     fetchDetails();
   }, [paymentURL]);
 
+  // Timer update
   useEffect(() => {
-    // Timer tick
     const tickInterval = setInterval(() => setTickTime(Date.now()), 1000);
     return () => clearInterval(tickInterval);
   }, []);
@@ -196,7 +246,7 @@ const Bip70ConfirmScreen = ({
     const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
 
     try {
-      const refundKeypair = tokenId ? keypair.slp : keypair.bch;
+      const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
       const paymentResponse = await signAndPublishPaymentRequestTransaction(
         paymentDetails,
         activeAccount.address,
@@ -223,7 +273,6 @@ const Bip70ConfirmScreen = ({
     activeAccount.address,
     keypair.bch,
     keypair.slp,
-    tokenId,
     navigation
   ]);
 
@@ -233,7 +282,7 @@ const Bip70ConfirmScreen = ({
   //     ? tokensById[tokenId].symbol
   //     : "---"
   //   : "BCH";
-  const decimals = tokenId ? tokensById[tokenId].decimals : 8;
+  // const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const remainingTime = paymentDetails
     ? paymentDetails.expires - tickTime / 1000
@@ -251,19 +300,51 @@ const Bip70ConfirmScreen = ({
     }
   }, [remainingTime]);
 
-  const merchantData = useMemo(
-    () => (paymentDetails ? JSON.parse(paymentDetails.merchantData) : null),
-    [paymentDetails]
-  );
+  // Don't use for now, as this is non-standard / not part of BIP70 officially
+  // const merchantData = useMemo(
+  //   () => (paymentDetails ? JSON.parse(paymentDetails.merchantData) : null),
+  //   [paymentDetails]
+  // );
+
+  // const outputInfo = useMemo(() => {
+  //   let txValue = null;
+  //   let txFee = null;
+  //   let tokenId = null;
+
+  //   // Look at the outputs to get the total amount
+  //   // Determine if it's a BCH request, or an SLP token request
+
+  //   // Compute total value from here instead of trusting paymentDetail response
+
+  //   console.log("in output info");
+
+  //   if (!paymentDetails) return null;
+
+  //   const outputs = paymentDetails.outputs;
+
+  //   // if(coinType === 'BCH') {
+
+  //   // } else if(coinType === 'SLP') {
+
+  //   // }
+
+  //   console.log(outputs);
+  //   // const coinType = 'BCH'
+  //   const totalValue = 0.1;
+  //   const symbol = "BCH";
+
+  //   return { totalValue, symbol };
+  //   // paymentDetails
+  // }, [paymentDetails]);
 
   const fiatAmountTotal = useMemo(() => {
     if (paymentDetails) {
-      if (tokenId) {
+      if (paymentDetails.tokenId) {
         return computeFiatAmount(
           new BigNumber(paymentDetails.totalValue),
           spotPrices,
           fiatCurrency,
-          tokenId
+          paymentDetails.tokenId
         );
       } else {
         return computeFiatAmount(
@@ -275,13 +356,16 @@ const Bip70ConfirmScreen = ({
       }
     }
     return null;
-  }, [paymentDetails, tokenId, fiatCurrency, spotPrices]);
+  }, [paymentDetails, fiatCurrency, spotPrices]);
 
-  const coinName = useMemo(() => {
-    if (!merchantData) return "----";
-    if (merchantData.fiat_symbol === "BCH") return "Bitcoin Cash";
-    return "SLP Token";
-  }, [merchantData]);
+  // console.log("merchant Data");
+  // console.log(merchantData);
+
+  // const coinName = useMemo(() => {
+  //   if (!merchantData) return "----";
+  //   if (merchantData.fiat_symbol === "BCH") return "Bitcoin Cash";
+  //   return "SLP Token";
+  // }, [merchantData]);
 
   return (
     <ScreenWrapper>
@@ -295,13 +379,13 @@ const Bip70ConfirmScreen = ({
         {step === "review" && paymentDetails && (
           <>
             <Spacer small />
-            <T center>{`${coinName} (${merchantData.fiat_symbol})`}</T>
-            {tokenId && (
+            <T center size="large">{`${coinName} (${coinSymbol})`}</T>
+            {paymentDetails.tokenId && (
               <T size="tiny" center>
-                {tokenId}
+                {paymentDetails.tokenId}
               </T>
             )}
-            <Spacer tiny />
+            <Spacer small />
             <IconArea>
               <IconImage source={coinImageSource} />
             </IconArea>
@@ -315,19 +399,27 @@ const Bip70ConfirmScreen = ({
             <Spacer tiny />
             <T center monospace size="large">
               {`${formatAmount(
-                BigNumber(paymentDetails.totalValue),
-                decimals,
+                BigNumber(
+                  paymentDetails.tokenId
+                    ? paymentDetails.totalTokenAmount
+                    : paymentDetails.totalValue
+                ),
+                coinDecimals,
                 true
-              )} ${merchantData.fiat_symbol}`}
+              )} ${coinSymbol}`}
             </T>
-            <Spacer tiny />
-            <T center monospace>
-              {formatFiatAmount(
-                fiatAmountTotal,
-                fiatCurrency,
-                tokenId || "bch"
-              )}
-            </T>
+            {!paymentDetails.tokenId && (
+              <>
+                <Spacer tiny />
+                <T center monospace>
+                  {formatFiatAmount(
+                    fiatAmountTotal,
+                    fiatCurrency,
+                    paymentDetails.tokenId || "bch"
+                  )}
+                </T>
+              </>
+            )}
             <Spacer />
             <T center size="small">
               {paymentDetails.network === "main"
@@ -352,6 +444,7 @@ const Bip70ConfirmScreen = ({
             </T>
             <T center>{paymentDetails.memo}</T>
             <Spacer fill />
+            <Spacer small />
             <ButtonsContainer>
               <SwipeButton
                 swipeFn={sendPayment}

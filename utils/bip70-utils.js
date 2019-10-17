@@ -1,10 +1,12 @@
 // @flow
 
 import PaymentProtocol from "bitcore-payment-protocol";
+import BigNumber from "bignumber.js";
 
 import { SLP } from "./slp-sdk-utils";
 import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
+import { decodeTxOut } from "./transaction-utils";
 
 export type PaymentRequest = {
   expires: number,
@@ -23,6 +25,13 @@ export type MerchantData = {
   fiat_symbol: string,
   fiat_rate: number,
   fiat_amount: number
+};
+
+export type OutputInfo = {
+  amount: number,
+  script: string,
+  tokenId: ?string,
+  tokenAmount: ?number
 };
 
 const postAsArrayBuffer = (
@@ -117,8 +126,13 @@ const decodePaymentRequest = async requestData => {
   const buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
 
   try {
+    console.log("before decode");
+    console.log(buffer);
     let body = PaymentProtocol.PaymentRequest.decode(buffer);
     let request = new PaymentProtocol().makePaymentRequest(body);
+
+    console.log("in request");
+    console.log(request);
 
     const detailsData = {};
     let serializedDetails = request.get("serialized_payment_details");
@@ -139,10 +153,13 @@ const decodePaymentRequest = async requestData => {
     }
 
     // Get the payment details
-    var decodedDetails = PaymentProtocol.PaymentDetails.decode(
+    const decodedDetails = PaymentProtocol.PaymentDetails.decode(
       serializedDetails
     );
-    var details = new PaymentProtocol().makePaymentDetails(decodedDetails);
+    const details = new PaymentProtocol().makePaymentDetails(decodedDetails);
+
+    console.log("decoded");
+    console.log(details);
 
     // Verify network is mainnet
     detailsData.network = details.get("network");
@@ -170,22 +187,93 @@ const decodePaymentRequest = async requestData => {
     detailsData.merchantData = merchantData.toString();
     detailsData.requiredFeeRate = details.get("required_fee_rate");
 
+    let tokenId = null;
+    let opReturnScript = null;
     // Parse outputs as number amount and hex string script
-    detailsData.outputs = details.get("outputs").map(output => {
-      return {
-        amount: output.amount.toNumber(),
-        script: output.script.toString("hex")
-      };
-    });
+    detailsData.outputs = details
+      .get("outputs")
+      .map((output: any, idx: number): OutputInfo => {
+        let tokenAmount = null;
+        // if first output has SLP script, go to SLP flow.  Otherwise, BCH flow.
+        const script = output.script.toString("hex");
+        if (idx === 0) {
+          const txOut = {
+            vout: idx,
+            tx: {
+              vout: [
+                {
+                  scriptPubKey: {
+                    hex: script
+                  }
+                }
+              ]
+            }
+          };
+          const scriptDecoded = decodeTxOut(txOut);
+          if (scriptDecoded.token) {
+            isSLP = true;
+            opReturnScript = script;
+            tokenId = scriptDecoded.token;
+          }
+        }
+
+        if (tokenId) {
+          const txOut = {
+            vout: idx,
+            tx: {
+              vout: [
+                {
+                  scriptPubKey: {
+                    hex: opReturnScript
+                  }
+                }
+              ]
+            }
+          };
+          const scriptDecoded = decodeTxOut(txOut);
+          tokenAmount = new BigNumber(
+            idx === 0 ? 0 : scriptDecoded.quantity.toNumber()
+          );
+
+          // console.log("decoded");
+          // console.log(idx);
+          // console.log(
+          //   scriptDecoded.quantity && scriptDecoded.quantity.toNumber()
+          // );
+        }
+        // add tokenId && tokenAmount to output?
+
+        // console.log('script Decoded')
+        // console.log(scriptDecoded);
+        // console.log(scriptDecoded.quantity && scriptDecoded.quantity.toString());
+
+        // console.log(output.amount);
+        return {
+          amount: new BigNumber(output.amount.toNumber()),
+          script: output.script.toString("hex"),
+          tokenId,
+          tokenAmount
+        };
+      });
 
     // Calculate total output value
-    let totalValue = 0;
+    // and token output?
+    let totalValue = new BigNumber(0);
+    let totalTokenAmount = new BigNumber(0);
     for (const output of detailsData.outputs) {
-      totalValue += output.amount;
+      totalValue = totalValue.plus(output.amount);
+      totalTokenAmount = totalTokenAmount.plus(
+        output.tokenAmount ? output.tokenAmount : 0
+      );
+      // totalValue += output.amount;
     }
     detailsData.totalValue = totalValue;
+    detailsData.tokenId = tokenId;
+    detailsData.totalTokenAmount = totalTokenAmount;
+
     return detailsData;
   } catch (ex) {
+    console.warn(ex);
     throw ex;
   }
 };
