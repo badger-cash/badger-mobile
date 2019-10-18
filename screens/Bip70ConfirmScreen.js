@@ -206,14 +206,6 @@ const Bip70ConfirmScreen = ({
       console.log("seting details");
       console.log(details);
 
-      //
-      //
-      // TODO monday
-      // Use these new totals and amounts
-      // To display SLP info
-      // + and create BIP70 transactions.
-      //
-      //
       setPaymentDetails(details);
       setStep("review");
     };
@@ -237,6 +229,8 @@ const Bip70ConfirmScreen = ({
         utxo.address === activeAccount.address ? keypair.bch : keypair.slp
     }));
 
+    let paymentResponse = null;
+
     if (paymentDetails.tokenId) {
       const { tokenId } = paymentDetails;
       const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
@@ -248,11 +242,7 @@ const Bip70ConfirmScreen = ({
           utxo.slp.token === tokenId
         );
       });
-      // const refundKeypair = paymentDetails.tokenId
-      //     ? keypair.slp
-      //     : keypair.bch;
-
-      const paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
+      paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
         paymentDetails,
         activeAccount.addressSlp,
         activeAccount.address,
@@ -260,6 +250,18 @@ const Bip70ConfirmScreen = ({
         spendableUTXOS,
         spendableTokenUtxos
       );
+    } else {
+      const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+      const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
+
+      paymentResponse = await signAndPublishPaymentRequestTransaction(
+        paymentDetails,
+        activeAccount.address,
+        refundKeypair,
+        spendableUTXOS
+      );
+    }
+    try {
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
@@ -268,38 +270,16 @@ const Bip70ConfirmScreen = ({
 
       setStep("success");
       navigation.replace("Bip70Success", { txid });
-    } else {
-      try {
-        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
-        const refundKeypair = paymentDetails.tokenId
-          ? keypair.slp
-          : keypair.bch;
-
-        const paymentResponse = await signAndPublishPaymentRequestTransaction(
-          paymentDetails,
-          activeAccount.address,
-          refundKeypair,
-          spendableUTXOS
-        );
-
-        const { responsePayment, responseAck } = await decodePaymentResponse(
-          paymentResponse
-        );
-        const txHex = responsePayment.message.transactions[0].toHex();
-        const txid = txidFromHex(txHex);
-
-        setStep("success");
-        navigation.replace("Bip70Success", { txid });
-      } catch (e) {
-        setSendError(e.message);
-        setStep("error");
-        return;
-      }
+    } catch (e) {
+      setSendError(e.message);
+      setStep("error");
+      return;
     }
   }, [
     paymentDetails,
     utxos,
-    activeAccount.address,
+    activeAccount,
+    coinDecimals,
     keypair.bch,
     keypair.slp,
     navigation

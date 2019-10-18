@@ -32,10 +32,10 @@ export type MerchantData = {
 };
 
 export type OutputInfo = {
-  amount: number,
+  amount: BigNumber,
   script: string,
   tokenId: ?string,
-  tokenAmount: ?number
+  tokenAmount: ?BigNumber
 };
 
 const postAsArrayBuffer = (
@@ -127,11 +127,18 @@ const decodePaymentResponse = async responseData => {
 
 // Inspired by Badger extension
 const decodePaymentRequest = async requestData => {
-  const buffer = await Buffer.from(requestData); //requestData.text(); //await Buffer.from(requestData, 'base64');
+  const buffer = await Buffer.from(requestData);
 
   try {
     console.log("before decode");
     console.log(buffer);
+
+    // TODO -
+    // Figure out how to get decode work for BCH & SLP at same time.
+    // Get BCH BIP70 working again
+    // Work on Multi output BCH bip 70?
+
+    // Cleanup PR for testing and review.
     let body = PaymentProtocol.PaymentRequest.decode(buffer);
     let request = new PaymentProtocol().makePaymentRequest(body);
 
@@ -155,6 +162,8 @@ const decodePaymentRequest = async requestData => {
     } else {
       throw new Error("Request could not be verified");
     }
+
+    console.log("pre decoded");
 
     // Get the payment details
     const decodedDetails = PaymentProtocol.PaymentDetails.decode(
@@ -191,6 +200,7 @@ const decodePaymentRequest = async requestData => {
     detailsData.merchantData = merchantData.toString();
     detailsData.requiredFeeRate = details.get("required_fee_rate");
 
+    console.log(67);
     let tokenId = null;
     let opReturnScript = null;
     // Parse outputs as number amount and hex string script
@@ -213,11 +223,23 @@ const decodePaymentRequest = async requestData => {
               ]
             }
           };
-          const scriptDecoded = decodeTxOut(txOut);
-          if (scriptDecoded.token) {
-            isSLP = true;
-            opReturnScript = script;
-            tokenId = scriptDecoded.token;
+          try {
+            const scriptDecoded = decodeTxOut(txOut);
+            console.log("script decoded");
+            console.log(scriptDecoded);
+            if (scriptDecoded.token) {
+              opReturnScript = script;
+              tokenId = scriptDecoded.token;
+            }
+          } catch (e) {
+            if (
+              e.message === "Not an OP_RETURN" ||
+              e.message === "Not an SLP OP_RETURN"
+            ) {
+              // ignore, expected for BCH payment requests
+            } else {
+              console.warn(e);
+            }
           }
         }
 
@@ -238,20 +260,8 @@ const decodePaymentRequest = async requestData => {
           tokenAmount = new BigNumber(
             idx === 0 ? 0 : scriptDecoded.quantity.toNumber()
           );
-
-          // console.log("decoded");
-          // console.log(idx);
-          // console.log(
-          //   scriptDecoded.quantity && scriptDecoded.quantity.toNumber()
-          // );
         }
-        // add tokenId && tokenAmount to output?
 
-        // console.log('script Decoded')
-        // console.log(scriptDecoded);
-        // console.log(scriptDecoded.quantity && scriptDecoded.quantity.toString());
-
-        // console.log(output.amount);
         return {
           amount: new BigNumber(output.amount.toNumber()),
           script: output.script.toString("hex"),
@@ -260,8 +270,7 @@ const decodePaymentRequest = async requestData => {
         };
       });
 
-    // Calculate total output value
-    // and token output?
+    // Calculate total output value and token amount
     let totalValue = new BigNumber(0);
     let totalTokenAmount = new BigNumber(0);
     for (const output of detailsData.outputs) {
@@ -269,7 +278,6 @@ const decodePaymentRequest = async requestData => {
       totalTokenAmount = totalTokenAmount.plus(
         output.tokenAmount ? output.tokenAmount : 0
       );
-      // totalValue += output.amount;
     }
     detailsData.totalValue = totalValue;
     detailsData.tokenId = tokenId;
@@ -289,7 +297,11 @@ const signAndPublishPaymentRequestTransaction = async (
 ) => {
   const from = fromAddress;
 
+  console.log("in sign send");
+  console.log(paymentRequest);
+
   const satoshisToSend = parseInt(paymentRequest.totalValue, 10);
+  console.log(satoshisToSend);
 
   if (!spendableUtxos || spendableUtxos.length === 0) {
     throw new Error("Insufficient funds");
@@ -322,7 +334,11 @@ const signAndPublishPaymentRequestTransaction = async (
     }
   }
 
+  console.log(totalUtxoAmount);
+
   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
+  console.log("remaining");
+  console.log(satoshisRemaining);
 
   // Verify sufficient fee
   if (satoshisRemaining < 0) {
@@ -333,11 +349,15 @@ const signAndPublishPaymentRequestTransaction = async (
 
   // Destination outputs
   for (const output of paymentRequest.outputs) {
+    console.log(output);
+    console.log(output.amount);
     transactionBuilder.addOutput(
       Buffer.from(output.script, "hex"),
-      output.amount
+      output.amount.toNumber()
     );
   }
+
+  console.log(50);
 
   // Return remaining balance output
   if (satoshisRemaining >= 546) {
@@ -354,6 +374,8 @@ const signAndPublishPaymentRequestTransaction = async (
       utxo.satoshis
     );
   });
+
+  console.log(51);
 
   const hex = transactionBuilder.build().toHex();
 
@@ -372,6 +394,7 @@ const signAndPublishPaymentRequestTransaction = async (
     Buffer.from(refundHash160, "hex")
   );
 
+  console.log(53);
   // define the refund outputs
   var refundOutputs = [];
   var refundOutput = new PaymentProtocol().makeOutput();
@@ -381,6 +404,7 @@ const signAndPublishPaymentRequestTransaction = async (
   payment.set("refund_to", refundOutputs);
   payment.set("memo", "");
 
+  console.log(54);
   // serialize and send
   const rawbody = payment.serialize();
   const headers = {
@@ -389,6 +413,8 @@ const signAndPublishPaymentRequestTransaction = async (
     "Content-Type": "application/bitcoincash-payment",
     "Content-Transfer-Encoding": "binary"
   };
+
+  console.log(55);
 
   // POST payment
   const rawPaymentResponse = await postAsArrayBuffer(
