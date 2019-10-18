@@ -97,7 +97,6 @@ const SendConfirmScreen = ({
   keypair,
   spotPrices
 }: Props) => {
-  // const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
   const [sendError, setSendError] = useState(null);
 
   const [

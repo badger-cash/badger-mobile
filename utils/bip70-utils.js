@@ -53,7 +53,7 @@ const postAsArrayBuffer = (
     Object.entries(headers).forEach(([key, value]) => {
       req.setRequestHeader(key, value);
     });
-    // req.body = body;
+
     req.responseType = "arraybuffer";
     req.onload = function(event) {
       let resp = req.response;

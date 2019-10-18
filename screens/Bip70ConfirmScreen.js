@@ -19,7 +19,7 @@ import { type TokenData } from "../`data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
 import { type UTXO } from "../data/utxos/reducer";
-import { type ECPair } from "../data/accounts/reducer";
+import { type ECPair, type Account } from "../data/accounts/reducer";
 
 import {
   getKeypairSelector,
@@ -64,15 +64,6 @@ const ButtonsContainer = styled(View)`
   align-items: center;
 `;
 
-// const ErrorHolder = styled(View)`
-//   margin: 0 16px;
-//   padding: 8px;
-//   background-color: ${props => props.theme.danger700};
-//   border-width: ${StyleSheet.hairlineWidth};
-//   border-radius: 3px;
-//   border-color: ${props => props.theme.danger300};
-// `;
-
 const FullView = styled(View)`
   flex: 1;
   justify-content: center;
@@ -85,16 +76,13 @@ type Props = {
   keypair: { bch: ECPair, slp: ECPair },
   spotPrices: any,
   fiatCurrency: CurrencyCode,
-  activeAccount: any,
+  activeAccount: Account,
   navigation: {
     navigate: Function,
     goBack: Function,
     replace: Function,
     state: {
       params: {
-        tokenId: ?string,
-        sendAmount: string,
-        toAddress: string,
         paymentURL: string
       }
     }
@@ -171,7 +159,7 @@ const Bip70ConfirmScreen = ({
       let trySLP = false;
 
       try {
-        paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
+        paymentResponse = await getAsArrayBuffer(paymentURL, headers);
         details = await decodePaymentRequest(paymentResponse);
 
         setCoinType("BCH");
@@ -185,7 +173,7 @@ const Bip70ConfirmScreen = ({
             ...headers,
             Accept: "application/simpleledger-paymentrequest"
           };
-          paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();s
+          paymentResponse = await getAsArrayBuffer(paymentURL, headers);
           details = await decodePaymentRequest(paymentResponse);
 
           setCoinType("SLP");
@@ -293,7 +281,7 @@ const Bip70ConfirmScreen = ({
     }
   }, [remainingTime]);
 
-  // Don't use for now, as this is non-standard / not part of BIP70 officially
+  // Not used for now.
   // const merchantData = useMemo(
   //   () => (paymentDetails ? JSON.parse(paymentDetails.merchantData) : null),
   //   [paymentDetails]
