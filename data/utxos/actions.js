@@ -93,20 +93,12 @@ const refreshUtxos = async (state: FullState, address: string) => {
   const utxosSlpOrSpendable = utxosNewWithTxDetails.map(utxo => {
     try {
       const slpDecoded = decodeTxOut(utxo);
-      // console.log('Fine')
-      // console.log(utxo)
-      // console.log(slpDecoded)
-      // console.log({ ...utxo, slp: slpDecoded, spendable: false })
       return { ...utxo, slp: slpDecoded, spendable: false };
     } catch (e) {
       // Prevent spending of unknown SLP types
       if (e.message === "Unknown token type") {
-        // console.log('UNKNOWN?')
-        // console.log(utxo)
         return { ...utxo, spendable: false };
       }
-      // console.log('SPENDABLE')
-      // console.log(utxo)
       return { ...utxo, spendable: true };
     }
   });
@@ -124,9 +116,6 @@ const refreshUtxos = async (state: FullState, address: string) => {
     const validSLPTx = await Promise.all(
       chunk(slpTxidsToValidate, 20).map(async txIdsToValidate => {
         const validatedTxs = await SLP.Utils.validateTxid(txIdsToValidate);
-
-        // console.log('validated?')
-        // console.log(validatedTxs);
 
         const validSLPTxChunk = validatedTxs
           .filter(chunkResult => chunkResult.valid === true)

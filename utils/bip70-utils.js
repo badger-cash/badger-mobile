@@ -110,14 +110,8 @@ const decodePaymentResponse = async responseData => {
   const buffer = await Buffer.from(responseData);
 
   try {
-    console.log(3);
-    console.log(buffer);
-    console.log(responseData);
-    // debugger;
     const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
-    console.log(3.5);
     const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
-    console.log(4);
     const responseSerializedPayment = responseAck.get("payment");
     const responseDecodedPayment = await PaymentProtocol.Payment.decode(
       responseSerializedPayment
@@ -125,7 +119,6 @@ const decodePaymentResponse = async responseData => {
     const responsePayment = await new PaymentProtocol().makePayment(
       responseDecodedPayment
     );
-    console.log(5);
     return { responsePayment, responseAck };
   } catch (ex) {
     throw ex;
@@ -137,20 +130,9 @@ const decodePaymentRequest = async requestData => {
   const buffer = await Buffer.from(requestData);
 
   try {
-    console.log("before decode");
-    console.log(buffer);
-
-    // TODO -
-    // Figure out how to get decode work for BCH & SLP at same time.
-    // Get BCH BIP70 working again
-    // Work on Multi output BCH bip 70?
-
     // Cleanup PR for testing and review.
     let body = PaymentProtocol.PaymentRequest.decode(buffer);
     let request = new PaymentProtocol().makePaymentRequest(body);
-
-    console.log("in request");
-    console.log(request);
 
     const detailsData = {};
     let serializedDetails = request.get("serialized_payment_details");
@@ -170,16 +152,11 @@ const decodePaymentRequest = async requestData => {
       throw new Error("Request could not be verified");
     }
 
-    console.log("pre decoded");
-
     // Get the payment details
     const decodedDetails = PaymentProtocol.PaymentDetails.decode(
       serializedDetails
     );
     const details = new PaymentProtocol().makePaymentDetails(decodedDetails);
-
-    console.log("decoded");
-    console.log(details);
 
     // Verify network is mainnet
     detailsData.network = details.get("network");
@@ -207,7 +184,6 @@ const decodePaymentRequest = async requestData => {
     detailsData.merchantData = merchantData.toString();
     detailsData.requiredFeeRate = details.get("required_fee_rate");
 
-    console.log(67);
     let tokenId = null;
     let opReturnScript = null;
     // Parse outputs as number amount and hex string script
@@ -232,8 +208,6 @@ const decodePaymentRequest = async requestData => {
           };
           try {
             const scriptDecoded = decodeTxOut(txOut);
-            console.log("script decoded");
-            console.log(scriptDecoded);
             if (scriptDecoded.token) {
               opReturnScript = script;
               tokenId = scriptDecoded.token;
@@ -304,11 +278,7 @@ const signAndPublishPaymentRequestTransaction = async (
 ) => {
   const from = fromAddress;
 
-  console.log("in sign send");
-  console.log(paymentRequest);
-
   const satoshisToSend = parseInt(paymentRequest.totalValue, 10);
-  console.log(satoshisToSend);
 
   if (!spendableUtxos || spendableUtxos.length === 0) {
     throw new Error("Insufficient funds");
@@ -341,11 +311,7 @@ const signAndPublishPaymentRequestTransaction = async (
     }
   }
 
-  console.log(totalUtxoAmount);
-
   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
-  console.log("remaining");
-  console.log(satoshisRemaining);
 
   // Verify sufficient fee
   if (satoshisRemaining < 0) {
@@ -356,15 +322,11 @@ const signAndPublishPaymentRequestTransaction = async (
 
   // Destination outputs
   for (const output of paymentRequest.outputs) {
-    console.log(output);
-    console.log(output.amount);
     transactionBuilder.addOutput(
       Buffer.from(output.script, "hex"),
       output.amount.toNumber()
     );
   }
-
-  console.log(50);
 
   // Return remaining balance output
   if (satoshisRemaining >= 546) {
@@ -381,8 +343,6 @@ const signAndPublishPaymentRequestTransaction = async (
       utxo.satoshis
     );
   });
-
-  console.log(51);
 
   const hex = transactionBuilder.build().toHex();
 
@@ -401,7 +361,6 @@ const signAndPublishPaymentRequestTransaction = async (
     Buffer.from(refundHash160, "hex")
   );
 
-  console.log(53);
   // define the refund outputs
   var refundOutputs = [];
   var refundOutput = new PaymentProtocol().makeOutput();
@@ -411,7 +370,6 @@ const signAndPublishPaymentRequestTransaction = async (
   payment.set("refund_to", refundOutputs);
   payment.set("memo", "");
 
-  console.log(54);
   // serialize and send
   const rawbody = payment.serialize();
   const headers = {

@@ -172,9 +172,7 @@ const Bip70ConfirmScreen = ({
 
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers); //paymentRequest.blob();
-        console.log("????1");
         details = await decodePaymentRequest(paymentResponse);
-        console.log("????2  ");
 
         setCoinType("BCH");
       } catch (err) {
@@ -198,10 +196,6 @@ const Bip70ConfirmScreen = ({
           return;
         }
       }
-
-      // Console.log(SLP info and amounts should be set on here at this time.)
-      console.log("seting details");
-      console.log(details);
 
       setPaymentDetails(details);
       setStep("review");
@@ -228,10 +222,7 @@ const Bip70ConfirmScreen = ({
 
     let paymentResponse = null;
 
-    console.log(1);
-
     if (paymentDetails.tokenId) {
-      console.log(2);
       const { tokenId } = paymentDetails;
       const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
       const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
@@ -254,18 +245,14 @@ const Bip70ConfirmScreen = ({
       const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
       const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
 
-      console.log("sign and send BCH tx");
-
       paymentResponse = await signAndPublishPaymentRequestTransaction(
         paymentDetails,
         activeAccount.address,
         refundKeypair,
         spendableUTXOS
       );
-      console.log(3);
     }
     try {
-      console.log("here?");
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
