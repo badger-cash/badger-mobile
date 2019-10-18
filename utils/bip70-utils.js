@@ -110,15 +110,22 @@ const decodePaymentResponse = async responseData => {
   const buffer = await Buffer.from(responseData);
 
   try {
+    console.log(3);
+    console.log(buffer);
+    console.log(responseData);
+    // debugger;
     const responseBody = PaymentProtocol.PaymentACK.decode(buffer);
+    console.log(3.5);
     const responseAck = new PaymentProtocol().makePaymentACK(responseBody);
+    console.log(4);
     const responseSerializedPayment = responseAck.get("payment");
-    const responseDecodedPayment = PaymentProtocol.Payment.decode(
+    const responseDecodedPayment = await PaymentProtocol.Payment.decode(
       responseSerializedPayment
     );
-    const responsePayment = new PaymentProtocol().makePayment(
+    const responsePayment = await new PaymentProtocol().makePayment(
       responseDecodedPayment
     );
+    console.log(5);
     return { responsePayment, responseAck };
   } catch (ex) {
     throw ex;
@@ -414,8 +421,6 @@ const signAndPublishPaymentRequestTransaction = async (
     "Content-Transfer-Encoding": "binary"
   };
 
-  console.log(55);
-
   // POST payment
   const rawPaymentResponse = await postAsArrayBuffer(
     paymentRequest.paymentUrl,
@@ -444,24 +449,13 @@ const signAndPublishPaymentRequestTransactionSLP = async (
 
     const toAmount = outputs[i].tokenAmount;
 
-    // todo - What do if toAmount is null?
     to = [...to, { address: toAddress, tokenAmount: toAmount }];
   }
-
-  console.log(" IN SIGN n PUBLISH SLP");
-  console.log(outputs);
-  console.log(to);
-  console.log(tokenMetadata);
 
   const tokenDecimals = tokenMetadata.decimals;
   const scaledTokenSendAmount = new BigNumber(
     paymentRequest.totalTokenAmount
   ).decimalPlaces(tokenDecimals);
-  // const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
-
-  console.log("token send amount?");
-  console.log(scaledTokenSendAmount.toString());
-  // console.log(tokenSendAmount.toString())
 
   if (scaledTokenSendAmount.lt(1)) {
     throw new Error(
@@ -487,15 +481,6 @@ const signAndPublishPaymentRequestTransactionSLP = async (
 
   const tokenChangeAmount = tokenBalance.minus(scaledTokenSendAmount);
 
-  console.log(tokenBalance);
-  console.log("before return");
-  console.log(paymentRequest);
-
-  // let tokenSendArray = txParams.valueArray
-  //   ? txParams.valueArray.map(num => new BigNumber(num))
-  //   : [tokenSendAmount];
-
-  // let sendOpReturn = null;
   if (tokenChangeAmount.isGreaterThan(0)) {
     to = [
       ...to,
@@ -503,14 +488,10 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     ];
   }
 
-  console.log("INVS 1");
-
   const sendOpReturn = slpjs.Slp.buildSendOpReturn({
     tokenIdHex: paymentRequest.tokenId,
     outputQtyArray: to.map(toInfo => toInfo.tokenAmount)
   });
-
-  console.log("INVS 2");
 
   let byteCount = 0;
   let inputSatoshis = 0;
@@ -531,8 +512,6 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     }
   }
 
-  console.log("INVS 3");
-
   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
   let totalUtxoAmount = 0;
@@ -540,8 +519,6 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     transactionBuilder.addInput(utxo.txid, utxo.vout);
     totalUtxoAmount += utxo.satoshis;
   });
-
-  console.log("INVS 4");
 
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
@@ -555,30 +532,13 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   // SLP data output
   transactionBuilder.addOutput(sendOpReturn, 0);
 
-  console.log("INVS 5");
-
   // Token destination output
-  // if(to) {
-  //   if(Array.isArray(to)) {
   for (let toOutput of to) {
     transactionBuilder.addOutput(toOutput.address, 546);
   }
 
-  console.log("INVS 6");
-  // } else {
-  //   transactionBuilder.addOutput(to, 546)
-  //   }
-  // }
-
-  // Return remaining token balance output
-  // if (tokenChangeAmount.isGreaterThan(0)) {
-  //   transactionBuilder.addOutput(tokenChangeAddress, 546);
-  // }
-
   // Return remaining bch balance output
   transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
-
-  console.log("INVS 7");
 
   let redeemScript;
   inputUtxos.forEach((utxo, index) => {
@@ -591,19 +551,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     );
   });
 
-  console.log("INVS 8");
-
   const hex = transactionBuilder.build().toHex();
-
-  console.log("all the way no way/!");
-  console.log(hex);
-  // return;
-
-  // txParams.to = []
-  //   let outputs = txParams.paymentData.outputs
-  //   for(let i = 1; i < outputs.length; i++) {
-  //     txParams.to.push(bitbox.Address.fromOutputScript(Buffer.from(outputs[i].script, 'hex')))
-  //   }
 
   const payment = new PaymentProtocol().makePayment();
   payment.set(
@@ -613,8 +561,6 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
   // calculate refund script pubkey from change address
-  //const refundPubkey = SLP.ECPair.toPublicKey(keyPair)
-  //const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey))
   const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
   const addressFormat = SLP.Address.detectAddressFormat(tokenChangeAddress);
   let refundHash160 = SLP.Address.cashToHash160(tokenChangeAddress);
@@ -653,14 +599,6 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   );
 
   return rawPaymentResponse;
-
-  // const response = await axios.post(txParams.paymentData.paymentUrl, rawbody, {
-  //   headers,
-  //   responseType: "blob"
-  // });
-
-  // const responseTxHex = await this.decodePaymentResponse(response.data);
-  // txid = this.txidFromHex(responseTxHex);
 };
 
 export {

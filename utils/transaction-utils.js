@@ -45,9 +45,6 @@ const decodeTxOut = (txOut: UTXO) => {
 
   const vout = parseInt(txOut.vout, 10);
 
-  // console.log(txOut)
-  // console.log(vout);
-
   const script = SLP.Script.toASM(
     Buffer.from(txOut.tx.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
@@ -57,7 +54,7 @@ const decodeTxOut = (txOut: UTXO) => {
   }
 
   if (script[1] !== LOKAD_ID_HEX) {
-    throw new Error("Not a SLP OP_RETURN");
+    throw new Error("Not an SLP OP_RETURN");
   }
 
   if (

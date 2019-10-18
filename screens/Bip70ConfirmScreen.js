@@ -176,9 +176,6 @@ const Bip70ConfirmScreen = ({
         details = await decodePaymentRequest(paymentResponse);
         console.log("????2  ");
 
-        // NOT GETTING HERE - NEED TO GET DECODE TO WORK WITH NON-OP-RETURN THINGS?
-        // FIGURE IT OUT.
-
         setCoinType("BCH");
       } catch (err) {
         trySLP = true;
@@ -231,7 +228,10 @@ const Bip70ConfirmScreen = ({
 
     let paymentResponse = null;
 
+    console.log(1);
+
     if (paymentDetails.tokenId) {
+      console.log(2);
       const { tokenId } = paymentDetails;
       const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
       const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
@@ -254,14 +254,18 @@ const Bip70ConfirmScreen = ({
       const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
       const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
 
+      console.log("sign and send BCH tx");
+
       paymentResponse = await signAndPublishPaymentRequestTransaction(
         paymentDetails,
         activeAccount.address,
         refundKeypair,
         spendableUTXOS
       );
+      console.log(3);
     }
     try {
+      console.log("here?");
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
@@ -271,6 +275,7 @@ const Bip70ConfirmScreen = ({
       setStep("success");
       navigation.replace("Bip70Success", { txid });
     } catch (e) {
+      console.warn(e);
       setSendError(e.message);
       setStep("error");
       return;
