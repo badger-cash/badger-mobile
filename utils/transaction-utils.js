@@ -369,6 +369,13 @@ const signAndPublishSlpTransaction = async (
 
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
+  // Verify sufficient fee
+  if (satoshisRemaining < 0) {
+    throw new Error(
+      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+    );
+  }
+
   // SLP data output
   transactionBuilder.addOutput(sendOpReturn, 0);
 

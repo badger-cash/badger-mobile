@@ -41,9 +41,9 @@ import {
   decodePaymentResponse,
   getAsArrayBuffer,
   signAndPublishPaymentRequestTransaction,
+  signAndPublishPaymentRequestTransactionSLP,
   txidFromHex,
   type PaymentRequest
-  // type MerchantData
 } from "../utils/bip70-utils";
 
 const ScreenWrapper = styled(SafeAreaView)`
@@ -64,14 +64,14 @@ const ButtonsContainer = styled(View)`
   align-items: center;
 `;
 
-const ErrorHolder = styled(View)`
-  margin: 0 16px;
-  padding: 8px;
-  background-color: ${props => props.theme.danger700};
-  border-width: ${StyleSheet.hairlineWidth};
-  border-radius: 3px;
-  border-color: ${props => props.theme.danger300};
-`;
+// const ErrorHolder = styled(View)`
+//   margin: 0 16px;
+//   padding: 8px;
+//   background-color: ${props => props.theme.danger700};
+//   border-width: ${StyleSheet.hairlineWidth};
+//   border-radius: 3px;
+//   border-color: ${props => props.theme.danger300};
+// `;
 
 const FullView = styled(View)`
   flex: 1;
@@ -124,12 +124,6 @@ const Bip70ConfirmScreen = ({
   const [coinType, setCoinType] = useState(null);
 
   const [paymentDetails: ?PaymentRequest, setPaymentDetails] = useState(null);
-
-  // const [tokenId, setTokenId] = useState(null);
-  // const [paymentAmountCrypto: ?BigNumber, setPaymentAmountCrypto] = useState(
-  //   null
-  // ); // maybe not needed, can get from payment details?
-  // const [paymentAmountFiat: ?number, setPaymentAmountFiat] = useState(null);
 
   const [
     step: "fetching" | "review" | "sending" | "confirmed" | "error" | "invalid",
@@ -243,17 +237,29 @@ const Bip70ConfirmScreen = ({
         utxo.address === activeAccount.address ? keypair.bch : keypair.slp
     }));
 
-    const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+    if (paymentDetails.tokenId) {
+      const { tokenId } = paymentDetails;
+      const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+      const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
+        return (
+          utxo.slp &&
+          utxo.slp.baton === false &&
+          utxo.validSlpTx === true &&
+          utxo.slp.token === tokenId
+        );
+      });
+      // const refundKeypair = paymentDetails.tokenId
+      //     ? keypair.slp
+      //     : keypair.bch;
 
-    try {
-      const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
-      const paymentResponse = await signAndPublishPaymentRequestTransaction(
+      const paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
         paymentDetails,
+        activeAccount.addressSlp,
         activeAccount.address,
-        refundKeypair,
-        spendableUTXOS
+        { decimals: coinDecimals },
+        spendableUTXOS,
+        spendableTokenUtxos
       );
-
       const { responsePayment, responseAck } = await decodePaymentResponse(
         paymentResponse
       );
@@ -262,10 +268,33 @@ const Bip70ConfirmScreen = ({
 
       setStep("success");
       navigation.replace("Bip70Success", { txid });
-    } catch (e) {
-      setSendError(e.message);
-      setStep("error");
-      return;
+    } else {
+      try {
+        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+        const refundKeypair = paymentDetails.tokenId
+          ? keypair.slp
+          : keypair.bch;
+
+        const paymentResponse = await signAndPublishPaymentRequestTransaction(
+          paymentDetails,
+          activeAccount.address,
+          refundKeypair,
+          spendableUTXOS
+        );
+
+        const { responsePayment, responseAck } = await decodePaymentResponse(
+          paymentResponse
+        );
+        const txHex = responsePayment.message.transactions[0].toHex();
+        const txid = txidFromHex(txHex);
+
+        setStep("success");
+        navigation.replace("Bip70Success", { txid });
+      } catch (e) {
+        setSendError(e.message);
+        setStep("error");
+        return;
+      }
     }
   }, [
     paymentDetails,
@@ -275,14 +304,6 @@ const Bip70ConfirmScreen = ({
     keypair.slp,
     navigation
   ]);
-
-  // Compute render values
-  // const displaySymbol = tokenId
-  //   ? tokensById[tokenId]
-  //     ? tokensById[tokenId].symbol
-  //     : "---"
-  //   : "BCH";
-  // const decimals = tokenId ? tokensById[tokenId].decimals : 8;
 
   const remainingTime = paymentDetails
     ? paymentDetails.expires - tickTime / 1000
@@ -306,37 +327,6 @@ const Bip70ConfirmScreen = ({
   //   [paymentDetails]
   // );
 
-  // const outputInfo = useMemo(() => {
-  //   let txValue = null;
-  //   let txFee = null;
-  //   let tokenId = null;
-
-  //   // Look at the outputs to get the total amount
-  //   // Determine if it's a BCH request, or an SLP token request
-
-  //   // Compute total value from here instead of trusting paymentDetail response
-
-  //   console.log("in output info");
-
-  //   if (!paymentDetails) return null;
-
-  //   const outputs = paymentDetails.outputs;
-
-  //   // if(coinType === 'BCH') {
-
-  //   // } else if(coinType === 'SLP') {
-
-  //   // }
-
-  //   console.log(outputs);
-  //   // const coinType = 'BCH'
-  //   const totalValue = 0.1;
-  //   const symbol = "BCH";
-
-  //   return { totalValue, symbol };
-  //   // paymentDetails
-  // }, [paymentDetails]);
-
   const fiatAmountTotal = useMemo(() => {
     if (paymentDetails) {
       if (paymentDetails.tokenId) {
@@ -357,15 +347,6 @@ const Bip70ConfirmScreen = ({
     }
     return null;
   }, [paymentDetails, fiatCurrency, spotPrices]);
-
-  // console.log("merchant Data");
-  // console.log(merchantData);
-
-  // const coinName = useMemo(() => {
-  //   if (!merchantData) return "----";
-  //   if (merchantData.fiat_symbol === "BCH") return "Bitcoin Cash";
-  //   return "SLP Token";
-  // }, [merchantData]);
 
   return (
     <ScreenWrapper>
@@ -406,7 +387,7 @@ const Bip70ConfirmScreen = ({
                 ),
                 coinDecimals,
                 true
-              )} ${coinSymbol}`}
+              )} ${coinSymbol ? coinSymbol : ""}`}
             </T>
             {!paymentDetails.tokenId && (
               <>

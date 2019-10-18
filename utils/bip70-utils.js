@@ -8,16 +8,20 @@ import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { decodeTxOut } from "./transaction-utils";
 
+const slpjs = require("slpjs");
+const SLPJS = new slpjs.Slp(SLP);
+
 export type PaymentRequest = {
   expires: number,
   memo: string,
   merchantData: string,
   network: string,
-  outputs: { amount: number, script: string }[],
+  outputs: OutputInfo[],
   paymentUrl: string,
   requiredFeeRate: ?number,
   time: number,
   totalValue: number,
+  totalTokenAmount: ?number,
   verified: boolean
 };
 
@@ -285,7 +289,7 @@ const signAndPublishPaymentRequestTransaction = async (
 ) => {
   const from = fromAddress;
 
-  const satoshisToSend = parseInt(paymentRequest.totalValue, 10); // Use this, or calculate when going through outputs...?
+  const satoshisToSend = parseInt(paymentRequest.totalValue, 10);
 
   if (!spendableUtxos || spendableUtxos.length === 0) {
     throw new Error("Insufficient funds");
@@ -396,8 +400,246 @@ const signAndPublishPaymentRequestTransaction = async (
   return rawPaymentResponse;
 };
 
+const signAndPublishPaymentRequestTransactionSLP = async (
+  paymentRequest: PaymentRequest,
+  tokenChangeAddress: string,
+  bchChangeAddress: string,
+  tokenMetadata: { decimals: number },
+  spendableUTxos: UTXO[],
+  spendableTokenUtxos: UTXO[]
+) => {
+  const { outputs, merchantData } = paymentRequest;
+
+  let to: { address: string, tokenAmount: string }[] = [];
+  for (let i = 1; i < outputs.length; i++) {
+    const toAddress = SLP.Address.fromOutputScript(
+      Buffer.from(outputs[i].script, "hex")
+    );
+
+    const toAmount = outputs[i].tokenAmount;
+
+    // todo - What do if toAmount is null?
+    to = [...to, { address: toAddress, tokenAmount: toAmount }];
+  }
+
+  console.log(" IN SIGN n PUBLISH SLP");
+  console.log(outputs);
+  console.log(to);
+  console.log(tokenMetadata);
+
+  const tokenDecimals = tokenMetadata.decimals;
+  const scaledTokenSendAmount = new BigNumber(
+    paymentRequest.totalTokenAmount
+  ).decimalPlaces(tokenDecimals);
+  // const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
+
+  console.log("token send amount?");
+  console.log(scaledTokenSendAmount.toString());
+  // console.log(tokenSendAmount.toString())
+
+  if (scaledTokenSendAmount.lt(1)) {
+    throw new Error(
+      "Amount below minimum for this token. Increase the send amount and try again."
+    );
+  }
+
+  let tokenBalance = new BigNumber(0);
+  const tokenUtxosToSpend = [];
+  for (const tokenUtxo of spendableTokenUtxos) {
+    const utxoBalance = tokenUtxo.slp.quantity;
+    tokenBalance = tokenBalance.plus(utxoBalance);
+    tokenUtxosToSpend.push(tokenUtxo);
+
+    if (tokenBalance.gte(scaledTokenSendAmount)) {
+      break;
+    }
+  }
+
+  if (!tokenBalance.gte(scaledTokenSendAmount)) {
+    throw new Error("Insufficient tokens");
+  }
+
+  const tokenChangeAmount = tokenBalance.minus(scaledTokenSendAmount);
+
+  console.log(tokenBalance);
+  console.log("before return");
+  console.log(paymentRequest);
+
+  // let tokenSendArray = txParams.valueArray
+  //   ? txParams.valueArray.map(num => new BigNumber(num))
+  //   : [tokenSendAmount];
+
+  // let sendOpReturn = null;
+  if (tokenChangeAmount.isGreaterThan(0)) {
+    to = [
+      ...to,
+      { address: tokenChangeAddress, tokenAmount: tokenChangeAmount }
+    ];
+  }
+
+  console.log("INVS 1");
+
+  const sendOpReturn = slpjs.Slp.buildSendOpReturn({
+    tokenIdHex: paymentRequest.tokenId,
+    outputQtyArray: to.map(toInfo => toInfo.tokenAmount)
+  });
+
+  console.log("INVS 2");
+
+  let byteCount = 0;
+  let inputSatoshis = 0;
+  const inputUtxos = tokenUtxosToSpend;
+  for (const utxo of spendableUTxos) {
+    inputSatoshis = inputSatoshis + utxo.satoshis;
+    inputUtxos.push(utxo);
+
+    byteCount = SLPJS.calculateSendCost(
+      sendOpReturn.length,
+      inputUtxos.length,
+      to.length + 1, // +1 to receive remaining BCH
+      tokenChangeAddress
+    );
+
+    if (inputSatoshis >= byteCount) {
+      break;
+    }
+  }
+
+  console.log("INVS 3");
+
+  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+
+  let totalUtxoAmount = 0;
+  inputUtxos.forEach(utxo => {
+    transactionBuilder.addInput(utxo.txid, utxo.vout);
+    totalUtxoAmount += utxo.satoshis;
+  });
+
+  console.log("INVS 4");
+
+  const satoshisRemaining = totalUtxoAmount - byteCount;
+
+  // Verify sufficient fee
+  if (satoshisRemaining < 0) {
+    throw new Error(
+      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+    );
+  }
+
+  // SLP data output
+  transactionBuilder.addOutput(sendOpReturn, 0);
+
+  console.log("INVS 5");
+
+  // Token destination output
+  // if(to) {
+  //   if(Array.isArray(to)) {
+  for (let toOutput of to) {
+    transactionBuilder.addOutput(toOutput.address, 546);
+  }
+
+  console.log("INVS 6");
+  // } else {
+  //   transactionBuilder.addOutput(to, 546)
+  //   }
+  // }
+
+  // Return remaining token balance output
+  // if (tokenChangeAmount.isGreaterThan(0)) {
+  //   transactionBuilder.addOutput(tokenChangeAddress, 546);
+  // }
+
+  // Return remaining bch balance output
+  transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
+
+  console.log("INVS 7");
+
+  let redeemScript;
+  inputUtxos.forEach((utxo, index) => {
+    transactionBuilder.sign(
+      index,
+      utxo.keypair,
+      redeemScript,
+      transactionBuilder.hashTypes.SIGHASH_ALL,
+      utxo.satoshis
+    );
+  });
+
+  console.log("INVS 8");
+
+  const hex = transactionBuilder.build().toHex();
+
+  console.log("all the way no way/!");
+  console.log(hex);
+  // return;
+
+  // txParams.to = []
+  //   let outputs = txParams.paymentData.outputs
+  //   for(let i = 1; i < outputs.length; i++) {
+  //     txParams.to.push(bitbox.Address.fromOutputScript(Buffer.from(outputs[i].script, 'hex')))
+  //   }
+
+  const payment = new PaymentProtocol().makePayment();
+  payment.set(
+    "merchant_data",
+    Buffer.from(paymentRequest.merchantData, "utf-8")
+  );
+  payment.set("transactions", [Buffer.from(hex, "hex")]);
+
+  // calculate refund script pubkey from change address
+  //const refundPubkey = SLP.ECPair.toPublicKey(keyPair)
+  //const refundHash160 = SLP.Crypto.hash160(Buffer.from(refundPubkey))
+  const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
+  const addressFormat = SLP.Address.detectAddressFormat(tokenChangeAddress);
+  let refundHash160 = SLP.Address.cashToHash160(tokenChangeAddress);
+  let encodingFunc = SLP.Script.pubKeyHash.output.encode;
+  if (addressType === "p2sh") {
+    encodingFunc = SLP.Script.scriptHash.output.encode;
+  }
+  if (addressFormat === "legacy") {
+    refundHash160 = SLP.Address.legacyToHash160(tokenChangeAddress);
+  }
+  const refundScriptPubkey = encodingFunc(Buffer.from(refundHash160, "hex"));
+
+  // define the refund outputs
+  var refundOutputs = [];
+  var refundOutput = new PaymentProtocol().makeOutput();
+  refundOutput.set("amount", 0);
+  refundOutput.set("script", refundScriptPubkey);
+  refundOutputs.push(refundOutput.message);
+  payment.set("refund_to", refundOutputs);
+  payment.set("memo", "");
+
+  // serialize and send
+  const rawbody = payment.serialize();
+  const headers = {
+    Accept:
+      "application/simpleledger-paymentrequest, application/simpleledger-paymentack",
+    "Content-Type": "application/simpleledger-payment",
+    "Content-Transfer-Encoding": "binary"
+  };
+
+  // POST payment
+  const rawPaymentResponse = await postAsArrayBuffer(
+    paymentRequest.paymentUrl,
+    headers,
+    rawbody
+  );
+
+  return rawPaymentResponse;
+
+  // const response = await axios.post(txParams.paymentData.paymentUrl, rawbody, {
+  //   headers,
+  //   responseType: "blob"
+  // });
+
+  // const responseTxHex = await this.decodePaymentResponse(response.data);
+  // txid = this.txidFromHex(responseTxHex);
+};
+
 export {
   signAndPublishPaymentRequestTransaction,
+  signAndPublishPaymentRequestTransactionSLP,
   decodePaymentResponse,
   decodePaymentRequest,
   getAsArrayBuffer,
