@@ -210,35 +210,43 @@ const Bip70ConfirmScreen = ({
 
     let paymentResponse = null;
 
-    if (paymentDetails.tokenId) {
-      const { tokenId } = paymentDetails;
-      const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
-      const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
-        return (
-          utxo.slp &&
-          utxo.slp.baton === false &&
-          utxo.validSlpTx === true &&
-          utxo.slp.token === tokenId
+    try {
+      if (paymentDetails.tokenId) {
+        const { tokenId } = paymentDetails;
+        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+        const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
+          return (
+            utxo.slp &&
+            utxo.slp.baton === false &&
+            utxo.validSlpTx === true &&
+            utxo.slp.token === tokenId
+          );
+        });
+        paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
+          paymentDetails,
+          activeAccount.addressSlp,
+          activeAccount.address,
+          { decimals: coinDecimals },
+          spendableUTXOS,
+          spendableTokenUtxos
         );
-      });
-      paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
-        paymentDetails,
-        activeAccount.addressSlp,
-        activeAccount.address,
-        { decimals: coinDecimals },
-        spendableUTXOS,
-        spendableTokenUtxos
-      );
-    } else {
-      const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
-      const refundKeypair = paymentDetails.tokenId ? keypair.slp : keypair.bch;
+      } else {
+        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+        const refundKeypair = paymentDetails.tokenId
+          ? keypair.slp
+          : keypair.bch;
 
-      paymentResponse = await signAndPublishPaymentRequestTransaction(
-        paymentDetails,
-        activeAccount.address,
-        refundKeypair,
-        spendableUTXOS
-      );
+        paymentResponse = await signAndPublishPaymentRequestTransaction(
+          paymentDetails,
+          activeAccount.address,
+          refundKeypair,
+          spendableUTXOS
+        );
+      }
+    } catch (e) {
+      setSendError(e.message);
+      setStep("error");
+      return;
     }
     try {
       const { responsePayment, responseAck } = await decodePaymentResponse(
