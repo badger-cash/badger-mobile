@@ -7,19 +7,19 @@ import {
   ActivityIndicator,
   ScrollView,
   SafeAreaView,
-  StyleSheet,
   View,
   Image
 } from "react-native";
 import BigNumber from "bignumber.js";
 
-import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
+import { Button, T, Spacer, SwipeButton } from "../atoms";
 
-import { type TokenData } from "../`data/tokens/reducer";
+import { type TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair, type Account } from "../data/accounts/reducer";
+
+import { updateTokensMeta } from "../data/tokens/actions";
 
 import {
   getKeypairSelector,
@@ -77,6 +77,7 @@ type Props = {
   spotPrices: any,
   fiatCurrency: CurrencyCode,
   activeAccount: Account,
+  updateTokensMeta: Function,
   navigation: {
     navigate: Function,
     goBack: Function,
@@ -96,7 +97,8 @@ const Bip70ConfirmScreen = ({
   utxos,
   fiatCurrency,
   keypair,
-  spotPrices
+  spotPrices,
+  updateTokensMeta
 }: Props) => {
   // Props / state variables
   const { paymentURL } = navigation.state && navigation.state.params;
@@ -109,7 +111,6 @@ const Bip70ConfirmScreen = ({
   // Setup state hooks
   const [sendError, setSendError] = useState(null);
   const [tickTime: number, setTickTime] = useState(Date.now());
-  const [coinType, setCoinType] = useState(null);
 
   const [paymentDetails: ?PaymentRequest, setPaymentDetails] = useState(null);
 
@@ -123,24 +124,33 @@ const Bip70ConfirmScreen = ({
     [paymentDetails]
   );
 
-  const coinName = useMemo(() => {
-    if (!paymentDetails) return null;
+  const coinInfo = useMemo(() => {
+    if (!paymentDetails) {
+      return { name: null, symbol: null, decimals: null };
+    }
     const tokenId = paymentDetails.tokenId;
-    return tokenId ? tokensById[tokenId].name : "Bitcoin Cash";
+    const tokenInfo = tokensById[tokenId];
+
+    if (!tokenId) {
+      return { name: "Bitcoin Cash", symbol: "BCH", decimals: 8 };
+    }
+    if (tokenInfo) {
+      return {
+        name: tokenInfo.name,
+        symbol: tokenInfo.symbol,
+        decimals: tokenInfo.decimals
+      };
+    }
+    return { name: null, symbol: null, decimals: null };
   }, [paymentDetails, tokensById]);
 
-  const coinSymbol = useMemo(() => {
-    if (!paymentDetails) return null;
-    const tokenId = paymentDetails.tokenId;
-    return tokenId ? tokensById[tokenId].symbol : "BCH";
-  }, [paymentDetails, tokensById]);
-
-  const coinDecimals = useMemo(() => {
-    if (!paymentDetails) return 8;
-    return tokensById[paymentDetails.tokenId]
-      ? tokensById[paymentDetails.tokenId].decimals
-      : 8;
-  }, [paymentDetails, tokensById]);
+  // Fetch token Metadata if it is unknown
+  useEffect(() => {
+    if (!paymentDetails || !paymentDetails.tokenId) return;
+    if (!tokensById[paymentDetails.tokenId]) {
+      updateTokensMeta([paymentDetails.tokenId]);
+    }
+  }, [paymentDetails, tokensById, updateTokensMeta]);
 
   // Setup effect hooks
   useEffect(() => {
@@ -161,8 +171,6 @@ const Bip70ConfirmScreen = ({
       try {
         paymentResponse = await getAsArrayBuffer(paymentURL, headers);
         details = await decodePaymentRequest(paymentResponse);
-
-        setCoinType("BCH");
       } catch (err) {
         trySLP = true;
       }
@@ -175,8 +183,6 @@ const Bip70ConfirmScreen = ({
           };
           paymentResponse = await getAsArrayBuffer(paymentURL, headers);
           details = await decodePaymentRequest(paymentResponse);
-
-          setCoinType("SLP");
         } catch (e) {
           console.warn("decoding payment request failed");
           console.warn(e);
@@ -226,7 +232,7 @@ const Bip70ConfirmScreen = ({
           paymentDetails,
           activeAccount.addressSlp,
           activeAccount.address,
-          { decimals: coinDecimals },
+          { decimals: coinInfo.decimals },
           spendableUTXOS,
           spendableTokenUtxos
         );
@@ -267,7 +273,7 @@ const Bip70ConfirmScreen = ({
     paymentDetails,
     utxos,
     activeAccount,
-    coinDecimals,
+    coinInfo,
     keypair.bch,
     keypair.slp,
     navigation
@@ -328,7 +334,7 @@ const Bip70ConfirmScreen = ({
         {step === "review" && paymentDetails && (
           <>
             <Spacer small />
-            <T center size="large">{`${coinName} (${coinSymbol})`}</T>
+            <T center size="large">{`${coinInfo.name} (${coinInfo.symbol})`}</T>
             {paymentDetails.tokenId && (
               <T size="tiny" center>
                 {paymentDetails.tokenId}
@@ -353,9 +359,9 @@ const Bip70ConfirmScreen = ({
                     ? paymentDetails.totalTokenAmount
                     : paymentDetails.totalValue
                 ),
-                coinDecimals,
+                coinInfo.decimals,
                 true
-              )} ${coinSymbol ? coinSymbol : ""}`}
+              )} ${coinInfo ? coinInfo.symbol : ""}`}
             </T>
             {!paymentDetails.tokenId && (
               <>
@@ -479,4 +485,9 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(Bip70ConfirmScreen);
+const mapDispatchToProps = { updateTokensMeta };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Bip70ConfirmScreen);
