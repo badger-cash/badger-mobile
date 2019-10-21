@@ -82,6 +82,8 @@
 	<string>Not used by app</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Not used by app</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Not used by app</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
