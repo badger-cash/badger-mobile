@@ -59,49 +59,59 @@ const updateTransactions = (address: string, addressSlp: string) => {
     ]);
 
     const formattedTransactionsBCH = bchHistory.map(tx => {
-      const fromAddresses = tx.in
+      const fromAddressesAll = tx.in
         .filter(input => input.e && input.e.a)
-        .map(input => `bitcoincash:${input.e.a}`)
-        .reduce((acc, currentValue) => {
-          if (!acc.find(element => element === currentValue)) {
-            acc.push(currentValue);
-          }
-          return acc;
-        }, []);
+        .map(input => SLP.Address.toCashAddress(input.e.a));
+
+      const fromAddresses = [...new Set(fromAddressesAll)];
+
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
+
+      // Prefer BCH address over SLP address
+      if (!fromAddress) {
+        if (fromAddresses.includes(address)) {
+          fromAddress = address;
+        } else if (fromAddresses.includes(addressSlp)) {
+          fromAddress = addressSlp;
+        }
+      }
       if (!fromAddress && fromAddresses.includes(address)) {
         fromAddress = address;
       }
 
-      // Show all fromAddresses, maybe highlight own address, but can happen in display section?
-      // Think we can remove the singular from address
-
-      const toAddresses = tx.out
+      const toAddressesAll = tx.out
         .filter(output => output.e && output.e.a)
-        .map(output => `bitcoincash:${output.e.a}`)
-        .reduce((accumulator, currentValue) => {
-          if (!accumulator.find(element => element === currentValue)) {
-            accumulator.push(currentValue);
-          }
-          return accumulator;
-        }, []);
+        .map(output => SLP.Address.toCashAddress(output.e.a));
+
+      const toAddresses = [...new Set(toAddressesAll)];
 
       // If one to address, use that.
       let toAddress = toAddresses.length === 1 ? toAddresses[0] : null;
 
-      if (
-        !toAddress &&
-        toAddresses.length === 2 &&
-        toAddresses.find(element => element === fromAddress)
-      ) {
-        toAddress = toAddresses.filter(element => element !== fromAddress)[0];
-      } else if (!toAddress) {
+      // Detect if it's from this wallet
+      let fromUser = fromAddresses.reduce((acc, curr) => {
+        if (acc) return acc;
+        return [address, addressSlp].includes(curr);
+      }, false);
+
+      // if from us, search for an external address
+      if (fromUser) {
+        toAddress = toAddresses.reduce((acc, curr) => {
+          if (acc) return acc;
+          return [address, addressSlp].includes(curr) ? null : curr;
+        }, null);
+      }
+
+      if (!toAddress) {
+        // else search for one of our addresses
         toAddress = toAddresses.includes(address)
           ? address
-          : toAddresses.includes(addressSlp)
-          ? addressSlp
-          : null;
+          : toAddresses.includes(addressSlp) && addressSlp;
       }
+
+      const valueAddresses = fromUser
+        ? toAddresses.filter(target => ![address, addressSlp].includes(target))
+        : toAddresses.filter(target => [address, addressSlp].includes(target));
 
       // Determine value
       let value = 0;
@@ -109,8 +119,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
         value = tx.out.reduce((accumulator, currentValue) => {
           if (
             currentValue.e &&
-            `bitcoincash:${currentValue.e.a}` === toAddress &&
-            currentValue.e.v
+            currentValue.e.v &&
+            valueAddresses.includes(SLP.Address.toCashAddress(currentValue.e.a))
           ) {
             accumulator += currentValue.e.v;
           }
@@ -165,10 +175,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
 
       // If sending SLP, show from SLP address over the BCH address
-      if (!fromAddress && fromAddresses.includes(addressSlp)) {
-        fromAddress = addressSlp;
-      } else if (!fromAddress && fromAddresses.includes(address)) {
-        fromAddress = address;
+      if (!fromAddress) {
+        if (fromAddresses.includes(addressSlp)) {
+          fromAddress = addressSlp;
+        } else if (fromAddresses.includes(address)) {
+          fromAddress = address;
+        }
       }
 
       let toAddress = null;

@@ -1,14 +1,8 @@
 // @flow
 
 import React from "react";
-import styled, { css } from "styled-components";
-import {
-  View,
-  Image,
-  StyleSheet,
-  Linking,
-  TouchableOpacity
-} from "react-native";
+import styled from "styled-components";
+import { View, Image, Linking, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 
