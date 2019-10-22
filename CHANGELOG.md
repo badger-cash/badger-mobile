@@ -1,5 +1,14 @@
 # Badger Wallet - Changelog
 
+## 0.12.0
+
+- BIP-70 support
+  - Single & multi-output BCH
+  - Single & multi-output SLP
+  - Open from a URI, scan, or paste the payment request to access.
+- History improvements, especially for multi-output
+- Minor UI & UX fixes
+
 ## 0.11.0
 
 - Larger QR codes

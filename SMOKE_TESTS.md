@@ -1,7 +1,7 @@
 # Smoke Tests
 
-While each release is in internal and alpha testing, all major flows should be tested to ensure Badger is working correct and no use-case is overlooked. On both iOS and Android.  
-Add more checks as issues are found and features are added.
+Set of manual tests to complete and verify before each major release.  
+Update the tests as issues are found and new workflows are created.
 
 ## Account Setup
 
@@ -54,8 +54,9 @@ Add more checks as issues are found and features are added.
 ## BIP-70
 
 - [ ] BCH single output - Multiple payment providers (2+)
+- [ ] BCH multi output
 - [ ] SLP single output - Low amount
-- [ ] SLP multi-output - Low amount
+- [ ] SLP multi output - Low amount
 - [ ] BCH single output - More than the wallet has funds for
 - [ ] SLP - More than the wallet has funds for
 - [ ] SLP - Token which the wallet does not have or is aware of

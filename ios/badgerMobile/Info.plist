@@ -44,7 +44,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -61,6 +61,8 @@
 		</dict>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
+	<string>Not used by app</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Not used by app</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Not used by app</string>
@@ -81,8 +83,6 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Not used by app</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Not used by app</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Not used by app</string>
 	<key>UIAppFonts</key>
 	<array>

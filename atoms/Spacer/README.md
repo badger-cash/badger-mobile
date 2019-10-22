@@ -1,4 +1,4 @@
 # Spacer
 
-Component to provide simple and consistent vertical margins between elements.  
-Allows for flex elements and text to not need to define `margin` in most cases.
+Component to provide simple and consistent vertical margin/spacing between elements.  
+Prefer the use of Spacer over margins in most cases
