@@ -20,7 +20,7 @@ Add more checks as issues are found and features are added.
 - [ ] Attempt sending an invalid amount
 - [ ] Attempt sending a token from a wallet with 0 BCH balance
 - [ ] Send Max of an SLP token
-- [ ] Send Max of BCH balance, fr om a wallet which contains 1+ SLP tokens
+- [ ] Send Max of BCH balance, from a wallet which contains 1+ SLP tokens
 
 ## Open from URI's
 
