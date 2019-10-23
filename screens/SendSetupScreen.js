@@ -79,7 +79,7 @@ const StyledTextInput = styled(TextInput)`
 `;
 
 const StyledTextInputAmount = styled(TextInput)`
-  border-color: ${props => props.theme.danger500};
+  border-color: ${props => props.theme.accent500};
   border-right-width: ${StyleSheet.hairlineWidth};
   border-bottom-width: ${StyleSheet.hairlineWidth};
   border-top-width: ${StyleSheet.hairlineWidth};
