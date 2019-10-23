@@ -174,6 +174,9 @@ const formatAmount = (
   let adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
   if (trimEnd) {
     adjustDecimals = removeTrailingChars(adjustDecimals, "0");
+    if (adjustDecimals.slice(-1) === ".") {
+      adjustDecimals = adjustDecimals.slice(0, -1);
+    }
   }
   return adjustDecimals;
 };
