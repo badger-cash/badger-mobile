@@ -79,7 +79,7 @@ const StyledTextInput = styled(TextInput)`
 `;
 
 const StyledTextInputAmount = styled(TextInput)`
-  border-color: ${props => props.theme.accent500};
+  border-color: ${props => props.theme.danger500};
   border-right-width: ${StyleSheet.hairlineWidth};
   border-bottom-width: ${StyleSheet.hairlineWidth};
   border-top-width: ${StyleSheet.hairlineWidth};
@@ -87,6 +87,7 @@ const StyledTextInputAmount = styled(TextInput)`
   border-top-right-radius: 3px;
   padding: 16px 8px;
   flex: 1;
+  color: ${props => props.theme.fg100};
 `;
 
 const AmountLabel = styled(View)`
@@ -140,6 +141,7 @@ const AmountRow = styled(View)`
 const AmountInputRow = styled(View)`
   flex-direction: row;
   justify-content: space-between;
+  /* width: 100%; */
 `;
 
 const QROverlayScreen = styled(View)`
