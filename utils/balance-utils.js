@@ -67,13 +67,21 @@ const getHistoricalBchTransactions = async (
   const b64 = Buffer.from(s).toString("base64");
   const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
-  const request = await fetch(url);
-  const result = await request.json();
+  try {
+    const request = await fetch(url);
+    const result = await request.json();
 
-  // combine confirmed and unconfirmed
-  const transactions = result.errors ? [] : [...result.c, ...result.u];
+    // combine confirmed and unconfirmed
+    // errors = slpdb, error = REST rate limit
+    const transactions =
+      result.errors || result.error ? [] : [...result.c, ...result.u];
 
-  return transactions;
+    return transactions;
+  } catch (e) {
+    console.warn("Error while fetching from bitdb");
+    console.warn(e);
+    return [];
+  }
 };
 
 const getHistoricalSlpTransactions = async (
@@ -128,16 +136,33 @@ const getHistoricalSlpTransactions = async (
   const b64 = Buffer.from(s).toString("base64");
   const url = `https://slpdb.bitcoin.com/q/${b64}`;
 
-  const request = await fetch(url);
-  const result = await request.json();
+  let transactions = [];
+  try {
+    const request = await fetch(url);
+    const result = await request.json();
 
-  // Get confirmed and unconfirmed transactions
-  const transactions = [...result.c, ...result.u];
+    // Combine confirmed and unconfirmed transactions
+    transactions = [...result.c, ...result.u];
+  } catch (e) {
+    console.warn("Error while fetching from slpdb");
+    console.warn(e);
+  }
 
   return transactions;
 };
 
-const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
+const removeTrailingChars = (word: string, target: string) => {
+  if (word.slice(-1) === target) {
+    return removeTrailingChars(word.slice(0, -1), target);
+  }
+  return word;
+};
+
+const formatAmount = (
+  amount: ?BigNumber,
+  decimals: ?number,
+  trimEnd?: boolean
+): string => {
   if (decimals == null) {
     return "-.--------";
   }
@@ -146,7 +171,10 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  let adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  if (trimEnd) {
+    adjustDecimals = removeTrailingChars(adjustDecimals, "0");
+  }
   return adjustDecimals;
 };
 

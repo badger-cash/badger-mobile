@@ -89,7 +89,7 @@ This project use `react-native`. Please refer to the React Native documentation 
 To run on a specific device, such as required for taking screenshots for the store (6.5" & 5.5"). Xs Max and iPhone 8 plus are good store screenshot phones.
 
 ```bash
-> yarn run ios --simulator="iPhone Xs Max"
+> yarn run ios --simulator="iPhone 11 Pro Max"
 > yarn run ios --simulator="iPhone 11 Pro"
 > yarn run ios --simulator="iPhone 8 Plus"
 > yarn run ios --simulator="iPhone 6"

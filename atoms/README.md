@@ -6,5 +6,14 @@ Any UI used within a screen or a Component - except for layout related things - 
 ## Available Atoms
 
 - T
+  - Basic text and common variants
 - H1
+  - Largest header, and some commno variants
+- H2
+  - Subheader, shares variants with H1
 - Spacer
+  - Adjustable size spacing component. Prefer the use of this over adding margins components in most cases
+- Button
+  - Basic tapable button and common variants
+- SwipeButton
+  - Button which activates by swiping to the right

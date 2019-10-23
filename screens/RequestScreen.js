@@ -50,9 +50,9 @@ const IconArea = styled(View)`
   margin-right: 8px;
 `;
 const IconImage = styled(Image)`
-  width: 32;
-  height: 32;
-  border-radius: 16;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -243,15 +243,18 @@ const RequestSetupScreen = ({
       >
         <Spacer small />
         <TitleRow>
-          <IconArea>
-            <IconImage source={imageSource} />
-          </IconArea>
           <H1>{coinName}</H1>
         </TitleRow>
+        <IconArea>
+          <IconImage source={imageSource} />
+        </IconArea>
         {tokenId && (
-          <T size="tiny" center>
-            {tokenId}
-          </T>
+          <>
+            <Spacer minimal />
+            <T size="tiny" center>
+              {tokenId}
+            </T>
+          </>
         )}
         <Spacer />
         <AmountRow>

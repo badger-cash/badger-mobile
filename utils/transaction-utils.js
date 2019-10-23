@@ -2,7 +2,6 @@
 
 import BigNumber from "bignumber.js";
 
-import { type ECPair } from "../data/accounts/reducer";
 import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
@@ -14,7 +13,7 @@ const SLPJS = new slpjs.Slp(SLP);
 
 const LOKAD_ID_HEX = "534c5000";
 
-type TxParams = {
+export type TxParams = {
   from: string,
   to: string,
   value: number,
@@ -55,10 +54,14 @@ const decodeTxOut = (txOut: UTXO) => {
   }
 
   if (script[1] !== LOKAD_ID_HEX) {
-    throw new Error("Not a SLP OP_RETURN");
+    throw new Error("Not an SLP OP_RETURN");
   }
 
-  if (script[2] !== "OP_1") {
+  if (
+    script[2] !== "OP_1" &&
+    script[2] !== "OP_1NEGATE" &&
+    script[2] !== "41"
+  ) {
     // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
     throw new Error("Unknown token type");
   }
@@ -283,6 +286,7 @@ const signAndPublishSlpTransaction = async (
   tokenChangeAddress: string
 ) => {
   const from = txParams.from;
+
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;
   const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
@@ -315,6 +319,7 @@ const signAndPublishSlpTransaction = async (
   const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
 
   let sendOpReturn = null;
+
   if (tokenChangeAmount.isGreaterThan(0)) {
     sendOpReturn = slpjs.Slp.buildSendOpReturn({
       tokenIdHex: txParams.sendTokenData.tokenId,
@@ -360,6 +365,13 @@ const signAndPublishSlpTransaction = async (
   });
 
   const satoshisRemaining = totalUtxoAmount - byteCount;
+
+  // Verify sufficient fee
+  if (satoshisRemaining < 0) {
+    throw new Error(
+      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+    );
+  }
 
   // SLP data output
   transactionBuilder.addOutput(sendOpReturn, 0);
@@ -428,7 +440,7 @@ const sweep = async (
 
     // Get UTXOs associated with public address.
     const u = await SLP.Address.utxo(fromAddr);
-    const utxos: utxo[] = u.utxos;
+    const utxos: UTXO[] = u.utxos;
 
     // Prepare to generate a transaction to sweep funds.
 

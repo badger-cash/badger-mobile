@@ -22,6 +22,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
+import { type UTXO } from "../data/utxos/reducer";
 
 import { updateTokensMeta } from "../data/tokens/actions";
 
@@ -47,6 +48,7 @@ type Props = {
   tokensById: { [tokenId: string]: TokenData },
   balances: Balances,
   spotPrices: any,
+  utxos: UTXO[],
   fiatCurrency: CurrencyCode,
   updateTokensMeta: Function,
   navigation: {
@@ -60,6 +62,13 @@ type Props = {
       }
     }
   }
+};
+
+type AddressData = {
+  tokenId: ?string,
+  parseError: ?string,
+  amount: ?number,
+  address: ?string
 };
 
 const StyledTextInput = styled(TextInput)`
@@ -152,9 +161,9 @@ const IconArea = styled(View)`
   margin-right: 8px;
 `;
 const IconImage = styled(Image)`
-  width: 32;
-  height: 32;
-  border-radius: 16;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -349,6 +358,7 @@ const SendSetupScreen = ({
     let parseError = null;
 
     let amounts = [];
+    let quitEarly = false;
 
     // Parse out address and any other relevant data
     const parts = qrData.split("?");
@@ -357,8 +367,18 @@ const SendSetupScreen = ({
     const parameters = parts[1];
     if (parameters) {
       const parameterParts = parameters.split("&");
-      parameterParts.forEach(param => {
+      parameterParts.forEach(async param => {
         const [name, value] = param.split("=");
+
+        if (name === "r") {
+          // BIP70 detected, go to BIP70 flow
+          setToAddress(null);
+          quitEarly = true;
+          navigation.navigate("Bip70Confirm", {
+            paymentURL: value
+          });
+        }
+
         if (name.startsWith("amount")) {
           let currTokenId;
           let currAmount;
@@ -374,13 +394,14 @@ const SendSetupScreen = ({
 
     if (amounts.length > 1) {
       parseError =
-        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+        "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
     } else if (amounts.length === 1) {
       const target = amounts[0];
       uriTokenId = target.tokenId;
       amount = target.paramAmount;
     }
 
+    if (quitEarly) return {};
     return {
       address,
       amount,
@@ -389,7 +410,7 @@ const SendSetupScreen = ({
     };
   };
 
-  const handleAddressData = parsedData => {
+  const handleAddressData = (parsedData: AddressData) => {
     setErrors([]);
 
     // Verify the type matches the screen we are on.
@@ -496,16 +517,20 @@ const SendSetupScreen = ({
             keyboardVerticalOffset={Header.HEIGHT + 20}
           >
             <Spacer small />
+
             <TitleRow>
-              <IconArea>
-                <IconImage source={imageSource} />
-              </IconArea>
               <H1>{coinName}</H1>
             </TitleRow>
+            <IconArea>
+              <IconImage source={imageSource} />
+            </IconArea>
             {tokenId && (
-              <T size="tiny" center>
-                {tokenId}
-              </T>
+              <>
+                <Spacer minimal />
+                <T size="tiny" center>
+                  {tokenId}
+                </T>
+              </>
             )}
             <Spacer small />
             {errors.length > 0 && (

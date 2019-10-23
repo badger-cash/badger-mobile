@@ -1,14 +1,12 @@
 // @flow
 
-import React, { useState } from "react";
-import { View, ScrollView, SafeAreaView, Dimensions } from "react-native";
+import React from "react";
+import { View, ScrollView, SafeAreaView } from "react-native";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import Swipeable from "react-native-swipeable";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import _ from "lodash";
 
-import { Button, T, Spacer } from "../atoms";
+import { Button, T, Spacer, SwipeButton } from "../atoms";
 import { logoutAccount } from "../data/accounts/actions";
 
 const ButtonContainer = styled(View)``;
@@ -17,40 +15,11 @@ const Screen = styled(SafeAreaView)`
   margin: 0 16px;
 `;
 
-const SwipeButtonContainer = styled(View)`
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 32px;
-  width: 75%;
-  align-self: center;
-`;
-
-const SwipeContent = styled(View)`
-  height: 64px;
-  padding-right: 10px;
-  align-items: flex-end;
-  justify-content: center;
-  background-color: ${props =>
-    props.activated ? props.theme.success500 : props.theme.pending500};
-`;
-
-const SwipeMainContent = styled(View)`
-  height: 64px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  background-color: ${props =>
-    props.triggered ? props.theme.success500 : props.theme.primary500};
-`;
-
 type Props = {
   navigation: { navigate: Function, goBack: Function },
   logoutAccount: Function
 };
 const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
-  const [confirmSwipeActivated, setConfirmSwipeActivated] = useState(false);
-
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -79,45 +48,15 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
             onPress={() => navigation.goBack()}
           />
           <Spacer />
-          <SwipeButtonContainer>
-            <Swipeable
-              leftActionActivationDistance={
-                Dimensions.get("window").width * 0.75 * 0.8
-              }
-              leftContent={
-                <SwipeContent activated={confirmSwipeActivated}>
-                  {confirmSwipeActivated ? (
-                    <T type="inverse" weight="bold">
-                      Release to Logout
-                    </T>
-                  ) : (
-                    <T type="inverse" weight="bold">
-                      Keep going
-                    </T>
-                  )}
-                </SwipeContent>
-              }
-              onLeftActionActivate={() => setConfirmSwipeActivated(true)}
-              onLeftActionDeactivate={() => setConfirmSwipeActivated(false)}
-              onLeftActionComplete={() => {
-                logoutAccount();
-                _.delay(() => navigation.navigate("AuthLoadingCheck"), 25);
-              }}
-            >
-              <SwipeMainContent>
-                <T weight="bold" type="inverse">
-                  Swipe{" "}
-                </T>
-                <T weight="bold" type="inverse" style={{ paddingTop: 2 }}>
-                  <Ionicons name="ios-arrow-round-forward" size={25} />
-                </T>
-                <T weight="bold" type="inverse">
-                  {" "}
-                  To Logout
-                </T>
-              </SwipeMainContent>
-            </Swipeable>
-          </SwipeButtonContainer>
+          <SwipeButton
+            swipeFn={() => {
+              logoutAccount();
+              _.delay(() => navigation.navigate("AuthLoadingCheck"), 25);
+            }}
+            labelAction="To Logout"
+            labelRelease="Release to logout"
+            labelHalfway="Keep going"
+          />
         </ButtonContainer>
         <Spacer />
       </ScrollView>

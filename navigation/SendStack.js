@@ -7,6 +7,8 @@ import { createStackNavigator } from "react-navigation";
 import SendSetupScreen from "../screens/SendSetupScreen";
 import SendConfirmScreen from "../screens/SendConfirmScreen";
 import SendSuccessScreen from "../screens/SendSuccessScreen";
+import Bip70ConfirmScreen from "../screens/Bip70ConfirmScreen";
+import Bip70SuccessScreen from "../screens/Bip70SuccessScreen";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
@@ -23,6 +25,16 @@ const SendStack = createStackNavigator(
       navigationOptions: {
         title: "Confirm & Send"
       }
+    },
+    Bip70Confirm: {
+      screen: Bip70ConfirmScreen,
+      navigationOptions: {
+        title: "Payment Request"
+      }
+    },
+    Bip70Success: {
+      screen: Bip70SuccessScreen,
+      navigationOptions: { header: null }
     },
     SendSuccess: {
       screen: SendSuccessScreen,
