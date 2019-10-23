@@ -141,7 +141,6 @@ const AmountRow = styled(View)`
 const AmountInputRow = styled(View)`
   flex-direction: row;
   justify-content: space-between;
-  /* width: 100%; */
 `;
 
 const QROverlayScreen = styled(View)`
