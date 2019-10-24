@@ -174,6 +174,9 @@ const formatAmount = (
   let adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
   if (trimEnd) {
     adjustDecimals = removeTrailingChars(adjustDecimals, "0");
+    if (adjustDecimals.slice(-1) === ".") {
+      adjustDecimals = adjustDecimals.slice(0, -1);
+    }
   }
   return adjustDecimals;
 };
@@ -211,10 +214,12 @@ const formatFiatAmount = (
 };
 
 const formatAmountInput = (amount: string, maxDecimals: number): string => {
+  const amountEnglish = amount.replace(",", ".");
+
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   let decimalCount = 0;
 
-  const valid = amount.split("").reduce((prev, curr, idx, array) => {
+  const valid = amountEnglish.split("").reduce((prev, curr, idx, array) => {
     // Only allow max 1 leading 0
     if (idx === 1 && curr === "0" && array[0] === "0") return prev;
 

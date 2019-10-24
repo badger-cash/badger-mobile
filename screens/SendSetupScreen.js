@@ -87,6 +87,7 @@ const StyledTextInputAmount = styled(TextInput)`
   border-top-right-radius: 3px;
   padding: 16px 8px;
   flex: 1;
+  color: ${props => props.theme.fg100};
 `;
 
 const AmountLabel = styled(View)`
