@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { NavigationEvents } from "react-navigation";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   Clipboard,
   Dimensions,
@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  StyleSheet,
   View
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
@@ -25,6 +26,36 @@ import { T, Spacer, H2 } from "../atoms";
 
 import BitcoinCashImage from "../assets/images/icon.png";
 import SLPImage from "../assets/images/slp-logo.png";
+
+const ToggleRow = styled(View)`
+  justify-content: center;
+  flex-direction: row;
+`;
+
+const ToggleBase = css`
+  height: 42px;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  border-width: ${StyleSheet.hairlineWidth};
+  border-color: ${props => props.theme.primary500};
+  ${props =>
+    props.isActive &&
+    css`
+      background-color: ${props.theme.primary500};
+    `}
+`;
+
+const ToggleRight = styled(TouchableOpacity)`
+  ${ToggleBase};
+  border-bottom-right-radius: 8;
+  border-top-right-radius: 8;
+`;
+const ToggleLeft = styled(TouchableOpacity)`
+  ${ToggleBase};
+  border-bottom-left-radius: 8;
+  border-top-left-radius: 8;
+`;
 
 const QRHolder = styled(View)`
   justify-content: center;
@@ -106,98 +137,124 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           address to clipboard.
         </T>
         <Spacer />
-        <H2 center>Bitcoin Cash (BCH)</H2>
-        <Spacer tiny />
-
-        <TouchableOpacity
-          onPress={() => {
-            if (showing === "BCH") {
-              Clipboard.setString(address);
-              setCopyNotify("BCH");
-              return;
-            }
-            setShowing("BCH");
-            scrollRef.current.scrollTo({ y: 0 });
-            setCopyNotify("");
-          }}
-        >
-          <T size="xsmall" center>
-            bitcoincash:
-          </T>
-          <T size="xsmall" center>
-            {address && address.split(":")[1]}
-          </T>
-          <Spacer tiny />
-
-          {address && (
-            <QRHolder>
-              <QRCode
-                value={address}
-                size={QRSize}
-                bgColor="black"
-                fgColor="white"
-              />
-              <TypeOverlay>
-                <TypeImage source={BitcoinCashImage} size={QRSize} />
-              </TypeOverlay>
-              {showing !== "BCH" && (
-                <QROverlay>
-                  <T>Tap to show</T>
-                </QROverlay>
-              )}
-            </QRHolder>
-          )}
-        </TouchableOpacity>
-        <Spacer tiny />
-        <T center size="small" type="primary">
-          {copyNotify === "BCH" ? "Copied BCH Address" : " "}
-        </T>
+        <ToggleRow>
+          <ToggleLeft
+            isActive={showing === "BCH"}
+            onPress={() => {
+              setShowing("BCH");
+              setCopyNotify("");
+            }}
+          >
+            <T weight="bold" type={showing === "BCH" ? "inverse" : "primary"}>
+              BCH
+            </T>
+          </ToggleLeft>
+          <ToggleRight
+            isActive={showing === "SLP"}
+            onPress={() => {
+              setShowing("SLP");
+              setCopyNotify("");
+            }}
+          >
+            <T weight="bold" type={showing === "SLP" ? "inverse" : "primary"}>
+              SLP
+            </T>
+          </ToggleRight>
+        </ToggleRow>
         <Spacer />
-        <H2 center>Simple Token (SLP)</H2>
-        <Spacer tiny />
-        <TouchableOpacity
-          onPress={() => {
-            if (showing === "SLP") {
-              Clipboard.setString(simpleLedgerAddr);
-              setCopyNotify("SLP");
-              return;
-            }
-            setShowing("SLP");
-            setCopyNotify("");
-            scrollRef.current.scrollToEnd();
-          }}
-        >
-          <T size="xsmall" center>
-            simpleledger:
-          </T>
-          <T size="xsmall" center>
-            {simpleLedgerAddr && simpleLedgerAddr.split(":")[1]}
-          </T>
-          <Spacer tiny />
+        {showing === "BCH" && (
+          <>
+            <H2 center>Bitcoin Cash (BCH)</H2>
+            <Spacer tiny />
 
-          {simpleLedgerAddr && (
-            <QRHolder>
-              <QRCode
-                value={simpleLedgerAddr}
-                size={QRSize}
-                bgColor="black"
-                fgColor="white"
-              />
-              <TypeOverlay>
-                <TypeImage source={SLPImage} size={QRSize} />
-              </TypeOverlay>
-              {showing !== "SLP" && (
-                <QROverlay>
-                  <T>Tap to show</T>
-                </QROverlay>
+            <TouchableOpacity
+              onPress={() => {
+                if (showing === "BCH") {
+                  Clipboard.setString(address);
+                  setCopyNotify("BCH");
+                }
+              }}
+            >
+              <T size="xsmall" center>
+                bitcoincash:
+              </T>
+              <T size="xsmall" center>
+                {address && address.split(":")[1]}
+              </T>
+              <Spacer tiny />
+
+              {address && (
+                <QRHolder>
+                  <QRCode
+                    value={address}
+                    size={QRSize}
+                    bgColor="black"
+                    fgColor="white"
+                  />
+                  <TypeOverlay>
+                    <TypeImage source={BitcoinCashImage} size={QRSize} />
+                  </TypeOverlay>
+                  {showing !== "BCH" && (
+                    <QROverlay>
+                      <T>Tap to show</T>
+                    </QROverlay>
+                  )}
+                </QRHolder>
               )}
-            </QRHolder>
-          )}
-        </TouchableOpacity>
-        <Spacer tiny />
-        <T center size="small" type="primary">
-          {copyNotify === "SLP" ? "Copied SLP Address" : " "}
-        </T>
+            </TouchableOpacity>
+            <Spacer tiny />
+            <T center size="small" type="primary">
+              {copyNotify === "BCH" ? "Copied BCH Address" : " "}
+            </T>
+          </>
+        )}
+
+        {showing === "SLP" && (
+          <>
+            <H2 center>Simple Token (SLP)</H2>
+            <Spacer tiny />
+            <TouchableOpacity
+              onPress={() => {
+                if (showing === "SLP") {
+                  Clipboard.setString(simpleLedgerAddr);
+                  setCopyNotify("SLP");
+                }
+              }}
+            >
+              <T size="xsmall" center>
+                simpleledger:
+              </T>
+              <T size="xsmall" center>
+                {simpleLedgerAddr && simpleLedgerAddr.split(":")[1]}
+              </T>
+              <Spacer tiny />
+
+              {simpleLedgerAddr && (
+                <QRHolder>
+                  <QRCode
+                    value={simpleLedgerAddr}
+                    size={QRSize}
+                    bgColor="black"
+                    fgColor="white"
+                  />
+                  <TypeOverlay>
+                    <TypeImage source={SLPImage} size={QRSize} />
+                  </TypeOverlay>
+                  {showing !== "SLP" && (
+                    <QROverlay>
+                      <T>Tap to show</T>
+                    </QROverlay>
+                  )}
+                </QRHolder>
+              )}
+            </TouchableOpacity>
+            <Spacer tiny />
+            <T center size="small" type="primary">
+              {copyNotify === "SLP" ? "Copied SLP Address" : " "}
+            </T>
+          </>
+        )}
+
         <Spacer />
       </ScrollView>
     </SafeAreaView>
