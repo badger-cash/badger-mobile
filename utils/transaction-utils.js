@@ -26,7 +26,7 @@ const getAllUtxo = async (address: string) => {
   return result.utxos;
 };
 
-const getTransactionDetails = async (txid: string) => {
+const getTransactionDetails = async (txid: string | string[]) => {
   try {
     const result = await SLP.Transaction.details(txid);
     return result;
@@ -57,11 +57,7 @@ const decodeTxOut = (txOut: UTXO) => {
     throw new Error("Not an SLP OP_RETURN");
   }
 
-  if (
-    script[2] !== "OP_1" &&
-    script[2] !== "OP_1NEGATE" &&
-    script[2] !== "41"
-  ) {
+  if (script[2] !== "OP_1") {
     // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
     throw new Error("Unknown token type");
   }
