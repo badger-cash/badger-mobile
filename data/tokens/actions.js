@@ -35,8 +35,8 @@ const updateTokensMeta = (tokenIds: string[]) => {
     dispatch(updateTokensMetaStart());
 
     const transactionRequests = await Promise.all(
-      chunk(tokenIds, 20).map(
-        async tokenIdChunk => await getTransactionDetails(tokenIdChunk)
+      chunk(tokenIds, 20).map(tokenIdChunk =>
+        getTransactionDetails(tokenIdChunk)
       )
     );
 
