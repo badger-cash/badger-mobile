@@ -23,4 +23,13 @@ const doneInitialLoadSelector = createSelector(
   }
 );
 
-export { utxosSelector, utxosByAccountSelector, doneInitialLoadSelector };
+const isUpdatingUTXO = (state: FullState) => {
+  return state.utxos.updating;
+};
+
+export {
+  utxosSelector,
+  utxosByAccountSelector,
+  doneInitialLoadSelector,
+  isUpdatingUTXO
+};
