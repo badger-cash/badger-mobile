@@ -404,7 +404,7 @@ const signAndPublishSlpTransaction = async (
 };
 
 const sweep = async (
-  wif: string,
+  wif: ?string,
   toAddr: string,
   balanceOnly: boolean = false
 ) => {
@@ -441,8 +441,7 @@ const sweep = async (
     const utxos: UTXO[] = u.utxos;
 
     // Prepare to generate a transaction to sweep funds.
-
-    const transactionBuilder: TransactionBuilder = new SLP.TransactionBuilder(
+    const transactionBuilder = new SLP.TransactionBuilder(
       SLP.Address.detectAddressNetwork(fromAddr)
     );
     let originalAmount: number = 0;

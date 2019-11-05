@@ -20,12 +20,18 @@ import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair, type Account } from "../data/accounts/reducer";
 
 import { updateTokensMeta } from "../data/tokens/actions";
+import { updateUtxos } from "../data/utxos/actions";
 
 import {
   getKeypairSelector,
-  activeAccountSelector
+  activeAccountSelector,
+  getAddressSelector,
+  getAddressSlpSelector
 } from "../data/accounts/selectors";
-import { utxosByAccountSelector } from "../data/utxos/selectors";
+import {
+  utxosByAccountSelector,
+  isUpdatingUTXO
+} from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import {
@@ -74,10 +80,14 @@ type Props = {
   tokensById: { [tokenId: string]: TokenData },
   utxos: UTXO[],
   keypair: { bch: ECPair, slp: ECPair },
+  utxoUpdating: boolean,
   spotPrices: any,
   fiatCurrency: CurrencyCode,
   activeAccount: Account,
+  addressSlp: string,
+  address: string,
   updateTokensMeta: Function,
+  updateUtxos: Function,
   navigation: {
     navigate: Function,
     goBack: Function,
@@ -93,11 +103,15 @@ type Props = {
 const Bip70ConfirmScreen = ({
   navigation,
   tokensById,
+  address,
+  addressSlp,
   activeAccount,
   utxos,
   fiatCurrency,
   keypair,
   spotPrices,
+  utxoUpdating,
+  updateUtxos,
   updateTokensMeta
 }: Props) => {
   // Props / state variables
@@ -143,6 +157,11 @@ const Bip70ConfirmScreen = ({
     }
     return { name: null, symbol: null, decimals: null };
   }, [paymentDetails, tokensById]);
+
+  // update UTXOs on load
+  useEffect(() => {
+    updateUtxos(address, addressSlp);
+  }, [address, addressSlp, updateUtxos]);
 
   // Fetch token Metadata if it is unknown
   useEffect(() => {
@@ -470,22 +489,28 @@ const Bip70ConfirmScreen = ({
 const mapStateToProps = state => {
   const tokensById = tokensByIdSelector(state);
   const activeAccount = activeAccountSelector(state);
+  const address = getAddressSelector(state);
+  const addressSlp = getAddressSlpSelector(state);
   const utxos = utxosByAccountSelector(state, activeAccount.address);
   const keypair = getKeypairSelector(state);
   const spotPrices = spotPricesSelector(state);
   const fiatCurrency = currencySelector(state);
+  const utxoUpdating = isUpdatingUTXO(state);
 
   return {
     activeAccount,
+    address,
+    addressSlp,
     keypair,
     spotPrices,
     fiatCurrency,
     tokensById,
+    utxoUpdating,
     utxos
   };
 };
 
-const mapDispatchToProps = { updateTokensMeta };
+const mapDispatchToProps = { updateTokensMeta, updateUtxos };
 
 export default connect(
   mapStateToProps,

@@ -57,6 +57,16 @@ const postAsArrayBuffer = (
     req.responseType = "arraybuffer";
     req.onload = function(event) {
       let resp = req.response;
+
+      if (req.status === 400 || req.status === 404 || req.status === 500) {
+        reject(
+          new Error(
+            `${req.status} Error processing payment, please check with the merchant and try again.`
+          )
+        );
+        return;
+      }
+
       if (resp) {
         accept(resp);
       }
