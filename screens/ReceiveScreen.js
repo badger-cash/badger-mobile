@@ -133,8 +133,8 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
       <ScrollView style={{ padding: 10 }} ref={scrollRef}>
         <Spacer small />
         <T center>
-          Scan a public key below to receive funds. Tap to reveal or copy the
-          address to clipboard.
+          Scan a public key below to receive funds. Tap on a QR code to copy the
+          address.
         </T>
         <Spacer />
         <ToggleRow>
