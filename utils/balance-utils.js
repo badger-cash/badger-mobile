@@ -63,13 +63,9 @@ const getHistoricalBchTransactions = async (
       limit: 20
     }
   };
-  const s = JSON.stringify(query);
-  const b64 = Buffer.from(s).toString("base64");
-  const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
   try {
-    const request = await fetch(url);
-    const result = await request.json();
+    const result = await SLP.BitDB.get(query);
 
     // combine confirmed and unconfirmed
     // errors = slpdb, error = REST rate limit
@@ -132,16 +128,10 @@ const getHistoricalSlpTransactions = async (
       limit: 500
     }
   };
-  const s = JSON.stringify(query);
-  const b64 = Buffer.from(s).toString("base64");
-  const url = `https://slpdb.bitcoin.com/q/${b64}`;
 
   let transactions = [];
   try {
-    const request = await fetch(url);
-    const result = await request.json();
-
-    // Combine confirmed and unconfirmed transactions
+    const result = await SLP.SLPDB.get(query);
     transactions = [...result.c, ...result.u];
   } catch (e) {
     console.warn("Error while fetching from slpdb");

@@ -21,12 +21,33 @@ export type TxParams = {
   sendTokenData?: { tokenId: string }
 };
 
+const getSLPTxType = (scriptASMArray: string[]) => {
+  if (scriptASMArray[0] !== "OP_RETURN") {
+    throw new Error("Not an OP_RETURN");
+  }
+
+  if (scriptASMArray[1] !== LOKAD_ID_HEX) {
+    throw new Error("Not a SLP OP_RETURN");
+  }
+
+  if (scriptASMArray[2] !== "OP_1") {
+    // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
+    throw new Error("Unknown token type");
+  }
+
+  var type = Buffer.from(scriptASMArray[3], "hex")
+    .toString("ascii")
+    .toLowerCase();
+
+  return type;
+};
+
 const getAllUtxo = async (address: string) => {
   const result = await SLP.Address.utxo(address);
   return result.utxos;
 };
 
-const getTransactionDetails = async (txid: string) => {
+const getTransactionDetails = async (txid: string | string[]) => {
   try {
     const result = await SLP.Transaction.details(txid);
     return result;
@@ -49,26 +70,7 @@ const decodeTxOut = (txOut: UTXO) => {
     Buffer.from(txOut.tx.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
 
-  if (script[0] !== "OP_RETURN") {
-    throw new Error("Not an OP_RETURN");
-  }
-
-  if (script[1] !== LOKAD_ID_HEX) {
-    throw new Error("Not an SLP OP_RETURN");
-  }
-
-  if (
-    script[2] !== "OP_1" &&
-    script[2] !== "OP_1NEGATE" &&
-    script[2] !== "41"
-  ) {
-    // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
-    throw new Error("Unknown token type");
-  }
-
-  const type = Buffer.from(script[3], "hex")
-    .toString("ascii")
-    .toLowerCase();
+  const type = getSLPTxType(script);
 
   if (type === "genesis") {
     if (typeof script[9] === "string" && script[9].startsWith("OP_")) {
@@ -136,22 +138,7 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
     Buffer.from(txDetails.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
 
-  if (script[0] !== "OP_RETURN") {
-    throw new Error("Not an OP_RETURN");
-  }
-
-  if (script[1] !== LOKAD_ID_HEX) {
-    throw new Error("Not a SLP OP_RETURN");
-  }
-
-  if (script[2] !== "OP_1") {
-    // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
-    throw new Error("Unknown token type");
-  }
-
-  const type = Buffer.from(script[3], "hex")
-    .toString("ascii")
-    .toLowerCase();
+  const type = getSLPTxType(script);
 
   if (type === "genesis") {
     return {
@@ -339,7 +326,7 @@ const signAndPublishSlpTransaction = async (
 
   let byteCount = 0;
   let inputSatoshis = 0;
-  const inputUtxos = tokenUtxosToSpend;
+  const inputUtxos = [...tokenUtxosToSpend];
   for (const utxo of spendableUtxos) {
     inputSatoshis = inputSatoshis + utxo.satoshis;
     inputUtxos.push(utxo);
@@ -400,7 +387,18 @@ const signAndPublishSlpTransaction = async (
 
   const hex = transactionBuilder.build().toHex();
 
-  const txid = await publishTx(hex);
+  let txid = null;
+  try {
+    txid = await publishTx(hex);
+  } catch (e) {
+    // Currently can only handle 24 inputs in a single tx
+    if (inputUtxos.length > 24) {
+      throw new Error(
+        "Too many inputs, send this transaction in multiple smaller transactions"
+      );
+    }
+    throw new Error(e.message);
+  }
 
   return txid;
 };

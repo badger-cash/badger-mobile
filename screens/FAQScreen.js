@@ -50,7 +50,7 @@ const FAQScreen = (props: Props) => {
         <FAQItem title="What is Bitcoin Cash (BCH)?">
           <T>
             Bitcoin Cash (BCH) is a version of bitcoin which focuses on being
-            peer to peer for the world. Learn more at
+            peer to peer electronic cash for the world. Learn more at
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://bitcoincash.org")}
@@ -61,9 +61,10 @@ const FAQScreen = (props: Props) => {
 
         <FAQItem title="What are Simple Ledger Protocol (SLP) tokens?">
           <T>
-            SLP tokens are tokens following the Simple Ledger Protocol
-            specification which is built upon the Bitcoin Cash network. With SLP
-            tokens can be created and shared by anyone easily.
+            SLP tokens are tokens which follow the Simple Ledger Protocol
+            specification which is built upon the Bitcoin Cash network. SLP
+            tokens allow anyone to create, send, and receive tokens with anyone,
+            easily.
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://simpleledger.cash")}
