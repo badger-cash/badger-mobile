@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
   ActivityIndicator,
@@ -123,18 +123,23 @@ const HomeScreen = ({
       () => updateUtxos(address, addressSlp),
       15 * SECOND
     );
-    return () => clearInterval(utxoInterval);
+    return () => {
+      clearInterval(utxoInterval);
+    };
   }, [address, addressSlp, updateUtxos]);
 
   // Update transaction history
   useEffect(() => {
     if (!address) return;
+
     updateTransactions(address, addressSlp);
     const transactionInterval = setInterval(
       () => updateTransactions(address, addressSlp),
       25 * 1000
     );
-    return () => clearInterval(transactionInterval);
+    return () => {
+      clearInterval(transactionInterval);
+    };
   }, [address, addressSlp, updateTransactions]);
 
   const tokenIds = Object.keys(balances.slpTokens);
@@ -155,17 +160,17 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
-  const slpTokens = balances.slpTokens;
+  const tokenData = useMemo(() => {
+    //[[tokenId, amount]]
+    const slpTokensDisplay = Object.keys(balances.slpTokens).map(key => [
+      key,
+      balances.slpTokens[key]
+    ]);
 
-  //[[tokenId, amount]]
-  const slpTokensDisplay = Object.keys(slpTokens).map(key => [
-    key,
-    slpTokens[key]
-  ]);
-
-  const tokenData = slpTokensDisplay
-    .filter(([tokenId, amount]) => amount.toNumber() !== 0)
-    .map(([tokenId, amount]) => {
+    const tokensWithBalance = slpTokensDisplay.filter(
+      ([tokenId, amount]) => amount.toNumber() !== 0
+    );
+    const tokensFormatted = tokensWithBalance.map(([tokenId, amount]) => {
       const token = tokensById[tokenId];
       const symbol = token ? token.symbol : "---";
       const name = token ? token.name : "--------";
@@ -178,40 +183,47 @@ const HomeScreen = ({
         extra: "Simple Token",
         tokenId
       };
-    })
-    .sort((a, b) => {
+    });
+    const tokensSorted = tokensFormatted.sort((a, b) => {
       const symbolA = a.symbol.toUpperCase();
       const symbolB = b.symbol.toUpperCase();
       if (symbolA < symbolB) return -1;
       if (symbolA > symbolB) return 1;
       return 0;
     });
+    return tokensSorted;
+  }, [balances.slpTokens, tokensById]);
 
-  const BCHFiatAmount = computeFiatAmount(
-    balances.satoshisAvailable,
-    spotPrices,
-    fiatCurrency,
-    "bch"
-  );
-  const BCHFiatDisplay = formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
+  const BCHFiatDisplay = useMemo(() => {
+    const BCHFiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
 
-  const walletSections = [
-    {
-      title: "Bitcoin Cash Wallet",
-      data: [
-        {
-          symbol: "BCH",
-          name: "Bitcoin Cash",
-          amount: formatAmount(balances.satoshisAvailable, 8),
-          valueDisplay: BCHFiatDisplay
-        }
-      ]
-    },
-    {
-      title: "Simple Token Vault",
-      data: tokenData
-    }
-  ];
+    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
+  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+
+  const walletSections = useMemo(() => {
+    return [
+      {
+        title: "Bitcoin Cash Wallet",
+        data: [
+          {
+            symbol: "BCH",
+            name: "Bitcoin Cash",
+            amount: formatAmount(balances.satoshisAvailable, 8),
+            valueDisplay: BCHFiatDisplay
+          }
+        ]
+      },
+      {
+        title: "Simple Token Vault",
+        data: tokenData
+      }
+    ];
+  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
 
   return (
     <SafeAreaView>
@@ -309,6 +321,7 @@ const mapStateToProps = (state, props) => {
     initialLoadingDone
   };
 };
+
 const mapDispatchToProps = {
   updateSpotPrice,
   updateTokensMeta,

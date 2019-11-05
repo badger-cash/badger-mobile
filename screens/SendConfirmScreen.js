@@ -183,6 +183,7 @@ const SendConfirmScreen = ({
       navigation.replace("SendSuccess", { txParams });
     } catch (e) {
       setTransactionState("setup");
+
       const errorFormatted =
         {
           "66: insufficient priority": new Error(
