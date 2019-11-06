@@ -97,7 +97,7 @@ PODS:
     - React
   - RNGestureHandler (1.3.0):
     - React
-  - RNSVG (9.6.2):
+  - RNSVG (9.13.3):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -226,7 +226,7 @@ SPEC CHECKSUMS:
   ReactNativePermissions: f3beb8871251594a8ea2c6b19a3f8252d5c7379d
   RNCAsyncStorage: 2e2e3feb9bdadc752a026703d8c4065ca912e75a
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
-  RNSVG: ff9b094e39dd4a437ebe17d1c7ceed286e75f426
+  RNSVG: f6177f8d7c095fada7cfee2e4bb7388ba426064c
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   yoga: c2c050f6ae6e222534760cc82f559b89214b67e2
 
