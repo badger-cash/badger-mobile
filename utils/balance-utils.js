@@ -1,7 +1,6 @@
 // @flow
 
 import BigNumber from "bignumber.js";
-import SLPSDK from "slp-sdk";
 
 import {
   currencyDecimalMap,
@@ -10,10 +9,11 @@ import {
 } from "./currency-utils";
 import { type Balances } from "../data/selectors";
 
-const SLP = new SLPSDK();
+import { SLP } from "./slp-sdk-utils";
 
 const getHistoricalBchTransactions = async (
   address: string,
+  addressSlp: string,
   latestBlock: number
 ) => {
   if (!address) {
@@ -30,6 +30,12 @@ const getHistoricalBchTransactions = async (
             },
             {
               "out.e.a": address.slice(12)
+            },
+            {
+              "in.e.a": addressSlp.slice(12)
+            },
+            {
+              "out.e.a": addressSlp.slice(12)
             }
           ],
           "out.h1": {
@@ -57,22 +63,26 @@ const getHistoricalBchTransactions = async (
       limit: 20
     }
   };
-  const s = JSON.stringify(query);
-  const b64 = Buffer.from(s).toString("base64");
-  const url = `https://bitdb.bitcoin.com/q/${b64}`;
 
-  const request = await fetch(url);
-  const result = await request.json();
+  try {
+    const result = await SLP.BitDB.get(query);
 
-  // combine confirmed and unconfirmed
-  const transactions = [...result.c, ...result.u];
+    // combine confirmed and unconfirmed
+    // errors = slpdb, error = REST rate limit
+    const transactions =
+      result.errors || result.error ? [] : [...result.c, ...result.u];
 
-  return transactions;
+    return transactions;
+  } catch (e) {
+    console.warn("Error while fetching from bitdb");
+    console.warn(e);
+    return [];
+  }
 };
 
 const getHistoricalSlpTransactions = async (
   address: string,
-  slpAddress: string,
+  addressSlp: string,
   latestBlock: number
 ) => {
   if (!address) return [];
@@ -90,10 +100,10 @@ const getHistoricalSlpTransactions = async (
               "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
             },
             {
-              "in.e.a": SLP.Address.toSLPAddress(slpAddress)
+              "in.e.a": SLP.Address.toSLPAddress(addressSlp)
             },
             {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(slpAddress)
+              "slp.detail.outputs.address": SLP.Address.toSLPAddress(addressSlp)
             }
           ],
           "slp.valid": true,
@@ -118,20 +128,31 @@ const getHistoricalSlpTransactions = async (
       limit: 500
     }
   };
-  const s = JSON.stringify(query);
-  const b64 = Buffer.from(s).toString("base64");
-  const url = `https://slpdb.bitcoin.com/q/${b64}`;
 
-  const request = await fetch(url);
-  const result = await request.json();
-
-  // Get confirmed and unconfirmed transactions
-  const transactions = [...result.c, ...result.u];
+  let transactions = [];
+  try {
+    const result = await SLP.SLPDB.get(query);
+    transactions = [...result.c, ...result.u];
+  } catch (e) {
+    console.warn("Error while fetching from slpdb");
+    console.warn(e);
+  }
 
   return transactions;
 };
 
-const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
+const removeTrailingChars = (word: string, target: string) => {
+  if (word.slice(-1) === target) {
+    return removeTrailingChars(word.slice(0, -1), target);
+  }
+  return word;
+};
+
+const formatAmount = (
+  amount: ?BigNumber,
+  decimals: ?number,
+  trimEnd?: boolean
+): string => {
   if (decimals == null) {
     return "-.--------";
   }
@@ -140,7 +161,13 @@ const formatAmount = (amount: ?BigNumber, decimals: ?number): string => {
     return `-.`.padEnd(decimals + 2, "-");
   }
 
-  const adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  let adjustDecimals = amount.shiftedBy(-1 * decimals).toFormat(decimals);
+  if (trimEnd) {
+    adjustDecimals = removeTrailingChars(adjustDecimals, "0");
+    if (adjustDecimals.slice(-1) === ".") {
+      adjustDecimals = adjustDecimals.slice(0, -1);
+    }
+  }
   return adjustDecimals;
 };
 
@@ -177,10 +204,12 @@ const formatFiatAmount = (
 };
 
 const formatAmountInput = (amount: string, maxDecimals: number): string => {
+  const amountEnglish = amount.replace(",", ".");
+
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   let decimalCount = 0;
 
-  const valid = amount.split("").reduce((prev, curr, idx, array) => {
+  const valid = amountEnglish.split("").reduce((prev, curr, idx, array) => {
     // Only allow max 1 leading 0
     if (idx === 1 && curr === "0" && array[0] === "0") return prev;
 

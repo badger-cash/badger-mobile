@@ -7,6 +7,7 @@ import {
   Clipboard,
   SafeAreaView,
   ScrollView,
+  Dimensions,
   View,
   Image,
   TextInput,
@@ -49,9 +50,9 @@ const IconArea = styled(View)`
   margin-right: 8px;
 `;
 const IconImage = styled(Image)`
-  width: 32;
-  height: 32;
-  border-radius: 16;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -103,12 +104,15 @@ const QRHolder = styled(View)`
 
 const QROverlay = styled(View)`
   position: absolute;
-  height: 150px;
-  width: 150px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
   background-color: white;
   align-items: center;
   justify-content: center;
-  padding: 15px;
   opacity: 0.98;
   z-index: 2;
 `;
@@ -149,6 +153,9 @@ const RequestSetupScreen = ({
   );
   const [requestUri, setRequestUri] = useState(baseAddress);
 
+  const totalWidth = Dimensions.get("window").width;
+  const QRSize = totalWidth > 300 ? totalWidth * 0.6 : totalWidth * 0.7;
+
   useEffect(() => {
     if (!addressSlp || !tokenId) return;
     const convertAddress = async () => {
@@ -159,6 +166,7 @@ const RequestSetupScreen = ({
   }, [addressSlp, tokenId]);
 
   useEffect(() => {
+    setCopiedMessage(null);
     let nextRequestUri;
     if (tokenId) {
       nextRequestUri = `${baseAddress}?amount1=${requestAmountCrypto ||
@@ -235,15 +243,18 @@ const RequestSetupScreen = ({
       >
         <Spacer small />
         <TitleRow>
-          <IconArea>
-            <IconImage source={imageSource} />
-          </IconArea>
           <H1>{coinName}</H1>
         </TitleRow>
+        <IconArea>
+          <IconImage source={imageSource} />
+        </IconArea>
         {tokenId && (
-          <T size="tiny" center>
-            {tokenId}
-          </T>
+          <>
+            <Spacer minimal />
+            <T size="tiny" center>
+              {tokenId}
+            </T>
+          </>
         )}
         <Spacer />
         <AmountRow>
@@ -332,7 +343,7 @@ const RequestSetupScreen = ({
           <QRHolder>
             <QRCode
               value={requestUri}
-              size={125}
+              size={QRSize}
               bgColor="black"
               fgColor="white"
             />

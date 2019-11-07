@@ -1,5 +1,38 @@
 # Badger Wallet - Changelog
 
+## 0.12.5
+
+- Updated receive screen
+- Removed largest cause of slowdown - repeated history updates
+
+## 0.12.0
+
+- BIP-70 support
+  - Single & multi-output BCH
+  - Single & multi-output SLP
+  - Open from a URI, scan, or paste the payment request to access.
+- History improvements, especially for multi-output
+- Minor UI & UX fixes
+
+## 0.11.0
+
+- Larger QR codes
+- Slide to send improvements
+  - Activates earlier in swipe
+- FAQ Page to address common questions
+- Direct link to explorer from each transaction
+- Paper Wallet Sweeping screen added
+
+## 0.10.3
+
+- React Native 0.60 upgrade
+  - Smaller builds
+  - Faster app
+- Improved history screen
+  - Detects self send
+  - Basic payout detection
+- SLP unknown types un-spendable
+
 ## 0.9.0
 
 - Request amount of any token from the detail screen

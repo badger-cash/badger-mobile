@@ -1,5 +1,5 @@
 // @flow
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import {
@@ -18,11 +18,11 @@ import BigNumber from "bignumber.js";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import SLPSDK from "slp-sdk";
 
 import { T, H1, H2, Button, Spacer } from "../atoms";
 
 import { type TokenData } from "../data/tokens/reducer";
+import { type UTXO } from "../data/utxos/reducer";
 
 import { updateTokensMeta } from "../data/tokens/actions";
 
@@ -30,6 +30,8 @@ import { getAddressSelector } from "../data/accounts/selectors";
 import { balancesSelector, type Balances } from "../data/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
+import { activeAccountSelector } from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
 
 import {
   formatAmount,
@@ -40,12 +42,13 @@ import {
 import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, type CurrencyCode } from "../utils/currency-utils";
 
-const SLP = new SLPSDK();
+import { SLP } from "../utils/slp-sdk-utils";
 
 type Props = {
   tokensById: { [tokenId: string]: TokenData },
   balances: Balances,
   spotPrices: any,
+  utxos: UTXO[],
   fiatCurrency: CurrencyCode,
   updateTokensMeta: Function,
   navigation: {
@@ -59,6 +62,13 @@ type Props = {
       }
     }
   }
+};
+
+type AddressData = {
+  tokenId: ?string,
+  parseError: ?string,
+  amount: ?number,
+  address: ?string
 };
 
 const StyledTextInput = styled(TextInput)`
@@ -77,6 +87,7 @@ const StyledTextInputAmount = styled(TextInput)`
   border-top-right-radius: 3px;
   padding: 16px 8px;
   flex: 1;
+  color: ${props => props.theme.fg100};
 `;
 
 const AmountLabel = styled(View)`
@@ -151,9 +162,9 @@ const IconArea = styled(View)`
   margin-right: 8px;
 `;
 const IconImage = styled(Image)`
-  width: 32;
-  height: 32;
-  border-radius: 16;
+  width: 64;
+  height: 64;
+  border-radius: 32;
   overflow: hidden;
 `;
 
@@ -169,6 +180,7 @@ const SendSetupScreen = ({
   navigation,
   tokensById,
   balances,
+  utxos,
   spotPrices,
   fiatCurrency,
   updateTokensMeta
@@ -192,13 +204,7 @@ const SendSetupScreen = ({
     uriError: null
   };
 
-  const displaySymbol = tokenId
-    ? tokensById[tokenId]
-      ? tokensById[tokenId].symbol
-      : "---"
-    : "BCH";
-
-  // Set initial values from params
+  // Set initial values from params, used when opening from URI
   useEffect(() => {
     if (uriAddress) {
       setToAddress(uriAddress);
@@ -212,6 +218,16 @@ const SendSetupScreen = ({
     }
   }, []);
 
+  const displaySymbol = useMemo(() => {
+    if (tokenId) {
+      if (tokensById[tokenId]) {
+        return tokensById[tokenId].symbol;
+      }
+      return "---";
+    }
+    return "BCH";
+  }, [tokensById, tokenId]);
+
   // Fetch token Metadata if it is unknown
   useEffect(() => {
     if (!tokenId) return;
@@ -220,68 +236,108 @@ const SendSetupScreen = ({
     }
   }, [tokenId, tokensById, updateTokensMeta]);
 
-  let availableAmount = new BigNumber(0);
-  if (tokenId) {
-    availableAmount = balances.slpTokens[tokenId];
-  } else {
-    const availableRaw = balances.satoshisAvailable.minus(546);
+  const availableAmount = useMemo(() => {
+    let result = new BigNumber(0);
 
-    if (availableRaw.lte(0)) {
-      availableAmount = new BigNumber(0);
+    if (tokenId) {
+      result = balances.slpTokens[tokenId];
     } else {
-      availableAmount = availableRaw;
+      const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+      const allUTXOFee = SLP.BitcoinCash.getByteCount(
+        { P2PKH: spendableUTXOS.length },
+        { P2PKH: 2 }
+      );
+
+      // Available = total satoshis - fee for including all UTXO
+      const availableRaw = balances.satoshisAvailable.minus(allUTXOFee);
+
+      if (availableRaw.lte(0)) {
+        result = new BigNumber(0);
+      } else {
+        result = availableRaw;
+      }
     }
-  }
 
-  if (!availableAmount) {
-    availableAmount = new BigNumber(0);
-  }
+    if (!result) {
+      result = new BigNumber(0);
+    }
+    return result;
+  }, [balances.slpTokens, balances.satoshisAvailable, tokenId, utxos]);
 
-  const coinDecimals =
-    tokenId && tokensById[tokenId] ? tokensById[tokenId].decimals : 8;
+  const coinDecimals = useMemo(() => {
+    if (tokenId && tokensById[tokenId]) {
+      return tokensById[tokenId].decimals;
+    }
+    return 8;
+  }, [tokenId, tokensById]);
 
-  const availableFunds = availableAmount.shiftedBy(-1 * coinDecimals);
-  const availableFundsDisplay = formatAmount(availableAmount, coinDecimals);
+  const availableFunds = useMemo(() => {
+    return availableAmount.shiftedBy(-1 * coinDecimals);
+  }, [availableAmount, coinDecimals]);
 
-  let fiatAmountTotal = null;
-  if (tokenId) {
-    fiatAmountTotal = computeFiatAmount(
-      availableAmount,
-      spotPrices,
-      fiatCurrency,
-      tokenId
-    );
-  } else {
-    fiatAmountTotal = computeFiatAmount(
-      availableAmount,
-      spotPrices,
-      fiatCurrency,
-      "bch"
-    );
-  }
+  const availableFundsDisplay = useMemo(() => {
+    return formatAmount(availableAmount, coinDecimals);
+  }, [availableAmount, coinDecimals]);
+
+  const fiatAmountTotal = useMemo(() => {
+    if (tokenId) {
+      return computeFiatAmount(
+        availableAmount,
+        spotPrices,
+        fiatCurrency,
+        tokenId
+      );
+    } else {
+      return computeFiatAmount(
+        availableAmount,
+        spotPrices,
+        fiatCurrency,
+        "bch"
+      );
+    }
+  }, [tokenId, availableAmount, fiatCurrency, spotPrices]);
+
   const fiatDisplayTotal = !tokenId
     ? formatFiatAmount(fiatAmountTotal, fiatCurrency, tokenId || "bch")
     : null;
 
-  const fiatRate = !tokenId
-    ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
-    : null;
+  const fiatRate = useMemo(() => {
+    if (tokenId) {
+      return null;
+    }
+    return (
+      spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
+    );
+  }, [spotPrices, tokenId, fiatCurrency]);
 
-  const sendAmountNumber = parseFloat(sendAmount);
+  const coinName = useMemo(() => {
+    if (!tokenId) {
+      return "Bitcoin Cash";
+    }
 
-  const tokenName =
-    tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
-  const coinName = !tokenId ? "Bitcoin Cash" : tokenName;
+    const tokenName =
+      tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
+    return tokenName;
+  }, [tokenId, tokensById]);
 
-  const imageSource = getTokenImage(tokenId);
+  const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
-  const toggleAmountType = () => {
+  const toggleAmountType = useCallback(() => {
     if (tokenId) return;
     setAmountType(amountType === "crypto" ? "fiat" : "crypto");
-  };
+  }, [tokenId, amountType]);
 
-  const goNextStep = () => {
-    const addressFormat = SLP.Address.detectAddressFormat(toAddress);
+  // Validate inputs then go to confirm screen
+  const goNextStep = useCallback(() => {
+    let addressFormat = null;
+
+    try {
+      addressFormat = SLP.Address.detectAddressFormat(toAddress);
+    } catch (e) {
+      setErrors(["Invalid address, double check and try again."]);
+      return;
+    }
+
     let hasErrors = false;
     if (tokenId && !["slpaddr", "cashaddr", "legacy"].includes(addressFormat)) {
       setErrors([
@@ -295,17 +351,12 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
-    if (parseFloat(sendAmountCrypto) > availableFunds) {
+    if (new BigNumber(sendAmountCrypto).gt(availableFunds)) {
       setErrors(["Cannot send more funds than are available"]);
       hasErrors = true;
     }
 
-    if (!sendAmount) {
-      setErrors(["Amount required"]);
-      hasErrors = true;
-    }
-
-    if (!sendAmountCrypto) {
+    if (!sendAmount || !sendAmountCrypto) {
       setErrors(["Amount required"]);
       hasErrors = true;
     }
@@ -317,63 +368,119 @@ const SendSetupScreen = ({
         toAddress
       });
     }
-  };
+  }, [
+    availableFunds,
+    navigation,
+    sendAmount,
+    sendAmountCrypto,
+    toAddress,
+    tokenId
+  ]);
 
-  const parseQr = (
-    qrData: string
-  ): {
-    address: string,
-    amount: ?string,
-    tokenId: ?string,
-    parseError: ?string
-  } => {
-    let address = null;
-    let amount = null;
-    let uriTokenId = null;
-    let parseError = null;
+  const parseQr = useCallback(
+    (
+      qrData: string
+    ): ?{
+      address: string,
+      amount: ?string,
+      tokenId: ?string,
+      parseError: ?string
+    } => {
+      let address = null;
+      let amount = null;
+      let uriTokenId = null;
+      let parseError = null;
 
-    let amounts = [];
+      let amounts = [];
+      let quitEarly = false;
 
-    // Parse out address and any other relevant data
-    const parts = qrData.split("?");
+      // Parse out address and any other relevant data
+      const parts = qrData.split("?");
 
-    address = parts[0];
-    const parameters = parts[1];
-    if (parameters) {
-      const parameterParts = parameters.split("&");
-      parameterParts.forEach(param => {
-        const [name, value] = param.split("=");
-        if (name.startsWith("amount")) {
-          let currTokenId;
-          let currAmount;
-          if (value.includes("-")) {
-            [currAmount, currTokenId] = value.split("-");
-          } else {
-            currAmount = value;
+      address = parts[0];
+      const parameters = parts[1];
+      if (parameters) {
+        const parameterParts = parameters.split("&");
+        parameterParts.forEach(async param => {
+          const [name, value] = param.split("=");
+
+          if (name === "r") {
+            // BIP70 detected, go to BIP70 flow
+            setToAddress(null);
+            quitEarly = true;
+            navigation.navigate("Bip70Confirm", {
+              paymentURL: value
+            });
           }
-          amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
+
+          if (name.startsWith("amount")) {
+            let currTokenId;
+            let currAmount;
+            if (value.includes("-")) {
+              [currAmount, currTokenId] = value.split("-");
+            } else {
+              currAmount = value;
+            }
+            amounts.push({ tokenId: currTokenId, paramAmount: currAmount });
+          }
+        });
+      }
+
+      if (amounts.length > 1) {
+        parseError =
+          "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
+      } else if (amounts.length === 1) {
+        const target = amounts[0];
+        uriTokenId = target.tokenId;
+        amount = target.paramAmount;
+      }
+
+      if (quitEarly) {
+        return null;
+      }
+      return {
+        address,
+        amount,
+        parseError,
+        tokenId: uriTokenId
+      };
+    },
+    [navigation]
+  );
+
+  const handleAddressData = useCallback(
+    (parsedData: AddressData) => {
+      setErrors([]);
+
+      // Verify the type matches the screen we are on.
+      if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
+        setErrors([
+          "Sending different coin or token than selected, go to the target coin screen and try again"
+        ]);
+        return;
+      }
+
+      parsedData.parseError && setErrors([parsedData.parseError]);
+
+      // If there's an amount, set the type to crypto
+      parsedData.amount && setAmountType("crypto");
+      if (parsedData.address) {
+        setToAddress(parsedData.address);
+
+        try {
+          SLP.Address.isCashAddress(parsedData.address) ||
+            SLP.Address.isSLPAddress(parsedData.address);
+        } catch (e) {
+          setErrors([e.message]);
         }
-      });
-    }
-
-    if (amounts.length > 1) {
-      parseError =
-        "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
-    } else if (amounts.length === 1) {
-      const target = amounts[0];
-      uriTokenId = target.tokenId;
-      amount = target.paramAmount;
-    }
-
-    return {
-      address,
-      amount,
-      parseError,
-      tokenId: uriTokenId
-    };
-  };
+      }
+      parsedData.amount && setSendAmount(parsedData.amount);
+    },
+    [tokenId]
+  );
 
   useEffect(() => {
+    const sendAmountNumber = parseFloat(sendAmount);
     if (amountType === "crypto") {
       setSendAmountFiat(
         fiatRate
@@ -394,16 +501,22 @@ const SendSetupScreen = ({
           : 0
       );
     }
-  }, [sendAmountNumber, amountType, fiatRate]);
+  }, [amountType, fiatRate, fiatCurrency, sendAmount]);
 
-  const sendAmountFiatFormatted = formatFiatAmount(
-    new BigNumber(sendAmountFiat),
-    fiatCurrency,
-    tokenId || "bch"
-  );
-  const sendAmountCryptoFormatted = sendAmountCrypto.length
-    ? new BigNumber(sendAmountCrypto).toFormat()
-    : "0";
+  const sendAmountFiatFormatted = useMemo(() => {
+    return formatFiatAmount(
+      new BigNumber(sendAmountFiat),
+      fiatCurrency,
+      tokenId || "bch"
+    );
+  }, [fiatCurrency, tokenId, sendAmountFiat]);
+
+  const sendAmountCryptoFormatted = useMemo(() => {
+    if (sendAmountCrypto.length) {
+      return new BigNumber(sendAmountCrypto).toFormat();
+    }
+    return "0";
+  }, [sendAmountCrypto]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -421,32 +534,10 @@ const SendSetupScreen = ({
                   const qrData = e.data;
 
                   const parsedData = parseQr(qrData);
-
-                  setErrors([]);
+                  if (parsedData) {
+                    handleAddressData(parsedData);
+                  }
                   setQrOpen(false);
-
-                  // Verify the type matches the screen we are on.
-                  if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
-                    setErrors([
-                      "Sending different coin or token than selected, go to the target coin screen and try again"
-                    ]);
-                    return;
-                  }
-
-                  parsedData.parseError && setErrors([parsedData.parseError]);
-
-                  // If there's an amount, set the type to crypto
-                  parsedData.amount && setAmountType("crypto");
-                  if (parsedData.address) {
-                    setToAddress(parsedData.address);
-                    const isValidAddress =
-                      SLP.Address.isCashAddress(parsedData.address) ||
-                      SLP.Address.isSLPAddress(parsedData.address);
-                    if (isValidAddress.message) {
-                      setErrors([isValidAddress.message]);
-                    }
-                  }
-                  parsedData.amount && setSendAmount(parsedData.amount);
                 }}
                 cameraStyle={{
                   // padding 16 for each side
@@ -476,16 +567,20 @@ const SendSetupScreen = ({
             keyboardVerticalOffset={Header.HEIGHT + 20}
           >
             <Spacer small />
+
             <TitleRow>
-              <IconArea>
-                <IconImage source={imageSource} />
-              </IconArea>
               <H1>{coinName}</H1>
             </TitleRow>
+            <IconArea>
+              <IconImage source={imageSource} />
+            </IconArea>
             {tokenId && (
-              <T size="tiny" center>
-                {tokenId}
-              </T>
+              <>
+                <Spacer minimal />
+                <T size="tiny" center>
+                  {tokenId}
+                </T>
+              </>
             )}
             <Spacer small />
             {errors.length > 0 && (
@@ -532,40 +627,11 @@ const SendSetupScreen = ({
                 nature="ghost"
                 onPress={async () => {
                   const content = await Clipboard.getString();
-                  let pasteError = null;
-                  let invalidURIError = null;
                   const parsedData = parseQr(content);
 
-                  // Verify the type matches the screen we are on.
-                  if (
-                    (parsedData.amount &&
-                      parsedData.tokenId == null &&
-                      tokenId) ||
-                    (parsedData.tokenId && parsedData.tokenId !== tokenId)
-                  ) {
-                    invalidURIError =
-                      "Sending different coin or token from the pasted URI";
-                    setErrors([invalidURIError]);
-                    return;
+                  if (parsedData) {
+                    handleAddressData(parsedData);
                   }
-
-                  if (parsedData.parseError) {
-                    pasteError = parsedData.parseError;
-                  }
-
-                  // If there's an amount, set the type to crypto
-                  parsedData.amount && setAmountType("crypto");
-                  if (parsedData.address) {
-                    const isValidAddress =
-                      SLP.Address.isCashAddress(parsedData.address) ||
-                      SLP.Address.isSLPAddress(parsedData.address);
-                    if (isValidAddress.message) {
-                      pasteError = isValidAddress.message;
-                    }
-                    setToAddress(parsedData.address);
-                  }
-                  parsedData.amount && setSendAmount(parsedData.amount);
-                  pasteError ? setErrors([pasteError]) : setErrors([]);
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">
@@ -684,11 +750,15 @@ const mapStateToProps = state => {
   const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
   const fiatCurrency = currencySelector(state);
+
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
   return {
     tokensById,
     balances,
     spotPrices,
-    fiatCurrency
+    fiatCurrency,
+    utxos
   };
 };
 
