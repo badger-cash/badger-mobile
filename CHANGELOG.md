@@ -1,5 +1,10 @@
 # Badger Wallet - Changelog
 
+## 0.12.5
+
+- Updated receive screen
+- Removed largest cause of slowdown - repeated history updates
+
 ## 0.12.0
 
 - BIP-70 support
