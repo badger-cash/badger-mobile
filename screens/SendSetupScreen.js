@@ -351,7 +351,7 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
-    if (new BigNumber(sendAmountCrypto) > availableFunds) {
+    if (new BigNumber(sendAmountCrypto).gt(availableFunds)) {
       setErrors(["Cannot send more funds than are available"]);
       hasErrors = true;
     }
