@@ -21,6 +21,8 @@ Update the tests as issues are found and new workflows are created.
 - [ ] Attempt sending a token from a wallet with 0 BCH balance
 - [ ] Send Max of an SLP token
 - [ ] Send Max of BCH balance, from a wallet which contains 1+ SLP tokens
+- [ ] Send a small amount of an SLP token (< 50)
+- [ ] Send a large amount of an SLP token (> 5000)
 
 ## Open from URI's
 
