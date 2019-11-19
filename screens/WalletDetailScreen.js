@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { connect } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
@@ -38,11 +38,7 @@ import {
 } from "../utils/balance-utils";
 import { addressToSlp } from "../utils/account-utils";
 import { getTokenImage } from "../utils/token-utils";
-import {
-  currencySymbolMap,
-  currencyDecimalMap,
-  type CurrencyCode
-} from "../utils/currency-utils";
+import { type CurrencyCode } from "../utils/currency-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 import { TransactionRow } from "../components";
@@ -103,11 +99,11 @@ const WalletDetailScreen = ({
   const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
   const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
 
-  async function convertToSimpleLedger() {
+  const convertToSimpleLedger = useCallback(async () => {
     const simpleLedger = await addressToSlp(addressSlp);
     setSimpleledgerAddress(simpleLedger);
     return simpleLedger;
-  }
+  }, [addressSlp]);
 
   useEffect(() => {
     convertToSimpleLedger();
@@ -122,7 +118,7 @@ const WalletDetailScreen = ({
     ? balances.satoshisAvailable
     : balances.slpTokens[tokenId];
 
-  const imageSource = getTokenImage(tokenId);
+  const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
   if (isBCH) {
@@ -137,6 +133,15 @@ const WalletDetailScreen = ({
   const explorerUrl = isBCH
     ? `https://explorer.bitcoin.com/bch/address/${address}`
     : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddress}`;
+
+  const amountFormatted = formatAmount(amount, decimals);
+  let [amountWhole, amountDecimal] = (amountFormatted &&
+    amountFormatted.split(".")) || [null, null];
+
+  amountDecimal =
+    amountDecimal && [...amountDecimal].every(v => v === "0")
+      ? null
+      : amountDecimal;
 
   return (
     <SafeAreaView>
@@ -176,7 +181,10 @@ const WalletDetailScreen = ({
 
           <Spacer />
           <T center>Balance</T>
-          <H1 center>{formatAmount(amount, decimals)}</H1>
+          <H1 center>
+            {amountWhole}
+            {amountDecimal ? <H2>.{amountDecimal}</H2> : null}
+          </H1>
           {fiatDisplay && (
             <T center type="muted">
               {fiatDisplay}
