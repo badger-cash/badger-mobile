@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { View, Image, Linking, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import Feather from "react-native-vector-icons/Feather";
 
@@ -61,6 +62,7 @@ let blockieCache = {};
 type Props = {
   type: "send" | "receive" | "payout" | "interwallet",
   txId: string,
+  confirmations: ?number,
   timestamp: number,
   toAddress: string,
   toAddresses: string[],
@@ -72,6 +74,7 @@ type Props = {
 };
 
 const TransactionRow = ({
+  confirmations,
   type,
   txId,
   timestamp,
@@ -122,15 +125,22 @@ const TransactionRow = ({
   return (
     <Row type={type}>
       <DateRow>
-        <T size="small" type="muted">
-          {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
-        </T>
+        <View>
+          <T size="small" type="muted">
+            {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
+          </T>
+          {confirmations != null && (
+            <T size="xsmall" type="muted" monospace>
+              {confirmations}-conf
+            </T>
+          )}
+        </View>
         <TouchableOpacity
           onPress={() =>
             Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
           }
         >
-          <T size="small" type="muted">
+          <T size="small" type="muted2">
             Explorer <Feather name="external-link" />
           </T>
         </TouchableOpacity>

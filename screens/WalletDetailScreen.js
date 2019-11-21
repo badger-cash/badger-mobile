@@ -16,6 +16,8 @@ import {
 } from "react-native";
 import BigNumber from "bignumber.js";
 
+import { getCurrentBlockheight } from "../api/rest.bitcoin";
+
 import {
   getAddressSelector,
   getAddressSlpSelector
@@ -98,6 +100,23 @@ const WalletDetailScreen = ({
 
   const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
   const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
+  const [blockheight, setBlockheight] = useState(0);
+
+  useEffect(() => {
+    const updateBlockheight = async () => {
+      try {
+        const blockheightNow = await getCurrentBlockheight();
+        setBlockheight(blockheightNow);
+      } catch (e) {
+        console.warn(e);
+      }
+    };
+
+    updateBlockheight();
+    const blockheightInterval = setInterval(updateBlockheight, 15 * 1000);
+
+    return () => clearInterval(blockheightInterval);
+  }, []);
 
   const convertToSimpleLedger = useCallback(async () => {
     const simpleLedger = await addressToSlp(addressSlp);
@@ -215,7 +234,7 @@ const WalletDetailScreen = ({
         </T>
         <TransactionArea>
           {transactions.map(tx => {
-            const { hash, txParams, time } = tx;
+            const { hash, txParams, time, block } = tx;
             const {
               to,
               from,
@@ -250,6 +269,13 @@ const WalletDetailScreen = ({
 
             return (
               <TransactionRow
+                confirmations={
+                  block === 0
+                    ? 0
+                    : blockheight === 0
+                    ? null
+                    : blockheight - block
+                }
                 key={hash}
                 txId={hash}
                 type={txType}
