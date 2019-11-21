@@ -274,7 +274,7 @@ const WalletDetailScreen = ({
                     ? 0
                     : blockheight === 0
                     ? null
-                    : blockheight - block
+                    : blockheight - block + 1
                 }
                 key={hash}
                 txId={hash}

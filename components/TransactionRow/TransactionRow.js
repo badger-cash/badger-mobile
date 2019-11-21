@@ -129,11 +129,9 @@ const TransactionRow = ({
           <T size="small" type="muted">
             {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
           </T>
-          {confirmations != null && (
-            <T size="xsmall" type="muted" monospace>
-              {confirmations}-conf
-            </T>
-          )}
+          <T size="xsmall" type="muted" monospace>
+            {confirmations !== null ? confirmations : "--"}-conf
+          </T>
         </View>
         <TouchableOpacity
           onPress={() =>
