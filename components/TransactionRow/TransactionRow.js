@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { View, Image, Linking, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import Feather from "react-native-vector-icons/Feather";
 
