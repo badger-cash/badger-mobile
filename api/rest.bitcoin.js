@@ -9,7 +9,7 @@ const getBlockCountURL = `${API}/blockchain/getBlockCount`;
 const getCurrentBlockheight = async () => {
   try {
     const req = await fetch(getBlockCountURL);
-    const resp = req.json();
+    const resp = await req.json();
     return resp;
   } catch (e) {
     console.warn(e);
