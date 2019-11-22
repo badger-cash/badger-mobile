@@ -113,7 +113,7 @@ const WalletDetailScreen = ({
     };
 
     updateBlockheight();
-    const blockheightInterval = setInterval(updateBlockheight, 15 * 1000);
+    const blockheightInterval = setInterval(updateBlockheight, 45 * 1000);
 
     return () => clearInterval(blockheightInterval);
   }, []);
