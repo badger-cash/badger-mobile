@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import BigNumber from "bignumber.js";
 
-import { getCurrentBlockheight } from "../api/rest.bitcoin";
+import useBlockheight from "../hooks/useBlockheight";
 
 import {
   getAddressSelector,
@@ -100,23 +100,8 @@ const WalletDetailScreen = ({
 
   const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
   const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
-  const [blockheight, setBlockheight] = useState(0);
 
-  useEffect(() => {
-    const updateBlockheight = async () => {
-      try {
-        const blockheightNow = await getCurrentBlockheight();
-        setBlockheight(blockheightNow);
-      } catch (e) {
-        console.warn(e);
-      }
-    };
-
-    updateBlockheight();
-    const blockheightInterval = setInterval(updateBlockheight, 45 * 1000);
-
-    return () => clearInterval(blockheightInterval);
-  }, []);
+  const blockheight = useBlockheight();
 
   const convertToSimpleLedger = useCallback(async () => {
     const simpleLedger = await addressToSlp(addressSlp);
