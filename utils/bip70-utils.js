@@ -14,7 +14,7 @@ const SLPJS = new slpjs.Slp(SLP);
 export type PaymentRequest = {
   expires: number,
   memo: string,
-  merchantData: string,
+  merchantData: ?string,
   network: string,
   outputs: OutputInfo[],
   paymentUrl: string,
@@ -191,7 +191,7 @@ const decodePaymentRequest = async requestData => {
     detailsData.memo = details.get("memo");
     detailsData.paymentUrl = details.get("payment_url");
     const merchantData = details.get("merchant_data");
-    detailsData.merchantData = merchantData.toString();
+    detailsData.merchantData = merchantData && merchantData.toString();
     detailsData.requiredFeeRate = details.get("required_fee_rate");
 
     let tokenId = null;
@@ -358,10 +358,12 @@ const signAndPublishPaymentRequestTransaction = async (
 
   // send the payment transaction
   var payment = new PaymentProtocol().makePayment();
-  payment.set(
-    "merchant_data",
-    Buffer.from(paymentRequest.merchantData, "utf-8")
-  );
+  paymentRequest.merchantData &&
+    payment.set(
+      "merchant_data",
+      Buffer.from(paymentRequest.merchantData, "utf-8")
+    );
+
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
   // calculate refund script pubkey
