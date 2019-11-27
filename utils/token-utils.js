@@ -11,6 +11,7 @@ import SLPTorchTokenImage from "../assets/images/token-icons/49be89bbbe018bcfaeb
 import SpiceTokenImage from "../assets/images/token-icons/4de69e374a8ed21cbddd47f2338cc0f479dc58daa2bbe11cd604ca488eca0ddf.png";
 import DropTokenImage from "../assets/images/token-icons/0f3f223902c44dc2bee6d3f77d565904d8501affba5ee0c56f7b32e8080ce14b.png";
 import SAITokenImage from "../assets/images/token-icons/7853218e23fdabb103b4bccbe6e987da8974c7bc775b7e7e64722292ac53627f.png";
+import GOCTokenImage from "../assets/images/token-icons/3f83fa9f168f01d68933ef5fdb77143b2376ba7bf3a78175258861982d90d500.png";
 import LEADTokenImage from "../assets/images/token-icons/29d353a3d19cdd7324f1c14b3fe289293976842869fed1bea3f9510558f6f006.png";
 
 import BitcoinCashImage from "../assets/images/icon.png";
@@ -25,6 +26,7 @@ const tokenIdImageMap = {
   f35007140e40c4b6ce4ecc9ad166101ad94562b3e4f650a30de10b8a80c0b987: HonkTokenImage,
   "0f3f223902c44dc2bee6d3f77d565904d8501affba5ee0c56f7b32e8080ce14b": DropTokenImage,
   "7853218e23fdabb103b4bccbe6e987da8974c7bc775b7e7e64722292ac53627f": SAITokenImage,
+  "3f83fa9f168f01d68933ef5fdb77143b2376ba7bf3a78175258861982d90d500": GOCTokenImage,
   "29d353a3d19cdd7324f1c14b3fe289293976842869fed1bea3f9510558f6f006": LEADTokenImage
 };
 
