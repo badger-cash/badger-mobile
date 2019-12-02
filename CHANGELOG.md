@@ -6,7 +6,7 @@
 - Restrict sending SLP to simpleledger addresses
 - Confirmation counts in transaction history
 - Adding more token icons
-  - BCE, GOC, LEAD
+  - GOC, LEAD
 - Some BIP70 improvements for optional fields
 
 ## 0.12.5
