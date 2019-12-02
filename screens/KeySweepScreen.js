@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -13,11 +13,22 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import uuidv5 from "uuid/v5";
 
-import { getAddressSelector } from "../data/accounts/selectors";
-import { sweep } from "../utils/transaction-utils";
+import {
+  getAddressSelector,
+  getAddressSlpSelector
+} from "../data/accounts/selectors";
+import { tokensByIdSelector } from "../data/tokens/selectors";
+
+import { sweepPaperWallet, getPaperBalance } from "../utils/transaction-utils";
+import { type TokenData } from "../data/tokens/reducer";
+import { updateTokensMeta } from "../data/tokens/actions";
 
 import { T, H2, Spacer, Button } from "../atoms";
+
+// Same as the Badger namespace for now.  doesn't need to be unique here.
+const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
 const ScreenWrapper = styled(View)`
   position: relative;
@@ -52,25 +63,57 @@ const SuccessContainer = styled(View)`
   background-color: ${props => props.theme.primary900};
 `;
 
-type SweepStates = "neutral" | "scanned" | "pending" | "error" | "success";
+type SweepStates =
+  | "neutral"
+  | "scanned"
+  | "pending"
+  | "error"
+  | "success"
+  | "tokenSelect";
 
 type Props = {
-  address: string
+  addressBCH: string,
+  addressSLP: string,
+  tokensById: { [tokenId: string]: TokenData }
 };
-const KeySweepScreen = ({ address }: Props) => {
+
+const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
   const [paperBalance: number, setPaperBalance] = useState(0);
   const [sweepError: ?string, setSweepError] = useState(null);
   const [sweepState: SweepStates, setSweepState] = useState("neutral");
 
-  const parseQr = (qrData: string): string => {
+  const [tokenId: ?string, setTokenId] = useState(null);
+
+  const allTokenIds = [];
+
+  // Maybe need this if the list of tokenIds doesn't trigger effect
+  // const tokenIdsHash = useMemo(() => {
+  //   return uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
+  // }, [allTokenIds])
+
+  useEffect(() => {
+    // Fetch token metadata if any are missing
+    const missingTokenIds = allTokenIds.filter(tokenId => !tokensById[tokenId]);
+    updateTokensMeta(missingTokenIds);
+  }, [allTokenIds, tokensById]);
+
+  const symbol = useMemo(() => {
+    if (tokenId) {
+      return tokensById[tokenId].symbol;
+    }
+    return "BCH";
+  }, [tokenId, tokensById]);
+  // const [symbol, setSymbol] = useState('BCH')
+
+  const parseQr = useCallback((qrData: string): string => {
     return qrData ? qrData : "";
-  };
+  }, []);
 
   const handleQRData = async qrData => {
     try {
-      const balance = await sweep(qrData, null, true);
+      const balance = await getPaperBalance(qrData);
       setWif(qrData);
       setPaperBalance(balance);
       setSweepState("scanned");
@@ -139,17 +182,26 @@ const KeySweepScreen = ({ address }: Props) => {
             {sweepState === "neutral" && (
               <>
                 <T size="small" center>
-                  To recover Bitcoin Cash (BCH) from a paper wallet, follow the
-                  three outlined steps.
+                  To recover Bitcoin Cash (BCH) or SLP Tokens from a paper
+                  wallet, follow the steps below.
                 </T>
-                <Spacer small />
+                <Spacer />
                 <T size="small">
                   1. Scan the private QR code on the paper wallet.
                 </T>
                 <Spacer small />
                 <T size="small">2. Review details.</T>
                 <Spacer small />
-                <T size="small">3. Sweep to your Badger wallet.</T>
+                <T size="small">3. Sweep to your Badger Wallet.</T>
+                <Spacer small />
+                <T size="small">4. Repeat until all funds have been swept.</T>
+              </>
+            )}
+            {sweepState === "tokenSelect" && (
+              <>
+                <T weight="bold">
+                  Multiple tokens detected, select one to sweep
+                </T>
               </>
             )}
             {sweepState === "scanned" && (
@@ -160,7 +212,10 @@ const KeySweepScreen = ({ address }: Props) => {
                 <T>{wif}</T>
                 <Spacer small />
                 <T>Amount</T>
-                <T>{paperBalance} BCH</T>
+                <T>
+                  {paperBalance} {symbol}
+                </T>
+                {tokenId && <T>{tokenId}</T>}
                 <Spacer />
               </>
             )}
@@ -182,7 +237,7 @@ const KeySweepScreen = ({ address }: Props) => {
                 </T>
                 <Spacer small />
                 <T type="primary" center weight="bold">
-                  {paperBalance} BCH
+                  {paperBalance} {symbol}
                 </T>
               </SuccessContainer>
             )}
@@ -207,7 +262,7 @@ const KeySweepScreen = ({ address }: Props) => {
                 onPress={async () => {
                   try {
                     setSweepState("pending");
-                    await sweep(wif, address);
+                    await sweepPaperWallet(wif, addressBCH, addressSLP);
                     setSweepState("success");
                   } catch (e) {
                     setSweepState("error");
@@ -225,10 +280,12 @@ const KeySweepScreen = ({ address }: Props) => {
 };
 
 const mapStateToProps = state => ({
-  address: getAddressSelector(state)
+  addressBCH: getAddressSelector(state),
+  addressSLP: getAddressSlpSelector(state),
+  tokensById: tokensByIdSelector(state)
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = { updateTokensMeta };
 
 export default connect(
   mapStateToProps,

@@ -6,6 +6,8 @@ import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { SLP } from "./slp-sdk-utils";
+import { italic } from "ansi-colors";
+import { exists } from "fs";
 
 const slpjs = require("slpjs");
 
@@ -403,25 +405,22 @@ const signAndPublishSlpTransaction = async (
   return txid;
 };
 
-const sweep = async (
-  wif: ?string,
-  toAddr: string,
-  balanceOnly: boolean = false
-) => {
+// WHAT DOING
+// - 1 function to get all BALANCES
+// - Next to take a token ID and SWEEP it
+//   - Using BCH on wallet if exist
+//   - Use own BCH if it doesn't
+
+// Get the balances from a paper wallet wif
+const getPaperBalance = async (
+  wif: ?string
+): { coinType: string, balance: number }[] => {
   try {
     // Input validation
     if (!wif || wif === "") {
       throw new Error(
-        `wif private key must be included in Compressed WIF format.`
+        `wif private key must be included in compressed WIF format.`
       );
-    }
-    // Input validation
-    if (!balanceOnly) {
-      if (!toAddr || toAddr === "") {
-        throw new Error(
-          `Address to receive swept funds must be included unless balanceOnly flag is true.`
-        );
-      }
     }
     // Generate a keypair from the WIF.
     const keyPair = SLP.ECPair.fromWIF(wif);
@@ -434,7 +433,40 @@ const sweep = async (
     const balance: number = details.balance;
 
     // If balance is zero or balanceOnly flag is passed in, exit.
-    if (balance === 0 || balanceOnly) return balance;
+    return [{ coinType: "BCH", balance }];
+  } catch (error) {
+    if (error.response && error.response.data) throw error.response.data;
+    else throw error;
+  }
+};
+
+const sweepPaperWallet = async (
+  wif: ?string,
+  bchAddr: string,
+  slpAddr: string
+) => {
+  try {
+    // Input validation
+    if (!wif || wif === "") {
+      throw new Error(
+        `wif private key must be included in Compressed WIF format.`
+      );
+    }
+    if (!bchAddr || bchAddr === "") {
+      throw new Error(`Address to receive swept funds must be included`);
+    }
+    // Generate a keypair from the WIF.
+    const keyPair = SLP.ECPair.fromWIF(wif);
+
+    // Generate the public address associated with the private key.
+    const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
+
+    // Check the BCH balance of that public address.
+    const details = await SLP.Address.details(fromAddr);
+    const balance: number = details.balance;
+
+    // If balance is zero, no sweep needed, return
+    if (balance === 0) return;
 
     // Get UTXOs associated with public address.
     const u = await SLP.Address.utxo(fromAddr);
@@ -469,7 +501,7 @@ const sweep = async (
 
     // add output w/ address and amount to send
     transactionBuilder.addOutput(
-      SLP.Address.toLegacyAddress(toAddr),
+      SLP.Address.toLegacyAddress(bchAddr),
       sendAmount
     );
 
@@ -508,5 +540,6 @@ export {
   getTransactionDetails,
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction,
-  sweep
+  sweepPaperWallet,
+  getPaperBalance
 };
