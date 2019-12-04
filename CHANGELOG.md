@@ -1,5 +1,14 @@
 # Badger Wallet - Changelog
 
+## 0.12.6
+
+- Restrict sending BCH to cash addresses
+- Restrict sending SLP to simpleledger addresses
+- Confirmation counts in transaction history
+- Adding more token icons
+  - GOC, LEAD
+- Some BIP70 improvements for optional fields
+
 ## 0.12.5
 
 - Updated receive screen
