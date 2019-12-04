@@ -6,8 +6,6 @@ import { type UTXO } from "../data/utxos/reducer";
 import { type TokenData } from "../data/tokens/reducer";
 
 import { SLP } from "./slp-sdk-utils";
-import { italic } from "ansi-colors";
-import { exists } from "fs";
 
 const slpjs = require("slpjs");
 
