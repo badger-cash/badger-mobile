@@ -21,7 +21,12 @@ import {
 } from "../data/accounts/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 
-import { sweepPaperWallet, getPaperBalance } from "../utils/transaction-utils";
+import {
+  sweepPaperWallet,
+  getUtxosBalances,
+  getPaperKeypair,
+  getPaperUtxos
+} from "../utils/transaction-utils";
 import { type TokenData } from "../data/tokens/reducer";
 import { updateTokensMeta } from "../data/tokens/actions";
 
@@ -113,9 +118,19 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
 
   const handleQRData = async qrData => {
     try {
-      const balance = await getPaperBalance(qrData);
+      const keypair = await getPaperKeypair(qrData);
+      const utxosAll = await getPaperUtxos(keypair);
+      const paperBalances = await getUtxosBalances(utxosAll);
+
+      console.log("after all 3");
+      console.log(paperBalances);
+
+      //     getUtxosBalances,
+      // getPaperKeypair,
+      // getPaperUtxos
+      // const wifBalances = await getPaperBalance(qrData);
       setWif(qrData);
-      setPaperBalance(balance);
+      // setPaperBalance(balance);
       setSweepState("scanned");
     } catch (e) {
       setSweepState("error");
