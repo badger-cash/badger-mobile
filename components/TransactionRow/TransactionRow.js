@@ -61,6 +61,7 @@ let blockieCache = {};
 type Props = {
   type: "send" | "receive" | "payout" | "interwallet",
   txId: string,
+  confirmations: ?number,
   timestamp: number,
   toAddress: string,
   toAddresses: string[],
@@ -72,6 +73,7 @@ type Props = {
 };
 
 const TransactionRow = ({
+  confirmations,
   type,
   txId,
   timestamp,
@@ -122,15 +124,20 @@ const TransactionRow = ({
   return (
     <Row type={type}>
       <DateRow>
-        <T size="small" type="muted">
-          {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
-        </T>
+        <View>
+          <T size="small" type="muted">
+            {moment(timestamp).format("MM-DD-YYYY, h:mm a")}
+          </T>
+          <T size="xsmall" type="muted" monospace>
+            {confirmations !== null ? confirmations : "--"}-conf
+          </T>
+        </View>
         <TouchableOpacity
           onPress={() =>
             Linking.openURL(`https://explorer.bitcoin.com/bch/tx/${txId}`)
           }
         >
-          <T size="small" type="muted">
+          <T size="small" type="muted2">
             Explorer <Feather name="external-link" />
           </T>
         </TouchableOpacity>

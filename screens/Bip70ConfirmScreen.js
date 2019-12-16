@@ -364,14 +364,14 @@ const Bip70ConfirmScreen = ({
               <IconImage source={coinImageSource} />
             </IconArea>
 
-            <Spacer />
-            <T center monospace size="large">{`${minutes}:${seconds}`}</T>
             <Spacer small />
+            <T center monospace size="large">{`${minutes}:${seconds}`}</T>
+            <Spacer />
             <T center size="small" type="muted">
               Payment Amount
             </T>
             <Spacer tiny />
-            <T center monospace size="large">
+            <T center monospace size="large" weight="bold">
               {`${formatAmount(
                 BigNumber(
                   paymentDetails.tokenId
@@ -395,18 +395,18 @@ const Bip70ConfirmScreen = ({
               </>
             )}
             <Spacer />
-            <T center size="small">
+            {/* <T center size="small">
               {paymentDetails.network === "main"
                 ? "Main Network"
                 : "Test Network"}
-            </T>
-            <T
+            </T> */}
+            {/* <T
               size="small"
               type={paymentDetails.verified ? "primary" : "danger"}
               center
             >
-              {/* {paymentDetails.verified ? "Verified" : "Not verified"} */}
-            </T>
+              {paymentDetails.verified ? "Verified" : "Not verified"}
+            </T> */}
             <Spacer small />
             <T center size="small" type="muted">
               Payment URL
