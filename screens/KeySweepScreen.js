@@ -97,6 +97,8 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
     setPaperBalances
   ] = useState([]);
 
+  const [utxosByKey, setUtxosByKey] = useState({});
+
   // const [tokenIdSweep, setTokenIdSweep] = useState(null)
 
   const [sweepError: ?string, setSweepError] = useState(null);
@@ -132,6 +134,10 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
 
   // consider removing callbak if it doesn't work
   const handleQRData = useCallback(async (qrData: ?string) => {
+    setWif(null);
+    setPaperBalances(null);
+    setUtxosByKey(null);
+
     try {
       const keypair = await getPaperKeypair(qrData);
       const utxosAll = await getPaperUtxos(keypair);
@@ -148,6 +154,8 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
 
       setWif(qrData);
       setPaperBalances(balancesByKey);
+      setUtxosByKey(utxosAll);
+
       if (tokenAmount > 1) {
         // DEAL WITH THIS LATER
         // Select one of many tokens, to set tokenId
@@ -325,6 +333,7 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
                     setSweepState("pending");
                     await sweepPaperWallet(
                       wif,
+                      utxosByKey,
                       addressBCH,
                       addressSLP,
                       tokenId
