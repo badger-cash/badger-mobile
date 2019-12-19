@@ -15,11 +15,17 @@ import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import uuidv5 from "uuid/v5";
 
+import { type BigNumber } from "bignumber";
+
 import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
+
+// Probably don't need any advanced token display
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { type TokenData } from "../data/tokens/reducer";
+import { updateTokensMeta } from "../data/tokens/actions";
 
 import {
   sweepPaperWallet,
@@ -27,8 +33,6 @@ import {
   getPaperKeypair,
   getPaperUtxos
 } from "../utils/transaction-utils";
-import { type TokenData } from "../data/tokens/reducer";
-import { updateTokensMeta } from "../data/tokens/actions";
 
 import { T, H2, Spacer, Button } from "../atoms";
 
@@ -85,10 +89,20 @@ type Props = {
 const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
-  const [paperBalance: number, setPaperBalance] = useState(0);
+
+  // const [paperBalance: number, setPaperBalance] = useState(0);
+
+  const [
+    paperBalances: { [balanceKey: string]: BigNumber },
+    setPaperBalances
+  ] = useState([]);
+
+  // const [tokenIdSweep, setTokenIdSweep] = useState(null)
+
   const [sweepError: ?string, setSweepError] = useState(null);
   const [sweepState: SweepStates, setSweepState] = useState("neutral");
 
+  // Token ID to sweep, useful when there's more than 1 token on a paper wallet
   const [tokenId: ?string, setTokenId] = useState(null);
 
   const allTokenIds = [];
@@ -104,11 +118,11 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
     updateTokensMeta(missingTokenIds);
   }, [allTokenIds, tokensById]);
 
-  const symbol = useMemo(() => {
+  const symbolToken = useMemo(() => {
     if (tokenId) {
       return tokensById[tokenId].symbol;
     }
-    return "BCH";
+    return null;
   }, [tokenId, tokensById]);
   // const [symbol, setSymbol] = useState('BCH')
 
@@ -116,28 +130,37 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
     return qrData ? qrData : "";
   }, []);
 
-  const handleQRData = async qrData => {
+  // consider removing callbak if it doesn't work
+  const handleQRData = useCallback(async (qrData: ?string) => {
     try {
       const keypair = await getPaperKeypair(qrData);
       const utxosAll = await getPaperUtxos(keypair);
-      const paperBalances = await getUtxosBalances(utxosAll);
+      const balancesByKey = await getUtxosBalances(utxosAll);
 
       console.log("after all 3");
-      console.log(paperBalances);
+      console.log(balancesByKey);
 
-      //     getUtxosBalances,
-      // getPaperKeypair,
-      // getPaperUtxos
-      // const wifBalances = await getPaperBalance(qrData);
+      const paperBalanceKeys = Object.keys(balancesByKey);
+      // const hasBCH = paperBalanceKeys.includes("BCH");
+      const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
+
+      const tokenAmount = keysWithoutBCH.length;
+
       setWif(qrData);
-      // setPaperBalance(balance);
-      setSweepState("scanned");
+      setPaperBalances(balancesByKey);
+      if (tokenAmount > 1) {
+        // DEAL WITH THIS LATER
+        // Select one of many tokens, to set tokenId
+        setSweepState("tokenSelect");
+      } else {
+        setTokenId(tokenAmount === 1 ? keysWithoutBCH[0] : null);
+        setSweepState("scanned");
+      }
     } catch (e) {
       setSweepState("error");
-      setSweepError(e.message || "Error scanning wallet");
+      setSweepError(e.message || "Error scanning paper wallet");
     }
-    return;
-  };
+  }, []);
 
   return (
     <SafeAreaView style={{ height: "100%" }}>
@@ -205,33 +228,48 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
                   1. Scan the private QR code on the paper wallet.
                 </T>
                 <Spacer small />
-                <T size="small">2. Review details.</T>
+                <T size="small">2. Select a token if there are multiple.</T>
                 <Spacer small />
-                <T size="small">3. Sweep to your Badger Wallet.</T>
+                <T size="small">3. Review details.</T>
                 <Spacer small />
-                <T size="small">4. Repeat until all funds have been swept.</T>
+                <T size="small">4. Sweep to your Badger Wallet.</T>
+                <Spacer small />
+                <T size="small">
+                  5. Repeat until all BCH and tokens have been swept.
+                </T>
               </>
             )}
             {sweepState === "tokenSelect" && (
               <>
                 <T weight="bold">
-                  Multiple tokens detected, select one to sweep
+                  Multiple SLP tokens detected, select one to sweep
                 </T>
               </>
             )}
             {sweepState === "scanned" && (
               <>
-                <T weight="bold">2. Review Details</T>
+                <T weight="bold">Review Details</T>
                 <Spacer small />
                 <T>Wif</T>
                 <T>{wif}</T>
                 <Spacer small />
-                <T>Amount</T>
-                <T>
-                  {paperBalance} {symbol}
-                </T>
-                {tokenId && <T>{tokenId}</T>}
-                <Spacer />
+                {paperBalances["BCH"] && (
+                  <>
+                    <T>Amount - BCH</T>
+                    <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
+                    <Spacer />
+                  </>
+                )}
+                {paperBalances[tokenId] && (
+                  <>
+                    <T>Amount - Token</T>
+                    <T weight="bold">
+                      {paperBalances[tokenId].toFormat()} {symbolToken}
+                    </T>
+                    <T size="xsmall">{tokenId}</T>
+                    <Spacer />
+                  </>
+                )}
               </>
             )}
             {sweepState === "pending" && (
@@ -250,10 +288,18 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
                 <T type="primary" center weight="bold">
                   Sweep Complete
                 </T>
-                <Spacer small />
+                <Spacer />
                 <T type="primary" center weight="bold">
-                  {paperBalance} {symbol}
+                  {paperBalances["BCH"].toFormat()} BCH
                 </T>
+                <Spacer small />
+                {paperBalances[tokenId] && (
+                  <>
+                    <T type="primary" center weight="bold">
+                      {paperBalances[tokenId].toFormat()} {symbolToken}
+                    </T>
+                  </>
+                )}
               </SuccessContainer>
             )}
             {sweepState === "error" && (
@@ -270,14 +316,19 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
 
           {sweepState === "scanned" && (
             <View>
-              <T weight="bold">3. Sweep Funds</T>
+              <T weight="bold">Sweep Funds</T>
               <Spacer small />
               <Button
                 text="Confirm Sweep"
                 onPress={async () => {
                   try {
                     setSweepState("pending");
-                    await sweepPaperWallet(wif, addressBCH, addressSLP);
+                    await sweepPaperWallet(
+                      wif,
+                      addressBCH,
+                      addressSLP,
+                      tokenId
+                    );
                     setSweepState("success");
                   } catch (e) {
                     setSweepState("error");
@@ -302,7 +353,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { updateTokensMeta };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(KeySweepScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(KeySweepScreen);

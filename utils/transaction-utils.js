@@ -410,7 +410,7 @@ type UtxosByKey = {
 // Get the balances from a paper wallet wif
 const getUtxosBalances = async (
   utxosByKey: UtxosByKey
-): { balanceKey: string, balance: number }[] => {
+): { [balanceKey: string]: BigNumber } => {
   const balances = {};
 
   console.log("About to add em up");
@@ -494,13 +494,25 @@ const getPaperUtxos = async (keypair: any) => {
     // Or own wallet BCH if no paper wallet available
     // Confirm
     // Sweep.
-    // Repeat.
+
+    // Blockbook not working
+    // Repeat.const utxosAll = await SLP.Blockbook.utxo(fromAddr);
+
+    // console.log("u?");
+    // console.log(u);
+    // const utxosAll: UTXO[] = u.utxos;
 
     // Get UTXOs associated with public address.
     const u = await SLP.Address.utxo(fromAddr);
-    const utxosAll: UTXO[] = u.utxos;
+
+    console.log("UUU");
+    console.log(u);
+
+    const utxosAll = u.utxos;
 
     const utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
+
+    console.log("details?");
 
     // Change to if & throw
     console.assert(
@@ -519,7 +531,12 @@ const getPaperUtxos = async (keypair: any) => {
       const utxoKey = token ? token.tokenId : "BCH";
 
       const exists = utxosByKey[utxoKey];
-      exists ? utxosByKey[utxoKey].push(utxo) : (utxosByKey[utxoKey] = [utxo]);
+
+      if (exists) {
+        utxosByKey[utxoKey].push(utxo);
+      } else {
+        utxosByKey[utxoKey] = [utxo];
+      }
       // } else {
       //   const exists = utxosByToken[token.tokenId];
       //   exists
@@ -535,7 +552,12 @@ const getPaperUtxos = async (keypair: any) => {
   }
 };
 
-const sweepPaperWallet = async (wif: ?string) => {
+const sweepPaperWallet = async (
+  wif: ?string,
+  addressBch: string,
+  addressSlp: string,
+  tokenId: ?string
+) => {
   return;
 };
 // if (!bchAddr || bchAddr === "") {

@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* badgerMobileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* badgerMobileTests.m */; };
 		10CFA4F0722C43A3888CD7AF /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 077E1A1E373C4995B436AE37 /* Entypo.ttf */; };
