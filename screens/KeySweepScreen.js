@@ -21,11 +21,6 @@ import { type BigNumber } from "bignumber";
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
 
-// import {
-//   getKeypairSelector,
-//   activeAccountSelector
-// } from "../data/accounts/selectors";
-
 import {
   getKeypairSelector,
   activeAccountSelector,
@@ -172,9 +167,6 @@ const KeySweepScreen = ({
       const utxosAll = await getPaperUtxos(keypair);
       const balancesByKey = await getUtxosBalances(utxosAll);
 
-      console.log("after all 3");
-      console.log(balancesByKey);
-
       const paperBalanceKeys = Object.keys(balancesByKey);
       const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
 
@@ -195,11 +187,6 @@ const KeySweepScreen = ({
       setSweepError(e.message || "Error scanning paper wallet");
     }
   }, []);
-
-  // LEFT OFF-
-  // Testing 2+ slp + BCH
-  // Build out SLP + no BCH flow
-  // Figure out how to defend against quick sweeps burning tokens. under 1 conf
 
   const confirmSweep = useCallback(async () => {
     try {

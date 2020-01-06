@@ -414,8 +414,6 @@ const getUtxosBalances = async (
 ): { [balanceKey: string]: BigNumber } => {
   const balances = {};
 
-  console.log("About to add em up");
-  console.log(utxosByKey);
   Object.entries(utxosByKey).forEach(([utxoKey, utxos]) => {
     let total = new BigNumber(0);
     if (utxoKey === "BCH") {
@@ -430,30 +428,9 @@ const getUtxosBalances = async (
       }, new BigNumber(0));
     }
     balances[utxoKey] = total;
-    // const exists = utxosByKey[utxoKey];
-    // exists ? utxosByKey[utxoKey].push(utxo) : (utxosByKey[utxoKey] = [utxo]);
   });
-
-  console.log("balances done");
-  console.log(balances);
   return balances;
-
-  // return;
-
-  // // Generate a keypair from the WIF.
-  // const keyPair = SLP.ECPair.fromWIF(wif);
-
-  // // Generate the public address associated with the private key.
-  // const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
-
-  // // Check the BCH balance of that public address.
-  // const details = await SLP.Address.details(fromAddr);
-  // const balance: number = details.balance;
-
-  // // If balance is zero or balanceOnly flag is passed in, exit.
-  // return [{ balanceKey: "BCH", balance }];
 };
-// };
 
 const getPaperKeypair = async (wif: ?string) => {
   // Input validation
@@ -465,7 +442,6 @@ const getPaperKeypair = async (wif: ?string) => {
 
   const keypair = await SLP.ECPair.fromWIF(wif);
 
-  console.log("GOT KEYPAIR");
   return keypair;
 };
 
@@ -480,9 +456,6 @@ const getPaperUtxos = async (keypair: any): { [utxoKey: string]: any } => {
     const utxosAll = u.utxos;
 
     const utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
-
-    console.log("UTXO details");
-    console.log(utxosDetails);
 
     // Change to if & throw
     console.assert(
@@ -539,7 +512,7 @@ const sweepPaperWallet = async (
       throw new Error("Token decimals required");
     }
 
-    console.log("Start done validation");
+    let txid = null;
 
     const balancesByKey = await getUtxosBalances(utxosByKey);
     const paperBalanceKeys = Object.keys(balancesByKey);
@@ -549,49 +522,27 @@ const sweepPaperWallet = async (
     const keyPair = SLP.ECPair.fromWIF(wif);
     const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
 
-    console.log("Basic setup");
-
     // Prepare to generate a transaction to sweep funds.
     const transactionBuilder = new SLP.TransactionBuilder(
       SLP.Address.detectAddressNetwork(fromAddr)
     );
 
     if (tokenId && hasBCH) {
-      console.log("start both path");
-
-      // const tokenDecimals = tokenMetadata.decimals;
       const scaledTokenSendAmount = new BigNumber(
         balancesByKey[tokenId]
       ).decimalPlaces(tokenDecimals);
       const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
-
-      // Sweep Token + BCH
       const sendOpReturn = slpjs.Slp.buildSendOpReturn({
         tokenIdHex: tokenId,
         outputQtyArray: [tokenSendAmount]
       });
-
-      console.log("Made OP return");
       const tokenReceiverAddressArray = [addressSlp];
 
-      // let byteCount = 0;
-      // let inputSatoshis = 0;
       const slpUtxos = [...utxosByKey[tokenId]];
       const bchUtxos = [...utxosByKey["BCH"]];
 
-      console.log("Got UTXO");
-
       let inputUtxos = [...slpUtxos, ...bchUtxos];
-      // for (const utxo of bchUtxos) {
-      //   inputSatoshis = inputSatoshis + utxo.satoshis;
-      //   // inputUtxos.push(utxo);
 
-      //   // if (inputSatoshis >= byteCount) {
-      //   //   break;
-      //   // }
-      // }
-
-      console.log("Added inputs");
       let byteCount = SLPJS.calculateSendCost(
         sendOpReturn.length,
         inputUtxos.length,
@@ -599,37 +550,23 @@ const sweepPaperWallet = async (
         fromAddr
       );
 
-      console.log("calculated send cost", byteCount);
-
       let totalUtxoAmount = 0;
       inputUtxos.forEach(utxo => {
         transactionBuilder.addInput(utxo.txid, utxo.vout);
         totalUtxoAmount += utxo.satoshis;
       });
 
-      console.log("remaining amount");
       const satoshisRemaining = totalUtxoAmount - byteCount;
-
-      console.log(satoshisRemaining);
 
       // SLP data output
       transactionBuilder.addOutput(sendOpReturn, 0);
 
-      console.log("send Op added", sendOpReturn);
-
       // Token destination output
       transactionBuilder.addOutput(addressSlp, 546);
 
-      console.log("Token dest aded");
-
-      // Return remaining token balance output
-      // if (tokenChangeAmount.isGreaterThan(0)) {
-      //   transactionBuilder.addOutput(tokenChangeAddress, 546);
-      // }
-
       // Return remaining bch balance output
-      // What is the purpose of the + 546 here again?
-      transactionBuilder.addOutput(addressBch, satoshisRemaining);
+      // What is the purpose of the + 546 here again.  Without it the fee is way too high, just not sure why as fee already calculated
+      transactionBuilder.addOutput(addressBch, satoshisRemaining + 546);
 
       console.log("Change added");
 
@@ -644,19 +581,9 @@ const sweepPaperWallet = async (
         );
       });
 
-      console.log("Signing done");
-
-      // try {
       const hex = transactionBuilder.build().toHex();
 
-      let txid = null;
-      // try {
       txid = await publishTx(hex);
-      console.log("done");
-      console.log(txid);
-
-      // }
-      // }
     } else if (hasBCH && !tokenId) {
       // Sweep just BCH
       const bchUtxos = [...utxosByKey["BCH"]];
@@ -704,10 +631,9 @@ const sweepPaperWallet = async (
       const hex: string = tx.toHex();
 
       // Broadcast the transaction to the BCH network.
-      let txid: string = await SLP.RawTransactions.sendRawTransaction(hex);
+      txid = await SLP.RawTransactions.sendRawTransaction(hex);
       return txid;
     } else if (tokenId && !hasBCH) {
-      console.log("in only SLP flow");
       const ownUtxosWithKeypair = ownUtxos.map(utxo => ({
         ...utxo,
         keypair: utxo.address === addressBch ? ownKeypair.bch : ownKeypair.slp
@@ -728,11 +654,8 @@ const sweepPaperWallet = async (
         outputQtyArray: [tokenSendAmount]
       });
 
-      console.log("Made OP return");
       const tokenReceiverAddressArray = [addressSlp];
 
-      // let byteCount = 0;
-      // let inputSatoshis = 0;
       const inputPaperUtxos = [...utxosByKey[tokenId]];
 
       let byteCount = 0;
@@ -756,8 +679,6 @@ const sweepPaperWallet = async (
 
       const inputCombinedUtxos = [...inputPaperUtxos, ...inputOwnUtxos];
 
-      // const transactionBuilder = new SLP.TransactionBuilder("mainnet");
-
       let totalUtxoAmount = 0;
       inputCombinedUtxos.forEach(utxo => {
         transactionBuilder.addInput(utxo.txid, utxo.vout);
@@ -780,7 +701,7 @@ const sweepPaperWallet = async (
       transactionBuilder.addOutput(addressSlp, 546);
 
       // Return remaining bch balance to own BCH wallet
-      transactionBuilder.addOutput(addressBch, satoshisRemaining);
+      transactionBuilder.addOutput(addressBch, satoshisRemaining + 546);
 
       let redeemScript;
       inputPaperUtxos.forEach((utxo, index) => {
@@ -806,85 +727,14 @@ const sweepPaperWallet = async (
 
       const hex = transactionBuilder.build().toHex();
 
-      let txid = null;
       txid = await publishTx(hex);
-
-      // const bchUtxos = [...utxosByKey["BCH"]];
-
-      console.log("Got UTXO");
-
-      return txid;
     }
+    return txid;
   } catch (e) {
     console.error(e);
     throw e;
   }
-
-  return;
 };
-// if (!bchAddr || bchAddr === "") {
-//   throw new Error(`Address to receive swept funds must be included`);
-// }
-//   // Prepare to generate a transaction to sweep funds.
-//   const transactionBuilder = new SLP.TransactionBuilder(
-//     SLP.Address.detectAddressNetwork(fromAddr)
-//   );
-//   let originalAmount: number = 0;
-
-//   // Add all UTXOs to the transaction inputs.
-//   for (let i = 0; i < utxos.length; i++) {
-//     const utxo: utxo = utxos[i];
-//     originalAmount = originalAmount + utxo.satoshis;
-//     transactionBuilder.addInput(utxo.txid, utxo.vout);
-//   }
-
-//   if (originalAmount < 1) {
-//     throw new Error(`Original amount is zero. No BCH to send.`);
-//   }
-
-//   // get byte count to calculate fee. paying 1.1 sat/byte
-//   const byteCount: number = SLP.BitcoinCash.getByteCount(
-//     { P2PKH: utxos.length },
-//     { P2PKH: 1 }
-//   );
-//   const fee: number = Math.ceil(1.1 * byteCount);
-
-//   // amount to send to receiver. It's the original amount - 1 sat/byte for tx size
-//   const sendAmount: number = originalAmount - fee;
-
-//   // add output w/ address and amount to send
-//   transactionBuilder.addOutput(
-//     SLP.Address.toLegacyAddress(bchAddr),
-//     sendAmount
-//   );
-
-//   // Loop through each input and sign it with the private key.
-//   let redeemScript;
-//   for (let i: number = 0; i < utxos.length; i++) {
-//     const utxo = utxos[i];
-//     transactionBuilder.sign(
-//       i,
-//       keyPair,
-//       redeemScript,
-//       transactionBuilder.hashTypes.SIGHASH_ALL,
-//       utxo.satoshis
-//     );
-//   }
-
-//   // build tx
-//   const tx: any = transactionBuilder.build();
-
-//   // output rawhex
-//   const hex: string = tx.toHex();
-
-//   // Broadcast the transaction to the BCH network.
-//   let txid: string = await SLP.RawTransactions.sendRawTransaction(hex);
-//   return txid;
-// } catch (error) {
-//   if (error.response && error.response.data) throw error.response.data;
-//   else throw error;
-// }
-// };
 
 export {
   decodeTokenMetadata,
