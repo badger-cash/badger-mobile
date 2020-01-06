@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
+  Clipboard,
   SafeAreaView,
   ScrollView,
   View,
@@ -13,14 +14,25 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import uuidv5 from "uuid/v5";
+// import uuidv5 from "uuid/v5";
 
 import { type BigNumber } from "bignumber";
 
+import { type UTXO } from "../data/utxos/reducer";
+import { type ECPair } from "../data/accounts/reducer";
+
+// import {
+//   getKeypairSelector,
+//   activeAccountSelector
+// } from "../data/accounts/selectors";
+
 import {
+  getKeypairSelector,
+  activeAccountSelector,
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
 
 // Probably don't need any advanced token display
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -83,10 +95,18 @@ type SweepStates =
 type Props = {
   addressBCH: string,
   addressSLP: string,
+  ownUtxos: UTXO[],
+  ownKeypair: { bch: ECPair, slp: ECPair },
   tokensById: { [tokenId: string]: TokenData }
 };
 
-const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
+const KeySweepScreen = ({
+  addressBCH,
+  addressSLP,
+  tokensById,
+  ownUtxos,
+  ownKeypair
+}: Props) => {
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
 
@@ -114,15 +134,24 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
   //   return uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
   // }, [allTokenIds])
 
+  // Fetch token metadata if any are missing
   useEffect(() => {
-    // Fetch token metadata if any are missing
-    const missingTokenIds = allTokenIds.filter(tokenId => !tokensById[tokenId]);
+    const missingTokenIds = allTokenIds.filter(
+      currTokenId => !tokensById[currTokenId]
+    );
     updateTokensMeta(missingTokenIds);
   }, [allTokenIds, tokensById]);
 
   const symbolToken = useMemo(() => {
     if (tokenId) {
       return tokensById[tokenId].symbol;
+    }
+    return null;
+  }, [tokenId, tokensById]);
+
+  const tokenDecimals = useMemo(() => {
+    if (tokenId) {
+      return tokensById[tokenId].decimals;
     }
     return null;
   }, [tokenId, tokensById]);
@@ -147,7 +176,6 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
       console.log(balancesByKey);
 
       const paperBalanceKeys = Object.keys(balancesByKey);
-      // const hasBCH = paperBalanceKeys.includes("BCH");
       const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
 
       const tokenAmount = keysWithoutBCH.length;
@@ -157,8 +185,6 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
       setUtxosByKey(utxosAll);
 
       if (tokenAmount > 1) {
-        // DEAL WITH THIS LATER
-        // Select one of many tokens, to set tokenId
         setSweepState("tokenSelect");
       } else {
         setTokenId(tokenAmount === 1 ? keysWithoutBCH[0] : null);
@@ -170,6 +196,53 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
     }
   }, []);
 
+  // LEFT OFF-
+  // Testing 2+ slp + BCH
+  // Build out SLP + no BCH flow
+  // Figure out how to defend against quick sweeps burning tokens. under 1 conf
+
+  const confirmSweep = useCallback(async () => {
+    try {
+      setSweepState("pending");
+      await sweepPaperWallet(
+        wif,
+        utxosByKey,
+        addressBCH,
+        addressSLP,
+        tokenId,
+        tokenDecimals,
+        ownUtxos,
+        ownKeypair
+      );
+      setSweepState("success");
+    } catch (e) {
+      setSweepState("error");
+      setSweepError("Sweep failed, please try again");
+    }
+  }, [
+    wif,
+    utxosByKey,
+    addressBCH,
+    addressSLP,
+    tokenId,
+    tokenDecimals,
+    setSweepState,
+    setSweepError,
+    ownKeypair,
+    ownUtxos
+  ]);
+
+  const handleScan = useCallback(
+    e => {
+      const qrData = e.data;
+      const parsedData = parseQr(qrData);
+      setSweepState("pending");
+      handleQRData(parsedData);
+      setCameraOpen(false);
+    },
+    [handleQRData, parseQr]
+  );
+
   return (
     <SafeAreaView style={{ height: "100%" }}>
       <ScreenWrapper>
@@ -177,18 +250,20 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
+            <H2
+              onPress={async () => {
+                const content = await Clipboard.getString();
+                handleScan({ data: content });
+              }}
+            >
+              paste
+            </H2>
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
                 cameraProps={{ ratio: "1:1", captureAudio: false }}
                 fadeIn={false}
-                onRead={e => {
-                  const qrData = e.data;
-                  const parsedData = parseQr(qrData);
-                  setSweepState("pending");
-                  handleQRData(parsedData);
-                  setCameraOpen(false);
-                }}
+                onRead={handleScan}
                 cameraStyle={{
                   // padding 16 for each side
                   height: Dimensions.get("window").width - 32,
@@ -252,6 +327,24 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
                 <T weight="bold">
                   Multiple SLP tokens detected, select one to sweep
                 </T>
+                <Spacer />
+                {Object.entries(paperBalances).map(item => {
+                  if (item[0] === "BCH") return null;
+                  return (
+                    <>
+                      <Spacer small />
+                      <T
+                        weight="bold"
+                        onPress={() => {
+                          setTokenId(item[0]);
+                          setSweepState("scanned");
+                        }}
+                      >{`${tokensById[item[0]].name} (${
+                        tokensById[item[0]].symbol
+                      }) - ${paperBalances[item[0]]}`}</T>
+                    </>
+                  );
+                })}
               </>
             )}
             {sweepState === "scanned" && (
@@ -297,9 +390,11 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
                   Sweep Complete
                 </T>
                 <Spacer />
-                <T type="primary" center weight="bold">
-                  {paperBalances["BCH"].toFormat()} BCH
-                </T>
+                {paperBalances["BCH"] && (
+                  <T type="primary" center weight="bold">
+                    {paperBalances["BCH"].toFormat()} BCH
+                  </T>
+                )}
                 <Spacer small />
                 {paperBalances[tokenId] && (
                   <>
@@ -326,25 +421,7 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
             <View>
               <T weight="bold">Sweep Funds</T>
               <Spacer small />
-              <Button
-                text="Confirm Sweep"
-                onPress={async () => {
-                  try {
-                    setSweepState("pending");
-                    await sweepPaperWallet(
-                      wif,
-                      utxosByKey,
-                      addressBCH,
-                      addressSLP,
-                      tokenId
-                    );
-                    setSweepState("success");
-                  } catch (e) {
-                    setSweepState("error");
-                    setSweepError("Sweep failed, please try again");
-                  }
-                }}
-              />
+              <Button text="Confirm Sweep" onPress={confirmSweep} />
               <Spacer />
             </View>
           )}
@@ -354,11 +431,19 @@ const KeySweepScreen = ({ addressBCH, addressSLP, tokensById }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({
-  addressBCH: getAddressSelector(state),
-  addressSLP: getAddressSlpSelector(state),
-  tokensById: tokensByIdSelector(state)
-});
+const mapStateToProps = state => {
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
+  const keypair = getKeypairSelector(state);
+
+  return {
+    ownUtxos: utxos,
+    ownKeypair: keypair,
+    addressBCH: getAddressSelector(state),
+    addressSLP: getAddressSlpSelector(state),
+    tokensById: tokensByIdSelector(state)
+  };
+};
 
 const mapDispatchToProps = { updateTokensMeta };
 
