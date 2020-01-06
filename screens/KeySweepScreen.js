@@ -276,7 +276,7 @@ const KeySweepScreen = ({
         >
           <View>
             <Spacer />
-            <T weight="bold">1. Scan QR</T>
+            <T weight="bold">Scan QR</T>
             <Spacer small />
             <Button text="Open QR Scanner" onPress={() => setCameraOpen(true)}>
               <T center spacing="loose" type="inverse">
@@ -338,24 +338,41 @@ const KeySweepScreen = ({
               <>
                 <T weight="bold">Review Details</T>
                 <Spacer small />
-                <T>Wif</T>
-                <T>{wif}</T>
+                <T weight="bold" type="muted2">
+                  Wif
+                </T>
+                <T monospace size="small">
+                  {wif}
+                </T>
+                <Spacer />
+                <T weight="bold" type="muted2">
+                  Paper Wallet Balance
+                </T>
                 <Spacer small />
                 {paperBalances["BCH"] && (
                   <>
-                    <T>Amount - BCH</T>
                     <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
                     <Spacer />
                   </>
                 )}
                 {paperBalances[tokenId] && (
                   <>
-                    <T>Amount - Token</T>
+                    {/* <T>Amount - {symbolToken}</T> */}
                     <T weight="bold">
                       {paperBalances[tokenId].toFormat()} {symbolToken}
                     </T>
                     <T size="xsmall">{tokenId}</T>
                     <Spacer />
+                  </>
+                )}
+                {!paperBalances["BCH"] && !paperBalances[tokenId] && (
+                  <>
+                    <T>No balances found on this paper wallet</T>
+                    <Spacer small />
+                    <T>
+                      If the funds appear on a block explorer, wait a few
+                      minutes and try again.
+                    </T>
                   </>
                 )}
               </>
@@ -397,6 +414,7 @@ const KeySweepScreen = ({
                 <T type="accent" center>
                   {sweepError}
                 </T>
+                <Spacer small />
                 <T type="accent" center>
                   Please try again
                 </T>

@@ -455,7 +455,8 @@ const getPaperUtxos = async (keypair: any): { [utxoKey: string]: any } => {
 
     const utxosAll = u.utxos;
 
-    const utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
+    let utxosDetails = [];
+    utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
 
     // Change to if & throw
     console.assert(

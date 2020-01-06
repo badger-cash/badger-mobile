@@ -65,7 +65,7 @@ const getHistoricalBchTransactions = async (
   };
 
   try {
-    const result = await SLP.BitDB.get(query);
+    const result = await SLP.SLPDB.get(query);
 
     // combine confirmed and unconfirmed
     // errors = slpdb, error = REST rate limit

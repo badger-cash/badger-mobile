@@ -152,7 +152,7 @@ const TransactionRow = ({
         <AmountArea>
           <T>
             {type === "interwallet"
-              ? `? ${amount}`
+              ? `${amount}`
               : type === "send"
               ? `- ${amount}`
               : `+ ${amount}`}

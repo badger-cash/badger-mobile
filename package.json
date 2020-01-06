@@ -28,7 +28,7 @@
     "@react-native-community/async-storage": "^1.6.1",
     "@tradle/react-native-http": "^2.0.1",
     "bignumber.js": "^9.0.0",
-    "bitbox-sdk": "~8.7.0",
+    "bitbox-sdk": "~8.11.2",
     "bitcore-payment-protocol": "git+https://github.com/vinarmani/bitcore-payment-protocol.git#new_deps",
     "ethereum-blockies-base64": "^1.0.2",
     "events": "^3.0.0",

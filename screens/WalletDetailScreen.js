@@ -327,7 +327,4 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = {};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WalletDetailScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(WalletDetailScreen);
