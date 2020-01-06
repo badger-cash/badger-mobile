@@ -528,6 +528,10 @@ const sweepPaperWallet = async (
     );
 
     if (tokenId && hasBCH) {
+      // The paper wallet has both BCH and SLP balances
+      // This case sweeps 1 SLP token and all of the BCH to the users wallet
+      // In the case the paper wallet has more than 1 SLP token, additional sweeps in the SLP only use case must be called
+
       const scaledTokenSendAmount = new BigNumber(
         balancesByKey[tokenId]
       ).decimalPlaces(tokenDecimals);
@@ -568,8 +572,6 @@ const sweepPaperWallet = async (
       // What is the purpose of the + 546 here again.  Without it the fee is way too high, just not sure why as fee already calculated
       transactionBuilder.addOutput(addressBch, satoshisRemaining + 546);
 
-      console.log("Change added");
-
       let redeemScript;
       inputUtxos.forEach((utxo, index) => {
         transactionBuilder.sign(
@@ -585,7 +587,8 @@ const sweepPaperWallet = async (
 
       txid = await publishTx(hex);
     } else if (hasBCH && !tokenId) {
-      // Sweep just BCH
+      // Case where the wallet has only BCH to sweep
+
       const bchUtxos = [...utxosByKey["BCH"]];
       let originalAmount: number = 0;
 
@@ -634,6 +637,9 @@ const sweepPaperWallet = async (
       txid = await SLP.RawTransactions.sendRawTransaction(hex);
       return txid;
     } else if (tokenId && !hasBCH) {
+      // Case where the paper wallet has tokens, but no BCH to pay the miner fee.
+      // Here we use the paper wallet UTXO's for SLP, and use our own BCH to pay the mining fee.
+
       const ownUtxosWithKeypair = ownUtxos.map(utxo => ({
         ...utxo,
         keypair: utxo.address === addressBch ? ownKeypair.bch : ownKeypair.slp
