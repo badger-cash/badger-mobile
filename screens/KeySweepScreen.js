@@ -2,13 +2,14 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
+  ActivityIndicator,
   Clipboard,
+  Dimensions,
   SafeAreaView,
   ScrollView,
-  View,
   StyleSheet,
-  ActivityIndicator,
-  Dimensions
+  TouchableOpacity,
+  View
 } from "react-native";
 import { connect } from "react-redux";
 import styled from "styled-components";
@@ -77,6 +78,14 @@ const SuccessContainer = styled(View)`
   border-radius: 4px;
   padding: 16px 8px;
   background-color: ${props => props.theme.primary900};
+`;
+
+const TokenCard = styled(View)`
+  padding: 8px;
+  background-color: ${props => props.theme.fg700};
+  border-color: ${props => props.theme.fg500};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
 `;
 
 type SweepStates =
@@ -314,8 +323,14 @@ const KeySweepScreen = ({
             )}
             {sweepState === "tokenSelect" && (
               <>
-                <T weight="bold">
-                  Multiple SLP tokens detected, select one to sweep
+                {/* {paperBalances["BCH"] && (
+                  <>
+                    <T>{paperBalances["BCH"].toFormat()} BCH</T>
+                    <Spacer />
+                  </>
+                )} */}
+                <T>
+                  Multiple SLP tokens detected, select one to sweep first...
                 </T>
                 <Spacer />
                 {Object.entries(paperBalances).map(item => {
@@ -323,15 +338,25 @@ const KeySweepScreen = ({
                   return (
                     <>
                       <Spacer small />
-                      <T
-                        weight="bold"
+                      <TouchableOpacity
                         onPress={() => {
                           setTokenId(item[0]);
                           setSweepState("scanned");
                         }}
-                      >{`${tokensById[item[0]].name} (${
-                        tokensById[item[0]].symbol
-                      }) - ${paperBalances[item[0]]}`}</T>
+                      >
+                        <TokenCard>
+                          <T weight="bold">
+                            {`${tokensById[item[0]].symbol} - ${
+                              tokensById[item[0]].name
+                            }`}
+                          </T>
+                          <T>
+                            {`${paperBalances[item[0]]} ${
+                              tokensById[item[0]].symbol
+                            }`}
+                          </T>
+                        </TokenCard>
+                      </TouchableOpacity>
                     </>
                   );
                 })}
@@ -393,25 +418,41 @@ const KeySweepScreen = ({
               </View>
             )}
             {sweepState === "success" && (
-              <SuccessContainer>
-                <T type="primary" center weight="bold">
-                  Sweep Success
-                </T>
-                <Spacer />
-                {paperBalances["BCH"] && (
+              <>
+                <SuccessContainer>
                   <T type="primary" center weight="bold">
-                    {paperBalances["BCH"].toFormat()} BCH
+                    Sweep Success!
                   </T>
-                )}
-                <Spacer small />
-                {paperBalances[tokenId] && (
-                  <>
-                    <T type="primary" center weight="bold">
-                      {paperBalances[tokenId].toFormat()} {symbolToken}
-                    </T>
-                  </>
-                )}
-              </SuccessContainer>
+                  <Spacer />
+                  {paperBalances["BCH"] && (
+                    <>
+                      <T type="primary" center weight="bold">
+                        BCH
+                      </T>
+                      <T type="primary" size="large" center weight="bold">
+                        {paperBalances["BCH"].toFormat()}
+                      </T>
+                      <Spacer />
+                    </>
+                  )}
+                  {paperBalances[tokenId] && (
+                    <>
+                      <T type="primary" center weight="bold">
+                        {symbolToken}
+                      </T>
+                      <T type="primary" center size="large" weight="bold">
+                        {paperBalances[tokenId].toFormat()}
+                      </T>
+                    </>
+                  )}
+                  <Spacer small />
+                </SuccessContainer>
+                <Spacer />
+                <T size="small" type="muted" center>
+                  Sweep again if this paper wallet had more than 1 type of SLP
+                  token.
+                </T>
+              </>
             )}
             {sweepState === "error" && (
               <ErrorContainer>
