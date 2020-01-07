@@ -230,6 +230,9 @@ const KeySweepScreen = ({
     [handleQRData, parseQr]
   );
 
+  const hasBalance =
+    paperBalances && (paperBalances["BCH"] || paperBalances[tokenId]);
+
   return (
     <SafeAreaView style={{ height: "100%" }}>
       <ScreenWrapper>
@@ -341,6 +344,7 @@ const KeySweepScreen = ({
                 <T weight="bold" type="muted2">
                   Wif
                 </T>
+                <Spacer small />
                 <T monospace size="small">
                   {wif}
                 </T>
@@ -365,7 +369,7 @@ const KeySweepScreen = ({
                     <Spacer />
                   </>
                 )}
-                {!paperBalances["BCH"] && !paperBalances[tokenId] && (
+                {!hasBalance && (
                   <>
                     <T>No balances found on this paper wallet</T>
                     <Spacer small />
@@ -391,7 +395,7 @@ const KeySweepScreen = ({
             {sweepState === "success" && (
               <SuccessContainer>
                 <T type="primary" center weight="bold">
-                  Sweep Complete
+                  Sweep Success
                 </T>
                 <Spacer />
                 {paperBalances["BCH"] && (
@@ -422,7 +426,7 @@ const KeySweepScreen = ({
             )}
           </View>
 
-          {sweepState === "scanned" && (
+          {sweepState === "scanned" && hasBalance && (
             <View>
               <T weight="bold">Sweep Funds</T>
               <Spacer small />
