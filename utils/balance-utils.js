@@ -122,6 +122,8 @@ const getHistoricalSlpTransactions = async (
         "tx.h": 1,
         "in.i": 1,
         "in.e": 1,
+        "out.e": 1,
+        "out.a": 1,
         "slp.detail": 1,
         blk: 1
       },

@@ -15,6 +15,7 @@ import {
 
 import { SLP } from "../../utils/slp-sdk-utils";
 
+import { type Transaction } from "./reducer";
 import { transactionsLatestBlockSelector } from "../selectors";
 import { transactionsSelector } from "./selectors";
 
@@ -60,7 +61,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
       transactionsSlp
     ]);
 
-    const formattedTransactionsBCH = bchHistory
+    const formattedTransactionsBCH: Transaction[] = bchHistory
       .map(tx => {
         const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
         const hash = tx.tx.h;
@@ -85,9 +86,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
           } else if (fromAddresses.includes(addressSlp)) {
             fromAddress = addressSlp;
           }
-        }
-        if (!fromAddress && fromAddresses.includes(address)) {
-          fromAddress = address;
         }
 
         const toAddressesAll = tx.out
@@ -152,7 +150,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
             to: toAddress,
             fromAddresses,
             toAddresses,
-            value
+            valueBch: value
           },
           time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
           block,
@@ -162,7 +160,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
       })
       .filter(Boolean);
 
-    const formattedTransactionsSLP = slpHistory
+    const formattedTransactionsSLP: Transaction[] = slpHistory
       .map(tx => {
         const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
         const hash = tx.tx.h;
@@ -186,12 +184,20 @@ const updateTransactions = (address: string, addressSlp: string) => {
           });
 
         // All to addresses in cashaddr format
-        const toAddresses = outputs
+        const toAddressesSLP = outputs
           .filter(output => output.address)
           .map(output => {
             const addr = SLP.Address.toCashAddress(output.address);
             return addr;
           });
+
+        const toAddressesBCHAll = tx.out
+          .filter(output => output.e && output.e.a)
+          .map(output => SLP.Address.toCashAddress(output.e.a));
+
+        const toAddressesBCH = [...new Set(toAddressesBCHAll)];
+
+        const toAddresses = [...toAddressesSLP, ...toAddressesBCH];
 
         // Detect if it's from this wallet
         let fromUser = fromAddresses.reduce((acc, curr) => {
@@ -234,7 +240,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
             : toAddresses.includes(address) && address;
         }
 
-        // Determine value
+        // Determine SLP value
         let value = new BigNumber(0);
         if (toAddress && fromAddress !== toAddress) {
           value = outputs.reduce((accumulator, currentValue) => {
@@ -252,6 +258,32 @@ const updateTransactions = (address: string, addressSlp: string) => {
           }, new BigNumber(0));
         }
 
+        const valueAddresses = fromUser
+          ? toAddresses.filter(
+              target => ![address, addressSlp].includes(target)
+            )
+          : toAddresses.filter(target =>
+              [address, addressSlp].includes(target)
+            );
+
+        // Determine BCH value
+        let bchValue = 0;
+        if (toAddress && fromAddress !== toAddress) {
+          bchValue = tx.out.reduce((accumulator, currentValue) => {
+            if (
+              currentValue.e &&
+              currentValue.e.v &&
+              valueAddresses.includes(
+                SLP.Address.toCashAddress(currentValue.e.a)
+              ) &&
+              currentValue.e.v !== 546
+            ) {
+              accumulator += currentValue.e.v;
+            }
+            return accumulator;
+          }, 0);
+        }
+
         return {
           hash,
           txParams: {
@@ -259,11 +291,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
             to: toAddress,
             fromAddresses,
             toAddresses,
-            value: value.toFixed(decimals),
+            valueBch: bchValue,
             transactionType,
             sendTokenData: {
               tokenProtocol: "slp",
-              tokenId: tokenIdHex
+              tokenId: tokenIdHex,
+              valueToken: value.toFixed(decimals)
             }
           },
           time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),

@@ -16,14 +16,16 @@ export type Transaction = {
     fromAddresses: string[],
     toAddresses: string[],
     value: string,
+    valueBch: string,
+    miningFee: string,
     sendTokenData?: {
       tokenProtocol: "slp",
-      tokenId: string
+      tokenId: string,
+      valueToken: string
     }
   },
   time: number,
   block: number,
-  status: "confirmed" | "pending",
   networkId: "mainnet" | "testnet"
 };
 

@@ -103,15 +103,15 @@ const WalletDetailScreen = ({
 
   const blockheight = useBlockheight();
 
-  const convertToSimpleLedger = useCallback(async () => {
-    const simpleLedger = await addressToSlp(addressSlp);
+  const convertToSimpleLedger = useCallback(async targetAddress => {
+    const simpleLedger = await addressToSlp(targetAddress);
     setSimpleledgerAddress(simpleLedger);
     return simpleLedger;
-  }, [addressSlp]);
+  }, []);
 
   useEffect(() => {
-    convertToSimpleLedger();
-  }, [addressSlp]);
+    convertToSimpleLedger(addressSlp);
+  }, [addressSlp, convertToSimpleLedger]);
 
   const isBCH = !tokenId;
 
@@ -226,8 +226,17 @@ const WalletDetailScreen = ({
               toAddresses,
               fromAddresses,
               transactionType,
-              value
+              value,
+              valueBch,
+              sendTokenData
             } = txParams;
+
+            let txValue = tokenId
+              ? sendTokenData && sendTokenData.valueToken
+              : valueBch;
+
+            // Fallback to previous value
+            if (txValue == null) txValue = value;
 
             let txType = null;
             // Determine transaction type, consider moving this code to action.?
@@ -247,10 +256,13 @@ const WalletDetailScreen = ({
               txType = "unrecognized";
             }
 
-            const valueBigNumber = new BigNumber(value);
+            const valueBigNumber = new BigNumber(txValue);
             const valueAdjusted = tokenId
               ? valueBigNumber
               : valueBigNumber.shiftedBy(decimals * -1);
+
+            console.log(hash);
+            console.log(txValue);
 
             return (
               <TransactionRow
@@ -310,7 +322,7 @@ const mapStateToProps = (state, props) => {
       if (tokenId) {
         return tokenId === txTokenId;
       }
-      return !txTokenId;
+      return !txTokenId || tx.txParams.valueBch;
     })
     .slice(0, 30);
 
