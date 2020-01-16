@@ -184,6 +184,7 @@ const SendConfirmScreen = ({
     } catch (e) {
       setTransactionState("setup");
 
+      // Probably can remove as error formatted comes back differently now
       const errorFormatted =
         {
           "66: insufficient priority": new Error(

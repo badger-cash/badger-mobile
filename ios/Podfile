@@ -28,6 +28,9 @@ target 'badgerMobile' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
 
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
+  
   target 'badgerMobileTests' do
     inherit! :search_paths
     # Pods for testing

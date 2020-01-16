@@ -767,7 +767,4 @@ const mapDispatchToProps = {
   updateTokensMeta
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SendSetupScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(SendSetupScreen);

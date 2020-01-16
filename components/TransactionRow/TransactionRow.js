@@ -150,12 +150,13 @@ const TransactionRow = ({
           <T>{typeFormatted}</T>
         </InfoArea>
         <AmountArea>
-          {type !== "interwallet" && (
-            <T>
-              {type === "send" ? "-" : "+"}
-              {amount}
-            </T>
-          )}
+          <T>
+            {type === "interwallet"
+              ? `${amount}`
+              : type === "send"
+              ? `- ${amount}`
+              : `+ ${amount}`}
+          </T>
         </AmountArea>
       </AmountRow>
       <MetaRow>
