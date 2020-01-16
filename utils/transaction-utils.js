@@ -738,7 +738,7 @@ const sweepPaperWallet = async (
     }
     return txid;
   } catch (e) {
-    console.error(e);
+    console.warn(e);
     throw e;
   }
 };

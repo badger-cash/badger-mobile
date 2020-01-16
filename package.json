@@ -55,7 +55,7 @@
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "slp-sdk": "~4.14.0",
+    "slp-sdk": "~4.15.0",
     "slpjs": "0.23.0",
     "stream-browserify": "^2.0.2",
     "styled-components": "^4.4.1",

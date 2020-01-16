@@ -323,16 +323,10 @@ const KeySweepScreen = ({
             )}
             {sweepState === "tokenSelect" && (
               <>
-                {/* {paperBalances["BCH"] && (
-                  <>
-                    <T>{paperBalances["BCH"].toFormat()} BCH</T>
-                    <Spacer />
-                  </>
-                )} */}
                 <T>
                   Multiple SLP tokens detected, select one to sweep first...
                 </T>
-                <Spacer />
+                <Spacer small />
                 {Object.entries(paperBalances).map(item => {
                   if (item[0] === "BCH") return null;
                   return (
@@ -345,21 +339,25 @@ const KeySweepScreen = ({
                         }}
                       >
                         <TokenCard>
-                          <T weight="bold">
+                          <T>
                             {`${tokensById[item[0]].symbol} - ${
                               tokensById[item[0]].name
                             }`}
                           </T>
-                          <T>
+                          <T weight="bold">
                             {`${paperBalances[item[0]]} ${
                               tokensById[item[0]].symbol
                             }`}
+                          </T>
+                          <T size="tiny" type="muted">
+                            {`${tokensById[item[0]].tokenId}`}
                           </T>
                         </TokenCard>
                       </TouchableOpacity>
                     </>
                   );
                 })}
+                <Spacer small />
               </>
             )}
             {sweepState === "scanned" && (
@@ -375,25 +373,30 @@ const KeySweepScreen = ({
                 </T>
                 <Spacer />
                 <T weight="bold" type="muted2">
-                  Paper Wallet Balance
+                  Balance to Sweep
                 </T>
                 <Spacer small />
                 {paperBalances["BCH"] && (
                   <>
+                    <T>Bitcoin Cash</T>
+                    <Spacer minimal />
                     <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
                     <Spacer />
                   </>
                 )}
                 {paperBalances[tokenId] && (
                   <>
-                    {/* <T>Amount - {symbolToken}</T> */}
+                    <T>SLP Token</T>
+                    <Spacer minimal />
                     <T weight="bold">
                       {paperBalances[tokenId].toFormat()} {symbolToken}
                     </T>
-                    <T size="xsmall">{tokenId}</T>
-                    <Spacer />
+                    <T size="tiny" type="muted">
+                      {tokenId}
+                    </T>
                   </>
                 )}
+
                 {!hasBalance && (
                   <>
                     <T>No balances found on this paper wallet</T>
@@ -419,29 +422,30 @@ const KeySweepScreen = ({
             )}
             {sweepState === "success" && (
               <>
+                <T type="primary" center weight="bold">
+                  Sweep Success!
+                </T>
+                <Spacer small />
                 <SuccessContainer>
-                  <T type="primary" center weight="bold">
-                    Sweep Success!
-                  </T>
-                  <Spacer />
                   {paperBalances["BCH"] && (
                     <>
+                      <Spacer small />
                       <T type="primary" center weight="bold">
-                        BCH
+                        Bitcoin Cash
                       </T>
                       <T type="primary" size="large" center weight="bold">
-                        {paperBalances["BCH"].toFormat()}
+                        {paperBalances["BCH"].toFormat()} BCH
                       </T>
-                      <Spacer />
                     </>
                   )}
                   {paperBalances[tokenId] && (
                     <>
+                      <Spacer small />
                       <T type="primary" center weight="bold">
-                        {symbolToken}
+                        SLP Token
                       </T>
                       <T type="primary" center size="large" weight="bold">
-                        {paperBalances[tokenId].toFormat()}
+                        {paperBalances[tokenId].toFormat()} {symbolToken}
                       </T>
                     </>
                   )}
