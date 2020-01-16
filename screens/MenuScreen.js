@@ -156,7 +156,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer small />
         <T center size="small" type="muted2">
           {/* Version {packageJson.version} */}
-          Version 0.12.6
+          Version 0.13.0
         </T>
         <Spacer small />
       </StyledScrollView>
@@ -172,7 +172,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MenuScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(MenuScreen);
