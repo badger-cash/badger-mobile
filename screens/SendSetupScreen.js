@@ -339,10 +339,8 @@ const SendSetupScreen = ({
     }
 
     let hasErrors = false;
-    console.log("ADDRESS TYPE");
-    console.log(addressFormat);
 
-    if (tokenId && !["slpaddr", "cashaddr"].includes(addressFormat)) {
+    if (tokenId && !["slpaddr"].includes(addressFormat)) {
       setErrors([
         "Can only send SLP tokens to Simpleledger addresses.  The to address should begin with 'simpleledger:'"
       ]);
@@ -769,7 +767,4 @@ const mapDispatchToProps = {
   updateTokensMeta
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SendSetupScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(SendSetupScreen);

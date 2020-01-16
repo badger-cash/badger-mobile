@@ -15,7 +15,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
-// import uuidv5 from "uuid/v5";
 
 import { type BigNumber } from "bignumber";
 
@@ -43,9 +42,6 @@ import {
 } from "../utils/transaction-utils";
 
 import { T, H2, Spacer, Button } from "../atoms";
-
-// Same as the Badger namespace for now.  doesn't need to be unique here.
-const HASH_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
 const ScreenWrapper = styled(View)`
   position: relative;
@@ -114,16 +110,12 @@ const KeySweepScreen = ({
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
 
-  // const [paperBalance: number, setPaperBalance] = useState(0);
-
   const [
     paperBalances: { [balanceKey: string]: BigNumber },
     setPaperBalances
   ] = useState([]);
 
   const [utxosByKey, setUtxosByKey] = useState({});
-
-  // const [tokenIdSweep, setTokenIdSweep] = useState(null)
 
   const [sweepError: ?string, setSweepError] = useState(null);
   const [sweepState: SweepStates, setSweepState] = useState("neutral");
@@ -132,11 +124,6 @@ const KeySweepScreen = ({
   const [tokenId: ?string, setTokenId] = useState(null);
 
   const allTokenIds = [];
-
-  // Maybe need this if the list of tokenIds doesn't trigger effect
-  // const tokenIdsHash = useMemo(() => {
-  //   return uuidv5(tokenIds.join(""), HASH_UUID_NAMESPACE);
-  // }, [allTokenIds])
 
   // Fetch token metadata if any are missing
   useEffect(() => {
@@ -159,7 +146,6 @@ const KeySweepScreen = ({
     }
     return null;
   }, [tokenId, tokensById]);
-  // const [symbol, setSymbol] = useState('BCH')
 
   const parseQr = useCallback((qrData: string): string => {
     return qrData ? qrData : "";
