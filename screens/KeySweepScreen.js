@@ -151,7 +151,6 @@ const KeySweepScreen = ({
     return qrData ? qrData : "";
   }, []);
 
-  // consider removing callbak if it doesn't work
   const handleQRData = useCallback(async (qrData: ?string) => {
     setWif(null);
     setPaperBalances(null);
@@ -235,14 +234,15 @@ const KeySweepScreen = ({
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
-            <H2
+            {/* Remove before release, below useful for testing. */}
+            {/* <H2
               onPress={async () => {
                 const content = await Clipboard.getString();
                 handleScan({ data: content });
               }}
             >
               paste
-            </H2>
+            </H2> */}
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
