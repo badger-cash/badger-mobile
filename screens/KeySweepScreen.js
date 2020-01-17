@@ -245,15 +245,15 @@ const KeySweepScreen = ({
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
-            {/* Remove before release, below useful for testing. */}
-            <H2
+            {/* Uncomment below to easily test on emulators */}
+            {/* <H2
               onPress={async () => {
                 const content = await Clipboard.getString();
                 handleScan({ data: content });
               }}
             >
               paste
-            </H2>
+            </H2> */}
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
