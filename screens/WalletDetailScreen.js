@@ -261,9 +261,6 @@ const WalletDetailScreen = ({
               ? valueBigNumber
               : valueBigNumber.shiftedBy(decimals * -1);
 
-            console.log(hash);
-            console.log(txValue);
-
             return (
               <TransactionRow
                 confirmations={

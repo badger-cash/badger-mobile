@@ -341,6 +341,9 @@ const Bip70ConfirmScreen = ({
     return null;
   }, [paymentDetails, fiatCurrency, spotPrices]);
 
+  console.log("payment details");
+  console.log(paymentDetails);
+
   return (
     <ScreenWrapper>
       <ScrollView
@@ -512,7 +515,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = { updateTokensMeta, updateUtxos };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Bip70ConfirmScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(Bip70ConfirmScreen);

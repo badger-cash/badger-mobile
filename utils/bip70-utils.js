@@ -303,6 +303,18 @@ const signAndPublishPaymentRequestTransaction = async (
   let totalUtxoAmount = 0;
   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
+  let opReturnLength = null;
+  if (
+    paymentRequest.outputs[0].amount.eq(0) &&
+    !paymentRequest.outputs[0].tokenAmount
+  ) {
+    const asBuffer = Buffer.from(paymentRequest.outputs[0].script, "hex");
+    opReturnLength = asBuffer.length;
+
+    console.log("OP RETURN calculatued");
+    console.log(opReturnLength);
+  }
+
   for (const utxo of sortedSpendableUtxos) {
     if (utxo.spendable !== true) {
       throw new Error("Cannot spend unspendable utxo");
@@ -315,6 +327,12 @@ const signAndPublishPaymentRequestTransaction = async (
       { P2PKH: inputUtxos.length },
       { P2PKH: paymentRequest.outputs.length + 1 }
     );
+
+    if (opReturnLength) {
+      byteCount += opReturnLength + 10;
+    }
+
+    // byteCount += opReturnLength;
 
     if (totalUtxoAmount >= byteCount + satoshisToSend) {
       break;
