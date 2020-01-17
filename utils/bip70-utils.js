@@ -329,7 +329,7 @@ const signAndPublishPaymentRequestTransaction = async (
     );
 
     if (opReturnLength) {
-      byteCount += opReturnLength + 10;
+      byteCount += opReturnLength;
     }
 
     // byteCount += opReturnLength;
@@ -398,7 +398,7 @@ const signAndPublishPaymentRequestTransaction = async (
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
   payment.set("refund_to", refundOutputs);
-  payment.set("memo", "");
+  payment.set("memo", paymentRequest.memo);
 
   // serialize and send
   const rawbody = payment.serialize();
