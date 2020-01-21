@@ -328,11 +328,13 @@ const signAndPublishPaymentRequestTransaction = async (
       { P2PKH: paymentRequest.outputs.length + 1 }
     );
 
+    // console.log(byteCount);
+
     if (opReturnLength) {
       byteCount += opReturnLength;
     }
 
-    // byteCount += opReturnLength;
+    // console.log(byteCount);
 
     if (totalUtxoAmount >= byteCount + satoshisToSend) {
       break;
@@ -341,10 +343,15 @@ const signAndPublishPaymentRequestTransaction = async (
 
   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
 
+  console.log(`Satoshis remaining: ${satoshisRemaining}`);
+  console.log(`Total: ${totalUtxoAmount}`);
+  console.log(`Bytes tx fee: ${byteCount}`);
+  console.log(`to send: ${satoshisToSend}`);
+
   // Verify sufficient fee
   if (satoshisRemaining < 0) {
     throw new Error(
-      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+      "Not enough Bitcoin Cash for transaction fee. Deposit a small amount and try again."
     );
   }
 
@@ -375,7 +382,7 @@ const signAndPublishPaymentRequestTransaction = async (
   const hex = transactionBuilder.build().toHex();
 
   // send the payment transaction
-  var payment = new PaymentProtocol().makePayment();
+  let payment = new PaymentProtocol().makePayment();
   paymentRequest.merchantData &&
     payment.set(
       "merchant_data",
@@ -392,8 +399,8 @@ const signAndPublishPaymentRequestTransaction = async (
   );
 
   // define the refund outputs
-  var refundOutputs = [];
-  var refundOutput = new PaymentProtocol().makeOutput();
+  let refundOutputs = [];
+  let refundOutput = new PaymentProtocol().makeOutput();
   refundOutput.set("amount", 0);
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
