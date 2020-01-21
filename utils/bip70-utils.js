@@ -405,7 +405,7 @@ const signAndPublishPaymentRequestTransaction = async (
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
   payment.set("refund_to", refundOutputs);
-  payment.set("memo", paymentRequest.memo);
+  payment.set("memo", ""); //paymentRequest.memo);
 
   // serialize and send
   const rawbody = payment.serialize();
@@ -575,7 +575,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
   payment.set("refund_to", refundOutputs);
-  payment.set("memo", paymentRequest.memo);
+  payment.set("memo", ""); //paymentRequest.memo);
 
   // serialize and send
   const rawbody = payment.serialize();
