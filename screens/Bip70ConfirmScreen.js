@@ -512,7 +512,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = { updateTokensMeta, updateUtxos };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Bip70ConfirmScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(Bip70ConfirmScreen);
