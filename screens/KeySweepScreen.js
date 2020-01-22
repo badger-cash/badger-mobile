@@ -16,7 +16,7 @@ import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import { type BigNumber } from "bignumber";
+import { type BigNumber } from "bignumber.js";
 
 import { type UTXO } from "../data/utxos/reducer";
 import { type ECPair } from "../data/accounts/reducer";
@@ -97,7 +97,8 @@ type Props = {
   addressSLP: string,
   ownUtxos: UTXO[],
   ownKeypair: { bch: ECPair, slp: ECPair },
-  tokensById: { [tokenId: string]: TokenData }
+  tokensById: { [tokenId: string]: TokenData },
+  updateTokensMeta: Function
 };
 
 const KeySweepScreen = ({
@@ -105,7 +106,8 @@ const KeySweepScreen = ({
   addressSLP,
   tokensById,
   ownUtxos,
-  ownKeypair
+  ownKeypair,
+  updateTokensMeta
 }: Props) => {
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
@@ -113,7 +115,7 @@ const KeySweepScreen = ({
   const [
     paperBalances: { [balanceKey: string]: BigNumber },
     setPaperBalances
-  ] = useState([]);
+  ] = useState({});
 
   const [utxosByKey, setUtxosByKey] = useState({});
 
@@ -123,25 +125,32 @@ const KeySweepScreen = ({
   // Token ID to sweep, useful when there's more than 1 token on a paper wallet
   const [tokenId: ?string, setTokenId] = useState(null);
 
-  const allTokenIds = [];
+  const allTokenIds = useMemo(() => {
+    return paperBalances
+      ? Object.keys(paperBalances).filter(current => current !== "BCH")
+      : [];
+  }, [paperBalances]);
 
   // Fetch token metadata if any are missing
   useEffect(() => {
     const missingTokenIds = allTokenIds.filter(
       currTokenId => !tokensById[currTokenId]
     );
-    updateTokensMeta(missingTokenIds);
-  }, [allTokenIds, tokensById]);
+
+    if (missingTokenIds.length) {
+      updateTokensMeta(missingTokenIds);
+    }
+  }, [allTokenIds, tokensById, updateTokensMeta]);
 
   const symbolToken = useMemo(() => {
-    if (tokenId) {
+    if (tokenId && tokensById[tokenId]) {
       return tokensById[tokenId].symbol;
     }
     return null;
   }, [tokenId, tokensById]);
 
   const tokenDecimals = useMemo(() => {
-    if (tokenId) {
+    if (tokenId && tokensById[tokenId]) {
       return tokensById[tokenId].decimals;
     }
     return null;
@@ -198,7 +207,9 @@ const KeySweepScreen = ({
       setSweepState("success");
     } catch (e) {
       setSweepState("error");
-      setSweepError("Sweep failed, please try again");
+      setSweepError(
+        "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee"
+      );
     }
   }, [
     wif,
@@ -234,7 +245,7 @@ const KeySweepScreen = ({
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
-            {/* Remove before release, below useful for testing. */}
+            {/* Uncomment below to easily test on emulators */}
             {/* <H2
               onPress={async () => {
                 const content = await Clipboard.getString();
@@ -275,9 +286,9 @@ const KeySweepScreen = ({
           <View>
             <Spacer />
             <T weight="bold">Scan QR</T>
-            <Spacer small />
+            <Spacer tiny />
             <Button text="Open QR Scanner" onPress={() => setCameraOpen(true)}>
-              <T center spacing="loose" type="inverse">
+              <T center spacing="loose" type="inverse" weight="bold">
                 <Ionicons name="ios-qr-scanner" size={18} /> Open Camera
               </T>
             </Button>
@@ -316,7 +327,7 @@ const KeySweepScreen = ({
                 {Object.entries(paperBalances).map(item => {
                   if (item[0] === "BCH") return null;
                   return (
-                    <>
+                    <View key={item[0]}>
                       <Spacer small />
                       <TouchableOpacity
                         onPress={() => {
@@ -325,22 +336,28 @@ const KeySweepScreen = ({
                         }}
                       >
                         <TokenCard>
-                          <T>
-                            {`${tokensById[item[0]].symbol} - ${
-                              tokensById[item[0]].name
-                            }`}
-                          </T>
-                          <T weight="bold">
-                            {`${paperBalances[item[0]]} ${
-                              tokensById[item[0]].symbol
-                            }`}
-                          </T>
-                          <T size="tiny" type="muted">
-                            {`${tokensById[item[0]].tokenId}`}
-                          </T>
+                          {tokensById[item[0]] ? (
+                            <>
+                              <T>
+                                {`${tokensById[item[0]].symbol} - ${
+                                  tokensById[item[0]].name
+                                }`}
+                              </T>
+                              <T weight="bold">
+                                {`${paperBalances[item[0]]} ${
+                                  tokensById[item[0]].symbol
+                                }`}
+                              </T>
+                              <T size="tiny" type="muted">
+                                {`${tokensById[item[0]].tokenId}`}
+                              </T>
+                            </>
+                          ) : (
+                            <ActivityIndicator />
+                          )}
                         </TokenCard>
                       </TouchableOpacity>
-                    </>
+                    </View>
                   );
                 })}
                 <Spacer small />
@@ -353,7 +370,7 @@ const KeySweepScreen = ({
                 <T weight="bold" type="muted2">
                   Wif
                 </T>
-                <Spacer small />
+                <Spacer tiny />
                 <T monospace size="small">
                   {wif}
                 </T>
@@ -361,13 +378,13 @@ const KeySweepScreen = ({
                 <T weight="bold" type="muted2">
                   Balance to Sweep
                 </T>
-                <Spacer small />
+                <Spacer tiny />
                 {paperBalances["BCH"] && (
                   <>
                     <T>Bitcoin Cash</T>
                     <Spacer minimal />
                     <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
-                    <Spacer />
+                    <Spacer small />
                   </>
                 )}
                 {paperBalances[tokenId] && (
@@ -459,8 +476,11 @@ const KeySweepScreen = ({
 
           {sweepState === "scanned" && hasBalance && (
             <View>
-              <T weight="bold">Sweep Funds</T>
               <Spacer small />
+              <T weight="bold" type="muted">
+                Sweep Funds
+              </T>
+              <Spacer tiny />
               <Button text="Confirm Sweep" onPress={confirmSweep} />
               <Spacer />
             </View>
