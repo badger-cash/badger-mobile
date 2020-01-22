@@ -261,7 +261,6 @@ const Bip70ConfirmScreen = ({
           ? keypair.slp
           : keypair.bch;
 
-        console.log("about to pay?");
         paymentResponse = await signAndPublishPaymentRequestTransaction(
           paymentDetails,
           activeAccount.address,
@@ -270,7 +269,6 @@ const Bip70ConfirmScreen = ({
         );
       }
     } catch (e) {
-      console.log("ERROR HIT?");
       console.log(e);
       setSendError(e.message);
       setStep("error");
@@ -343,9 +341,6 @@ const Bip70ConfirmScreen = ({
     }
     return null;
   }, [paymentDetails, fiatCurrency, spotPrices]);
-
-  console.log("payment details");
-  console.log(paymentDetails);
 
   return (
     <ScreenWrapper>
