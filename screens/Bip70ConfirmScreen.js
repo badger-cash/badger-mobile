@@ -269,7 +269,6 @@ const Bip70ConfirmScreen = ({
         );
       }
     } catch (e) {
-      console.log(e);
       setSendError(e.message);
       setStep("error");
       return;

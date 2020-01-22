@@ -308,11 +308,7 @@ const signAndPublishPaymentRequestTransaction = async (
     paymentRequest.outputs[0].amount.eq(0) &&
     !paymentRequest.outputs[0].tokenAmount
   ) {
-    const asBuffer = Buffer.from(paymentRequest.outputs[0].script, "hex");
-    opReturnLength = asBuffer.length;
-
-    console.log("OP RETURN calculatued");
-    console.log(opReturnLength);
+    opReturnLength = Buffer.byteLength(paymentRequest.outputs[0].script, "hex");
   }
 
   for (const utxo of sortedSpendableUtxos) {
@@ -328,13 +324,9 @@ const signAndPublishPaymentRequestTransaction = async (
       { P2PKH: paymentRequest.outputs.length + 1 }
     );
 
-    // console.log(byteCount);
-
     if (opReturnLength) {
       byteCount += opReturnLength;
     }
-
-    // console.log(byteCount);
 
     if (totalUtxoAmount >= byteCount + satoshisToSend) {
       break;
@@ -342,11 +334,6 @@ const signAndPublishPaymentRequestTransaction = async (
   }
 
   const satoshisRemaining = totalUtxoAmount - byteCount - satoshisToSend;
-
-  console.log(`Satoshis remaining: ${satoshisRemaining}`);
-  console.log(`Total: ${totalUtxoAmount}`);
-  console.log(`Bytes tx fee: ${byteCount}`);
-  console.log(`to send: ${satoshisToSend}`);
 
   // Verify sufficient fee
   if (satoshisRemaining < 0) {
@@ -405,7 +392,7 @@ const signAndPublishPaymentRequestTransaction = async (
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
   payment.set("refund_to", refundOutputs);
-  payment.set("memo", ""); //paymentRequest.memo);
+  payment.set("memo", "");
 
   // serialize and send
   const rawbody = payment.serialize();
@@ -575,7 +562,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);
   payment.set("refund_to", refundOutputs);
-  payment.set("memo", ""); //paymentRequest.memo);
+  payment.set("memo", "");
 
   // serialize and send
   const rawbody = payment.serialize();
