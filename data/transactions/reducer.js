@@ -50,8 +50,6 @@ const addTransactions = (
 ) => {
   const { transactions, address } = payload;
 
-  console.log("ad success");
-
   const transactionsById = transactions.reduce((acc, tx) => {
     return { ...acc, [tx.hash]: tx };
   }, {});
@@ -60,8 +58,6 @@ const addTransactions = (
 
   const existingAccountTxs = state.byAccount[address] || [];
   const nextAccountTxs = new Set([...existingAccountTxs, ...txIds]);
-
-  console.log("ad finishing");
 
   return {
     ...state,
