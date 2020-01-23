@@ -1,7 +1,6 @@
 // @flow
 
 import BigNumber from "bignumber.js";
-import _ from "lodash";
 
 import {
   GET_TRANSACTIONS_START,
