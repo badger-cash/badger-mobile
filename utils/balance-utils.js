@@ -65,12 +65,21 @@ const getHistoricalBchTransactions = async (
   };
 
   try {
+    console.log("BIT DB CALL");
     const result = await SLP.BitDB.get(query);
+    console.log("BIT DB CALL DONE");
 
     // combine confirmed and unconfirmed
     // errors = slpdb, error = REST rate limit
-    const transactions =
-      result.errors || result.error ? [] : [...result.c, ...result.u];
+    let transactions = [];
+
+    if (result.c) {
+      transactions = [...transactions, ...result.c];
+    }
+    if (result.u) {
+      transactions = [...transactions, ...result.u];
+    }
+    // result.errors || result.error ? [] : [...result.c, ...result.u];
 
     return transactions;
   } catch (e) {
@@ -127,14 +136,25 @@ const getHistoricalSlpTransactions = async (
         "slp.detail": 1,
         blk: 1
       },
-      limit: 500
+      limit: 150
     }
   };
 
   let transactions = [];
   try {
+    console.log("LSP DB CALL");
     const result = await SLP.SLPDB.get(query);
-    transactions = [...result.c, ...result.u];
+    console.log("SLP DB CALL DONE");
+    // combine confirmed and unconfirmed
+    // errors = slpdb, error = REST rate limit
+    // let transactions = [];
+
+    if (result.c) {
+      transactions = [...transactions, ...result.c];
+    }
+    if (result.u) {
+      transactions = [...transactions, ...result.u];
+    }
   } catch (e) {
     console.warn("Error while fetching from slpdb");
     console.warn(e);
