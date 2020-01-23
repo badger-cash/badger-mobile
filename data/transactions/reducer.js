@@ -10,14 +10,13 @@ import {
 export type Transaction = {
   hash: string,
   txParams: {
-    from: string,
+    from: ?string,
     to: string,
     transactionType?: "SEND" | "MINT",
     fromAddresses: string[],
     toAddresses: string[],
-    value: string,
-    valueBch: string,
-    miningFee: string,
+    value?: string,
+    valueBch: number,
     sendTokenData?: {
       tokenProtocol: "slp",
       tokenId: string,
