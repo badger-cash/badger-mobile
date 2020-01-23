@@ -133,7 +133,7 @@ const getHistoricalSlpTransactions = async (
         "slp.detail": 1,
         blk: 1
       },
-      limit: 150
+      limit: 500
     }
   };
 
