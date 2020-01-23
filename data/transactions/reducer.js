@@ -10,14 +10,13 @@ import {
 export type Transaction = {
   hash: string,
   txParams: {
-    from: string,
+    from: ?string,
     to: string,
     transactionType?: "SEND" | "MINT",
     fromAddresses: string[],
     toAddresses: string[],
-    value: string,
-    valueBch: string,
-    miningFee: string,
+    value?: string,
+    valueBch: number,
     sendTokenData?: {
       tokenProtocol: "slp",
       tokenId: string,
@@ -51,6 +50,8 @@ const addTransactions = (
 ) => {
   const { transactions, address } = payload;
 
+  console.log("ad success");
+
   const transactionsById = transactions.reduce((acc, tx) => {
     return { ...acc, [tx.hash]: tx };
   }, {});
@@ -59,6 +60,8 @@ const addTransactions = (
 
   const existingAccountTxs = state.byAccount[address] || [];
   const nextAccountTxs = new Set([...existingAccountTxs, ...txIds]);
+
+  console.log("ad finishing");
 
   return {
     ...state,
