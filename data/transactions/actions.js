@@ -39,6 +39,15 @@ const updateTransactions = (address: string, addressSlp: string) => {
     if (!address || !addressSlp) return;
 
     const currentState = getState();
+    const isUpdating = currentState.transactions.updating;
+    const lastUpdate = currentState.transactions.lastUpdate || 0;
+
+    const now = +new Date();
+
+    // Short circuit if already processing, and it's been under 7 minutes
+    if (isUpdating && now - lastUpdate < 1000 * 60 * 7) {
+      return;
+    }
 
     dispatch(getTransactionsStart());
 
@@ -157,7 +166,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
       formattedTx && formattedTransactionsBCH.push(formattedTx);
 
       // Allow the UI to render after each item computes.
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
 
     const formattedTransactionsSLP: Transaction[] = [];
@@ -302,7 +311,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
       formattedTx && formattedTransactionsSLP.push(formattedTx);
 
       // Allow the UI to render after each item computes.
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 60));
     }
 
     const formattedTransactionsNew = [
