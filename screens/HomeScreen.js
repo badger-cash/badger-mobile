@@ -128,15 +128,17 @@ const HomeScreen = ({
     };
   }, [address, addressSlp, updateUtxos]);
 
-  // Update transaction history
+  // Update transaction history initial
   useEffect(() => {
-    if (!address) return;
-
+    if (!address || !addressSlp) return;
     updateTransactions(address, addressSlp);
-    const transactionInterval = setInterval(
-      () => updateTransactions(address, addressSlp),
-      25 * 1000
-    );
+  }, [address, addressSlp, updateTransactions]);
+
+  // Update transaction history interval
+  useEffect(() => {
+    const transactionInterval = setInterval(() => {
+      updateTransactions(address, addressSlp);
+    }, 30 * 1000);
     return () => {
       clearInterval(transactionInterval);
     };
@@ -299,15 +301,10 @@ const mapStateToProps = (state, props) => {
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
   const balances = balancesSelector(state, address);
-
   const tokensById = tokensByIdSelector(state);
-
   const spotPrices = spotPricesSelector(state);
-
   const seedViewed = getSeedViewedSelector(state);
-
   const initialLoadingDone = doneInitialLoadSelector(state, address);
-
   const fiatCurrency = currencySelector(state);
 
   return {
@@ -329,7 +326,4 @@ const mapDispatchToProps = {
   updateUtxos
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HomeScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

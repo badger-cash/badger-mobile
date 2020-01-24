@@ -34,14 +34,16 @@ export type State = {
   byId: { [transactionId: string]: Transaction },
   allIds: string[],
   byAccount: { [accountId: string]: string[] },
-  updating: boolean
+  updating: boolean,
+  lastUpdate: number
 };
 
 export const initialState: State = {
   byId: {},
   allIds: [],
   byAccount: {},
-  updating: false
+  updating: false,
+  lastUpdate: +new Date()
 };
 
 const addTransactions = (
@@ -67,7 +69,8 @@ const addTransactions = (
       [address]: [...nextAccountTxs]
     },
     allIds: [...state.allIds, ...txIds],
-    updating: false
+    updating: false,
+    lastUpdate: +new Date()
   };
 };
 
