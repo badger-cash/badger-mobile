@@ -11,6 +11,8 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - Permission-Camera (2.0.8):
+    - RNPermissions
   - React (0.60.4):
     - React-Core (= 0.60.4)
     - React-DevSupport (= 0.60.4)
@@ -57,13 +59,13 @@ PODS:
     - React-cxxreact (= 0.60.4)
     - React-jsi (= 0.60.4)
   - React-jsinspector (0.60.4)
-  - react-native-camera (3.0.1):
+  - react-native-camera (3.15.0):
     - React
-    - react-native-camera/RCT (= 3.0.1)
-    - react-native-camera/RN (= 3.0.1)
-  - react-native-camera/RCT (3.0.1):
+    - react-native-camera/RCT (= 3.15.0)
+    - react-native-camera/RN (= 3.15.0)
+  - react-native-camera/RCT (3.15.0):
     - React
-  - react-native-camera/RN (3.0.1):
+  - react-native-camera/RN (3.15.0):
     - React
   - react-native-randombytes (3.5.3):
     - React
@@ -91,13 +93,13 @@ PODS:
   - React-RCTWebSocket (0.60.4):
     - React-Core (= 0.60.4)
     - React-fishhook (= 0.60.4)
-  - ReactNativePermissions (1.2.0):
+  - RNCAsyncStorage (1.7.1):
     - React
-  - RNCAsyncStorage (1.6.1):
+  - RNGestureHandler (1.5.2):
     - React
-  - RNGestureHandler (1.3.0):
+  - RNPermissions (2.0.8):
     - React
-  - RNSVG (9.13.3):
+  - RNSVG (9.13.6):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -107,6 +109,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera.podspec`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -127,15 +130,15 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../node_modules/react-native/Libraries/WebSocket`)
-  - ReactNativePermissions (from `../node_modules/react-native-permissions`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - boost-for-react-native
 
 EXTERNAL SOURCES:
@@ -145,6 +148,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  Permission-Camera:
+    :path: "../node_modules/react-native-permissions/ios/Camera.podspec"
   React:
     :path: "../node_modules/react-native/"
   React-Core:
@@ -185,12 +190,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   React-RCTWebSocket:
     :path: "../node_modules/react-native/Libraries/WebSocket"
-  ReactNativePermissions:
-    :path: "../node_modules/react-native-permissions"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -203,6 +208,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
+  Permission-Camera: f9a7b0b01c71febe320436aa74630f23c9483547
   React: ff7ee2ae5ee1c1d9ae2183b4111045b25294bb01
   React-Core: 8e0ea421cae5609d2562850f98421b15030476fa
   React-cxxreact: 326880209990151a7182a813311054e9772ba510
@@ -211,7 +217,7 @@ SPEC CHECKSUMS:
   React-jsi: 21d3153b1153fbf6510a92b6b11e33e725cb7432
   React-jsiexecutor: 7549641e48bafae7bfee3f3ea19bf4901639c5de
   React-jsinspector: 73f24a02fa684ed6a2b828ba116874a2191ded88
-  react-native-camera: fd052e2a172d9f49d7427c7fa7b089da6d047a38
+  react-native-camera: 52114c432860b89986c9ee4919d00a48a6ba7abb
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
   React-RCTActionSheet: 9f71d7ae3e8fb10e08d162cbf14c621349dbfab3
   React-RCTAnimation: 981d8c95b0e30918a9832ccac32af83562a27fae
@@ -223,13 +229,13 @@ SPEC CHECKSUMS:
   React-RCTText: e0f224898b13af9aa036ea7cb3d438daa68c1044
   React-RCTVibration: 0bea40cd51bd089bd591a8f74c86e91fdf2666c5
   React-RCTWebSocket: 163873f4cdd5f1058a9483443404fc3801581cb6
-  ReactNativePermissions: f3beb8871251594a8ea2c6b19a3f8252d5c7379d
-  RNCAsyncStorage: 2e2e3feb9bdadc752a026703d8c4065ca912e75a
-  RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
-  RNSVG: f6177f8d7c095fada7cfee2e4bb7388ba426064c
+  RNCAsyncStorage: 44395cb9c7c1523104c2b499eb426ef7aff82bca
+  RNGestureHandler: 946a7691e41df61e2c4b1884deab41a4cdc3afff
+  RNPermissions: 923c1506d0bde387fbcfc18a8f87945806d03c19
+  RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   yoga: c2c050f6ae6e222534760cc82f559b89214b67e2
 
-PODFILE CHECKSUM: e2add5522f06f45b6b48072c80fed2440063ed15
+PODFILE CHECKSUM: 0b240b57901d9ea35a9f7366c8919d535f54a8aa
 
 COCOAPODS: 1.8.3

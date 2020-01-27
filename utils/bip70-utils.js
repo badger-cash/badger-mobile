@@ -303,6 +303,14 @@ const signAndPublishPaymentRequestTransaction = async (
   let totalUtxoAmount = 0;
   const transactionBuilder = new SLP.TransactionBuilder("mainnet");
 
+  let opReturnLength = null;
+  if (
+    paymentRequest.outputs[0].amount.eq(0) &&
+    !paymentRequest.outputs[0].tokenAmount
+  ) {
+    opReturnLength = Buffer.byteLength(paymentRequest.outputs[0].script, "hex");
+  }
+
   for (const utxo of sortedSpendableUtxos) {
     if (utxo.spendable !== true) {
       throw new Error("Cannot spend unspendable utxo");
@@ -316,6 +324,10 @@ const signAndPublishPaymentRequestTransaction = async (
       { P2PKH: paymentRequest.outputs.length + 1 }
     );
 
+    if (opReturnLength) {
+      byteCount += opReturnLength;
+    }
+
     if (totalUtxoAmount >= byteCount + satoshisToSend) {
       break;
     }
@@ -326,7 +338,7 @@ const signAndPublishPaymentRequestTransaction = async (
   // Verify sufficient fee
   if (satoshisRemaining < 0) {
     throw new Error(
-      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+      "Not enough Bitcoin Cash for transaction fee. Deposit a small amount and try again."
     );
   }
 
@@ -357,7 +369,7 @@ const signAndPublishPaymentRequestTransaction = async (
   const hex = transactionBuilder.build().toHex();
 
   // send the payment transaction
-  var payment = new PaymentProtocol().makePayment();
+  let payment = new PaymentProtocol().makePayment();
   paymentRequest.merchantData &&
     payment.set(
       "merchant_data",
@@ -374,8 +386,8 @@ const signAndPublishPaymentRequestTransaction = async (
   );
 
   // define the refund outputs
-  var refundOutputs = [];
-  var refundOutput = new PaymentProtocol().makeOutput();
+  let refundOutputs = [];
+  let refundOutput = new PaymentProtocol().makeOutput();
   refundOutput.set("amount", 0);
   refundOutput.set("script", refundScriptPubkey);
   refundOutputs.push(refundOutput.message);

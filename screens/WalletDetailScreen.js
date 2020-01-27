@@ -29,6 +29,7 @@ import {
 } from "../data/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
+import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
 
 import { type Transaction } from "../data/transactions/reducer";
 import { type TokenData } from "../data/tokens/reducer";
@@ -81,7 +82,8 @@ type Props = {
   navigation: { navigate: Function, state: { params: any } },
   tokensById: { [tokenId: string]: TokenData },
   updateTransactions: Function,
-  transactions: Transaction[]
+  transactions: Transaction[],
+  isUpdatingTransactions: boolean
 };
 
 const WalletDetailScreen = ({
@@ -93,7 +95,8 @@ const WalletDetailScreen = ({
   spotPrices,
   fiatCurrency,
   transactions,
-  updateTransactions
+  updateTransactions,
+  isUpdatingTransactions
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokensById[tokenId];
@@ -103,15 +106,15 @@ const WalletDetailScreen = ({
 
   const blockheight = useBlockheight();
 
-  const convertToSimpleLedger = useCallback(async () => {
-    const simpleLedger = await addressToSlp(addressSlp);
+  const convertToSimpleLedger = useCallback(async targetAddress => {
+    const simpleLedger = await addressToSlp(targetAddress);
     setSimpleledgerAddress(simpleLedger);
     return simpleLedger;
-  }, [addressSlp]);
+  }, []);
 
   useEffect(() => {
-    convertToSimpleLedger();
-  }, [addressSlp]);
+    convertToSimpleLedger(addressSlp);
+  }, [addressSlp, convertToSimpleLedger]);
 
   const isBCH = !tokenId;
 
@@ -226,8 +229,17 @@ const WalletDetailScreen = ({
               toAddresses,
               fromAddresses,
               transactionType,
-              value
+              value,
+              valueBch,
+              sendTokenData
             } = txParams;
+
+            let txValue = tokenId
+              ? sendTokenData && sendTokenData.valueToken
+              : valueBch;
+
+            // Fallback to previous value
+            if (txValue == null) txValue = value;
 
             let txType = null;
             // Determine transaction type, consider moving this code to action.?
@@ -247,7 +259,7 @@ const WalletDetailScreen = ({
               txType = "unrecognized";
             }
 
-            const valueBigNumber = new BigNumber(value);
+            const valueBigNumber = new BigNumber(txValue);
             const valueAdjusted = tokenId
               ? valueBigNumber
               : valueBigNumber.shiftedBy(decimals * -1);
@@ -275,6 +287,18 @@ const WalletDetailScreen = ({
               />
             );
           })}
+          {isUpdatingTransactions && (
+            <>
+              <Spacer small />
+              <T size="small" type="muted" center>
+                Transaction history updating...
+              </T>
+              <T size="xsmall" type="muted2" center>
+                This may take a few minutes.
+              </T>
+              <Spacer small />
+            </>
+          )}
           <ExplorerRow>
             <Spacer small />
             <T
@@ -303,6 +327,8 @@ const mapStateToProps = (state, props) => {
 
   const transactionsAll = transactionsActiveAccountSelector(state);
 
+  const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
+
   const transactions = transactionsAll
     .filter(tx => {
       const txTokenId =
@@ -310,7 +336,7 @@ const mapStateToProps = (state, props) => {
       if (tokenId) {
         return tokenId === txTokenId;
       }
-      return !txTokenId;
+      return !txTokenId || tx.txParams.valueBch;
     })
     .slice(0, 30);
 
@@ -321,13 +347,11 @@ const mapStateToProps = (state, props) => {
     tokensById,
     transactions,
     spotPrices,
-    fiatCurrency
+    fiatCurrency,
+    isUpdatingTransactions
   };
 };
 
 const mapDispatchToProps = {};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WalletDetailScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(WalletDetailScreen);

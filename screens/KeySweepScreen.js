@@ -1,21 +1,45 @@
 // @flow
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
+  ActivityIndicator,
+  Clipboard,
+  Dimensions,
   SafeAreaView,
   ScrollView,
-  View,
   StyleSheet,
-  ActivityIndicator,
-  Dimensions
+  TouchableOpacity,
+  View
 } from "react-native";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import { getAddressSelector } from "../data/accounts/selectors";
-import { sweep } from "../utils/transaction-utils";
+import { type BigNumber } from "bignumber.js";
+
+import { type UTXO } from "../data/utxos/reducer";
+import { type ECPair } from "../data/accounts/reducer";
+
+import {
+  getKeypairSelector,
+  activeAccountSelector,
+  getAddressSelector,
+  getAddressSlpSelector
+} from "../data/accounts/selectors";
+import { utxosByAccountSelector } from "../data/utxos/selectors";
+
+// Probably don't need any advanced token display
+import { tokensByIdSelector } from "../data/tokens/selectors";
+import { type TokenData } from "../data/tokens/reducer";
+import { updateTokensMeta } from "../data/tokens/actions";
+
+import {
+  sweepPaperWallet,
+  getUtxosBalances,
+  getPaperKeypair,
+  getPaperUtxos
+} from "../utils/transaction-utils";
 
 import { T, H2, Spacer, Button } from "../atoms";
 
@@ -52,34 +76,167 @@ const SuccessContainer = styled(View)`
   background-color: ${props => props.theme.primary900};
 `;
 
-type SweepStates = "neutral" | "scanned" | "pending" | "error" | "success";
+const TokenCard = styled(View)`
+  padding: 8px;
+  background-color: ${props => props.theme.fg700};
+  border-color: ${props => props.theme.fg500};
+  border-width: ${StyleSheet.hairlineWidth};
+  border-radius: 4px;
+`;
+
+type SweepStates =
+  | "neutral"
+  | "scanned"
+  | "pending"
+  | "error"
+  | "success"
+  | "tokenSelect";
 
 type Props = {
-  address: string
+  addressBCH: string,
+  addressSLP: string,
+  ownUtxos: UTXO[],
+  ownKeypair: { bch: ECPair, slp: ECPair },
+  tokensById: { [tokenId: string]: TokenData },
+  updateTokensMeta: Function
 };
-const KeySweepScreen = ({ address }: Props) => {
+
+const KeySweepScreen = ({
+  addressBCH,
+  addressSLP,
+  tokensById,
+  ownUtxos,
+  ownKeypair,
+  updateTokensMeta
+}: Props) => {
   const [isCameraOpen: boolean, setCameraOpen] = useState(false);
   const [wif: ?string, setWif] = useState(null);
-  const [paperBalance: number, setPaperBalance] = useState(0);
+
+  const [
+    paperBalances: { [balanceKey: string]: BigNumber },
+    setPaperBalances
+  ] = useState({});
+
+  const [utxosByKey, setUtxosByKey] = useState({});
+
   const [sweepError: ?string, setSweepError] = useState(null);
   const [sweepState: SweepStates, setSweepState] = useState("neutral");
 
-  const parseQr = (qrData: string): string => {
-    return qrData ? qrData : "";
-  };
+  // Token ID to sweep, useful when there's more than 1 token on a paper wallet
+  const [tokenId: ?string, setTokenId] = useState(null);
 
-  const handleQRData = async qrData => {
+  const allTokenIds = useMemo(() => {
+    return paperBalances
+      ? Object.keys(paperBalances).filter(current => current !== "BCH")
+      : [];
+  }, [paperBalances]);
+
+  // Fetch token metadata if any are missing
+  useEffect(() => {
+    const missingTokenIds = allTokenIds.filter(
+      currTokenId => !tokensById[currTokenId]
+    );
+
+    if (missingTokenIds.length) {
+      updateTokensMeta(missingTokenIds);
+    }
+  }, [allTokenIds, tokensById, updateTokensMeta]);
+
+  const symbolToken = useMemo(() => {
+    if (tokenId && tokensById[tokenId]) {
+      return tokensById[tokenId].symbol;
+    }
+    return null;
+  }, [tokenId, tokensById]);
+
+  const tokenDecimals = useMemo(() => {
+    if (tokenId && tokensById[tokenId]) {
+      return tokensById[tokenId].decimals;
+    }
+    return null;
+  }, [tokenId, tokensById]);
+
+  const parseQr = useCallback((qrData: string): string => {
+    return qrData ? qrData : "";
+  }, []);
+
+  const handleQRData = useCallback(async (qrData: ?string) => {
+    setWif(null);
+    setPaperBalances(null);
+    setUtxosByKey(null);
+
     try {
-      const balance = await sweep(qrData, null, true);
+      const keypair = await getPaperKeypair(qrData);
+      const utxosAll = await getPaperUtxos(keypair);
+      const balancesByKey = await getUtxosBalances(utxosAll);
+
+      const paperBalanceKeys = Object.keys(balancesByKey);
+      const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
+
+      const tokenAmount = keysWithoutBCH.length;
+
       setWif(qrData);
-      setPaperBalance(balance);
-      setSweepState("scanned");
+      setPaperBalances(balancesByKey);
+      setUtxosByKey(utxosAll);
+
+      if (tokenAmount > 1) {
+        setSweepState("tokenSelect");
+      } else {
+        setTokenId(tokenAmount === 1 ? keysWithoutBCH[0] : null);
+        setSweepState("scanned");
+      }
     } catch (e) {
       setSweepState("error");
-      setSweepError(e.message || "Error scanning wallet");
+      setSweepError(e.message || "Error scanning paper wallet");
     }
-    return;
-  };
+  }, []);
+
+  const confirmSweep = useCallback(async () => {
+    try {
+      setSweepState("pending");
+      await sweepPaperWallet(
+        wif,
+        utxosByKey,
+        addressBCH,
+        addressSLP,
+        tokenId,
+        tokenDecimals,
+        ownUtxos,
+        ownKeypair
+      );
+      setSweepState("success");
+    } catch (e) {
+      setSweepState("error");
+      setSweepError(
+        "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee"
+      );
+    }
+  }, [
+    wif,
+    utxosByKey,
+    addressBCH,
+    addressSLP,
+    tokenId,
+    tokenDecimals,
+    setSweepState,
+    setSweepError,
+    ownKeypair,
+    ownUtxos
+  ]);
+
+  const handleScan = useCallback(
+    e => {
+      const qrData = e.data;
+      const parsedData = parseQr(qrData);
+      setSweepState("pending");
+      handleQRData(parsedData);
+      setCameraOpen(false);
+    },
+    [handleQRData, parseQr]
+  );
+
+  const hasBalance =
+    paperBalances && (paperBalances["BCH"] || paperBalances[tokenId]);
 
   return (
     <SafeAreaView style={{ height: "100%" }}>
@@ -88,18 +245,21 @@ const KeySweepScreen = ({ address }: Props) => {
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
+            {/* Uncomment below to easily test on emulators */}
+            {/* <H2
+              onPress={async () => {
+                const content = await Clipboard.getString();
+                handleScan({ data: content });
+              }}
+            >
+              paste
+            </H2> */}
             <Spacer small />
             <View style={{ height: Dimensions.get("window").width - 12 }}>
               <QRCodeScanner
                 cameraProps={{ ratio: "1:1", captureAudio: false }}
                 fadeIn={false}
-                onRead={e => {
-                  const qrData = e.data;
-                  const parsedData = parseQr(qrData);
-                  setSweepState("pending");
-                  handleQRData(parsedData);
-                  setCameraOpen(false);
-                }}
+                onRead={handleScan}
                 cameraStyle={{
                   // padding 16 for each side
                   height: Dimensions.get("window").width - 32,
@@ -125,10 +285,10 @@ const KeySweepScreen = ({ address }: Props) => {
         >
           <View>
             <Spacer />
-            <T weight="bold">1. Scan QR</T>
-            <Spacer small />
+            <T weight="bold">Scan QR</T>
+            <Spacer tiny />
             <Button text="Open QR Scanner" onPress={() => setCameraOpen(true)}>
-              <T center spacing="loose" type="inverse">
+              <T center spacing="loose" type="inverse" weight="bold">
                 <Ionicons name="ios-qr-scanner" size={18} /> Open Camera
               </T>
             </Button>
@@ -139,29 +299,117 @@ const KeySweepScreen = ({ address }: Props) => {
             {sweepState === "neutral" && (
               <>
                 <T size="small" center>
-                  To recover Bitcoin Cash (BCH) from a paper wallet, follow the
-                  three outlined steps.
+                  To recover Bitcoin Cash (BCH) or SLP Tokens from a paper
+                  wallet, follow the steps below.
                 </T>
-                <Spacer small />
+                <Spacer />
                 <T size="small">
                   1. Scan the private QR code on the paper wallet.
                 </T>
                 <Spacer small />
-                <T size="small">2. Review details.</T>
+                <T size="small">2. Select a token if there are multiple.</T>
                 <Spacer small />
-                <T size="small">3. Sweep to your Badger wallet.</T>
+                <T size="small">3. Review details.</T>
+                <Spacer small />
+                <T size="small">4. Sweep to your Badger Wallet.</T>
+                <Spacer small />
+                <T size="small">
+                  5. Repeat until all BCH and tokens have been swept.
+                </T>
+              </>
+            )}
+            {sweepState === "tokenSelect" && (
+              <>
+                <T>
+                  Multiple SLP tokens detected, select one to sweep first...
+                </T>
+                <Spacer small />
+                {Object.entries(paperBalances).map(item => {
+                  if (item[0] === "BCH") return null;
+                  return (
+                    <View key={item[0]}>
+                      <Spacer small />
+                      <TouchableOpacity
+                        onPress={() => {
+                          setTokenId(item[0]);
+                          setSweepState("scanned");
+                        }}
+                      >
+                        <TokenCard>
+                          {tokensById[item[0]] ? (
+                            <>
+                              <T>
+                                {`${tokensById[item[0]].symbol} - ${
+                                  tokensById[item[0]].name
+                                }`}
+                              </T>
+                              <T weight="bold">
+                                {`${paperBalances[item[0]]} ${
+                                  tokensById[item[0]].symbol
+                                }`}
+                              </T>
+                              <T size="tiny" type="muted">
+                                {`${tokensById[item[0]].tokenId}`}
+                              </T>
+                            </>
+                          ) : (
+                            <ActivityIndicator />
+                          )}
+                        </TokenCard>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+                <Spacer small />
               </>
             )}
             {sweepState === "scanned" && (
               <>
-                <T weight="bold">2. Review Details</T>
+                <T weight="bold">Review Details</T>
                 <Spacer small />
-                <T>Wif</T>
-                <T>{wif}</T>
-                <Spacer small />
-                <T>Amount</T>
-                <T>{paperBalance} BCH</T>
+                <T weight="bold" type="muted2">
+                  Wif
+                </T>
+                <Spacer tiny />
+                <T monospace size="small">
+                  {wif}
+                </T>
                 <Spacer />
+                <T weight="bold" type="muted2">
+                  Balance to Sweep
+                </T>
+                <Spacer tiny />
+                {paperBalances["BCH"] && (
+                  <>
+                    <T>Bitcoin Cash</T>
+                    <Spacer minimal />
+                    <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
+                    <Spacer small />
+                  </>
+                )}
+                {paperBalances[tokenId] && (
+                  <>
+                    <T>SLP Token</T>
+                    <Spacer minimal />
+                    <T weight="bold">
+                      {paperBalances[tokenId].toFormat()} {symbolToken}
+                    </T>
+                    <T size="tiny" type="muted">
+                      {tokenId}
+                    </T>
+                  </>
+                )}
+
+                {!hasBalance && (
+                  <>
+                    <T>No balances found on this paper wallet</T>
+                    <Spacer small />
+                    <T>
+                      If the funds appear on a block explorer, wait a few
+                      minutes and try again.
+                    </T>
+                  </>
+                )}
               </>
             )}
             {sweepState === "pending" && (
@@ -176,21 +424,49 @@ const KeySweepScreen = ({ address }: Props) => {
               </View>
             )}
             {sweepState === "success" && (
-              <SuccessContainer>
+              <>
                 <T type="primary" center weight="bold">
-                  Sweep Complete
+                  Sweep Success!
                 </T>
                 <Spacer small />
-                <T type="primary" center weight="bold">
-                  {paperBalance} BCH
+                <SuccessContainer>
+                  {paperBalances["BCH"] && (
+                    <>
+                      <Spacer small />
+                      <T type="primary" center weight="bold">
+                        Bitcoin Cash
+                      </T>
+                      <T type="primary" size="large" center weight="bold">
+                        {paperBalances["BCH"].toFormat()} BCH
+                      </T>
+                    </>
+                  )}
+                  {paperBalances[tokenId] && (
+                    <>
+                      <Spacer small />
+                      <T type="primary" center weight="bold">
+                        SLP Token
+                      </T>
+                      <T type="primary" center size="large" weight="bold">
+                        {paperBalances[tokenId].toFormat()} {symbolToken}
+                      </T>
+                    </>
+                  )}
+                  <Spacer small />
+                </SuccessContainer>
+                <Spacer />
+                <T size="small" type="muted" center>
+                  Sweep again if this paper wallet had more than 1 type of SLP
+                  token.
                 </T>
-              </SuccessContainer>
+              </>
             )}
             {sweepState === "error" && (
               <ErrorContainer>
                 <T type="accent" center>
                   {sweepError}
                 </T>
+                <Spacer small />
                 <T type="accent" center>
                   Please try again
                 </T>
@@ -198,23 +474,14 @@ const KeySweepScreen = ({ address }: Props) => {
             )}
           </View>
 
-          {sweepState === "scanned" && (
+          {sweepState === "scanned" && hasBalance && (
             <View>
-              <T weight="bold">3. Sweep Funds</T>
               <Spacer small />
-              <Button
-                text="Confirm Sweep"
-                onPress={async () => {
-                  try {
-                    setSweepState("pending");
-                    await sweep(wif, address);
-                    setSweepState("success");
-                  } catch (e) {
-                    setSweepState("error");
-                    setSweepError("Sweep failed, please try again");
-                  }
-                }}
-              />
+              <T weight="bold" type="muted">
+                Sweep Funds
+              </T>
+              <Spacer tiny />
+              <Button text="Confirm Sweep" onPress={confirmSweep} />
               <Spacer />
             </View>
           )}
@@ -224,13 +491,20 @@ const KeySweepScreen = ({ address }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({
-  address: getAddressSelector(state)
-});
+const mapStateToProps = state => {
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(state, activeAccount.address);
+  const keypair = getKeypairSelector(state);
 
-const mapDispatchToProps = {};
+  return {
+    ownUtxos: utxos,
+    ownKeypair: keypair,
+    addressBCH: getAddressSelector(state),
+    addressSLP: getAddressSlpSelector(state),
+    tokensById: tokensByIdSelector(state)
+  };
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(KeySweepScreen);
+const mapDispatchToProps = { updateTokensMeta };
+
+export default connect(mapStateToProps, mapDispatchToProps)(KeySweepScreen);

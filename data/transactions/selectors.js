@@ -7,6 +7,13 @@ import { type FullState } from "../store";
 
 const transactionsSelector = (state: FullState) => state.transactions;
 
+const isUpdatingTransactionsSelector = createSelector(
+  transactionsSelector,
+  transactions => {
+    return transactions.updating;
+  }
+);
+
 // const transactionsByAccountSelector = (
 //   state: FullState,
 //   { address, tokenId }: { address: ?string, tokenId?: ?string }
@@ -32,4 +39,4 @@ const transactionsSelector = (state: FullState) => state.transactions;
 //   return _.sortBy(transactions, ["time"]).reverse();
 // };
 
-export { transactionsSelector };
+export { transactionsSelector, isUpdatingTransactionsSelector };

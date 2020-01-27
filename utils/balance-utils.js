@@ -69,8 +69,14 @@ const getHistoricalBchTransactions = async (
 
     // combine confirmed and unconfirmed
     // errors = slpdb, error = REST rate limit
-    const transactions =
-      result.errors || result.error ? [] : [...result.c, ...result.u];
+    let transactions = [];
+
+    if (result.c) {
+      transactions = [...transactions, ...result.c];
+    }
+    if (result.u) {
+      transactions = [...transactions, ...result.u];
+    }
 
     return transactions;
   } catch (e) {
@@ -122,17 +128,27 @@ const getHistoricalSlpTransactions = async (
         "tx.h": 1,
         "in.i": 1,
         "in.e": 1,
+        "out.e": 1,
+        "out.a": 1,
         "slp.detail": 1,
         blk: 1
       },
-      limit: 500
+      limit: 350
     }
   };
 
   let transactions = [];
   try {
     const result = await SLP.SLPDB.get(query);
-    transactions = [...result.c, ...result.u];
+    // combine confirmed and unconfirmed
+    // errors = slpdb, error = REST rate limit
+
+    if (result.c) {
+      transactions = [...transactions, ...result.c];
+    }
+    if (result.u) {
+      transactions = [...transactions, ...result.u];
+    }
   } catch (e) {
     console.warn("Error while fetching from slpdb");
     console.warn(e);
