@@ -1,0 +1,36 @@
+import { createSelector } from "reselect";
+import { FullState } from "../store";
+
+const utxosSelector = (state: FullState) => state.utxos;
+
+const utxosByAccountSelector = (
+  state: FullState,
+  address: string | null | undefined
+) => {
+  if (!address) return null;
+
+  const { byId, byAccount } = state.utxos;
+  const accountUtxoIds = byAccount[address];
+
+  if (!accountUtxoIds) return null;
+
+  return byAccount[address].map(utxoId => byId[utxoId]);
+};
+
+const doneInitialLoadSelector = createSelector(
+  utxosByAccountSelector,
+  utxos => {
+    return !!utxos;
+  }
+);
+
+const isUpdatingUTXO = (state: FullState) => {
+  return state.utxos.updating;
+};
+
+export {
+  utxosSelector,
+  utxosByAccountSelector,
+  doneInitialLoadSelector,
+  isUpdatingUTXO
+};

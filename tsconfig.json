@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "lib": ["es6"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "strict": true,
+    "target": "esnext",
+    "resolveJsonModule": true // Required for JSON files
+  },
+  "exclude": [
+    "node_modules",
+    "e2e",
+    "**/*.json", // Don't try and check JSON files
+    "**/*.spec.ts"
+  ]
+}
