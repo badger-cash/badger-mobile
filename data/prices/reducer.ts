@@ -12,8 +12,8 @@ export type State = {
   spot: {
     [coinId: string]: {
       [currency: string]: {
-        rate: number | null | undefined;
-        lastUpdated: number | null | undefined;
+        rate?: number | null;
+        lastUpdated?: number | null;
       };
     };
   };
@@ -24,7 +24,7 @@ type Action = {
   payload: any;
 };
 
-export const initialState = {
+export const initialState: State = {
   currencySelected: "USD",
   spot: {
     bch: {
@@ -37,12 +37,12 @@ export const initialState = {
 };
 
 const updateSpotRate = (
-  state,
+  state: State,
   {
     currency,
     rate
   }: {
-    currency: string;
+    currency: CurrencyCode;
     rate: number;
   }
 ) => {
@@ -69,7 +69,7 @@ const updateFiatCurrency = (state: State, currencyCode: CurrencyCode) => {
   };
 };
 
-const prices = (state: State = initialState, action: Action) => {
+const prices = (state = initialState, action: Action) => {
   switch (action.type) {
     case UPDATE_BCH_SPOT_PRICE_START:
       return state;

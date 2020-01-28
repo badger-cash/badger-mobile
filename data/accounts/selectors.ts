@@ -30,7 +30,7 @@ const getKeypairSelector = createSelector(
   keypairsByAccountSelector,
   activeAccountIdSelector,
   (keypairs, accountId) => {
-    return keypairs[accountId];
+    return keypairs && accountId ? keypairs[accountId] : null;
   }
 );
 

@@ -1,3 +1,3 @@
 # Tokens Data
 
-Metadata for all the SLP tokens.
+Metadata slice for all SLP tokens.

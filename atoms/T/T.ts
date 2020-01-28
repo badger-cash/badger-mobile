@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { Text, Platform } from "react-native";
 
 export interface BaseTextProps {
-  type: "muted" | "muted2" | "inverse" | "accent" | "primary" | "danger";
+  type?: "muted" | "muted2" | "inverse" | "accent" | "primary" | "danger";
   center?: boolean;
   right?: boolean;
   weight?: "bold";

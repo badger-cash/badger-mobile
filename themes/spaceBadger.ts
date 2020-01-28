@@ -9,6 +9,7 @@ type Theme = {
   fg100: string;
   fg200: string;
   fg300: string;
+  fg500: string;
   fg700: string;
   fg800: string;
   payout900: string;

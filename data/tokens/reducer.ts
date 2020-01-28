@@ -1,5 +1,3 @@
-// Meta data about all tokens
-
 import {
   UPDATE_TOKENS_META_START,
   UPDATE_TOKENS_META_SUCCESS,
@@ -37,7 +35,9 @@ export const initialState: State = {
 };
 
 const updateTokens = (state: State, tokens: TokenData[]) => {
-  if (!tokens.length) return state;
+  if (!tokens.length) {
+    return state;
+  }
   const allIdsNext = tokens.map(val => val.tokenId);
   const byIdNext = tokens.reduce((prev, curr) => {
     return {
@@ -52,7 +52,7 @@ const updateTokens = (state: State, tokens: TokenData[]) => {
   };
 };
 
-const tokensReducer = (state: State = initialState, action: Action) => {
+const tokensReducer = (state = initialState, action: Action) => {
   switch (action.type) {
     case UPDATE_TOKENS_META_START:
       return {

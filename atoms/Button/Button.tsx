@@ -5,7 +5,7 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import T from "../T";
 
 interface ButtonProps {
-  nature?: "primary" | "cautionGhost" | "ghost" | "inverse";
+  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse";
 }
 
 const StyledButton = styled(TouchableOpacity)<ButtonProps>`
@@ -44,7 +44,7 @@ const StyledButton = styled(TouchableOpacity)<ButtonProps>`
 interface Props {
   text?: string;
   children?: React.ReactNode;
-  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse" | null;
+  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse";
   onPress(): void;
 }
 

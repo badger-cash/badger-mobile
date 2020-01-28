@@ -18,7 +18,7 @@ const updateTokensMetaStart = () => ({
   payload: null
 });
 
-const updateTokensMetaSuccess = (tokens: TokenData[]) => ({
+const updateTokensMetaSuccess = (tokens: (TokenData | null)[]) => ({
   type: UPDATE_TOKENS_META_SUCCESS,
   payload: {
     tokens

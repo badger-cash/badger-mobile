@@ -283,7 +283,6 @@ const HomeScreen = ({
                 item && (
                   <CoinRow
                     amount={item.amount}
-                    extra={item.extra}
                     name={item.name}
                     ticker={item.symbol}
                     tokenId={item.tokenId}

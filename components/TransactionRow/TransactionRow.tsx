@@ -9,17 +9,23 @@ import Feather from "react-native-vector-icons/Feather";
 import { T } from "../../atoms";
 import { SLP } from "../../utils/slp-sdk-utils";
 
-const Row = styled(View)`
+interface RowProps {
+  type?: "send" | "receive" | "interwallet" | "payout";
+}
+
+const Row = styled(View)<RowProps>`
   padding: 16px;
   margin-bottom: 8px;
 
   background-color: ${props =>
-    ({
-      send: props.theme.accent900,
-      receive: props.theme.primary900,
-      interwallet: props.theme.fg800,
-      payout: props.theme.payout900
-    }[props.type] || props.theme.fg800)};
+    props.type
+      ? {
+          send: props.theme.accent900,
+          receive: props.theme.primary900,
+          interwallet: props.theme.fg800,
+          payout: props.theme.payout900
+        }[props.type]
+      : props.theme.fg800};
 `;
 
 const DateRow = styled(View)`
@@ -39,6 +45,15 @@ const IconArea = styled(View)`
   margin-right: 10px;
 `;
 
+const EmptyIcon = styled(View)`
+  width: 36;
+  height: 36;
+  border-radius: 18;
+  overflow: hidden;
+  background-color: ${props => props.theme.fg700};
+  border: 2px solid ${props => props.theme.primary500};
+`;
+
 const IconImage = styled(Image)`
   width: 36;
   height: 36;
@@ -54,21 +69,25 @@ const AmountArea = styled(View)`
   justify-content: center;
 `;
 
-let blockieCache = {};
+interface BlockieCache {
+  [address: string]: any;
+}
 
-type Props = {
+let blockieCache: BlockieCache = {};
+
+interface Props {
   type: "send" | "receive" | "payout" | "interwallet";
   txId: string;
-  confirmations: number | null | undefined;
+  confirmations?: number | null;
   timestamp: number;
   toAddress: string;
   toAddresses: string[];
   fromAddresses: string[];
-  fromAddress: string | null | undefined;
+  fromAddress?: string | null;
   symbol: string;
   tokenId: string;
   amount: string;
-};
+}
 
 const TransactionRow = ({
   confirmations,
@@ -83,11 +102,12 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
+  // TODO - Special imag for interwallet, payout, and receive from many
   const transactionAddress = {
     send: toAddress,
     interwallet: null,
-    payout: fromAddress,
-    receive: fromAddress
+    payout: fromAddress || fromAddresses[0],
+    receive: fromAddress || fromAddresses[0]
   }[type];
 
   let formattedTransactionAddress = null;
@@ -105,15 +125,18 @@ const TransactionRow = ({
     formattedTransactionAddress = null;
   }
 
-  let blockie = blockieCache[transactionAddress];
+  let blockie = null;
+  if (transactionAddress) {
+    blockie = blockieCache[transactionAddress];
 
-  if (!blockie) {
-    const newBlockie = makeBlockie(transactionAddress || "unknown");
-    blockieCache = {
-      ...blockieCache,
-      [transactionAddress]: newBlockie
-    };
-    blockie = newBlockie;
+    if (!blockie) {
+      const newBlockie = makeBlockie(transactionAddress || "unknown");
+      blockieCache = {
+        ...blockieCache,
+        [transactionAddress]: newBlockie
+      };
+      blockie = newBlockie;
+    }
   }
 
   const imageSource = {
@@ -148,7 +171,7 @@ const TransactionRow = ({
       </DateRow>
       <AmountRow>
         <IconArea>
-          <IconImage source={imageSource} />
+          {blockie ? <IconImage source={imageSource} /> : <EmptyIcon />}
         </IconArea>
         <InfoArea>
           <T>{typeFormatted}</T>

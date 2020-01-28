@@ -7,21 +7,21 @@ import {
 } from "./constants";
 
 // Todo - Fill in this type as needed
-export type ECPair = {
+export interface ECPair {
   compressed: boolean;
   d: any;
   network: any;
   __Q: any;
-};
+}
 
-export type Account = {
+export interface Account {
   address: string;
   addressSlp?: string;
   keypair?: ECPair;
   mnemonic: string;
   accountIndex: number;
   seedViewed?: boolean;
-};
+}
 
 type Action = {
   type: string;
@@ -32,14 +32,14 @@ export type State = {
   byId: {
     [accountId: string]: Account;
   };
-  keypairsByAccount: {
+  keypairsByAccount?: {
     [accountId: string]: {
       bch: ECPair;
       slp: ECPair;
     };
   };
   allIds: string[];
-  activeId: string | null | undefined;
+  activeId?: string | null;
 };
 
 export const initialState: State = {

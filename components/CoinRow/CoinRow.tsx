@@ -8,17 +8,16 @@ import { T, Spacer } from "../../atoms";
 
 import { getTokenImage } from "../../utils/token-utils";
 
-type Props = {
+interface Props {
   amount: string;
-  extra: string;
   name: string;
   ticker: string;
-  tokenId: string | null | undefined;
-  valueDisplay: string | null | undefined;
-  onPress: Function;
-};
+  tokenId?: string | null;
+  valueDisplay?: string | null;
+  onPress(): void;
+}
 
-const Outer = styled(TouchableOpacity)`
+const Outer = styled(TouchableOpacity)<{ onPress(): void }>`
   padding: 16px 16px;
   flex-direction: row;
   border-bottom-color: ${props => props.theme.fg700};
@@ -48,7 +47,6 @@ const CoinRow = ({
   ticker,
   name,
   amount,
-  extra,
   tokenId,
   valueDisplay,
   onPress
