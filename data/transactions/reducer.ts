@@ -9,8 +9,8 @@ export type Transaction = {
   hash: string;
   txParams: {
     from: string | null | undefined;
-    to: string;
-    transactionType?: "SEND" | "MINT";
+    to: string | null;
+    transactionType?: string;
     fromAddresses: string[];
     toAddresses: string[];
     value?: string;
@@ -52,7 +52,7 @@ export const initialState: State = {
 };
 
 const addTransactions = (
-  state,
+  state: State,
   payload: {
     transactions: Transaction[];
     address: string;

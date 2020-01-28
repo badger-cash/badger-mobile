@@ -8,6 +8,8 @@ import {
 
 import { SLP } from "./slp-sdk-utils";
 
+// Minimal interface for what the app needs.
+// Reference the BitDB docs to access fields not listed here.
 export interface ResultBitDB {
   blk?: { i?: number; t: number };
   tx: { h: string };
@@ -15,15 +17,28 @@ export interface ResultBitDB {
   out: { e: { a: string; v: number } }[];
 }
 
-export interface ResultSlpDB extends ResultBitDB {}
+export interface ResultSlpDB {
+  blk?: { i?: number; t: number };
+  tx: { h: string };
+  in: { e: { a: string } }[];
+  out: { e: { a: string; v: number } }[];
+  slp: {
+    detail: {
+      outputs: { address: string; amount: string }[];
+      tokenIdHex: string;
+      transactionType: string;
+      decimals: number;
+    };
+  };
+}
 
 const getHistoricalBchTransactions = async (
   address: string,
   addressSlp: string,
   latestBlock: number
-): Promise<ResultBitDB[] | never[]> => {
+): Promise<ResultBitDB[]> => {
   if (!address) {
-    return [];
+    return [] as ResultBitDB[];
   }
 
   const query = {
@@ -97,8 +112,10 @@ const getHistoricalSlpTransactions = async (
   address: string,
   addressSlp: string,
   latestBlock: number
-) => {
-  if (!address) return [];
+): Promise<ResultSlpDB[]> => {
+  if (!address) {
+    return [] as ResultSlpDB[];
+  }
   const query = {
     v: 3,
     q: {
@@ -147,7 +164,7 @@ const getHistoricalSlpTransactions = async (
       limit: 350
     }
   };
-  let transactions = [];
+  let transactions: ResultSlpDB[] = [];
 
   try {
     const result = await SLP.SLPDB.get(query);
