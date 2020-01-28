@@ -6,6 +6,7 @@ import {
   UPDATE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
+import { UTXO } from "./reducer";
 
 import { activeAccountIdSelector } from "../accounts/selectors";
 
@@ -26,7 +27,7 @@ const updateUtxoStart = () => ({
   payload: null
 });
 
-const updateUtxoSuccess = (utxos, address) => ({
+const updateUtxoSuccess = (utxos: UTXO[], address: string) => ({
   type: UPDATE_UTXO_SUCCESS,
   payload: {
     utxos,
@@ -40,7 +41,7 @@ const updateUtxoFail = () => ({
 });
 
 // Simple unique ID for each utxo
-const computeUtxoId = utxo =>
+const computeUtxoId = (utxo: UTXO) =>
   uuidv5(`${utxo.txid}_${utxo.vout}`, BADGER_UUID_NAMESPACE);
 
 const refreshUtxos = async (state: FullState, address: string) => {
@@ -54,7 +55,7 @@ const refreshUtxos = async (state: FullState, address: string) => {
     .filter(Boolean);
 
   // Get all UTXO for account
-  const utxosAll = await getAllUtxo(address);
+  const utxosAll: UTXO[] = await getAllUtxo(address);
 
   const utxosAllWithId = utxosAll.map(utxo => ({
     ...utxo,
@@ -127,14 +128,17 @@ const refreshUtxos = async (state: FullState, address: string) => {
   try {
     const validSLPTx = await Promise.all(
       chunk(slpTxidsToValidate, 20).map(async txIdsToValidate => {
-        const validatedTxs = await SLP.Utils.validateTxid(txIdsToValidate);
+        const validatedTxs: {
+          valid: boolean;
+          txid: string;
+        }[] = await SLP.Utils.validateTxid(txIdsToValidate);
         const validSLPTxChunk = validatedTxs
           .filter(chunkResult => chunkResult.valid === true)
           .map(chunkResult => chunkResult.txid);
         return validSLPTxChunk;
       })
     );
-    const validSlpTxs = [].concat(...validSLPTx);
+    const validSlpTxs = ([] as string[]).concat(...validSLPTx);
     const utxosValidSlpTx = utxosSlpOrSpendable.map(utxo =>
       validSlpTxs.includes(utxo.txid)
         ? {

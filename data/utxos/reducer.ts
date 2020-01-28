@@ -5,6 +5,7 @@ import {
   UPDATE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
+import BigNumber from "bignumber.js";
 
 export type UTXO = {
   _id: string;
@@ -18,7 +19,7 @@ export type UTXO = {
   slp: {
     baton: any;
     token: string;
-    quantity: number;
+    quantity: BigNumber;
   };
   validSlpTx: boolean;
   spendable: boolean;

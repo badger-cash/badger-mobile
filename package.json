@@ -33,6 +33,7 @@
     "@types/react-native-vector-icons": "^6.4.5",
     "@types/react-test-renderer": "^16.9.2",
     "@types/styled-components": "^4.4.2",
+    "@types/uuid": "^3.4.6",
     "bignumber.js": "^9.0.0",
     "bitbox-sdk": "~8.11.2",
     "bitcore-payment-protocol": "git+https://github.com/vinarmani/bitcore-payment-protocol.git#new_deps",

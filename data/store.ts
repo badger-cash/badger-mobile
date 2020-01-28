@@ -39,6 +39,7 @@ export type FullState = {
   tokens: StateTokens;
   transactions: StateTransactions;
   utxos: StateUTXOS;
+  _persist?: any;
 };
 
 const initialState: FullState = {

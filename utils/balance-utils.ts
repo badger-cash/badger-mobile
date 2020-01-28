@@ -17,11 +17,7 @@ export interface ResultBitDB {
   out: { e: { a: string; v: number } }[];
 }
 
-export interface ResultSlpDB {
-  blk?: { i?: number; t: number };
-  tx: { h: string };
-  in: { e: { a: string } }[];
-  out: { e: { a: string; v: number } }[];
+export interface ResultSlpDB extends ResultBitDB {
   slp: {
     detail: {
       outputs: { address: string; amount: string }[];
