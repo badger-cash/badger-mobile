@@ -1,4 +1,9 @@
-import { createStore, combineReducers, applyMiddleware } from "redux";
+import {
+  createStore,
+  combineReducers,
+  applyMiddleware,
+  Middleware
+} from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
 import ReduxThunk from "redux-thunk";
@@ -74,15 +79,13 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-const Logger = ({ getState }) => {
-  return next => action => {
-    if (__DEV__) {
-      // Uncomment to enable debug logging
-      // console.log("::LOG_ACTION::", action);
-    }
+const Logger: Middleware = store => next => action => {
+  if (__DEV__) {
+    // Uncomment to enable debug logging
+    // console.log("::LOG_ACTION::", action);
+  }
 
-    return next(action);
-  };
+  return next(action);
 };
 
 const middleware = [Logger, ReduxThunk];

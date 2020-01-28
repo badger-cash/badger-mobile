@@ -8,7 +8,9 @@ import {
 
 import {
   getHistoricalBchTransactions,
-  getHistoricalSlpTransactions
+  getHistoricalSlpTransactions,
+  ResultBitDB,
+  ResultSlpDB
 } from "../../utils/balance-utils";
 
 import { SLP } from "../../utils/slp-sdk-utils";
@@ -67,10 +69,10 @@ const updateTransactions = (address: string, addressSlp: string) => {
       latestBlock
     );
 
-    const [bchHistory, slpHistory] = await Promise.all([
-      transactionsBCH,
-      transactionsSlp
-    ]);
+    const [bchHistory, slpHistory]: [
+      ResultBitDB[],
+      ResultSlpDB[]
+    ] = await Promise.all([transactionsBCH, transactionsSlp]);
 
     const formattedTransactionsBCH: Transaction[] = [];
 
@@ -151,7 +153,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
         }, 0);
       }
 
-      const formattedTx = {
+      const formattedTx: Transaction = {
         hash,
         txParams: {
           from: fromAddress,
@@ -162,9 +164,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
         },
         time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
         block,
-
-        status: "confirmed",
-
         // Allow the UI to render after each item computes.
         networkId: "mainnet"
       };

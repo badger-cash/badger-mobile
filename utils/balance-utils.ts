@@ -5,15 +5,23 @@ import {
   currencySymbolMap,
   CurrencyCode
 } from "./currency-utils";
-import { Balances } from "../data/selectors";
 
 import { SLP } from "./slp-sdk-utils";
+
+export interface ResultBitDB {
+  blk?: { i?: number; t: number };
+  tx: { h: string };
+  in: { e: { a: string } }[];
+  out: { e: { a: string; v: number } }[];
+}
+
+export interface ResultSlpDB extends ResultBitDB {}
 
 const getHistoricalBchTransactions = async (
   address: string,
   addressSlp: string,
   latestBlock: number
-) => {
+): Promise<ResultBitDB[] | never[]> => {
   if (!address) {
     return [];
   }
@@ -67,7 +75,7 @@ const getHistoricalBchTransactions = async (
   // errors = slpdb, error = REST rate limit
   try {
     const result = await SLP.BitDB.get(query);
-    let transactions = [];
+    let transactions: ResultBitDB[] = [];
 
     if (result.c) {
       transactions = [...transactions, ...result.c];
