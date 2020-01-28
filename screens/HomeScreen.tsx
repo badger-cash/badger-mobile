@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo } from "react";
+import BigNumber from "bignumber.js";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
   ActivityIndicator,
@@ -11,12 +13,11 @@ import {
 } from "react-native";
 import uuidv5 from "uuid/v5";
 
-import { connect } from "react-redux";
-
 import { T, H1, Spacer } from "../atoms";
 
 import { CoinRowHeader, CoinRow } from "../components";
 
+import { FullState } from "../data/store";
 import { balancesSelector, Balances } from "../data/selectors";
 import {
   getAddressSelector,
@@ -39,7 +40,7 @@ import {
   formatFiatAmount,
   computeFiatAmount
 } from "../utils/balance-utils";
-import { CurrencyCode } from "../utils/currency-utils";
+// import { CurrencyCode } from "../utils/currency-utils";
 
 const SECOND = 1000;
 
@@ -81,26 +82,55 @@ const InitialLoadCover = styled(View)`
   justify-content: center;
 `;
 
-type Props = {
-  address: string;
-  addressSlp: string;
-  balances: Balances;
-  initialLoadingDone: boolean;
-  latestTransactionHistoryBlock: number;
+type PropsFromParent = {
   navigation: {
-    navigate: Function;
+    navigate(target: string, params?: Object): void;
   };
-  seedViewed: boolean;
-  spotPrices: any;
-  fiatCurrency: CurrencyCode;
-  tokensById: {
-    [tokenId: string]: TokenData;
-  };
-  updateSpotPrice: Function;
-  updateTokensMeta: Function;
-  updateTransactions: Function;
-  updateUtxos: Function;
 };
+
+interface WalletSection {
+  title: string;
+  data: {
+    symbol: string;
+    name: string;
+    amount: string;
+    tokenId?: string;
+    valueDisplay?: string;
+  }[];
+}
+
+const mapStateToProps = (state: FullState) => {
+  const address = getAddressSelector(state);
+  const addressSlp = getAddressSlpSelector(state);
+  const balances = balancesSelector(state, address);
+  const tokensById = tokensByIdSelector(state);
+  const spotPrices = spotPricesSelector(state);
+  const seedViewed = getSeedViewedSelector(state);
+  const initialLoadingDone = doneInitialLoadSelector(state, address);
+  const fiatCurrency = currencySelector(state);
+
+  return {
+    address,
+    addressSlp,
+    seedViewed,
+    balances,
+    spotPrices,
+    fiatCurrency,
+    tokensById,
+    initialLoadingDone
+  };
+};
+
+const mapDispatchToProps = {
+  updateSpotPrice,
+  updateTokensMeta,
+  updateTransactions,
+  updateUtxos
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux & PropsFromParent;
 
 const HomeScreen = ({
   address,
@@ -118,8 +148,8 @@ const HomeScreen = ({
   updateUtxos
 }: Props) => {
   useEffect(() => {
-    if (!address) return;
     // Update UTXOs on an interval
+    if (!address) return;
     updateUtxos(address, addressSlp);
     const utxoInterval = setInterval(
       () => updateUtxos(address, addressSlp),
@@ -130,17 +160,17 @@ const HomeScreen = ({
     };
   }, [address, addressSlp, updateUtxos]);
 
-  // Update transaction history initial
   useEffect(() => {
+    // Update transaction history initial
     if (!address || !addressSlp) return;
     updateTransactions(address, addressSlp);
   }, [address, addressSlp, updateTransactions]);
 
-  // Update transaction history interval
   useEffect(() => {
+    // Update transaction history interval
     const transactionInterval = setInterval(() => {
       updateTransactions(address, addressSlp);
-    }, 30 * 1000);
+    }, 30 * SECOND);
     return () => {
       clearInterval(transactionInterval);
     };
@@ -156,20 +186,19 @@ const HomeScreen = ({
   }, [tokenIdsHash]);
 
   useEffect(() => {
+    // Update the BCH price on an interval
     updateSpotPrice(fiatCurrency);
     const spotPriceInterval = setInterval(
       () => updateSpotPrice(fiatCurrency),
-      60 * 1000
+      60 * SECOND
     );
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
   const tokenData = useMemo(() => {
-    //[[tokenId, amount]]
-    const slpTokensDisplay = Object.keys(balances.slpTokens).map(key => [
-      key,
-      balances.slpTokens[key]
-    ]);
+    const slpTokensDisplay = Object.keys(balances.slpTokens).map<
+      [string, BigNumber]
+    >(key => [key, balances.slpTokens[key]]);
 
     const tokensWithBalance = slpTokensDisplay.filter(
       ([tokenId, amount]) => amount.toNumber() !== 0
@@ -184,10 +213,10 @@ const HomeScreen = ({
         symbol,
         name,
         amount: amountFormatted,
-        extra: "Simple Token",
         tokenId
       };
     });
+
     const tokensSorted = tokensFormatted.sort((a, b) => {
       const symbolA = a.symbol.toUpperCase();
       const symbolB = b.symbol.toUpperCase();
@@ -210,23 +239,23 @@ const HomeScreen = ({
   }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
 
   const walletSections = useMemo(() => {
-    return [
-      {
-        title: "Bitcoin Cash Wallet",
-        data: [
-          {
-            symbol: "BCH",
-            name: "Bitcoin Cash",
-            amount: formatAmount(balances.satoshisAvailable, 8),
-            valueDisplay: BCHFiatDisplay
-          }
-        ]
-      },
-      {
-        title: "Simple Token Vault",
-        data: tokenData
-      }
-    ];
+    const sectionBCH: WalletSection = {
+      title: "Bitcoin Cash Wallet",
+      data: [
+        {
+          symbol: "BCH",
+          name: "Bitcoin Cash",
+          amount: formatAmount(balances.satoshisAvailable, 8),
+          valueDisplay: BCHFiatDisplay
+        }
+      ]
+    };
+
+    const sectionSLP: WalletSection = {
+      title: "Simple Token Vault",
+      data: tokenData
+    };
+    return [sectionBCH, sectionSLP];
   }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
 
   return (
@@ -311,35 +340,6 @@ const HomeScreen = ({
       </View>
     </SafeAreaView>
   );
-};
-
-const mapStateToProps = (state, props) => {
-  const address = getAddressSelector(state);
-  const addressSlp = getAddressSlpSelector(state);
-  const balances = balancesSelector(state, address);
-  const tokensById = tokensByIdSelector(state);
-  const spotPrices = spotPricesSelector(state);
-  const seedViewed = getSeedViewedSelector(state);
-  const initialLoadingDone = doneInitialLoadSelector(state, address);
-  const fiatCurrency = currencySelector(state);
-
-  return {
-    address,
-    addressSlp,
-    seedViewed,
-    balances,
-    spotPrices,
-    fiatCurrency,
-    tokensById,
-    initialLoadingDone
-  };
-};
-
-const mapDispatchToProps = {
-  updateSpotPrice,
-  updateTokensMeta,
-  updateTransactions,
-  updateUtxos
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

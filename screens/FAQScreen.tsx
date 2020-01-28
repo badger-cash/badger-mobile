@@ -15,7 +15,7 @@ const ScreenWrapper = styled(ScrollView)`
 
 type FAQProps = {
   title: string;
-  children: React.Node;
+  children: React.ReactNode;
 };
 
 const FAQItem = ({ title, children }: FAQProps) => (

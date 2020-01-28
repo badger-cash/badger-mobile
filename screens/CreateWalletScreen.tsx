@@ -7,6 +7,7 @@ import { Spacer, T } from "../atoms";
 
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
+import { FullState } from "../data/store";
 
 const ScreenWrapper = styled(SafeAreaView)`
   align-items: center;
@@ -40,7 +41,7 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: FullState) => ({
   isCreated: hasMnemonicSelector(state)
 });
 
