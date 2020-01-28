@@ -4,7 +4,11 @@ import styled, { css } from "styled-components";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import T from "../T";
 
-const StyledButton = styled(TouchableOpacity)`
+interface ButtonProps {
+  nature?: "primary" | "cautionGhost" | "ghost" | "inverse";
+}
+
+const StyledButton = styled(TouchableOpacity)<ButtonProps>`
   border-width: ${StyleSheet.hairlineWidth};
   min-width: 135px;
 
@@ -37,12 +41,12 @@ const StyledButton = styled(TouchableOpacity)`
         `}
 `;
 
-type Props = {
+interface Props {
   text?: string;
-  children?: React.Node;
-  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse";
-  onPress: Function;
-};
+  children?: React.ReactNode;
+  nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse" | null;
+  onPress(): void;
+}
 
 const Button = ({ text, children, nature, ...rest }: Props) => {
   const textType =

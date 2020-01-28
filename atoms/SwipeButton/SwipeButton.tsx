@@ -21,7 +21,7 @@ const SwipeButtonContainer = styled(View)`
   border-color: ${props => props.theme.primary700};
 `;
 
-const SwipeContent = styled(View)`
+const SwipeContent = styled(View)<{ activated: boolean }>`
   height: 64px;
   padding-right: 10px;
   align-items: flex-end;
@@ -31,7 +31,7 @@ const SwipeContent = styled(View)`
     props.activated ? props.theme.success500 : props.theme.pending500};
 `;
 
-const SwipeMainContent = styled(View)`
+const SwipeMainContent = styled(View)<{ triggered: boolean }>`
   height: 64px;
   align-items: center;
   justify-content: center;
@@ -40,18 +40,19 @@ const SwipeMainContent = styled(View)`
     props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
-type Props = {
-  swipeFn: Function;
+interface Props {
+  swipeFn(): void;
   controlledState?:
-    | ("pending" | null | undefined)
     | "neutral"
     | "activated"
     | "success"
-    | "error";
+    | "error"
+    | "pending"
+    | null;
   labelAction: string;
   labelRelease: string;
   labelHalfway: string;
-};
+}
 
 const SwipeButton = ({
   swipeFn,

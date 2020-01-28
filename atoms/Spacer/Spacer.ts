@@ -1,7 +1,15 @@
 import { View } from "react-native";
 import styled, { css } from "styled-components";
 
-const Spacer = styled(View)`
+// Todo - Refactor all size related props into a single prop.
+interface Props {
+  large?: boolean;
+  small?: boolean;
+  tiny?: boolean;
+  minimal?: boolean;
+  fill?: boolean;
+}
+const Spacer = styled(View)<Props>`
   margin-bottom: 28px;
   ${props =>
     props.large &&

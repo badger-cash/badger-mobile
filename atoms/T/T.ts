@@ -2,9 +2,22 @@ import styled, { css } from "styled-components";
 
 import { Text, Platform } from "react-native";
 
+export interface BaseTextProps {
+  type: "muted" | "muted2" | "inverse" | "accent" | "primary" | "danger";
+  center?: boolean;
+  right?: boolean;
+  weight?: "bold";
+  spacing?: "loose";
+  monospace?: boolean;
+}
+
+interface TProps extends BaseTextProps {
+  size?: "tiny" | "xsmall" | "small" | "large";
+}
+
 export const BASE_SIZE = 16;
 
-export const textBase = css`
+export const textBase = css<BaseTextProps>`
 color: ${props =>
   props.type === "muted"
     ? props.theme.fg200
@@ -50,7 +63,7 @@ color: ${props =>
 
 `;
 
-const T = styled(Text)`
+const T = styled(Text)<TProps>`
   ${textBase};
   font-size: ${BASE_SIZE};
 

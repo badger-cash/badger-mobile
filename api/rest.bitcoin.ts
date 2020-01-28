@@ -1,4 +1,5 @@
-// Communicate directly with the REST api.
+// Helper methods to communicate with the REST API
+// Prefer this over using BitBox when possible.
 
 const API = `https://rest.bitcoin.com/v2`;
 

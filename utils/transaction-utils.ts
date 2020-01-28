@@ -559,7 +559,6 @@ const sweepPaperWallet = async (
       addressBch === ""
 
       // Return remaining bch balance output
-      // What is the purpose of the + 546 here again.  Without it the fee is way too high, just not sure why as fee already calculated
     ) {
       throw new Error(`Address to receive swept BCH funds must be included`);
     }
