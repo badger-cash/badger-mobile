@@ -7,12 +7,12 @@ const utxosByAccountSelector = (
   state: FullState,
   address: string | null | undefined
 ) => {
-  if (!address) return null;
+  if (!address) return [];
 
   const { byId, byAccount } = state.utxos;
   const accountUtxoIds = byAccount[address];
 
-  if (!accountUtxoIds) return null;
+  if (!accountUtxoIds) return [];
 
   return byAccount[address].map(utxoId => byId[utxoId]);
 };

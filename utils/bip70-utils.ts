@@ -9,6 +9,7 @@ import { decodeTxOut } from "./transaction-utils";
 const slpjs = require("slpjs");
 
 const SLPJS = new slpjs.Slp(SLP);
+
 export type PaymentRequest = {
   expires: number;
   memo: string;
@@ -18,15 +19,18 @@ export type PaymentRequest = {
   paymentUrl: string;
   requiredFeeRate: number | null | undefined;
   time: number;
+  tokenId?: string;
   totalValue: number;
   totalTokenAmount: number | null | undefined;
   verified: boolean;
 };
+
 export type MerchantData = {
   fiat_symbol: string;
   fiat_rate: number;
   fiat_amount: number;
 };
+
 export type OutputInfo = {
   amount: BigNumber;
   script: string;
@@ -146,7 +150,7 @@ const decodePaymentResponse = async responseData => {
   }
 };
 
-const decodePaymentRequest = async requestData => {
+const decodePaymentRequest = async (requestData): Promise<PaymentRequest> => {
   const buffer = await Buffer.from(requestData);
 
   try {
@@ -445,16 +449,16 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   tokenChangeAddress: string,
   bchChangeAddress: string,
   tokenMetadata: {
-    decimals: number;
+    decimals: number | null;
   },
   spendableUTxos: UTXO[],
   spendableTokenUtxos: UTXO[]
 ) => {
-  const {
-    outputs,
+  if (!tokenMetadata.decimals) {
+    throw new Error("Error getting SLP token metadata, transaction cancelled");
+  }
 
-    merchantData
-  } = paymentRequest;
+  const { outputs, merchantData } = paymentRequest;
   let to: {
     address: string;
     tokenAmount: string;

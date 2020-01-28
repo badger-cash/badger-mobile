@@ -50,6 +50,8 @@ import {
   PaymentRequest
 } from "../utils/bip70-utils";
 
+import { FullState } from "../data/store";
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
 `;
@@ -82,11 +84,11 @@ type Props = {
   keypair: {
     bch: ECPair;
     slp: ECPair;
-  };
+  } | null;
   utxoUpdating: boolean;
   spotPrices: any;
   fiatCurrency: CurrencyCode;
-  activeAccount: Account;
+  activeAccount: Account | null;
   addressSlp: string;
   address: string;
   updateTokensMeta: Function;
@@ -129,12 +131,14 @@ const Bip70ConfirmScreen = ({
   const [sendError, setSendError] = useState(null);
   const [tickTime, setTickTime] = useState(Date.now());
 
-  const [paymentDetails, setPaymentDetails] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentRequest | null>(
+    null
+  );
 
   const [step, setStep] = useState("fetching");
 
   const coinImageSource = useMemo(
-    () => getTokenImage(paymentDetails ? paymentDetails.tokenId : null),
+    () => getTokenImage(paymentDetails && paymentDetails.tokenId),
     [paymentDetails]
   );
 
@@ -148,8 +152,7 @@ const Bip70ConfirmScreen = ({
     }
 
     const tokenId = paymentDetails.tokenId;
-
-    const tokenInfo = tokensById[tokenId];
+    const tokenInfo = tokenId && tokensById[tokenId];
 
     if (!tokenId) {
       return {
@@ -169,40 +172,36 @@ const Bip70ConfirmScreen = ({
 
     return {
       name: null,
-
-      // update UTXOs on load
       symbol: null,
       decimals: null
     };
-
-    // Fetch token Metadata if it is unknown
   }, [paymentDetails, tokensById]);
+
   useEffect(() => {
+    // update UTXOs on load
     updateUtxos(address, addressSlp);
   }, [address, addressSlp, updateUtxos]);
-  useEffect(() => {
-    if (!paymentDetails || !paymentDetails.tokenId) return;
 
-    if (
-      // Setup effect hooks
-      !tokensById[paymentDetails.tokenId]
-      // Fetch payment details on initial load
-    ) {
+  useEffect(() => {
+    // Fetch token Metadata if it is unknown
+    if (!paymentDetails || !paymentDetails.tokenId) return;
+    if (!tokensById[paymentDetails.tokenId]) {
       updateTokensMeta([paymentDetails.tokenId]);
     }
   }, [paymentDetails, tokensById, updateTokensMeta]);
+
   useEffect(() => {
+    // Fetch payment details on initial load
     setStep("fetching");
 
     // Assume BCH, but fail over to SLP
     const fetchDetails = async () => {
       let headers = {
         Accept: "application/bitcoincash-paymentrequest",
-
         "Content-Type": "application/octet-stream"
       };
       let paymentResponse;
-      let details: PaymentRequest;
+      let details: PaymentRequest | null = null;
       let trySLP = false;
 
       try {
@@ -226,25 +225,24 @@ const Bip70ConfirmScreen = ({
 
           setStep("invalid");
           return;
-
-          // Timer update
         }
       }
-
       setPaymentDetails(details);
-
       setStep("review");
     };
-
     fetchDetails();
   }, [paymentURL]);
 
   useEffect(() => {
+    // Timer update
     const tickInterval = setInterval(() => setTickTime(Date.now()), 1000);
     return () => clearInterval(tickInterval);
   }, []);
+
   const sendPayment = useCallback(async () => {
-    if (!paymentDetails) return null;
+    if (!paymentDetails || !activeAccount || !keypair) {
+      return null;
+    }
     setStep("sending");
     const utxoWithKeypair = utxos.map(utxo => ({
       ...utxo,
@@ -268,7 +266,6 @@ const Bip70ConfirmScreen = ({
         paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
           paymentDetails,
           activeAccount.addressSlp,
-
           activeAccount.address,
           {
             decimals: coinInfo.decimals
@@ -281,6 +278,7 @@ const Bip70ConfirmScreen = ({
         const refundKeypair = paymentDetails.tokenId
           ? keypair.slp
           : keypair.bch;
+
         paymentResponse = await signAndPublishPaymentRequestTransaction(
           paymentDetails,
           activeAccount.address,
@@ -290,7 +288,6 @@ const Bip70ConfirmScreen = ({
       }
     } catch (e) {
       setSendError(e.message);
-
       setStep("error");
       return;
     }
@@ -312,18 +309,25 @@ const Bip70ConfirmScreen = ({
       setStep("error");
       return;
     }
-  }, [
-    paymentDetails,
-    utxos,
-    activeAccount,
-    coinInfo,
-    keypair.bch,
-    keypair.slp,
-    navigation
-  ]);
+  }, [paymentDetails, utxos, activeAccount, coinInfo, keypair, navigation]);
+
   const remainingTime = paymentDetails
     ? paymentDetails.expires - tickTime / 1000
     : 0;
+
+  useEffect(() => {
+    if (remainingTime < 0) {
+      setStep("invalid");
+    }
+  }, [remainingTime]);
+
+  const minutes = (Math.floor(remainingTime / 60) % 60)
+    .toString()
+    .padStart(2, "0");
+
+  const seconds = Math.floor(remainingTime % 60)
+    .toString()
+    .padStart(2, "0");
 
   // Not used for now.
   // const merchantData = useMemo(
@@ -331,17 +335,6 @@ const Bip70ConfirmScreen = ({
   //   [paymentDetails]
   // );
 
-  const minutes = (Math.floor(remainingTime / 60) % 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = Math.floor(remainingTime % 60)
-    .toString()
-    .padStart(2, "0");
-  useEffect(() => {
-    if (remainingTime < 0) {
-      setStep("invalid");
-    }
-  }, [remainingTime]);
   const fiatAmountTotal = useMemo(() => {
     if (paymentDetails) {
       if (paymentDetails.tokenId) {
@@ -363,6 +356,18 @@ const Bip70ConfirmScreen = ({
 
     return null;
   }, [paymentDetails, fiatCurrency, spotPrices]);
+
+  const requestAmount =
+    paymentDetails && paymentDetails.tokenId
+      ? paymentDetails.totalTokenAmount
+      : paymentDetails?.totalValue;
+
+  const formattedAmount = `${formatAmount(
+    new BigNumber(requestAmount || 0),
+    coinInfo.decimals,
+    true
+  )} ${coinInfo ? coinInfo.symbol : ""}`;
+
   return (
     <ScreenWrapper>
       <ScrollView
@@ -391,36 +396,12 @@ const Bip70ConfirmScreen = ({
             <T center size="small" type="muted">
               Payment Amount
             </T>
-            <Spacer tiny /> /*{" "}
-            <T center size="small">
-              {paymentDetails.network === "main"
-                ? "Main Network"
-                : "Test Network"}
-            </T>{" "}
-            */
+            <Spacer tiny />
             <T center monospace size="large" weight="bold">
-              {`${formatAmount(
-                BigNumber(
-                  paymentDetails.tokenId
-                    ? paymentDetails.totalTokenAmount
-                    : paymentDetails.totalValue
-                ),
-                coinInfo.decimals,
-                true
-              )} ${coinInfo ? coinInfo.symbol : ""}`}
+              {formattedAmount}
             </T>
             {!paymentDetails.tokenId && (
               <>
-                {" "}
-                /*{" "}
-                <T
-                  size="small"
-                  type={paymentDetails.verified ? "primary" : "danger"}
-                  center
-                >
-                  {paymentDetails.verified ? "Verified" : "Not verified"}
-                </T>{" "}
-                */
                 <Spacer tiny />
                 <T center monospace>
                   {formatFiatAmount(
@@ -513,12 +494,15 @@ const Bip70ConfirmScreen = ({
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: FullState) => {
   const tokensById = tokensByIdSelector(state);
   const activeAccount = activeAccountSelector(state);
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
-  const utxos = utxosByAccountSelector(state, activeAccount.address);
+  const utxos = utxosByAccountSelector(
+    state,
+    activeAccount && activeAccount.address
+  );
 
   const keypair = getKeypairSelector(state);
   const spotPrices = spotPricesSelector(state);

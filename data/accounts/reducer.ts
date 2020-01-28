@@ -16,7 +16,7 @@ export interface ECPair {
 
 export interface Account {
   address: string;
-  addressSlp?: string;
+  addressSlp: string;
   keypair?: ECPair;
   mnemonic: string;
   accountIndex: number;

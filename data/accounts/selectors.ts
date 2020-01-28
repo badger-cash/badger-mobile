@@ -35,11 +35,11 @@ const getKeypairSelector = createSelector(
 );
 
 const getAddressSelector = createSelector(activeAccountSelector, account => {
-  return account && account.address;
+  return account ? account.address : "";
 });
 
 const getAddressSlpSelector = createSelector(activeAccountSelector, account => {
-  return account && account.addressSlp;
+  return account ? account.addressSlp : "";
 });
 
 const getSeedViewedSelector = createSelector(activeAccountSelector, account => {
