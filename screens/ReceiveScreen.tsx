@@ -201,8 +201,8 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                   <QRCode
                     value={address}
                     size={QRSize}
-                    bgColor="black"
-                    fgColor="white"
+                    color="black"
+                    backgroundColor="white"
                   />
                   <TypeOverlay>
                     <TypeImage source={BitcoinCashImage} size={QRSize} />
@@ -247,8 +247,8 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                   <QRCode
                     value={simpleLedgerAddr}
                     size={QRSize}
-                    bgColor="black"
-                    fgColor="white"
+                    color="black"
+                    backgroundColor="white"
                   />
                   <TypeOverlay>
                     <TypeImage source={SLPImage} size={QRSize} />

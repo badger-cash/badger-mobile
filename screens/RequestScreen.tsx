@@ -354,8 +354,8 @@ const RequestSetupScreen = ({
             <QRCode
               value={requestUri}
               size={QRSize}
-              bgColor="black"
-              fgColor="white"
+              color="black"
+              backgroundColor="white"
             />
             {!isShowing && (
               <QROverlay>
