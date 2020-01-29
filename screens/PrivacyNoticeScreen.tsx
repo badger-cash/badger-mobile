@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { SafeAreaView, Text, Linking } from "react-native";
+import { SafeAreaView, Linking } from "react-native";
 
 import { H1, T, Spacer, Button } from "../atoms";
 
@@ -12,7 +12,7 @@ const ScreenView = styled(SafeAreaView)`
   margin: 0 16px;
 `;
 
-// Edit - This version no longer used, was used in onboarding.  Maybe remove
+// This version no longer active, useful during onboarding.  Consider re-activating or removing
 const PrivacyNoticeScreen = ({ navigation }: Props) => {
   return (
     <ScreenView

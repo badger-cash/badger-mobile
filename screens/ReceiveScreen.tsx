@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled, { css } from "styled-components";
 import {
@@ -24,13 +24,14 @@ import { T, Spacer, H2 } from "../atoms";
 
 import BitcoinCashImage from "../assets/images/icon.png";
 import SLPImage from "../assets/images/slp-logo.png";
+import { FullState } from "../data/store";
 
 const ToggleRow = styled(View)`
   justify-content: center;
   flex-direction: row;
 `;
 
-const ToggleBase = css`
+const ToggleBase = css<{ isActive: boolean }>`
   height: 42px;
   flex: 1;
   justify-content: center;
@@ -74,7 +75,7 @@ const TypeOverlay = styled(View)`
   z-index: 2;
 `;
 
-const TypeImage = styled(Image)`
+const TypeImage = styled(Image)<{ size: number }>`
   height: ${props => props.size * 0.15}px;
   width: ${props => props.size * 0.15}px;
   border-radius: ${props => props.size * 0.075}px;
@@ -97,13 +98,22 @@ const QROverlay = styled(View)`
   z-index: 3;
 `;
 
-type Props = {
-  address: string;
-  addressSlp: string;
-};
+type PropsFromParent = {};
+
+const mapStateToProps = (state: FullState) => ({
+  address: getAddressSelector(state),
+  addressSlp: getAddressSlpSelector(state)
+});
+
+const mapDispatchToProps = {};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const ReceiveScreen = ({ address, addressSlp }: Props) => {
-  const scrollRef = useRef();
+  const scrollRef = useRef<ScrollView>(null);
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
 
@@ -264,11 +274,4 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({
-  address: getAddressSelector(state),
-  addressSlp: getAddressSlpSelector(state)
-});
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReceiveScreen);
+export default connector(ReceiveScreen);

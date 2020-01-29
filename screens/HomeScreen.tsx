@@ -40,7 +40,6 @@ import {
   formatFiatAmount,
   computeFiatAmount
 } from "../utils/balance-utils";
-// import { CurrencyCode } from "../utils/currency-utils";
 
 const SECOND = 1000;
 
@@ -88,17 +87,6 @@ type PropsFromParent = {
   };
 };
 
-interface WalletSection {
-  title: string;
-  data: {
-    symbol: string;
-    name: string;
-    amount: string;
-    tokenId?: string;
-    valueDisplay?: string;
-  }[];
-}
-
 const mapStateToProps = (state: FullState) => {
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
@@ -131,6 +119,17 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromRedux & PropsFromParent;
+
+interface WalletSection {
+  title: string;
+  data: {
+    symbol: string;
+    name: string;
+    amount: string;
+    tokenId?: string;
+    valueDisplay?: string;
+  }[];
+}
 
 const HomeScreen = ({
   address,
@@ -342,4 +341,4 @@ const HomeScreen = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+export default connector(HomeScreen);

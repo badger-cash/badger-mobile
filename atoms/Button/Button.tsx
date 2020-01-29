@@ -46,6 +46,7 @@ interface Props {
   children?: React.ReactNode;
   nature?: "primary" | "caution" | "cautionGhost" | "ghost" | "inverse";
   onPress(): void;
+  style?: any;
 }
 
 const Button = ({ text, children, nature, ...rest }: Props) => {

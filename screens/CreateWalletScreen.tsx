@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { SafeAreaView, ActivityIndicator } from "react-native";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 
 import { Spacer, T } from "../atoms";
 
@@ -15,13 +15,25 @@ const ScreenWrapper = styled(SafeAreaView)`
   flex: 1;
 `;
 
-type Props = {
+type PropsFromParent = {
   navigation: {
-    navigate: Function;
+    navigate(target: string): void;
   };
-  isCreated: boolean;
-  getAccount: Function;
 };
+
+// Redux connection
+const mapStateToProps = (state: FullState) => ({
+  isCreated: hasMnemonicSelector(state)
+});
+
+const mapDispatchToProps = {
+  getAccount
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux & PropsFromParent;
 
 const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   useEffect(() => {
@@ -41,12 +53,4 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   );
 };
 
-const mapStateToProps = (state: FullState) => ({
-  isCreated: hasMnemonicSelector(state)
-});
-
-const mapDispatchToProps = {
-  getAccount
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CreateWalletScreen);
+export default connector(CreateWalletScreen);

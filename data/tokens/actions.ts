@@ -31,7 +31,7 @@ const updateTokensMetaFail = () => ({
 });
 
 const updateTokensMeta = (tokenIds: string[]) => {
-  return async (dispatch: Function, getState: Function) => {
+  return async (dispatch: Function, getState: Function): Promise<void> => {
     dispatch(updateTokensMetaStart());
 
     const transactionRequests = await Promise.all(

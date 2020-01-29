@@ -1,11 +1,12 @@
 import React from "react";
 import { View, ScrollView, SafeAreaView } from "react-native";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 
 import { Button, T, Spacer, SwipeButton } from "../atoms";
 import { logoutAccount } from "../data/accounts/actions";
+import { FullState } from "../data/store";
 
 const ButtonContainer = styled(View)``;
 const Screen = styled(SafeAreaView)`
@@ -13,13 +14,26 @@ const Screen = styled(SafeAreaView)`
   margin: 0 16px;
 `;
 
-type Props = {
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     goBack: Function;
   };
   logoutAccount: Function;
 };
+
+const mapStateToProps = (state: FullState) => {
+  return {};
+};
+
+const mapDispatchToProps = {
+  logoutAccount
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
   return (
@@ -72,11 +86,4 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
   );
 };
 
-const mapStateToProps = state => {
-  return {};
-};
-
-const mapDispatchToProps = {
-  logoutAccount
-};
-export default connect(mapStateToProps, mapDispatchToProps)(LogoutScreen);
+export default connector(LogoutScreen);

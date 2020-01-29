@@ -9,15 +9,14 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { BigNumber } from "bignumber.js";
 
-import { UTXO } from "../data/utxos/reducer";
-import { ECPair } from "../data/accounts/reducer";
+import { FullState } from "../data/store";
 
 import {
   getKeypairSelector,
@@ -29,7 +28,6 @@ import { utxosByAccountSelector } from "../data/utxos/selectors";
 
 // Probably don't need any advanced token display
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { TokenData } from "../data/tokens/reducer";
 import { updateTokensMeta } from "../data/tokens/actions";
 
 import {
@@ -90,19 +88,34 @@ type SweepStates =
   | "success"
   | "tokenSelect";
 
-type Props = {
-  addressBCH: string;
-  addressSLP: string;
-  ownUtxos: UTXO[];
-  ownKeypair: {
-    bch: ECPair;
-    slp: ECPair;
+type PropsFromParent = {};
+
+const mapStateToProps = (state: FullState) => {
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(
+    state,
+    activeAccount && activeAccount.address
+  );
+
+  const keypair = getKeypairSelector(state);
+  return {
+    ownUtxos: utxos,
+    ownKeypair: keypair,
+
+    addressBCH: getAddressSelector(state),
+    addressSLP: getAddressSlpSelector(state),
+    tokensById: tokensByIdSelector(state)
   };
-  tokensById: {
-    [tokenId: string]: TokenData;
-  };
-  updateTokensMeta: Function;
 };
+
+const mapDispatchToProps = {
+  updateTokensMeta
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+type Props = PropsFromParent & PropsFromRedux;
 
 const KeySweepScreen = ({
   addressBCH,
@@ -113,29 +126,32 @@ const KeySweepScreen = ({
   updateTokensMeta
 }: Props) => {
   const [isCameraOpen, setCameraOpen] = useState(false);
-  const [wif, setWif] = useState(null);
+  const [wif, setWif] = useState<string | null>(null);
 
-  const [paperBalances, setPaperBalances] = useState({});
+  const [paperBalances, setPaperBalances] = useState<{
+    [symbol: string]: BigNumber;
+  }>({});
   const [utxosByKey, setUtxosByKey] = useState({});
-  const [sweepError, setSweepError] = useState(null);
-  const [sweepState, setSweepState] = useState("neutral");
-  const [tokenId, setTokenId] = useState(null);
+  const [sweepError, setSweepError] = useState<string | null>(null);
+  const [sweepState, setSweepState] = useState<SweepStates>("neutral");
+  const [tokenId, setTokenId] = useState<string | null>(null);
   const allTokenIds = useMemo(() => {
     return paperBalances
       ? Object.keys(paperBalances).filter(current => current !== "BCH")
       : [];
   }, [paperBalances]);
+
   useEffect(() => {
-    // Token ID to sweep, useful when there's more than 1 token on a paper wallet
+    // Fetch token metadata if any are missing
     const missingTokenIds = allTokenIds.filter(
       currTokenId => !tokensById[currTokenId]
     );
 
     if (missingTokenIds.length) {
-      // Fetch token metadata if any are missing
       updateTokensMeta(missingTokenIds);
     }
   }, [allTokenIds, tokensById, updateTokensMeta]);
+
   const symbolToken = useMemo(() => {
     if (tokenId && tokensById[tokenId]) {
       return tokensById[tokenId].symbol;
@@ -143,6 +159,7 @@ const KeySweepScreen = ({
 
     return null;
   }, [tokenId, tokensById]);
+
   const tokenDecimals = useMemo(() => {
     if (tokenId && tokensById[tokenId]) {
       return tokensById[tokenId].decimals;
@@ -150,45 +167,43 @@ const KeySweepScreen = ({
 
     return null;
   }, [tokenId, tokensById]);
+
   const parseQr = useCallback((qrData: string): string => {
     return qrData ? qrData : "";
   }, []);
 
-  const handleQRData = useCallback(
-    async (qrData: string | null | undefined) => {
-      setWif(null);
-      setPaperBalances(null);
+  const handleQRData = useCallback(async (qrData: string | null) => {
+    setWif(null);
+    setPaperBalances({});
 
-      setUtxosByKey(null);
+    setUtxosByKey({});
 
-      try {
-        const keypair = await getPaperKeypair(qrData);
+    try {
+      const keypair = await getPaperKeypair(qrData);
 
-        const utxosAll = await getPaperUtxos(keypair);
-        const balancesByKey = await getUtxosBalances(utxosAll);
-        const paperBalanceKeys = Object.keys(balancesByKey);
-        const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
+      const utxosAll = await getPaperUtxos(keypair);
+      const balancesByKey = await getUtxosBalances(utxosAll);
+      const paperBalanceKeys = Object.keys(balancesByKey);
+      const keysWithoutBCH = paperBalanceKeys.filter(val => val !== "BCH");
 
-        const tokenAmount = keysWithoutBCH.length;
-        setWif(qrData);
+      const tokenAmount = keysWithoutBCH.length;
+      setWif(qrData);
 
-        setPaperBalances(balancesByKey);
+      setPaperBalances(balancesByKey);
 
-        setUtxosByKey(utxosAll);
+      setUtxosByKey(utxosAll);
 
-        if (tokenAmount > 1) {
-          setSweepState("tokenSelect");
-        } else {
-          setTokenId(tokenAmount === 1 ? keysWithoutBCH[0] : null);
-          setSweepState("scanned");
-        }
-      } catch (e) {
-        setSweepState("error");
-        setSweepError(e.message || "Error scanning paper wallet");
+      if (tokenAmount > 1) {
+        setSweepState("tokenSelect");
+      } else {
+        setTokenId(tokenAmount === 1 ? keysWithoutBCH[0] : null);
+        setSweepState("scanned");
       }
-    },
-    []
-  );
+    } catch (e) {
+      setSweepState("error");
+      setSweepError(e.message || "Error scanning paper wallet");
+    }
+  }, []);
   const confirmSweep = useCallback(async () => {
     try {
       setSweepState("pending");
@@ -232,7 +247,8 @@ const KeySweepScreen = ({
     [handleQRData, parseQr]
   );
   const hasBalance =
-    paperBalances && (paperBalances["BCH"] || paperBalances[tokenId]);
+    paperBalances &&
+    (paperBalances["BCH"] || (tokenId && paperBalances[tokenId]));
 
   return (
     <SafeAreaView
@@ -396,7 +412,7 @@ const KeySweepScreen = ({
                     <Spacer small />
                   </>
                 )}
-                {paperBalances[tokenId] && (
+                {tokenId && paperBalances[tokenId] && (
                   <>
                     <T>SLP Token</T>
                     <Spacer minimal />
@@ -450,7 +466,7 @@ const KeySweepScreen = ({
                       </T>
                     </>
                   )}
-                  {paperBalances[tokenId] && (
+                  {tokenId && paperBalances[tokenId] && (
                     <>
                       <Spacer small />
                       <T type="primary" center weight="bold">
@@ -500,22 +516,4 @@ const KeySweepScreen = ({
   );
 };
 
-const mapStateToProps = state => {
-  const activeAccount = activeAccountSelector(state);
-  const utxos = utxosByAccountSelector(state, activeAccount.address);
-
-  const keypair = getKeypairSelector(state);
-  return {
-    ownUtxos: utxos,
-    ownKeypair: keypair,
-
-    addressBCH: getAddressSelector(state),
-    addressSLP: getAddressSlpSelector(state),
-    tokensById: tokensByIdSelector(state)
-  };
-};
-
-const mapDispatchToProps = {
-  updateTokensMeta
-};
-export default connect(mapStateToProps, mapDispatchToProps)(KeySweepScreen);
+export default connector(KeySweepScreen);

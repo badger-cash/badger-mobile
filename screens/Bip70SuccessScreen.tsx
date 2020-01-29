@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import styled from "styled-components";
 import { ScrollView, SafeAreaView, View } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -64,7 +63,7 @@ const Bip70SuccessScreen = ({ navigation }: Props) => {
               Transaction ID
             </T>
             <Spacer tiny />
-            <T cente type="inverse" size="small" monospace>
+            <T center type="inverse" size="small" monospace>
               {txid}
             </T>
           </ReceiptArea>
@@ -87,8 +86,4 @@ const Bip70SuccessScreen = ({ navigation }: Props) => {
   );
 };
 
-const mapStateToProps = state => {
-  return {};
-};
-
-export default connect(mapStateToProps)(Bip70SuccessScreen);
+export default Bip70SuccessScreen;

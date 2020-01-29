@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -17,6 +17,7 @@ import { currencySymbolMap, CurrencyCode } from "../utils/currency-utils";
 import { currencySelector } from "../data/prices/selectors";
 
 import { T, Spacer } from "../atoms";
+import { FullState } from "../data/store";
 
 // import packageJson from "../package.json";
 
@@ -64,13 +65,13 @@ const OptionsRow = ({
   hasNotification?: boolean;
   label?: string;
   muted?: boolean;
-  pressFn: Function;
+  pressFn(event: Event): void;
   text: string;
 }) => (
   <TouchableOpacity onPress={pressFn}>
     <Row>
       <LeftContent>
-        <T type={muted ? "muted2" : ""}>{text}</T>
+        <T type={muted ? "muted2" : undefined}>{text}</T>
         {hasNotification && <NotificationDot />}
       </LeftContent>
       {label && (
@@ -92,13 +93,26 @@ const OptionsRow = ({
   </TouchableOpacity>
 );
 
-type Props = {
+type PropsFromParent = {
   navigation: {
     navigate: Function;
   };
-  seedViewed: boolean;
-  fiatCurrency: CurrencyCode;
 };
+
+const mapStateToProps = (state: FullState) => {
+  const seedViewed = getSeedViewedSelector(state);
+  const fiatCurrency = currencySelector(state);
+  return {
+    seedViewed,
+    fiatCurrency
+  };
+};
+
+const mapDispatchToProps = {};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
   return (
@@ -173,15 +187,4 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
   );
 };
 
-const mapStateToProps = state => {
-  const seedViewed = getSeedViewedSelector(state);
-  const fiatCurrency = currencySelector(state);
-  return {
-    seedViewed,
-    fiatCurrency
-  };
-};
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(MenuScreen);
+export default connector(MenuScreen);

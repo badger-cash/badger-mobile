@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
   ActivityIndicator,
@@ -76,23 +76,44 @@ const FullView = styled(View)`
   padding: 0 16px;
 `;
 
-type Props = {
-  tokensById: {
-    [tokenId: string]: TokenData;
+const mapStateToProps = (state: FullState) => {
+  const tokensById = tokensByIdSelector(state);
+  const activeAccount = activeAccountSelector(state);
+  const address = getAddressSelector(state);
+  const addressSlp = getAddressSlpSelector(state);
+  const utxos = utxosByAccountSelector(
+    state,
+    activeAccount && activeAccount.address
+  );
+
+  const keypair = getKeypairSelector(state);
+  const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
+  const utxoUpdating = isUpdatingUTXO(state);
+  return {
+    activeAccount,
+    address,
+    addressSlp,
+    keypair,
+    spotPrices,
+    fiatCurrency,
+    tokensById,
+
+    utxoUpdating,
+    utxos
   };
-  utxos: UTXO[];
-  keypair: {
-    bch: ECPair;
-    slp: ECPair;
-  } | null;
-  utxoUpdating: boolean;
-  spotPrices: any;
-  fiatCurrency: CurrencyCode;
-  activeAccount: Account | null;
-  addressSlp: string;
-  address: string;
-  updateTokensMeta: Function;
-  updateUtxos: Function;
+};
+
+const mapDispatchToProps = {
+  updateTokensMeta,
+  updateUtxos
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     goBack: Function;
@@ -104,6 +125,8 @@ type Props = {
     };
   };
 };
+
+type Props = PropsFromRedux & PropsFromParent;
 
 const Bip70ConfirmScreen = ({
   navigation,
@@ -494,36 +517,4 @@ const Bip70ConfirmScreen = ({
   );
 };
 
-const mapStateToProps = (state: FullState) => {
-  const tokensById = tokensByIdSelector(state);
-  const activeAccount = activeAccountSelector(state);
-  const address = getAddressSelector(state);
-  const addressSlp = getAddressSlpSelector(state);
-  const utxos = utxosByAccountSelector(
-    state,
-    activeAccount && activeAccount.address
-  );
-
-  const keypair = getKeypairSelector(state);
-  const spotPrices = spotPricesSelector(state);
-  const fiatCurrency = currencySelector(state);
-  const utxoUpdating = isUpdatingUTXO(state);
-  return {
-    activeAccount,
-    address,
-    addressSlp,
-    keypair,
-    spotPrices,
-    fiatCurrency,
-    tokensById,
-
-    utxoUpdating,
-    utxos
-  };
-};
-
-const mapDispatchToProps = {
-  updateTokensMeta,
-  updateUtxos
-};
-export default connect(mapStateToProps, mapDispatchToProps)(Bip70ConfirmScreen);
+export default connector(Bip70ConfirmScreen);
