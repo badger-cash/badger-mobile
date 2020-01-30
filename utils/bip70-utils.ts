@@ -13,15 +13,15 @@ const SLPJS = new slpjs.Slp(SLP);
 export type PaymentRequest = {
   expires: number;
   memo: string;
-  merchantData: string | null | undefined;
+  merchantData?: string | null;
   network: string;
   outputs: OutputInfo[];
   paymentUrl: string;
-  requiredFeeRate: number | null | undefined;
+  requiredFeeRate?: number | null;
   time: number;
   tokenId?: string;
   totalValue: number;
-  totalTokenAmount: number | null | undefined;
+  totalTokenAmount?: number | null;
   verified: boolean;
 };
 
@@ -34,8 +34,8 @@ export type MerchantData = {
 export type OutputInfo = {
   amount: BigNumber;
   script: string;
-  tokenId: string | null | undefined;
-  tokenAmount: BigNumber | null | undefined;
+  tokenId?: string | null;
+  tokenAmount?: BigNumber | null;
 };
 
 const postAsArrayBuffer = (

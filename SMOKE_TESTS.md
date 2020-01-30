@@ -66,3 +66,12 @@ Update the tests as issues are found and new workflows are created.
 - [ ] Scan BIP70 request
 - [ ] Open BIP70 request from link
 - [ ] Paste BIP70 request
+
+## Paper Sweeping
+
+- [ ] Sweep BCH empty paper wallet
+- [ ] Sweep BCH from paper wallet
+- [ ] Sweep BCH + SLP from paper wallet same time
+- [ ] Sweep SLP from paper wallet - No local funds - should error
+- [ ] Sweep SLP from paper wallet - use own funds
+- [ ] Sweep SLP from paper wallet with multiple tokens
