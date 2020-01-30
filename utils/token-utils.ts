@@ -17,7 +17,7 @@ import MiamiTokenImage from "../assets/images/token-icons/eebaa04d0e715b7bd21901
 
 import BitcoinCashImage from "../assets/images/icon.png";
 
-const tokenIdImageMap = {
+const tokenIdImageMap: { [tokenId: string]: any } = {
   "1074bafb678b85f90bca79fa201a26011e09bfc6f723b95c770c0850f8d44fe8": Bitcoin2Image,
   "49be89bbbe018bcfaebcb41cac8340bc555f022b47b922599e510b143603f4b6": SLPTorchTokenImage,
   "4de69e374a8ed21cbddd47f2338cc0f479dc58daa2bbe11cd604ca488eca0ddf": SpiceTokenImage,
@@ -34,9 +34,9 @@ const tokenIdImageMap = {
   eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149: MiamiTokenImage
 };
 
-let blockieCache = {};
+let blockieCache: { [tokenId: string]: any } = {};
 
-const getTokenImage = (tokenId: string | null | undefined) => {
+const getTokenImage = (tokenId?: string | null) => {
   if (!tokenId) {
     return BitcoinCashImage;
   }
