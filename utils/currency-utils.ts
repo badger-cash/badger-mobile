@@ -1,5 +1,3 @@
-// @flow
-
 export type CurrencyCode =
   | "AUD"
   | "BRL"
@@ -54,7 +52,7 @@ const currencyOptions: CurrencyCode[] = [
   "ZAR"
 ];
 
-const currencyDecimalMap = {
+const currencyDecimalMap: { [key in CurrencyCode]: number } = {
   AUD: 2,
   BRL: 2,
   CAD: 2,
@@ -81,7 +79,7 @@ const currencyDecimalMap = {
   ZAR: 2
 };
 
-const currencyNameMap = {
+const currencyNameMap: { [key in CurrencyCode]: string } = {
   AUD: "Australian Dollar",
   BRL: "Brazilian Real",
   CAD: "Canadian Dollar",
