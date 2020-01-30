@@ -19,9 +19,9 @@ export type PaymentRequest = {
   paymentUrl: string;
   requiredFeeRate?: number | null;
   time: number;
-  tokenId?: string;
-  totalValue: number;
-  totalTokenAmount?: number | null;
+  tokenId?: string | null;
+  totalValue: BigNumber;
+  totalTokenAmount?: BigNumber | null;
   verified: boolean;
 };
 
@@ -233,7 +233,7 @@ const decodePaymentRequest = async (
                 }
               ]
             }
-          };
+          } as UTXO;
 
           try {
             const scriptDecoded = decodeTxOut(txOut);
@@ -266,7 +266,8 @@ const decodePaymentRequest = async (
                 }
               ]
             }
-          };
+          } as UTXO;
+
           const scriptDecoded = decodeTxOut(txOut);
           tokenAmount = new BigNumber(
             idx === 0 ? 0 : scriptDecoded.quantity.toNumber()
@@ -307,12 +308,11 @@ const decodePaymentRequest = async (
 const signAndPublishPaymentRequestTransaction = async (
   paymentRequest: PaymentRequest,
   fromAddress: string,
-
   refundKeypair: ECPair,
   spendableUtxos: UTXO[]
 ) => {
   const from = fromAddress;
-  const satoshisToSend = parseInt(paymentRequest.totalValue, 10);
+  const satoshisToSend = paymentRequest.totalValue.toNumber();
 
   if (!spendableUtxos || spendableUtxos.length === 0) {
     throw new Error("Insufficient funds");
@@ -382,15 +382,16 @@ const signAndPublishPaymentRequestTransaction = async (
     transactionBuilder.addOutput(from, satoshisRemaining);
   }
 
-  let redeemScript;
+  let redeemScript: any;
   inputUtxos.forEach((utxo, index) => {
-    transactionBuilder.sign(
-      index,
-      utxo.keypair,
-      redeemScript,
-      transactionBuilder.hashTypes.SIGHASH_ALL,
-      utxo.satoshis
-    );
+    utxo.keypair &&
+      transactionBuilder.sign(
+        index,
+        utxo.keypair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        utxo.satoshis
+      );
   });
   const hex = transactionBuilder.build().toHex();
 
@@ -457,7 +458,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   const { outputs, merchantData } = paymentRequest;
   let to: {
     address: string;
-    tokenAmount: string;
+    tokenAmount?: BigNumber | null;
   }[] = [];
 
   for (let i = 1; i < outputs.length; i++) {
@@ -476,7 +477,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
 
   const tokenDecimals = tokenMetadata.decimals;
   const scaledTokenSendAmount = new BigNumber(
-    paymentRequest.totalTokenAmount
+    paymentRequest.totalTokenAmount || 0
   ).decimalPlaces(tokenDecimals);
 
   if (scaledTokenSendAmount.lt(1)) {
@@ -564,7 +565,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   // Return remaining bch balance output
   transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
 
-  let redeemScript;
+  let redeemScript: any;
   inputUtxos.forEach((utxo, index) => {
     transactionBuilder.sign(
       index,
@@ -578,9 +579,10 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   const payment = new PaymentProtocol().makePayment();
   payment.set(
     "merchant_data",
-    Buffer.from(paymentRequest.merchantData, "utf-8")
+    Buffer.from(paymentRequest.merchantData || "", "utf-8")
   );
   payment.set("transactions", [Buffer.from(hex, "hex")]);
+
   const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
   const addressFormat = SLP.Address.detectAddressFormat(tokenChangeAddress);
 

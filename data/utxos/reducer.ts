@@ -1,11 +1,13 @@
-import { LOGOUT_ACCOUNT } from "../accounts/constants";
+import BigNumber from "bignumber.js";
 
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
-import BigNumber from "bignumber.js";
+
+import { LOGOUT_ACCOUNT } from "../accounts/constants";
+import { ECPair } from "../accounts/reducer";
 
 export type UTXO = {
   _id: string;
@@ -14,7 +16,7 @@ export type UTXO = {
   amount: number;
   height: number;
   vout: any;
-  tx: {};
+  tx: { vout: { scriptPubKey: { hex: string } }[] };
   satoshis: number;
   slp: {
     baton: any;
@@ -24,6 +26,7 @@ export type UTXO = {
   validSlpTx: boolean;
   spendable: boolean;
   address: string;
+  keypair?: ECPair;
 };
 
 type Action = {

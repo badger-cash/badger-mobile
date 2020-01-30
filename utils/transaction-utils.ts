@@ -268,7 +268,7 @@ const signAndPublishBchTransaction = async (
       transactionBuilder.addOutput(from, satoshisRemaining);
     }
 
-    let redeemScript;
+    let redeemScript: any;
     inputUtxos.forEach((utxo, index) => {
       transactionBuilder.sign(
         index,
