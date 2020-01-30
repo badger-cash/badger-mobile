@@ -314,7 +314,7 @@ const SendSetupScreen = ({
   }, [tokenId, tokensById]);
 
   const availableFunds = useMemo(() => {
-    if (!coinDecimals) {
+    if (coinDecimals == null) {
       return null;
     }
     return availableAmount.shiftedBy(-1 * coinDecimals);
@@ -555,6 +555,7 @@ const SendSetupScreen = ({
       );
     }
   }, [amountType, fiatRate, fiatCurrency, sendAmount]);
+
   const sendAmountFiatFormatted = useMemo(() => {
     return formatFiatAmount(
       new BigNumber(sendAmountFiat),
@@ -562,13 +563,14 @@ const SendSetupScreen = ({
       tokenId || "bch"
     );
   }, [fiatCurrency, tokenId, sendAmountFiat]);
+
   const sendAmountCryptoFormatted = useMemo(() => {
     if (sendAmountCrypto.length) {
       return new BigNumber(sendAmountCrypto).toFormat();
     }
-
     return "0";
   }, [sendAmountCrypto]);
+
   return (
     <SafeAreaView
       style={{
@@ -749,7 +751,7 @@ const SendSetupScreen = ({
                   setErrors([]);
 
                   if (amountType === "crypto") {
-                    coinDecimals &&
+                    coinDecimals != null &&
                       setSendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
                     setSendAmount(

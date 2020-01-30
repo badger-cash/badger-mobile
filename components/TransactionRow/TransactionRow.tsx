@@ -110,7 +110,7 @@ const TransactionRow = ({
   tokenId,
   amount
 }: Props) => {
-  // TODO - Special imag for interwallet, payout, and receive from many
+  // TODO - Special image for interwallet, payout, and receive from many
   const transactionAddress = {
     send: toAddress,
     interwallet: null,

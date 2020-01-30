@@ -154,8 +154,6 @@ const getHistoricalSlpTransactions = async (
         "slp.detail": 1,
         blk: 1
       },
-      // combine confirmed and unconfirmed
-      // errors = slpdb, error = REST rate limit
 
       limit: 350
     }
@@ -163,6 +161,8 @@ const getHistoricalSlpTransactions = async (
   let transactions: ResultSlpDB[] = [];
 
   try {
+    // combine confirmed and unconfirmed
+    // errors = slpdb, error = REST rate limit
     const result = await SLP.SLPDB.get(query);
 
     if (result.c) {
@@ -180,7 +180,7 @@ const getHistoricalSlpTransactions = async (
   return transactions;
 };
 
-const removeTrailingChars = (word: string, target: string) => {
+const removeTrailingChars = (word: string, target: string): string => {
   if (word.slice(-1) === target) {
     return removeTrailingChars(word.slice(0, -1), target);
   }
@@ -220,17 +220,20 @@ const computeFiatAmount = (
   spotPrices: any,
   fiatCurrency: CurrencyCode,
   coin: string
-): BigNumber => {
+): BigNumber | null => {
   const coinSpotPrice = spotPrices[coin];
 
-  if (!coinSpotPrice) return null;
+  if (!coinSpotPrice) {
+    return null;
+  }
   const spotPrice = coinSpotPrice[fiatCurrency];
-  if (!spotPrice) return null;
+  if (!spotPrice) {
+    return null;
+  }
   const rate = spotPrice.rate;
-  let amount = 0;
+  let amount = new BigNumber(0);
 
   if (coin === "bch") {
-    // Only allow max 1 leading 0
     const balance = coinAmount.shiftedBy(-1 * 8);
     amount = balance.times(rate);
   }
@@ -238,13 +241,10 @@ const computeFiatAmount = (
   return amount;
 };
 
-// Filter non-valid characters
 const formatFiatAmount = (
   amount: BigNumber | null | undefined,
   fiatCurrency: CurrencyCode,
   coin: string
-
-  // Max of 1 decimal
 ) => {
   return amount && !amount.isNaN()
     ? `${currencySymbolMap[fiatCurrency]} ${amount.toFormat(
@@ -253,15 +253,22 @@ const formatFiatAmount = (
     : `${currencySymbolMap[fiatCurrency]} -.-- ${fiatCurrency}`;
 };
 
-const formatAmountInput = (amount: string, maxDecimals: number): string => {
+const formatAmountInput = (
+  amount: string,
+  maxDecimals: number | null
+): string => {
+  if (maxDecimals == null) {
+    return "";
+  }
   const amountEnglish = amount.replace(",", ".");
 
-  // Add a 0 if first digit is a '.'
+  // Filter non-valid characters
   const validCharacters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
-  // Restrict decimals
+  // Max one decimal
   let decimalCount = 0;
   const valid = amountEnglish.split("").reduce((prev, curr, idx, array) => {
+    // Add a 0 if first digit is a '.'
     if (idx === 1 && curr === "0" && array[0] === "0") return prev;
     if (validCharacters.includes(curr)) return [...prev, curr];
 
@@ -271,13 +278,16 @@ const formatAmountInput = (amount: string, maxDecimals: number): string => {
     }
 
     return prev;
-  }, []);
+  }, [] as string[]);
+
+  // Restrict decimals
   const maybeZero = valid[0] && valid[0] === "." ? ["0", ...valid] : valid;
   const decimalIndex = maybeZero.indexOf(".");
   const decimalAdjusted =
     decimalIndex >= 0
       ? maybeZero.slice(0, decimalIndex + maxDecimals + 1)
       : maybeZero;
+
   return decimalAdjusted.join("");
 };
 
