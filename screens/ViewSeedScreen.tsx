@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 
 import { View, ScrollView, SafeAreaView } from "react-native";
@@ -11,6 +11,7 @@ import {
   getAddressSelector
 } from "../data/accounts/selectors";
 import { T, Spacer, Button } from "../atoms";
+import { FullState } from "../data/store";
 
 const Screen = styled(ScrollView)`
   padding: 0 16px;
@@ -36,11 +37,21 @@ const Cover = styled(View)`
   z-index: 1;
 `;
 
-type Props = {
-  mnemonic: string;
-  address: string;
-  viewSeed: Function;
+type PropsFromParent = {};
+
+const mapStateToProps = (state: FullState) => ({
+  address: getAddressSelector(state),
+  mnemonic: getMnemonicSelector(state)
+});
+
+const mapDispatchToProps = {
+  viewSeed
 };
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
   const [showing, setShowing] = useState(false);
@@ -59,7 +70,7 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
         <Spacer />
         <T center>This seed phrase is the key to the funds in this wallet.</T>
         <Spacer small />
-        <T center small>
+        <T center>
           Losing this phrase is losing access to this wallet. If lost we will be
           unable to help you recover your Seed Phrase or wallet.
         </T>
@@ -103,15 +114,6 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
       </Screen>
     </SafeAreaView>
   );
-};
-
-const mapStateToProps = state => ({
-  address: getAddressSelector(state),
-  mnemonic: getMnemonicSelector(state)
-});
-
-const mapDispatchToProps = {
-  viewSeed
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewSeedScreen);

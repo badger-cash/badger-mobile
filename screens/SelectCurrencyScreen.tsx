@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import {
@@ -11,6 +11,7 @@ import {
   TouchableOpacity
 } from "react-native";
 
+import { FullState } from "../data/store";
 import { setFiatCurrency } from "../data/prices/actions";
 import { currencySelector } from "../data/prices/selectors";
 import {
@@ -20,7 +21,7 @@ import {
   currencyNameMap
 } from "../utils/currency-utils";
 
-import { T, H2, Spacer, Button } from "../atoms";
+import { T, Spacer } from "../atoms";
 
 const ScreenWrapper = styled(View)`
   height: 100%;
@@ -43,11 +44,17 @@ const RowTextContainer = styled(View)`
   align-items: center;
 `;
 
-const CurrencyRow = ({ text, onPress, isActive }) => (
+type PropsCurrencyRow = {
+  text: string;
+  onPress(): void;
+  isActive: boolean;
+};
+
+const CurrencyRow = ({ text, onPress, isActive }: PropsCurrencyRow) => (
   <RowContainer onPress={onPress}>
     <Spacer small />
     <RowTextContainer>
-      <T type={isActive ? "primary" : null}>{text}</T>
+      <T type={isActive ? "primary" : undefined}>{text}</T>
       {isActive && (
         <T type="primary">
           <Ionicons name="ios-checkmark-circle" size={18} />
@@ -58,14 +65,27 @@ const CurrencyRow = ({ text, onPress, isActive }) => (
   </RowContainer>
 );
 
-type Props = {
-  currencyActive: CurrencyCode;
-  setFiatCurrency: Function;
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     goBack: Function;
   };
 };
+
+const mapStateToProps = (state: FullState) => {
+  return {
+    currencyActive: currencySelector(state)
+  };
+};
+
+const mapDispatchToProps = {
+  setFiatCurrency
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const SelectCurrencyScreen = ({
   navigation,
@@ -106,17 +126,4 @@ const SelectCurrencyScreen = ({
   );
 };
 
-const mapStateToProps = state => {
-  return {
-    currencyActive: currencySelector(state)
-  };
-};
-
-const mapDispatchToProps = {
-  setFiatCurrency
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SelectCurrencyScreen);
+export default connector(SelectCurrencyScreen);

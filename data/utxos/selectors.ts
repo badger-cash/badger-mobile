@@ -3,10 +3,7 @@ import { FullState } from "../store";
 
 const utxosSelector = (state: FullState) => state.utxos;
 
-const utxosByAccountSelector = (
-  state: FullState,
-  address: string | null | undefined
-) => {
+const utxosByAccountSelector = (state: FullState, address?: string | null) => {
   if (!address) return [];
 
   const { byId, byAccount } = state.utxos;

@@ -164,7 +164,9 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
       <H2 center>Terms of Use</H2>
       <Spacer small />
       <ScrollView>
-        <Markdown onLink={url => Linking.openURL(url)}>{ToSContent}</Markdown>
+        <Markdown onLink={(url: string) => Linking.openURL(url)}>
+          {ToSContent}
+        </Markdown>
         <Spacer />
       </ScrollView>
       <Spacer small />
@@ -185,7 +187,9 @@ const ViewTermsOfUseScreen = ({ navigation }: Props) => {
       <H2 center>Terms of Use</H2>
       <Spacer small />
       <ScrollView>
-        <Markdown onLink={url => Linking.openURL(url)}>{ToSContent}</Markdown>
+        <Markdown onLink={(url: string) => Linking.openURL(url)}>
+          {ToSContent}
+        </Markdown>
         <Spacer />
       </ScrollView>
       <Spacer small />

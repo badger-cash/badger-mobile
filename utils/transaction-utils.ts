@@ -12,17 +12,17 @@ const SLPJS = new slpjs.Slp(SLP);
 
 const LOKAD_ID_HEX = "534c5000";
 
-export type TxParams = {
+export interface TxParams {
   from: string;
   to: string;
-  value: number;
+  value: string;
   opReturn?: {
     data: string;
   };
   sendTokenData?: {
     tokenId: string;
   };
-};
+}
 
 const getSLPTxType = (scriptASMArray: string[]) => {
   if (scriptASMArray[0] !== "OP_RETURN") {

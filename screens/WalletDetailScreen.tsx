@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
 import {
@@ -30,7 +30,6 @@ import { tokensByIdSelector } from "../data/tokens/selectors";
 import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
 
 import { Transaction } from "../data/transactions/reducer";
-import { TokenData } from "../data/tokens/reducer";
 
 import {
   formatAmount,
@@ -39,10 +38,12 @@ import {
 } from "../utils/balance-utils";
 import { addressToSlp } from "../utils/account-utils";
 import { getTokenImage } from "../utils/token-utils";
-import { CurrencyCode } from "../utils/currency-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
-import { TransactionRow } from "../components";
+import TransactionRow, {
+  TransactionRowTypes
+} from "../components/TransactionRow/TransactionRow";
+import { FullState } from "../data/store";
 
 const TransactionArea = styled(View)`
   border-top-width: ${StyleSheet.hairlineWidth};
@@ -71,25 +72,57 @@ const IconArea = styled(View)`
   justify-content: center;
 `;
 
-type Props = {
-  address: string;
-  addressSlp: string;
-  balances: Balances;
-  spotPrices: any;
-  fiatCurrency: CurrencyCode;
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     state: {
-      params: any;
+      params: { tokenId?: string };
     };
   };
-  tokensById: {
-    [tokenId: string]: TokenData;
-  };
-  updateTransactions: Function;
-  transactions: Transaction[];
-  isUpdatingTransactions: boolean;
 };
+
+const mapStateToProps = (state: FullState, props: PropsFromParent) => {
+  const tokenId = props.navigation.state.params.tokenId;
+  const address = getAddressSelector(state);
+
+  const addressSlp = getAddressSlpSelector(state);
+
+  const balances = balancesSelector(state, address);
+
+  const tokensById = tokensByIdSelector(state);
+  const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
+  const transactionsAll = transactionsActiveAccountSelector(state);
+  const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
+  const transactions = transactionsAll
+    .filter(tx => {
+      const txTokenId =
+        tx.txParams.sendTokenData && tx.txParams.sendTokenData.tokenId;
+
+      if (tokenId) {
+        return tokenId === txTokenId;
+      }
+
+      return !txTokenId || tx.txParams.valueBch;
+    })
+    .slice(0, 30);
+  return {
+    address,
+    addressSlp,
+    balances,
+    tokensById,
+    transactions,
+    spotPrices,
+    fiatCurrency,
+    isUpdatingTransactions
+  };
+};
+
+const mapDispatchToProps = {};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const WalletDetailScreen = ({
   address,
@@ -100,11 +133,10 @@ const WalletDetailScreen = ({
   spotPrices,
   fiatCurrency,
   transactions,
-  updateTransactions,
   isUpdatingTransactions
 }: Props) => {
   const { tokenId } = navigation.state.params;
-  const token = tokensById[tokenId];
+  const token = tokenId && tokensById[tokenId];
 
   const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
   const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
@@ -125,19 +157,21 @@ const WalletDetailScreen = ({
 
   const name = isBCH ? "Bitcoin Cash" : token ? token.name : "--------";
   const ticker = isBCH ? "BCH" : token ? token.symbol : "---";
-  const decimals = isBCH ? 8 : token ? token.decimals : null;
+  const decimals = !tokenId ? 8 : token ? token.decimals : null;
   const amount = isBCH
     ? balances.satoshisAvailable
-    : balances.slpTokens[tokenId];
+    : tokenId
+    ? balances.slpTokens[tokenId]
+    : new BigNumber(0);
 
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
 
-  if (isBCH) {
-    fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
-  } else {
+  if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
+  } else {
+    fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
 
   const fiatDisplay = isBCH
@@ -147,6 +181,7 @@ const WalletDetailScreen = ({
   const explorerUrl = isBCH
     ? `https://explorer.bitcoin.com/bch/address/${address}`
     : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddress}`;
+
   const amountFormatted = formatAmount(amount, decimals);
 
   let [amountWhole, amountDecimal] = (amountFormatted &&
@@ -156,6 +191,7 @@ const WalletDetailScreen = ({
     amountDecimal && [...amountDecimal].every(v => v === "0")
       ? null
       : amountDecimal;
+
   return (
     <SafeAreaView>
       <NavigationEvents
@@ -241,7 +277,7 @@ const WalletDetailScreen = ({
           Transaction History (max 30)
         </T>
         <TransactionArea>
-          {transactions.map(tx => {
+          {transactions.map((tx: Transaction) => {
             const { hash, txParams, time, block } = tx;
             const {
               to,
@@ -251,21 +287,26 @@ const WalletDetailScreen = ({
               transactionType,
               value,
               valueBch,
-
               sendTokenData
-
-              // Fallback to previous value
             } = txParams;
+
             let txValue = tokenId
               ? sendTokenData && sendTokenData.valueToken
               : valueBch;
-            if (txValue == null)
-              // Determine transaction type, consider moving this code to action.?
-              txValue = value;
-            let txType = null;
 
-            if ([address, addressSlp].includes(to)) {
-              if ([address, addressSlp].includes(from)) {
+            if (txValue == null) {
+              // Fallback to previous value
+              txValue = value;
+            }
+            if (txValue == null) {
+              // Fallback to no value
+              txValue = 0;
+            }
+
+            let txType: TransactionRowTypes = "unrecognized";
+            if (to && [address, addressSlp].includes(to)) {
+              // Determine transaction type, consider moving this code to action.?
+              if (from && [address, addressSlp].includes(from)) {
                 txType = "interwallet";
               } else {
                 if (toAddresses.length > 30) {
@@ -274,16 +315,15 @@ const WalletDetailScreen = ({
                   txType = "receive";
                 }
               }
-            } else if ([address, addressSlp].includes(from)) {
+            } else if (from && [address, addressSlp].includes(from)) {
               txType = "send";
-            } else {
-              txType = "unrecognized";
             }
 
-            const valueBigNumber = new BigNumber(txValue);
+            const valueBigNumber = new BigNumber(txValue || 0);
             const valueAdjusted = tokenId
               ? valueBigNumber
-              : valueBigNumber.shiftedBy(decimals * -1);
+              : valueBigNumber.shiftedBy(8 * -1);
+
             return (
               <TransactionRow
                 confirmations={
@@ -336,45 +376,4 @@ const WalletDetailScreen = ({
   );
 };
 
-const mapStateToProps = (state, props) => {
-  const tokenId = props.navigation.state.params.tokenId;
-  const address = getAddressSelector(state);
-
-  const addressSlp = getAddressSlpSelector(state);
-
-  const balances = balancesSelector(state, address);
-
-  const tokensById = tokensByIdSelector(state);
-  const spotPrices = spotPricesSelector(state);
-  const fiatCurrency = currencySelector(state);
-  const transactionsAll = transactionsActiveAccountSelector(state);
-  const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
-  const transactions = transactionsAll
-    .filter(tx => {
-      const txTokenId =
-        tx.txParams.sendTokenData && tx.txParams.sendTokenData.tokenId;
-
-      if (tokenId) {
-        return tokenId === txTokenId;
-      }
-
-      return !txTokenId || tx.txParams.valueBch;
-    })
-    .slice(0, 30);
-  return {
-    address,
-    addressSlp,
-    balances,
-
-    tokensById,
-
-    transactions,
-
-    spotPrices,
-    fiatCurrency,
-    isUpdatingTransactions
-  };
-};
-
-const mapDispatchToProps = {};
-export default connect(mapStateToProps, mapDispatchToProps)(WalletDetailScreen);
+export default connector(WalletDetailScreen);

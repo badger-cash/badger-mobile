@@ -8,7 +8,7 @@ import {
 export type Transaction = {
   hash: string;
   txParams: {
-    from: string | null | undefined;
+    from?: string | null;
     to: string | null;
     transactionType?: string;
     fromAddresses: string[];

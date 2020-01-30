@@ -30,11 +30,8 @@ import { TokenData } from "../data/tokens/reducer";
 import { addressToSlp } from "../utils/account-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { formatAmountInput, formatFiatAmount } from "../utils/balance-utils";
-import {
-  currencySymbolMap,
-  currencyDecimalMap,
-  CurrencyCode
-} from "../utils/currency-utils";
+import { currencyDecimalMap } from "../utils/currency-utils";
+import { FullState } from "../data/store";
 
 const TitleRow = styled(View)`
   flex-direction: row;
@@ -115,7 +112,7 @@ const QROverlay = styled(View)`
   z-index: 2;
 `;
 
-type Props = {
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     goBack: Function;
@@ -126,14 +123,32 @@ type Props = {
       };
     };
   };
-  tokensById: {
-    [tokenId: string]: TokenData;
-  };
-  fiatCurrency: CurrencyCode;
-  spotPrices: any;
-  address: string;
-  addressSlp: string;
 };
+
+const mapStateToProps = (state: FullState) => {
+  const tokensById = tokensByIdSelector(state);
+  const fiatCurrency = currencySelector(state);
+  const spotPrices = spotPricesSelector(state);
+
+  const address = getAddressSelector(state);
+
+  const addressSlp = getAddressSlpSelector(state);
+
+  return {
+    address,
+    addressSlp,
+    tokensById,
+    fiatCurrency,
+    spotPrices
+  };
+};
+
+const mapDispatchToProps = {};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const RequestSetupScreen = ({
   address,
@@ -148,7 +163,7 @@ const RequestSetupScreen = ({
     tokenId: null
   };
 
-  const [copiedMessage, setCopiedMessage] = useState(null);
+  const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
   const [requestAmount, setRequestAmount] = useState("");
   const [requestAmountFiat, setRequestAmountFiat] = useState("0");
   const [requestAmountCrypto, setRequestAmountCrypto] = useState("0");
@@ -171,6 +186,7 @@ const RequestSetupScreen = ({
 
     convertAddress();
   }, [addressSlp, tokenId]);
+
   useEffect(() => {
     setCopiedMessage(null);
     let nextRequestUri;
@@ -186,6 +202,7 @@ const RequestSetupScreen = ({
 
     setRequestUri(nextRequestUri);
   }, [tokenId, baseAddress, requestAmountCrypto]);
+
   const requestAmountNumber = parseFloat(requestAmount);
   const fiatRate = !tokenId
     ? spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
@@ -197,7 +214,7 @@ const RequestSetupScreen = ({
           ? (fiatRate * (requestAmountNumber || 0)).toFixed(
               currencyDecimalMap[fiatCurrency]
             )
-          : 0
+          : "0"
       );
       setRequestAmountCrypto(requestAmount);
     }
@@ -209,19 +226,17 @@ const RequestSetupScreen = ({
       setRequestAmountCrypto(
         fiatRate && requestAmountNumber
           ? (requestAmountNumber / fiatRate).toFixed(8)
-          : 0
+          : "0"
       );
     }
   }, [requestAmountNumber, amountType, fiatRate, fiatCurrency, requestAmount]);
 
   if (!symbol && !tokenId) {
     navigation.goBack();
-    return;
   }
 
   const toggleAmountType = () => {
     if (tokenId) return;
-
     setAmountType(amountType === "crypto" ? "fiat" : "crypto");
   };
 
@@ -233,10 +248,13 @@ const RequestSetupScreen = ({
     fiatCurrency,
     tokenId || "bch"
   );
+
   const requestAmountCryptoFormatted = requestAmountCrypto.length
     ? new BigNumber(requestAmountCrypto).toFormat()
     : "0";
+
   const isShowing = !tokenId || requestAmountCrypto;
+
   return (
     <SafeAreaView
       style={{
@@ -290,7 +308,7 @@ const RequestSetupScreen = ({
             keyboardType="numeric"
             editable
             placeholder="0.0"
-            autoComplete="off"
+            autoCompleteType="off"
             autoCorrect={false}
             autoCapitalize="none"
             value={requestAmount}
@@ -376,23 +394,4 @@ const RequestSetupScreen = ({
   );
 };
 
-const mapStateToProps = state => {
-  const tokensById = tokensByIdSelector(state);
-  const fiatCurrency = currencySelector(state);
-  const spotPrices = spotPricesSelector(state);
-
-  const address = getAddressSelector(state);
-
-  const addressSlp = getAddressSlpSelector(state);
-
-  return {
-    address,
-    addressSlp,
-    tokensById,
-    fiatCurrency,
-    spotPrices
-  };
-};
-
-const mapDispatchToProps = {};
-export default connect(mapStateToProps, mapDispatchToProps)(RequestSetupScreen);
+export default connector(RequestSetupScreen);

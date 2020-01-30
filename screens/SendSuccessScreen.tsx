@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
@@ -18,11 +18,11 @@ import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
 
-import { CurrencyCode } from "../utils/currency-utils";
 import { getTokenImage } from "../utils/token-utils";
 import { formatFiatAmount } from "../utils/balance-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
+import { FullState } from "../data/store";
 
 const ScreenCover = styled(View)`
   flex: 1;
@@ -41,7 +41,7 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
-type Props = {
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     state: {
@@ -50,14 +50,26 @@ type Props = {
       };
     };
   };
-  address: string;
-  addressSlp: string;
-  spotPrices: any;
-  fiatCurrency: CurrencyCode;
-  updateUtxos: Function;
-  updateTransactions: Function;
-  tokensById: any;
 };
+
+const mapStateToProps = (state: FullState) => ({
+  address: getAddressSelector(state),
+  addressSlp: getAddressSlpSelector(state),
+  tokensById: tokensByIdSelector(state),
+
+  spotPrices: spotPricesSelector(state),
+  fiatCurrency: currencySelector(state)
+});
+
+const mapDispatchToProps = {
+  updateUtxos,
+  updateTransactions
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const SendSuccessScreen = ({
   address,
@@ -73,21 +85,22 @@ const SendSuccessScreen = ({
   const { to, from, value, data } = txParams;
 
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;
-  // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-  useEffect(() => {
-    _.delay(() => updateUtxos(address, addressSlp), 1750);
 
-    _.delay(() => updateTransactions(address, addressSlp, 2000));
+  useEffect(() => {
+    // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
+    _.delay(() => updateUtxos(address, addressSlp), 1750);
+    _.delay(() => updateTransactions(address, addressSlp), 2000);
   }, [address, addressSlp]);
-  // toAddress like
-  // -> simpleledger:qq2addressHash
-  // -> l344f3legacyFormatted
+
   const imageSource = getTokenImage(tokenId);
   const toConverted = tokenId
     ? SLP.Address.toSLPAddress(to)
     : SLP.Address.toCashAddress(to);
-  const addressParts = toConverted.split(":");
 
+  // toAddress like
+  // -> simpleledger:qq2addressHash
+  // -> l344f3legacyFormatted
+  const addressParts = toConverted.split(":");
   const toAddress =
     addressParts.length === 2 ? addressParts[1] : addressParts[0];
   const protocol = addressParts.length === 2 ? addressParts[0] : "legacy";
@@ -96,17 +109,24 @@ const SendSuccessScreen = ({
   const addressMiddle = toAddress.slice(5, -6);
   const addressEnd = toAddress.slice(-6);
 
-  // Tokens absolute amount, BCH it's # of satoshis
   const coinName = tokenId ? tokensById[tokenId].name : "Bitcoin Cash";
   const symbol = tokenId ? tokensById[tokenId].symbol : "BCH";
 
+  // Tokens absolute amount, BCH it's # of satoshis`
   const valueRaw = new BigNumber(value);
   const valueAdjusted = tokenId ? valueRaw : valueRaw.shiftedBy(-1 * 8);
   const isBCH = !tokenId;
 
-  const BCHFiatAmount = isBCH
-    ? spotPrices["bch"][fiatCurrency].rate * valueAdjusted
-    : 0;
+  const BCHPrices = spotPrices["bch"];
+  let BCHFiatAmount = 0;
+  if (isBCH) {
+    const fiatInfo = BCHPrices[fiatCurrency];
+    const fiatRate = fiatInfo && fiatInfo.rate;
+    if (fiatRate) {
+      BCHFiatAmount = fiatRate * valueAdjusted.dividedBy(10 ** 8).toNumber();
+    }
+  }
+
   const fiatDisplay = isBCH
     ? formatFiatAmount(
         new BigNumber(BCHFiatAmount),
@@ -203,17 +223,4 @@ const SendSuccessScreen = ({
   );
 };
 
-const mapStateToProps = state => ({
-  address: getAddressSelector(state),
-  addressSlp: getAddressSlpSelector(state),
-  tokensById: tokensByIdSelector(state),
-
-  spotPrices: spotPricesSelector(state),
-  fiatCurrency: currencySelector(state)
-});
-
-const mapDispatchToProps = {
-  updateUtxos,
-  updateTransactions
-};
-export default connect(mapStateToProps, mapDispatchToProps)(SendSuccessScreen);
+export default connector(SendSuccessScreen);

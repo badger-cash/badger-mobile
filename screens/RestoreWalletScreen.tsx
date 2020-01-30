@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 
 import {
   SafeAreaView,
@@ -15,6 +15,7 @@ import { getAccount } from "../data/accounts/actions";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 
 import { SLP } from "../utils/slp-sdk-utils";
+import { FullState } from "../data/store";
 
 const Screen = styled(ScrollView)`
   padding: 0 16px;
@@ -46,18 +47,29 @@ const formatMnemonic = (mnemonic: string) => {
   return formatted;
 };
 
-type Props = {
-  getAccount: Function;
-  isCreated: boolean;
+type PropsFromParent = {
   navigation: {
     navigate: Function;
     goBack: Function;
   };
 };
 
+const mapStateToProps = (state: FullState) => ({
+  isCreated: hasMnemonicSelector(state)
+});
+
+const mapDispatchToProps = {
+  getAccount
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
+
 const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
   const [mnemonic, setMnemonic] = useState("");
-  const [inputError, setInputError] = useState(null);
+  const [inputError, setInputError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isCreated) {
@@ -84,7 +96,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         <StyledTextInput
           multiline
           editable
-          autoComplete="off"
+          autoCompleteType="off"
           autoCorrect={false}
           placeholder="Enter Backup Phrase / Mnemonic"
           value={mnemonic}
@@ -145,14 +157,4 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
   );
 };
 
-const mapStateToProps = state => ({
-  isCreated: hasMnemonicSelector(state)
-});
-
-const mapDispatchToProps = {
-  getAccount
-};
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RestoreWalletScreen);
+export default connector(RestoreWalletScreen);

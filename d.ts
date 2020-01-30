@@ -4,3 +4,4 @@ declare module "*.png" {
 }
 
 declare module "react-native-swipeable";
+declare module "react-native-markdown-package";

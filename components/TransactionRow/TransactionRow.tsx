@@ -9,8 +9,15 @@ import Feather from "react-native-vector-icons/Feather";
 import { T } from "../../atoms";
 import { SLP } from "../../utils/slp-sdk-utils";
 
+export type TransactionRowTypes =
+  | "send"
+  | "receive"
+  | "interwallet"
+  | "payout"
+  | "unrecognized";
+
 interface RowProps {
-  type?: "send" | "receive" | "interwallet" | "payout";
+  type?: TransactionRowTypes;
 }
 
 const Row = styled(View)<RowProps>`
@@ -23,7 +30,8 @@ const Row = styled(View)<RowProps>`
           send: props.theme.accent900,
           receive: props.theme.primary900,
           interwallet: props.theme.fg800,
-          payout: props.theme.payout900
+          payout: props.theme.payout900,
+          unrecognized: props.theme.fg800
         }[props.type]
       : props.theme.fg800};
 `;
@@ -76,16 +84,16 @@ interface BlockieCache {
 let blockieCache: BlockieCache = {};
 
 interface Props {
-  type: "send" | "receive" | "payout" | "interwallet";
+  type: TransactionRowTypes;
   txId: string;
   confirmations?: number | null;
   timestamp: number;
-  toAddress: string;
+  toAddress: string | null;
   toAddresses: string[];
   fromAddresses: string[];
   fromAddress?: string | null;
   symbol: string;
-  tokenId: string;
+  tokenId?: string;
   amount: string;
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
   Clipboard,
@@ -42,8 +42,9 @@ import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap, CurrencyCode } from "../utils/currency-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
+import { FullState } from "../data/store";
 
-type Props = {
+type PropsFromParent = {
   tokensById: {
     [tokenId: string]: TokenData;
   };
@@ -56,20 +57,49 @@ type Props = {
     navigate: Function;
     state?: {
       params: {
-        tokenId: string | null | undefined;
-        uriAmount?: string | null | undefined;
-        uriAddress?: string | null | undefined;
-        uriError?: string | null | undefined;
+        tokenId?: string | null;
+        uriAmount?: string | null;
+        uriAddress?: string | null;
+        uriError?: string | null;
       };
     };
   };
 };
 
+const mapStateToProps = (state: FullState) => {
+  const address = getAddressSelector(state);
+  const balances = balancesSelector(state, address);
+  const tokensById = tokensByIdSelector(state);
+  const spotPrices = spotPricesSelector(state);
+  const fiatCurrency = currencySelector(state);
+  const activeAccount = activeAccountSelector(state);
+  const utxos = utxosByAccountSelector(
+    state,
+    activeAccount && activeAccount.address
+  );
+  return {
+    tokensById,
+    balances,
+    spotPrices,
+    fiatCurrency,
+    utxos
+  };
+};
+
+const mapDispatchToProps = {
+  updateTokensMeta
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
+
 type AddressData = {
-  tokenId: string | null | undefined;
-  parseError: string | null | undefined;
-  amount: number | null | undefined;
-  address: string | null | undefined;
+  tokenId?: string | null;
+  parseError?: string | null;
+  amount?: string | null;
+  address?: string | null;
 };
 
 const StyledTextInput = styled(TextInput)`
@@ -195,7 +225,7 @@ const SendSetupScreen = ({
   const [sendAmountCrypto, setSendAmountCrypto] = useState("0");
   const [amountType, setAmountType] = useState("crypto");
 
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState<string[]>([] as string[]);
 
   const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
     navigation.state.params) || {
@@ -205,7 +235,7 @@ const SendSetupScreen = ({
     uriError: null
   };
 
-  // Set initial values from params, used when opening from URI
+  // Set initial values from paramaters, used when opening from URI
   useEffect(() => {
     if (uriAddress) {
       setToAddress(uriAddress);
@@ -220,26 +250,26 @@ const SendSetupScreen = ({
       setErrors([uriError]);
     }
   }, []);
+
   const displaySymbol = useMemo(() => {
     if (tokenId) {
       if (tokensById[tokenId]) {
         return tokensById[tokenId].symbol;
       }
-
       return "---";
-
-      // Fetch token Metadata if it is unknown
     }
-
     return "BCH";
   }, [tokensById, tokenId]);
+
   useEffect(() => {
+    // Fetch token Metadata if it is unknown
     if (!tokenId) return;
 
     if (!tokensById[tokenId]) {
       updateTokensMeta([tokenId]);
     }
   }, [tokenId, tokensById, updateTokensMeta]);
+
   const availableAmount = useMemo(() => {
     let result = new BigNumber(0);
 
@@ -249,13 +279,13 @@ const SendSetupScreen = ({
       const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
       const allUTXOFee = SLP.BitcoinCash.getByteCount(
         {
-          // Available = total satoshis - fee for including all UTXO
           P2PKH: spendableUTXOS.length
         },
         {
           P2PKH: 2
         }
       );
+      // Available = total satoshis - fee for including all UTXO
       const availableRaw = balances.satoshisAvailable.minus(allUTXOFee);
 
       if (availableRaw.lte(0)) {
@@ -271,19 +301,29 @@ const SendSetupScreen = ({
 
     return result;
   }, [balances.slpTokens, balances.satoshisAvailable, tokenId, utxos]);
+
   const coinDecimals = useMemo(() => {
     if (tokenId && tokensById[tokenId]) {
-      return tokensById[tokenId].decimals;
+      if (tokensById[tokenId]) {
+        return tokensById[tokenId].decimals;
+      }
+      // Unknown, don't assume
+      return null;
     }
-
     return 8;
   }, [tokenId, tokensById]);
+
   const availableFunds = useMemo(() => {
+    if (!coinDecimals) {
+      return null;
+    }
     return availableAmount.shiftedBy(-1 * coinDecimals);
   }, [availableAmount, coinDecimals]);
+
   const availableFundsDisplay = useMemo(() => {
     return formatAmount(availableAmount, coinDecimals);
   }, [availableAmount, coinDecimals]);
+
   const fiatAmountTotal = useMemo(() => {
     if (tokenId) {
       return computeFiatAmount(
@@ -301,6 +341,7 @@ const SendSetupScreen = ({
       );
     }
   }, [tokenId, availableAmount, fiatCurrency, spotPrices]);
+
   const fiatDisplayTotal = !tokenId
     ? formatFiatAmount(fiatAmountTotal, fiatCurrency, tokenId || "bch")
     : null;
@@ -314,6 +355,7 @@ const SendSetupScreen = ({
       spotPrices["bch"][fiatCurrency] && spotPrices["bch"][fiatCurrency].rate
     );
   }, [spotPrices, tokenId, fiatCurrency]);
+
   const coinName = useMemo(() => {
     if (!tokenId) {
       return "Bitcoin Cash";
@@ -322,9 +364,8 @@ const SendSetupScreen = ({
     const tokenName =
       tokenId && tokensById[tokenId] ? tokensById[tokenId].name : "---";
     return tokenName;
-
-    // Validate inputs then go to confirm screen
   }, [tokenId, tokensById]);
+
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   const toggleAmountType = useCallback(() => {
@@ -356,7 +397,7 @@ const SendSetupScreen = ({
       hasErrors = true;
     }
 
-    if (new BigNumber(sendAmountCrypto).gt(availableFunds)) {
+    if (!availableFunds || new BigNumber(sendAmountCrypto).gt(availableFunds)) {
       setErrors(["Cannot send more funds than are available"]);
       hasErrors = true;
     }
@@ -386,21 +427,18 @@ const SendSetupScreen = ({
   const parseQr = useCallback(
     (
       qrData: string
-    ):
-      | {
-          address: string;
-          amount: string | null | undefined;
-          tokenId: string | null | undefined;
-          parseError: string | null | undefined;
-        }
-      | null
-      | undefined => {
-      // BIP70 detected, go to BIP70 flow
+    ): {
+      address: string;
+      amount?: string | null;
+      tokenId?: string | null;
+      parseError?: string | null;
+    } | null => {
       let address = null;
       let amount = null;
       let uriTokenId = null;
       let parseError = null;
-      let amounts = [];
+      let amounts = [] as { tokenId?: string; paramAmount: string }[];
+
       let quitEarly = false;
 
       const parts = qrData.split("?");
@@ -413,7 +451,8 @@ const SendSetupScreen = ({
           const [name, value] = param.split("=");
 
           if (name === "r") {
-            setToAddress(null);
+            // BIP70 detected, go to BIP70 flow
+            setToAddress("");
             quitEarly = true;
             navigation.navigate("Bip70Confirm", {
               paymentURL: value
@@ -421,6 +460,7 @@ const SendSetupScreen = ({
           }
 
           if (name.startsWith("amount")) {
+            // Parse request amount from URI
             let currTokenId;
             let currAmount;
 
@@ -441,21 +481,13 @@ const SendSetupScreen = ({
       if (amounts.length > 1) {
         parseError =
           "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
-      } else if (
-        amounts.length === 1
-
-        // Verify the type matches the screen we are on.
-      ) {
+      } else if (amounts.length === 1) {
         const target = amounts[0];
         uriTokenId = target.tokenId;
         amount = target.paramAmount;
       }
 
-      if (
-        quitEarly
-
-        // If there's an amount, set the type to crypto
-      ) {
+      if (quitEarly) {
         return null;
       }
 
@@ -472,6 +504,7 @@ const SendSetupScreen = ({
     (parsedData: AddressData) => {
       setErrors([]);
 
+      // Verify the type matches the screen we are on.
       if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
         setErrors([
           "Sending different coin or token than selected, go to the target coin screen and try again"
@@ -480,6 +513,7 @@ const SendSetupScreen = ({
       }
 
       parsedData.parseError && setErrors([parsedData.parseError]);
+      // If there's an amount, set the type to crypto
       parsedData.amount && setAmountType("crypto");
 
       if (parsedData.address) {
@@ -492,7 +526,6 @@ const SendSetupScreen = ({
           setErrors([e.message]);
         }
       }
-
       parsedData.amount && setSendAmount(parsedData.amount);
     },
     [tokenId]
@@ -506,7 +539,7 @@ const SendSetupScreen = ({
           ? (fiatRate * (sendAmountNumber || 0)).toFixed(
               currencyDecimalMap[fiatCurrency]
             )
-          : 0
+          : "0"
       );
       setSendAmountCrypto(sendAmount);
     }
@@ -518,7 +551,7 @@ const SendSetupScreen = ({
       setSendAmountCrypto(
         fiatRate && sendAmountNumber
           ? (sendAmountNumber / fiatRate).toFixed(8)
-          : 0
+          : "0"
       );
     }
   }, [amountType, fiatRate, fiatCurrency, sendAmount]);
@@ -643,7 +676,7 @@ const SendSetupScreen = ({
                 editable
                 multiline
                 placeholder={tokenId ? "simpleledger:" : "bitcoincash:"}
-                autoComplete="off"
+                autoCompleteType="off"
                 autoCorrect={false}
                 value={toAddress}
                 onChangeText={text => {
@@ -708,7 +741,7 @@ const SendSetupScreen = ({
                 keyboardType="numeric"
                 editable
                 placeholder="0.0"
-                autoComplete="off"
+                autoCompleteType="off"
                 autoCorrect={false}
                 autoCapitalize="none"
                 value={sendAmount}
@@ -716,7 +749,8 @@ const SendSetupScreen = ({
                   setErrors([]);
 
                   if (amountType === "crypto") {
-                    setSendAmount(formatAmountInput(text, coinDecimals));
+                    coinDecimals &&
+                      setSendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
                     setSendAmount(
                       formatAmountInput(text, currencyDecimalMap[fiatCurrency])
@@ -777,24 +811,4 @@ const SendSetupScreen = ({
   );
 };
 
-const mapStateToProps = state => {
-  const address = getAddressSelector(state);
-  const balances = balancesSelector(state, address);
-  const tokensById = tokensByIdSelector(state);
-  const spotPrices = spotPricesSelector(state);
-  const fiatCurrency = currencySelector(state);
-  const activeAccount = activeAccountSelector(state);
-  const utxos = utxosByAccountSelector(state, activeAccount.address);
-  return {
-    tokensById,
-    balances,
-    spotPrices,
-    fiatCurrency,
-    utxos
-  };
-};
-
-const mapDispatchToProps = {
-  updateTokensMeta
-};
-export default connect(mapStateToProps, mapDispatchToProps)(SendSetupScreen);
+export default connector(SendSetupScreen);
