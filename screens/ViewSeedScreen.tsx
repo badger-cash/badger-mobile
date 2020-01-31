@@ -3,7 +3,7 @@ import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 
 import { View, ScrollView, SafeAreaView } from "react-native";
-import { NavigationEvents } from "react-navigation";
+import { NavigationEvents, NavigationScreenProps } from "react-navigation";
 
 import { viewSeed } from "../data/accounts/actions";
 import {
@@ -37,7 +37,7 @@ const Cover = styled(View)`
   z-index: 1;
 `;
 
-type PropsFromParent = {};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => ({
   address: getAddressSelector(state),

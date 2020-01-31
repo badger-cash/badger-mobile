@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { connect, ConnectedProps } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { NavigationScreenProps } from "react-navigation";
 
 import {
   SafeAreaView,
@@ -65,12 +66,7 @@ const CurrencyRow = ({ text, onPress, isActive }: PropsCurrencyRow) => (
   </RowContainer>
 );
 
-type PropsFromParent = {
-  navigation: {
-    navigate: Function;
-    goBack: Function;
-  };
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   return {

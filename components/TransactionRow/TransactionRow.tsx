@@ -115,7 +115,8 @@ const TransactionRow = ({
     send: toAddress,
     interwallet: null,
     payout: fromAddress || fromAddresses[0],
-    receive: fromAddress || fromAddresses[0]
+    receive: fromAddress || fromAddresses[0],
+    unrecognized: null
   }[type];
 
   let formattedTransactionAddress = null;
@@ -154,8 +155,10 @@ const TransactionRow = ({
     send: "Sent",
     interwallet: "Sent to self",
     receive: "Received",
-    payout: "Payout"
+    payout: "Payout",
+    unrecognized: "Unknown Type"
   }[type];
+
   return (
     <Row type={type}>
       <DateRow>

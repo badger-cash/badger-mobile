@@ -8,6 +8,7 @@ import {
   View,
   Image
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
 import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
@@ -62,11 +63,8 @@ const ErrorHolder = styled(View)`
   border-color: ${props => props.theme.danger300};
 `;
 
-type PropsFromParent = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
-    goBack: Function;
-    replace: Function;
     state?: {
       params: {
         tokenId: string | null | undefined;
@@ -314,7 +312,9 @@ const SendConfirmScreen = ({
             labelAction="To Send"
             labelRelease="Release to send"
             labelHalfway="Keep going"
-            controlledState={transactionState === "signing" ? "pending" : null}
+            controlledState={
+              transactionState === "signing" ? "pending" : undefined
+            }
           />
 
           <Spacer />

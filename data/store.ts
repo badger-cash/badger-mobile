@@ -4,7 +4,7 @@ import {
   applyMiddleware,
   Middleware
 } from "redux";
-import { persistStore, persistReducer } from "redux-persist";
+import { persistStore, persistReducer, PersistState } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
 import ReduxThunk from "redux-thunk";
 
@@ -39,7 +39,7 @@ export type FullState = {
   tokens: StateTokens;
   transactions: StateTransactions;
   utxos: StateUTXOS;
-  _persist?: any;
+  _persist?: PersistState;
 };
 
 const initialState: FullState = {
@@ -92,8 +92,11 @@ const Logger: Middleware = store => next => action => {
 const middleware = [Logger, ReduxThunk];
 
 const getStore = () => {
+  // The ignore here is because it wants initialState to have all of the persist information.
+  // Try removing after updating libraries
   const store = createStore(
     persistedReducer,
+    // @ts-ignore
     initialState,
     applyMiddleware(...middleware)
   );

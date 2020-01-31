@@ -3,8 +3,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { View, ScrollView, SafeAreaView, Image } from "react-native";
 import styled from "styled-components";
 import _ from "lodash";
-
 import BigNumber from "bignumber.js";
+import { NavigationScreenProps } from "react-navigation";
 
 import {
   getAddressSelector,
@@ -41,9 +41,8 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
-type PropsFromParent = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
     state: {
       params: {
         txParams: any;
@@ -56,7 +55,6 @@ const mapStateToProps = (state: FullState) => ({
   address: getAddressSelector(state),
   addressSlp: getAddressSlpSelector(state),
   tokensById: tokensByIdSelector(state),
-
   spotPrices: spotPricesSelector(state),
   fiatCurrency: currencySelector(state)
 });

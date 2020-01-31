@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import QRCodeScanner from "react-native-qrcode-scanner";
@@ -88,7 +89,7 @@ type SweepStates =
   | "success"
   | "tokenSelect";
 
-type PropsFromParent = {};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   const activeAccount = activeAccountSelector(state);

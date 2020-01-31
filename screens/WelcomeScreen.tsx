@@ -1,5 +1,6 @@
 import React from "react";
 import { SafeAreaView, View, Image } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
@@ -13,11 +14,7 @@ const StyledWrapper = styled(SafeAreaView)`
   margin: 0 16px;
 `;
 
-type Props = {
-  navigation: {
-    navigate: Function;
-  };
-};
+type Props = NavigationScreenProps & {};
 
 const WelcomeScreen = ({ navigation }: Props) => {
   return (

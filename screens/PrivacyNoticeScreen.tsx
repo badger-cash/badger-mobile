@@ -1,12 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { SafeAreaView, Linking } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 
 import { H1, T, Spacer, Button } from "../atoms";
 
-type Props = {
-  navigation: any;
-};
+type Props = NavigationScreenProps & {};
 
 const ScreenView = styled(SafeAreaView)`
   margin: 0 16px;

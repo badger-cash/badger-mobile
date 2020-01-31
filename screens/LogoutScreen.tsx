@@ -1,5 +1,6 @@
 import React from "react";
 import { View, ScrollView, SafeAreaView } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
@@ -14,13 +15,7 @@ const Screen = styled(SafeAreaView)`
   margin: 0 16px;
 `;
 
-type PropsFromParent = {
-  navigation: {
-    navigate: Function;
-    goBack: Function;
-  };
-  logoutAccount: Function;
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   return {};

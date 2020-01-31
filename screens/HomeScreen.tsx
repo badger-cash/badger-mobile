@@ -11,6 +11,7 @@ import {
   View,
   TouchableOpacity
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import uuidv5 from "uuid/v5";
 
 import { T, H1, Spacer } from "../atoms";
@@ -81,11 +82,7 @@ const InitialLoadCover = styled(View)`
   justify-content: center;
 `;
 
-type PropsFromParent = {
-  navigation: {
-    navigate(target: string, params?: Object): void;
-  };
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   const address = getAddressSelector(state);

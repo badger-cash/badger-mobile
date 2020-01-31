@@ -5,6 +5,7 @@ import {
   Linking,
   TouchableOpacity
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -15,7 +16,7 @@ const ScreenWrapper = styled(ScrollView)`
   padding: 7px 16px;
 `;
 
-type Props = {};
+type Props = NavigationScreenProps & {};
 
 const ContactUsScreen = (props: Props) => {
   return (

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { SafeAreaView, ActivityIndicator } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import { connect, ConnectedProps } from "react-redux";
 
 import { Spacer, T } from "../atoms";
@@ -15,11 +16,7 @@ const ScreenWrapper = styled(SafeAreaView)`
   flex: 1;
 `;
 
-type PropsFromParent = {
-  navigation: {
-    navigate(target: string): void;
-  };
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 // Redux connection
 const mapStateToProps = (state: FullState) => ({

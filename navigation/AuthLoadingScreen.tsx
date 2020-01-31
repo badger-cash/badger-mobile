@@ -1,7 +1,8 @@
 import React, { useEffect, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import { ActivityIndicator, View } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 
 import { T, Spacer } from "../atoms";
 import { getMnemonicSelector } from "../data/accounts/selectors";
@@ -9,6 +10,7 @@ import { getAccount } from "../data/accounts/actions";
 
 import { addressToSlp, addressToCash } from "../utils/account-utils";
 import { getType } from "../utils/schemeParser-utils";
+import { FullState } from "../data/store";
 
 const Wrapper = styled(View)`
   justify-content: center;
@@ -22,9 +24,8 @@ const InnerWrapper = styled(View)`
   flex: 1;
 `;
 
-type Props = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
     state: {
       params: any;
     };
@@ -32,6 +33,21 @@ type Props = {
   mnemonic: string;
   getAccount: Function;
 };
+
+const mapStateToProps = (state: FullState) => {
+  return {
+    mnemonic: getMnemonicSelector(state)
+  };
+};
+
+const mapDispatchToProps = {
+  getAccount
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   const handleDeepLink = useCallback(
@@ -51,12 +67,12 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       let tokenId = null;
       let parseError = null;
 
-      const amounts = Object.entries(params).filter(([key, val]) =>
-        key.startsWith("amount")
-      );
+      const amounts = Object.entries(
+        params
+      ).filter(([key, val]: [string, any]) => key.startsWith("amount"));
 
       const amountsFormatted = amounts.map(curr => {
-        const amountRaw = curr[1];
+        const amountRaw = curr[1] as string;
         let currTokenId = null;
         let currAmount = null;
 
@@ -115,15 +131,14 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
 
       if (navParams) {
         handleDeepLink(navParams);
-
         return;
       }
-
       navigation.navigate("Main");
     } else {
       navigation.navigate("AuthStack");
     }
   }, [mnemonic, handleDeepLink, navigation, getAccount]);
+
   return (
     <Wrapper>
       <InnerWrapper>
@@ -135,13 +150,4 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
   );
 };
 
-const mapStateToProps = state => {
-  return {
-    mnemonic: getMnemonicSelector(state)
-  };
-};
-
-const mapDispatchToProps = {
-  getAccount
-};
-export default connect(mapStateToProps, mapDispatchToProps)(AuthLoadingScreen);
+export default connector(AuthLoadingScreen);

@@ -50,14 +50,14 @@ const getAccount = (mnemonic?: string, accountIndex: number = 0) => {
       accountIndex,
       childIndex,
       derivationPathBCH
-    );
+    ) as Account;
 
     const accountSlp = deriveAccount(
       accountMnemonic,
       accountIndex,
       childIndex,
       derivationPathSLP
-    );
+    ) as Account;
 
     dispatch(getAccountSuccess(account, accountSlp, isNew));
   };

@@ -9,6 +9,7 @@ import {
   TextInput,
   StyleSheet
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 
 import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
@@ -47,12 +48,7 @@ const formatMnemonic = (mnemonic: string) => {
   return formatted;
 };
 
-type PropsFromParent = {
-  navigation: {
-    navigate: Function;
-    goBack: Function;
-  };
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => ({
   isCreated: hasMnemonicSelector(state)

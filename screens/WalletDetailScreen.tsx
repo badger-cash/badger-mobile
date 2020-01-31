@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
 import useBlockheight from "../hooks/useBlockheight";
@@ -72,9 +73,8 @@ const IconArea = styled(View)`
   justify-content: center;
 `;
 
-type PropsFromParent = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
     state: {
       params: { tokenId?: string };
     };

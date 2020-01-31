@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { connect, ConnectedProps } from "react-redux";
+import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
 import {
   ActivityIndicator,
@@ -12,10 +13,7 @@ import BigNumber from "bignumber.js";
 
 import { Button, T, Spacer, SwipeButton } from "../atoms";
 
-import { TokenData } from "../data/tokens/reducer";
 import { tokensByIdSelector } from "../data/tokens/selectors";
-import { UTXO } from "../data/utxos/reducer";
-import { ECPair, Account } from "../data/accounts/reducer";
 
 import { updateTokensMeta } from "../data/tokens/actions";
 import { updateUtxos } from "../data/utxos/actions";
@@ -37,7 +35,6 @@ import {
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
-import { CurrencyCode } from "../utils/currency-utils";
 import { getTokenImage } from "../utils/token-utils";
 
 import {
@@ -113,11 +110,8 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-type PropsFromParent = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
-    goBack: Function;
-    replace: Function;
     state: {
       params: {
         paymentURL: string;

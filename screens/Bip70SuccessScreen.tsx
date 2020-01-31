@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { ScrollView, SafeAreaView, View } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Button, T, H1, Spacer } from "../atoms";
@@ -19,9 +20,8 @@ const ReceiptArea = styled(View)`
   justify-content: center;
 `;
 
-type Props = {
+type Props = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
     state: {
       params: {
         txid: string;

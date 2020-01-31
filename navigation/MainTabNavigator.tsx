@@ -1,7 +1,8 @@
 import React from "react";
 import {
   createStackNavigator,
-  createBottomTabNavigator
+  createBottomTabNavigator,
+  NavigationScreenProps
 } from "react-navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -34,8 +35,8 @@ const HomeStack = createStackNavigator(
     },
     WalletDetailScreen: {
       screen: WalletDetailScreen,
-      navigationOptions: props => {
-        const title = props.navigation.state.params.symbol;
+      navigationOptions: (props: NavigationScreenProps) => {
+        const title = props.navigation?.state?.params?.symbol;
         return {
           title: `$${title}`
         };
@@ -150,7 +151,9 @@ const BottomTabNavigator = createBottomTabNavigator(
     defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
         const { routeName } = navigation.state;
-        let iconName;
+
+        // default icon
+        let iconName = "ios-menu";
 
         if (routeName === "Home") {
           iconName = `ios-wallet`;
@@ -164,7 +167,7 @@ const BottomTabNavigator = createBottomTabNavigator(
           <Ionicons
             name={iconName}
             size={horizontal ? 20 : 25}
-            color={tintColor}
+            color={tintColor ? tintColor : undefined}
           />
         );
       }

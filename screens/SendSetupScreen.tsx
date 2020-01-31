@@ -12,7 +12,7 @@ import {
   TextInput,
   View
 } from "react-native";
-import { Header } from "react-navigation";
+import { Header, NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
 import QRCodeScanner from "react-native-qrcode-scanner";
@@ -44,17 +44,8 @@ import { currencyDecimalMap, CurrencyCode } from "../utils/currency-utils";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
-type PropsFromParent = {
-  tokensById: {
-    [tokenId: string]: TokenData;
-  };
-  balances: Balances;
-  spotPrices: any;
-  utxos: UTXO[];
-  fiatCurrency: CurrencyCode;
-  updateTokensMeta: Function;
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
     state?: {
       params: {
         tokenId?: string | null;

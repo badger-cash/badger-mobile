@@ -5,6 +5,7 @@ import {
   Linking,
   TouchableOpacity
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
 
 import { T, Spacer } from "../atoms";
@@ -27,7 +28,7 @@ const FAQItem = ({ title, children }: FAQProps) => (
   </>
 );
 
-type Props = {};
+type Props = NavigationScreenProps & {};
 
 const FAQScreen = (props: Props) => {
   return (

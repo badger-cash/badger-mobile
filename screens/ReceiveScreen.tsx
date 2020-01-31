@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { NavigationEvents } from "react-navigation";
+import { NavigationEvents, NavigationScreenProps } from "react-navigation";
 import styled, { css } from "styled-components";
 import {
   Clipboard,
@@ -98,7 +98,7 @@ const QROverlay = styled(View)`
   z-index: 3;
 `;
 
-type PropsFromParent = {};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => ({
   address: getAddressSelector(state),

@@ -1,5 +1,6 @@
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
+import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -93,11 +94,7 @@ const OptionsRow = ({
   </TouchableOpacity>
 );
 
-type PropsFromParent = {
-  navigation: {
-    navigate: Function;
-  };
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);

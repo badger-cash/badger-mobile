@@ -12,6 +12,7 @@ import {
   StyleSheet,
   TouchableOpacity
 } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import BigNumber from "bignumber.js";
 import QRCode from "react-native-qrcode-svg";
@@ -112,10 +113,8 @@ const QROverlay = styled(View)`
   z-index: 2;
 `;
 
-type PropsFromParent = {
+type PropsFromParent = NavigationScreenProps & {
   navigation: {
-    navigate: Function;
-    goBack: Function;
     state?: {
       params: {
         symbol: string;
@@ -129,9 +128,7 @@ const mapStateToProps = (state: FullState) => {
   const tokensById = tokensByIdSelector(state);
   const fiatCurrency = currencySelector(state);
   const spotPrices = spotPricesSelector(state);
-
   const address = getAddressSelector(state);
-
   const addressSlp = getAddressSlpSelector(state);
 
   return {
