@@ -560,7 +560,7 @@ const sweepPaperWallet = async (
       SLP.Address.detectAddressNetwork(fromAddr)
     );
 
-    if (tokenId && tokenDecimals && hasBCH) {
+    if (tokenId && tokenDecimals != null && hasBCH) {
       // SLP + BCH sweep
       // This case sweeps 1 SLP token and all of the BCH to the users wallet
       // In the case the paper wallet has more than 1 SLP token, additional sweeps in the SLP only use case must be called
@@ -667,7 +667,7 @@ const sweepPaperWallet = async (
       // Broadcast the transaction to the BCH network.
       txid = await SLP.RawTransactions.sendRawTransaction(hex);
       return txid;
-    } else if (tokenId && tokenDecimals && !hasBCH) {
+    } else if (tokenId && tokenDecimals != null && !hasBCH) {
       // SLP only sweep
       // Case where the paper wallet has tokens, but no BCH to pay the miner fee.
       // Here we use the paper wallet UTXO's for SLP, and use our own BCH to pay the mining fee.
@@ -762,6 +762,8 @@ const sweepPaperWallet = async (
       });
       const hex = transactionBuilder.build().toHex();
       txid = await publishTx(hex);
+    } else {
+      throw new Error("Unknown sweep error, try again");
     }
 
     return txid;

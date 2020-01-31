@@ -27,7 +27,6 @@ import {
 } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 
-// Probably don't need any advanced token display
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { updateTokensMeta } from "../data/tokens/actions";
 
@@ -262,18 +261,16 @@ const KeySweepScreen = ({
           <QROverlayScreen>
             <Spacer small />
             <H2 center>Scan QR Code</H2>
-            {}
+            <Spacer small />
             {/* Uncomment below to easily test on emulators */}
-            <Spacer small /> /*{" "}
-            <H2
+            {/* <H2
               onPress={async () => {
                 const content = await Clipboard.getString();
                 handleScan({ data: content });
               }}
             >
               paste
-            </H2>{" "}
-            */
+            </H2> */}
             <View
               style={{
                 height: Dimensions.get("window").width - 12
@@ -299,7 +296,6 @@ const KeySweepScreen = ({
               text="Cancel Scan"
             />
           </QROverlayScreen>
-          // padding 16 for each side
         )}
 
         <ScrollView

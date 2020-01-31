@@ -24,15 +24,7 @@ const InnerWrapper = styled(View)`
   flex: 1;
 `;
 
-type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: any;
-    };
-  };
-  mnemonic: string;
-  getAccount: Function;
-};
+type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => {
   return {
