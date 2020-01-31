@@ -122,8 +122,9 @@ const SendSuccessScreen = ({
   if (isBCH) {
     const fiatInfo = BCHPrices[fiatCurrency];
     const fiatRate = fiatInfo && fiatInfo.rate;
+
     if (fiatRate) {
-      BCHFiatAmount = fiatRate * valueAdjusted.dividedBy(10 ** 8).toNumber();
+      BCHFiatAmount = fiatRate * valueAdjusted.toNumber();
     }
   }
 
@@ -134,6 +135,7 @@ const SendSuccessScreen = ({
         tokenId || "bch"
       )
     : null;
+
   return (
     <ScreenCover>
       <SafeAreaView

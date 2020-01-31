@@ -40,15 +40,17 @@ const SwipeMainContent = styled(View)<{ triggered: boolean }>`
     props.triggered ? props.theme.success500 : props.theme.primary500};
 `;
 
+type ButtonStates =
+  | "neutral"
+  | "activated"
+  | "success"
+  | "error"
+  | "pending"
+  | undefined;
+
 interface Props {
   swipeFn(): void;
-  controlledState?:
-    | "neutral"
-    | "activated"
-    | "success"
-    | "error"
-    | "pending"
-    | null;
+  controlledState?: ButtonStates;
   labelAction: string;
   labelRelease: string;
   labelHalfway: string;
@@ -61,7 +63,7 @@ const SwipeButton = ({
   labelRelease,
   labelHalfway
 }: Props) => {
-  const [state, setState] = useState(controlledState);
+  const [state, setState] = useState<ButtonStates>(controlledState);
   const [swipeActivated, setSwipeActivated] = useState(false);
 
   useEffect(() => {
@@ -96,7 +98,7 @@ const SwipeButton = ({
           onLeftActionDeactivate={() => setSwipeActivated(false)}
           onLeftActionComplete={swipeFn}
         >
-          <SwipeMainContent triggered={state === "pending"}>
+          <SwipeMainContent triggered={state === "activated"}>
             <T weight="bold" type="inverse">
               Swipe{" "}
             </T>
