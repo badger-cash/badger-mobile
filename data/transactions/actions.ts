@@ -19,6 +19,8 @@ import { Transaction } from "./reducer";
 import { transactionsLatestBlockSelector } from "../selectors";
 import { transactionsSelector } from "./selectors";
 
+const appendBCHPrefix = (target: string) => `bitcoincash:${target}`;
+
 const getTransactionsStart = () => ({
   type: GET_TRANSACTIONS_START,
   payload: null
@@ -75,8 +77,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
     >([transactionsBCH, transactionsSlp]);
 
     const formattedTransactionsBCH: Transaction[] = [];
-
-    const appendBCHPrefix = (target: string) => `bitcoincash:${target}`;
 
     for (let tx of bchHistory) {
       const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
@@ -180,8 +180,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     const formattedTransactionsSLP: Transaction[] = [];
 
-    const addressSimpleledger = SLP.Address.toSLPAddress(address);
-    const addressSlpSimpleledger = SLP.Address.toSLPAddress(addressSlp);
+    const addressSimpleledger = await SLP.Address.toSLPAddress(address);
+    const addressSlpSimpleledger = await SLP.Address.toSLPAddress(addressSlp);
 
     for (let tx of slpHistory) {
       const block = tx?.blk?.i || 0;
@@ -205,8 +205,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
         .map(output => output?.address)
         .filter(Boolean);
 
-      const toAddressesBCH = tx.out.map(output => output?.e?.a).filter(Boolean);
-
+      const toAddressesBCH = tx.out
+        .map(output => output?.e?.a && output.e.a)
+        .filter(Boolean);
       const toAddresses = [...new Set([...toAddressesSLP, ...toAddressesBCH])];
 
       // Detect if it's from this wallet
@@ -232,7 +233,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
       if (fromUser) {
         toAddress = toAddresses.reduce<string | null>((acc, curr) => {
           if (acc) return acc;
-          return [addressSimpleledger, addressSlpSimpleledger].includes(curr)
+          return [
+            address,
+            addressSlp,
+            addressSimpleledger,
+            addressSlpSimpleledger
+          ].includes(curr)
             ? null
             : curr;
         }, null);
@@ -245,10 +251,12 @@ const updateTransactions = (address: string, addressSlp: string) => {
           : null;
       }
 
+      let interWallet = false;
       if (fromUser && !toAddress) {
         // Else from and to us?
         // False so these appear as received in wallet
         fromUser = false;
+        interWallet = true;
         toAddress = toAddresses.includes(addressSlpSimpleledger)
           ? addressSlpSimpleledger
           : toAddresses.includes(addressSimpleledger)
@@ -273,14 +281,15 @@ const updateTransactions = (address: string, addressSlp: string) => {
         }, new BigNumber(0));
       }
 
-      const valueAddresses = fromUser
-        ? toAddresses.filter(
-            target =>
-              ![addressSimpleledger, addressSlpSimpleledger].includes(target)
-          )
-        : toAddresses.filter(target =>
-            [addressSimpleledger, addressSlpSimpleledger].includes(target)
-          );
+      const valueAddresses =
+        fromUser || interWallet
+          ? toAddresses.filter(
+              target =>
+                ![addressSimpleledger, addressSlpSimpleledger].includes(target)
+            )
+          : toAddresses.filter(target =>
+              [addressSimpleledger, addressSlpSimpleledger].includes(target)
+            );
 
       let bchValue = 0;
 

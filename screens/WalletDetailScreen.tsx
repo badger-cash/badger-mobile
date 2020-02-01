@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
@@ -24,8 +24,7 @@ import {
 } from "../data/accounts/selectors";
 import {
   balancesSelector,
-  transactionsActiveAccountSelector,
-  Balances
+  transactionsActiveAccountSelector
 } from "../data/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -38,7 +37,7 @@ import {
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
-import { addressToSlp } from "../utils/account-utils";
+
 import { getTokenImage } from "../utils/token-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
