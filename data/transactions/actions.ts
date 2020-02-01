@@ -76,6 +76,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     const formattedTransactionsBCH: Transaction[] = [];
 
+    const appendBCHPrefix = (target: string) => `bitcoincash:${target}`;
+
     for (let tx of bchHistory) {
       const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
       const hash = tx.tx.h;
@@ -87,8 +89,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // All input addresses in CashAddress format
       const fromAddressesAll = tx.in
-        .filter(input => input.e && input.e.a)
-        .map(input => SLP.Address.toCashAddress(input.e.a));
+        .map(input => input?.e?.a && appendBCHPrefix(input.e.a))
+        .filter(Boolean);
 
       const fromAddresses = [...new Set(fromAddressesAll)];
 
@@ -106,8 +108,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // All transaction output addresse, in CashAddr format
       const toAddressesAll = tx.out
-        .filter(output => output.e && output.e.a)
-        .map(output => SLP.Address.toCashAddress(output.e.a));
+        .map(output => output?.e?.a && appendBCHPrefix(output.e.a))
+        .filter(Boolean);
 
       const toAddresses = [...new Set(toAddressesAll)];
 
@@ -120,7 +122,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // if from us, search for an external to address
       if (fromUser) {
-        toAddress = toAddresses.reduce((acc, curr) => {
+        toAddress = toAddresses.reduce<string | null>((acc, curr) => {
           if (acc) return acc;
           return [address, addressSlp].includes(curr) ? null : curr;
         }, null);
@@ -130,7 +132,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
         // else search for one of our addresses
         toAddress = toAddresses.includes(address)
           ? address
-          : toAddresses.includes(addressSlp) && addressSlp;
+          : toAddresses.includes(addressSlp)
+          ? addressSlp
+          : null;
       }
 
       // Relevant addresses for calculating the transaction value
@@ -148,7 +152,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
           if (
             currentTx.e &&
             currentTx.e.v &&
-            valueAddresses.includes(SLP.Address.toCashAddress(currentTx.e.a))
+            valueAddresses.includes(appendBCHPrefix(currentTx.e.a))
           ) {
             accumulator += currentTx.e.v;
           }
@@ -203,7 +207,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       const toAddressesBCH = tx.out.map(output => output?.e?.a).filter(Boolean);
 
-      // const toAddressesBCH = [...new Set(toAddressesBCHAll)];
       const toAddresses = [...new Set([...toAddressesSLP, ...toAddressesBCH])];
 
       // Detect if it's from this wallet
@@ -211,6 +214,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
         if (acc) return acc;
         return [addressSimpleledger, addressSlpSimpleledger].includes(curr);
       }, false);
+
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
 
       if (!fromAddress) {
@@ -226,7 +230,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // if from us, search for an external address
       if (fromUser) {
-        toAddress = toAddresses.reduce((acc, curr) => {
+        toAddress = toAddresses.reduce<string | null>((acc, curr) => {
           if (acc) return acc;
           return [addressSimpleledger, addressSlpSimpleledger].includes(curr)
             ? null
@@ -258,9 +262,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
       if (toAddress && fromAddress !== toAddress) {
         value = outputs.reduce((accumulator, currentValue) => {
           if (currentValue.address && currentValue.amount) {
-            const outputAddress = currentValue.address;
-
-            if (outputAddress === toAddress) {
+            if (currentValue.address === toAddress) {
               accumulator = accumulator.plus(
                 new BigNumber(currentValue.amount)
               );
@@ -286,8 +288,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
         // Determine BCH value
         bchValue = tx.out.reduce((accumulator, currentTx) => {
           if (
-            currentTx.e &&
-            currentTx.e.v &&
+            currentTx?.e?.v &&
             valueAddresses.includes(currentTx.e.a) &&
             currentTx.e.v !== 546
           ) {
