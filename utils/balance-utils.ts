@@ -78,7 +78,7 @@ const getHistoricalBchTransactions = async (
         "out.e": 1,
         blk: 1
       },
-      limit: 20
+      limit: 30
     }
   };
 
@@ -150,12 +150,10 @@ const getHistoricalSlpTransactions = async (
         "in.e": 1,
         "out.e": 1,
         "out.a": 1,
-
         "slp.detail": 1,
         blk: 1
       },
-
-      limit: 350
+      limit: 500
     }
   };
   let transactions: ResultSlpDB[] = [];
