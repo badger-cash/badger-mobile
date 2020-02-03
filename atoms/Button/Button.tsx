@@ -33,7 +33,7 @@ const StyledButton = styled(TouchableOpacity)<ButtonProps>`
       : props.nature === "inverse"
       ? css`
           background-color: ${props => props.theme.bg900};
-          border-color: ${props.theme.primary700};
+          border-color: ${props.theme.primary300};
         `
       : css`
           border-color: ${props.theme.primary500};
