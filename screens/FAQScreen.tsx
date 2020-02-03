@@ -112,7 +112,10 @@ const FAQScreen = (props: Props) => {
         </FAQItem>
 
         <FAQItem title="Should I store a lot of money in Badger?">
-          <T>No.</T>
+          <T>
+            No. You probably shouldn't store a lot of money on any mobile
+            wallet.
+          </T>
           <Spacer small />
           <T>
             Treat Badger similar to your regular wallet. Keep some BCH and
