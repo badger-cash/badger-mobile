@@ -210,7 +210,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
         .filter(Boolean);
       const toAddresses = [...new Set([...toAddressesSLP, ...toAddressesBCH])];
 
-      // Detect if it's from this wallet
+      // Detect if an output is from this wallet
       let fromUser = fromAddresses.reduce((acc, curr) => {
         if (acc) return acc;
         return [addressSimpleledger, addressSlpSimpleledger].includes(curr);
@@ -221,9 +221,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
       if (!fromAddress) {
         // If sending SLP, show from SLP address over the BCH address
         if (fromAddresses.includes(addressSlpSimpleledger)) {
-          fromAddress = addressSlp;
+          fromAddress = addressSlpSimpleledger;
         } else if (fromAddresses.includes(addressSimpleledger)) {
-          fromAddress = address;
+          fromAddress = addressSimpleledger;
         }
       }
 
@@ -266,22 +266,17 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       let value = new BigNumber(0);
 
-      // Determine SLP value
-      if (toAddress && fromAddress !== toAddress) {
-        value = outputs.reduce((accumulator, currentValue) => {
-          if (currentValue.address && currentValue.amount) {
-            if (currentValue.address === toAddress) {
-              accumulator = accumulator.plus(
-                new BigNumber(currentValue.amount)
-              );
-            }
-          }
+      // TODO - Further improve the to/from value calculations, larger refactor to this entire section
+      const valueAddressesSLP = fromUser
+        ? toAddresses.filter(
+            target =>
+              ![addressSimpleledger, addressSlpSimpleledger].includes(target)
+          )
+        : toAddresses.filter(target =>
+            [addressSimpleledger, addressSlpSimpleledger].includes(target)
+          );
 
-          return accumulator;
-        }, new BigNumber(0));
-      }
-
-      const valueAddresses =
+      const valueAddressesBCH =
         fromUser || interWallet
           ? toAddresses.filter(
               target =>
@@ -291,6 +286,17 @@ const updateTransactions = (address: string, addressSlp: string) => {
               [addressSimpleledger, addressSlpSimpleledger].includes(target)
             );
 
+      // Determine SLP value
+      value = outputs.reduce((accumulator, currentValue) => {
+        if (currentValue.address && currentValue.amount) {
+          if (valueAddressesSLP.includes(currentValue.address)) {
+            accumulator = accumulator.plus(new BigNumber(currentValue.amount));
+          }
+        }
+
+        return accumulator;
+      }, new BigNumber(0));
+
       let bchValue = 0;
 
       if (toAddress && fromAddress !== toAddress) {
@@ -298,7 +304,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
         bchValue = tx.out.reduce((accumulator, currentTx) => {
           if (
             currentTx?.e?.v &&
-            valueAddresses.includes(currentTx.e.a) &&
+            valueAddressesBCH.includes(currentTx.e.a) &&
             currentTx.e.v !== 546
           ) {
             accumulator += currentTx.e.v;
