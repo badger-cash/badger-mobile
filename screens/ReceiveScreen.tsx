@@ -147,7 +147,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         <Spacer small />
         <T center>
           Scan a public key below to receive funds. Tap on a QR code to copy the
-          address
+          address.
         </T>
         <Spacer />
         <ToggleRow>
