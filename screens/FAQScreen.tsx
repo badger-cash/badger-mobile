@@ -44,8 +44,8 @@ const FAQScreen = (props: Props) => {
       >
         <FAQItem title="What is Badger Wallet?">
           <T>
-            Badger Wallet is a Bitcoin Cash (BCH) and Simple Token (SLP) wallet,
-            designed to prioritize simplicity for everyday use.
+            Badger Wallet is a Bitcoin Cash (BCH) and SLP token wallet, designed
+            to prioritize simplicity for everyday use.
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://badger.bitcoin.com")}
@@ -53,13 +53,14 @@ const FAQScreen = (props: Props) => {
             <T type="accent">badger.bitcoin.com</T>
           </TouchableOpacity>
         </FAQItem>
-        <FAQItem title="Which currencies does Badger wallet support?">
-          <T>Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) tokens</T>
+        <FAQItem title="Which cryptocurrencies does Badger wallet support?">
+          <T>Bitcoin Cash (BCH) and thousands of SLP tokens.</T>
         </FAQItem>
         <FAQItem title="What is Bitcoin Cash (BCH)?">
           <T>
-            Bitcoin Cash (BCH) is a version of bitcoin which focuses on being
-            peer to peer electronic cash for the world. Learn more at
+            Bitcoin Cash (BCH) is a peer-to-peer electronic cash system for the
+            world. BCH enables permissionless spending for micro transactions,
+            everyday spending, large business deals, and everything in between.
           </T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://bitcoincash.org")}
@@ -70,10 +71,15 @@ const FAQScreen = (props: Props) => {
 
         <FAQItem title="What are Simple Ledger Protocol (SLP) tokens?">
           <T>
-            SLP tokens are tokens which follow the Simple Ledger Protocol
-            specification which is built upon the Bitcoin Cash network. SLP
-            tokens allow anyone to create, send, and receive tokens with anyone,
-            easily.
+            SLP is a token system built upon the Bitcoin Cash network. SLP
+            tokens allow anyone - or business - to create, send, and receive
+            their own tokens for whatever they want.
+          </T>
+          <Spacer small />
+          <T>
+            SLP tokens enable hundreds of new use-cases on the BCH network. From
+            voting systems, reward / loyalty points, ticketing systems, event
+            payouts, and many many more.
           </T>
 
           <TouchableOpacity
@@ -85,9 +91,36 @@ const FAQScreen = (props: Props) => {
 
         <FAQItem title="Why can't I send tokens?">
           <T>
-            Receiving tokens is free, but sending requires a little bit of
-            Bitcoin Cash (BCH) to pay the transaction fee. Make sure your wallet
-            has a little bit of BCH before sending SLP tokens.
+            Receiving tokens is free, but sending tokens requires a bit of
+            Bitcoin Cash (BCH) to pay the transaction fee - typically
+            ~0.00000400 BCH.
+          </T>
+          <Spacer small />
+          <T>
+            Be sure to add a little bit of BCH to your wallet and try again.
+          </T>
+        </FAQItem>
+
+        <FAQItem title="How private is Badger?">
+          <T>
+            Badger uses a single address for all transactions. This means
+            transactions to and from Badger can be linked together with analysis
+            relatively easily.
+          </T>
+          <Spacer small />
+          <T>We will make updates focused on privacy in the future.</T>
+        </FAQItem>
+
+        <FAQItem title="Should I store a lot of money in Badger?">
+          <T>
+            No. You probably shouldn't store a lot of money on any mobile
+            wallet.
+          </T>
+          <Spacer small />
+          <T>
+            Treat Badger similar to your regular wallet. Keep some BCH and
+            tokens in it for spending, but store the rest of your crypto in a
+            secure hardware wallet.
           </T>
         </FAQItem>
 
