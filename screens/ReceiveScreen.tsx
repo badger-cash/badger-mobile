@@ -192,11 +192,11 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                 bitcoincash:
               </T>
               <T size="xsmall" center>
-                {address && address.split(":")[1]}
+                {address ? address.split(":")[1] : " "}
               </T>
               <Spacer tiny />
 
-              {address && (
+              {address ? (
                 <QRHolder>
                   <QRCode
                     value={address}
@@ -213,7 +213,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                     </QROverlay>
                   )}
                 </QRHolder>
-              )}
+              ) : null}
             </TouchableOpacity>
             <Spacer tiny />
             <T center size="small" type="primary">
@@ -221,7 +221,6 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </T>
           </>
         )}
-
         {showing === "SLP" && (
           <>
             <H2 center>Simple Token (SLP)</H2>
@@ -238,11 +237,11 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                 simpleledger:
               </T>
               <T size="xsmall" center>
-                {simpleLedgerAddr && simpleLedgerAddr.split(":")[1]}
+                {simpleLedgerAddr ? simpleLedgerAddr.split(":")[1] : " "}
               </T>
               <Spacer tiny />
 
-              {simpleLedgerAddr && (
+              {simpleLedgerAddr ? (
                 <QRHolder>
                   <QRCode
                     value={simpleLedgerAddr}
@@ -259,7 +258,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                     </QROverlay>
                   )}
                 </QRHolder>
-              )}
+              ) : null}
             </TouchableOpacity>
             <Spacer tiny />
             <T center size="small" type="primary">
@@ -267,7 +266,6 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </T>
           </>
         )}
-
         <Spacer />
       </ScrollView>
     </SafeAreaView>

@@ -146,7 +146,7 @@ const SendSuccessScreen = ({
             flexGrow: 1
           }}
         >
-          <Spacer small />
+          <Spacer />
           <H1 center type="inverse" weight="bold">
             Success!
           </H1>
@@ -164,7 +164,7 @@ const SendSuccessScreen = ({
             </T>
           )}
           <Spacer />
-          <H2 center type="inverse">
+          <H2 center weight="bold" type="inverse">
             Sent
           </H2>
           <Spacer tiny />
@@ -177,11 +177,11 @@ const SendSuccessScreen = ({
             </T>
           )}
           <Spacer large />
-          <H2 center type="inverse">
-            To Address
+          <H2 center type="inverse" weight="bold">
+            To
           </H2>
           <Spacer small />
-          <T size="small" center type="inverse">
+          <T center type="inverse">
             {protocol}:
           </T>
           <T center type="inverse">
@@ -193,7 +193,7 @@ const SendSuccessScreen = ({
             >
               {addressStart}
             </T>
-            <T size="small" type="inverse">
+            <T size="xsmall" type="inverse">
               {addressMiddle}
             </T>
             <T
