@@ -138,6 +138,10 @@ const WalletDetailScreen = ({
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
 
+  if (!address || !addressSlp) {
+    return null;
+  }
+
   const simpleledgerAddressSlp = useSimpleledgerFormat(addressSlp);
   const simpleledgerAddress = useSimpleledgerFormat(address);
 
