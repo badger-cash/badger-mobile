@@ -78,7 +78,6 @@
     "@babel/runtime": "^7.6.2s",
     "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "24.9.0",
-    "babel-plugin-reflow": "^0.4.0",
     "eslint": "^6.5.1",
     "eslint-config-universe": "^2.2.0",
     "eslint-plugin-prettier": "^3.1.2",

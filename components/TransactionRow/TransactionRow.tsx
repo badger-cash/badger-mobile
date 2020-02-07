@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { View, Image, Linking, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
+import BigNumber from "bignumber.js";
 
 import Feather from "react-native-vector-icons/Feather";
 
@@ -120,6 +121,7 @@ const TransactionRow = ({
   }[type];
 
   let formattedTransactionAddress = null;
+  const amountAsBig = new BigNumber(amount);
 
   try {
     // Above method returns an error instead of throwing one for now.
@@ -190,7 +192,9 @@ const TransactionRow = ({
         <AmountArea>
           <T>
             {type === "interwallet"
-              ? `${amount}`
+              ? amountAsBig.eq(0)
+                ? ` `
+                : `${amount}`
               : type === "send"
               ? `- ${amount}`
               : `+ ${amount}`}

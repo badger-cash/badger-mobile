@@ -18,7 +18,7 @@ const SwipeButtonContainer = styled(View)`
   height: 64px;
   align-self: center;
   border-width: 2px;
-  border-color: ${props => props.theme.primary700};
+  border-color: ${props => props.theme.primary300};
 `;
 
 const SwipeContent = styled(View)<{ activated: boolean }>`

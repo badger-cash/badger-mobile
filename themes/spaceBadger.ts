@@ -14,8 +14,8 @@ type Theme = {
   fg800: string;
   payout900: string;
   pending500: string;
+  primary300: string;
   primary500: string;
-  primary700: string;
   primary900: string;
   success500: string;
   success700: string;
@@ -29,16 +29,16 @@ const spaceBadger: Theme = {
   danger300: "#ff5454",
   danger500: "#ff8484",
   danger700: "#fff4f4",
-  fg100: "#111724",
+  fg100: "#131720",
   fg200: "#454c53",
   fg300: "#7d7d7d",
-  fg500: "#ababab",
+  fg500: "#c8cdd8",
   fg700: "#ededed",
   fg800: "#fbfbfb",
   payout900: "#f6edfa",
   pending500: "rgb(0, 193, 225)",
+  primary300: "#11a87e",
   primary500: "#0AC18E",
-  primary700: "#11a87e",
   primary900: "#edfaf6",
   success500: "rgb(62, 193, 10)",
   success700: "#f6fff4"

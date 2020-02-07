@@ -2,8 +2,9 @@
 
 ## 0.14.0
 
-- Now in TypeScript - IN PROGRESS
-- Updated react-native and other dependencies - TODO
+- Now in TypeScript, the code is much more maintainable now
+- Account recovery and transaction history speed improvements
+- Many minor bugs fixed
 
 ## 0.13.0
 

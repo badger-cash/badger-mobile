@@ -19,6 +19,8 @@ import { Transaction } from "./reducer";
 import { transactionsLatestBlockSelector } from "../selectors";
 import { transactionsSelector } from "./selectors";
 
+const appendBCHPrefix = (target: string) => `bitcoincash:${target}`;
+
 const getTransactionsStart = () => ({
   type: GET_TRANSACTIONS_START,
   payload: null
@@ -87,15 +89,15 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // All input addresses in CashAddress format
       const fromAddressesAll = tx.in
-        .filter(input => input.e && input.e.a)
-        .map(input => SLP.Address.toCashAddress(input.e.a));
+        .map(input => input?.e?.a && appendBCHPrefix(input.e.a))
+        .filter(Boolean);
 
       const fromAddresses = [...new Set(fromAddressesAll)];
 
       // If one input address, use that
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
 
-      // Othewise check if our wallet has input, prefer 145 over 245 wallet
+      // Otherwise check if our wallet has input, prefer 145 over 245 wallet
       if (!fromAddress) {
         if (fromAddresses.includes(address)) {
           fromAddress = address;
@@ -106,8 +108,8 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // All transaction output addresse, in CashAddr format
       const toAddressesAll = tx.out
-        .filter(output => output.e && output.e.a)
-        .map(output => SLP.Address.toCashAddress(output.e.a));
+        .map(output => output?.e?.a && appendBCHPrefix(output.e.a))
+        .filter(Boolean);
 
       const toAddresses = [...new Set(toAddressesAll)];
 
@@ -120,7 +122,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // if from us, search for an external to address
       if (fromUser) {
-        toAddress = toAddresses.reduce((acc, curr) => {
+        toAddress = toAddresses.reduce<string | null>((acc, curr) => {
           if (acc) return acc;
           return [address, addressSlp].includes(curr) ? null : curr;
         }, null);
@@ -130,7 +132,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
         // else search for one of our addresses
         toAddress = toAddresses.includes(address)
           ? address
-          : toAddresses.includes(addressSlp) && addressSlp;
+          : toAddresses.includes(addressSlp)
+          ? addressSlp
+          : null;
       }
 
       // Relevant addresses for calculating the transaction value
@@ -148,7 +152,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
           if (
             currentTx.e &&
             currentTx.e.v &&
-            valueAddresses.includes(SLP.Address.toCashAddress(currentTx.e.a))
+            valueAddresses.includes(appendBCHPrefix(currentTx.e.a))
           ) {
             accumulator += currentTx.e.v;
           }
@@ -166,21 +170,21 @@ const updateTransactions = (address: string, addressSlp: string) => {
           toAddresses,
           valueBch: value
         },
-        time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
+        time: tx?.blk?.t ? tx.blk.t * 1000 : new Date().getTime(),
         block,
         networkId: "mainnet"
       };
 
       formattedTx && formattedTransactionsBCH.push(formattedTx);
-
-      // Allow the UI to render after each item computes.
-      await new Promise(resolve => setTimeout(resolve, 50));
     }
 
     const formattedTransactionsSLP: Transaction[] = [];
 
+    const addressSimpleledger = await SLP.Address.toSLPAddress(address);
+    const addressSlpSimpleledger = await SLP.Address.toSLPAddress(addressSlp);
+
     for (let tx of slpHistory) {
-      const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
+      const block = tx?.blk?.i || 0;
       const hash = tx.tx.h;
 
       // Unconfirmed and already parsed, skip
@@ -193,41 +197,33 @@ const updateTransactions = (address: string, addressSlp: string) => {
       const inputs = tx.in;
       const { outputs, tokenIdHex, transactionType, decimals } = slp.detail;
 
-      // All from addresses in cashaddr format
-      const fromAddresses = inputs
-        .filter(input => input.e && input.e.a)
-        .map(input => {
-          const addr = SLP.Address.toCashAddress(input.e.a);
-          return addr;
-        });
+      // All from addresses in simpleledger format
+      const fromAddresses = inputs.map(input => input?.e?.a).filter(Boolean);
 
-      // All to addresses in cashaddr format
+      // All to addresses
       const toAddressesSLP = outputs
-        .filter(output => output.address)
-        .map(output => {
-          const addr = SLP.Address.toCashAddress(output.address);
-          return addr;
-        });
+        .map(output => output?.address)
+        .filter(Boolean);
 
-      const toAddressesBCHAll = tx.out
-        .filter(output => output.e && output.e.a)
-        .map(output => SLP.Address.toCashAddress(output.e.a));
-      const toAddressesBCH = [...new Set(toAddressesBCHAll)];
-      const toAddresses = [...toAddressesSLP, ...toAddressesBCH];
+      const toAddressesBCH = tx.out
+        .map(output => output?.e?.a && output.e.a)
+        .filter(Boolean);
+      const toAddresses = [...new Set([...toAddressesSLP, ...toAddressesBCH])];
 
-      // Detect if it's from this wallet
+      // Detect if an output is from this wallet
       let fromUser = fromAddresses.reduce((acc, curr) => {
         if (acc) return acc;
-        return [address, addressSlp].includes(curr);
+        return [addressSimpleledger, addressSlpSimpleledger].includes(curr);
       }, false);
+
       let fromAddress = fromAddresses.length === 1 ? fromAddresses[0] : null;
 
       if (!fromAddress) {
         // If sending SLP, show from SLP address over the BCH address
-        if (fromAddresses.includes(addressSlp)) {
-          fromAddress = addressSlp;
-        } else if (fromAddresses.includes(address)) {
-          fromAddress = address;
+        if (fromAddresses.includes(addressSlpSimpleledger)) {
+          fromAddress = addressSlpSimpleledger;
+        } else if (fromAddresses.includes(addressSimpleledger)) {
+          fromAddress = addressSimpleledger;
         }
       }
 
@@ -235,63 +231,80 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // if from us, search for an external address
       if (fromUser) {
-        toAddress = toAddresses.reduce((acc, curr) => {
+        toAddress = toAddresses.reduce<string | null>((acc, curr) => {
           if (acc) return acc;
-          return [address, addressSlp].includes(curr) ? null : curr;
+          return [
+            address,
+            addressSlp,
+            addressSimpleledger,
+            addressSlpSimpleledger
+          ].includes(curr)
+            ? null
+            : curr;
         }, null);
       } else {
         // else search for one of our addresses
-        toAddress = toAddresses.includes(addressSlp)
-          ? addressSlp
-          : toAddresses.includes(address)
-          ? address
+        toAddress = toAddresses.includes(addressSlpSimpleledger)
+          ? addressSlpSimpleledger
+          : toAddresses.includes(addressSimpleledger)
+          ? addressSimpleledger
           : null;
       }
 
+      let interWallet = false;
       if (fromUser && !toAddress) {
         // Else from and to us?
         // False so these appear as received in wallet
         fromUser = false;
-        toAddress = toAddresses.includes(addressSlp)
-          ? addressSlp
-          : toAddresses.includes(address)
-          ? address
+        interWallet = true;
+        toAddress = toAddresses.includes(addressSlpSimpleledger)
+          ? addressSlpSimpleledger
+          : toAddresses.includes(addressSimpleledger)
+          ? addressSimpleledger
           : null;
       }
 
       let value = new BigNumber(0);
 
-      // Determine SLP value
-      if (toAddress && fromAddress !== toAddress) {
-        value = outputs.reduce((accumulator, currentValue) => {
-          if (currentValue.address && currentValue.amount) {
-            const outputAddress = SLP.Address.toCashAddress(
-              currentValue.address
+      // TODO - Further improve the to/from value calculations, larger refactor to this entire section
+      const valueAddressesSLP = fromUser
+        ? toAddresses.filter(
+            target =>
+              ![addressSimpleledger, addressSlpSimpleledger].includes(target)
+          )
+        : toAddresses.filter(target =>
+            [addressSimpleledger, addressSlpSimpleledger].includes(target)
+          );
+
+      const valueAddressesBCH =
+        fromUser || interWallet
+          ? toAddresses.filter(
+              target =>
+                ![addressSimpleledger, addressSlpSimpleledger].includes(target)
+            )
+          : toAddresses.filter(target =>
+              [addressSimpleledger, addressSlpSimpleledger].includes(target)
             );
 
-            if (outputAddress === toAddress) {
-              accumulator = accumulator.plus(
-                new BigNumber(currentValue.amount)
-              );
-            }
+      // Determine SLP value
+      value = outputs.reduce((accumulator, currentValue) => {
+        if (currentValue.address && currentValue.amount) {
+          if (valueAddressesSLP.includes(currentValue.address)) {
+            accumulator = accumulator.plus(new BigNumber(currentValue.amount));
           }
+        }
 
-          return accumulator;
-        }, new BigNumber(0));
-      }
+        return accumulator;
+      }, new BigNumber(0));
 
-      const valueAddresses = fromUser
-        ? toAddresses.filter(target => ![address, addressSlp].includes(target))
-        : toAddresses.filter(target => [address, addressSlp].includes(target));
       let bchValue = 0;
 
       if (toAddress && fromAddress !== toAddress) {
         // Determine BCH value
         bchValue = tx.out.reduce((accumulator, currentTx) => {
           if (
-            currentTx.e &&
-            currentTx.e.v &&
-            valueAddresses.includes(SLP.Address.toCashAddress(currentTx.e.a)) &&
+            currentTx?.e?.v &&
+            valueAddressesBCH.includes(currentTx.e.a) &&
             currentTx.e.v !== 546
           ) {
             accumulator += currentTx.e.v;
@@ -320,16 +333,18 @@ const updateTransactions = (address: string, addressSlp: string) => {
         block,
         networkId: "mainnet"
       };
+
       formattedTx && formattedTransactionsSLP.push(formattedTx);
 
       // Allow the UI to render after each item computes.
-      await new Promise(resolve => setTimeout(resolve, 60));
+      await new Promise(resolve => setTimeout(resolve, 10));
     }
 
     const formattedTransactionsNew = [
       ...formattedTransactionsBCH,
       ...formattedTransactionsSLP
     ];
+
     dispatch(getTransactionsSuccess(formattedTransactionsNew, address));
   };
 };

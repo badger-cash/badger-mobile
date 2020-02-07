@@ -15,7 +15,7 @@ const ScreenView = styled(SafeAreaView)`
 `;
 
 const MarkdownScrollview = styled(ScrollView)`
-  border-color: ${props => props.theme.fg500};
+  border-color: ${props => props.theme.fg200};
   border-bottom-width: ${StyleSheet.hairlineWidth};
   border-top-width: ${StyleSheet.hairlineWidth};
 `;

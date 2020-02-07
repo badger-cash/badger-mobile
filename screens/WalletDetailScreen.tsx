@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
@@ -16,6 +16,7 @@ import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
 import useBlockheight from "../hooks/useBlockheight";
+import useSimpleledgerFormat from "../hooks/useSimpleledgerFormat";
 
 import {
   getAddressSelector,
@@ -23,8 +24,7 @@ import {
 } from "../data/accounts/selectors";
 import {
   balancesSelector,
-  transactionsActiveAccountSelector,
-  Balances
+  transactionsActiveAccountSelector
 } from "../data/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -37,7 +37,7 @@ import {
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
-import { addressToSlp } from "../utils/account-utils";
+
 import { getTokenImage } from "../utils/token-utils";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
@@ -83,8 +83,8 @@ type PropsFromParent = NavigationScreenProps & {
 
 const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   const tokenId = props.navigation.state.params.tokenId;
-  const address = getAddressSelector(state);
 
+  const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
 
   const balances = balancesSelector(state, address);
@@ -138,20 +138,21 @@ const WalletDetailScreen = ({
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
 
-  const [simpleledgerAddress, setSimpleledgerAddress] = useState(addressSlp);
+  const simpleledgerAddressSlp = useSimpleledgerFormat(addressSlp);
+  const simpleledgerAddress = useSimpleledgerFormat(address);
+
+  const allOwnAddresses = useMemo(() => {
+    return [
+      address,
+      addressSlp,
+      simpleledgerAddress,
+      simpleledgerAddressSlp
+    ].filter(Boolean);
+  }, [address, addressSlp, simpleledgerAddress, simpleledgerAddressSlp]);
+
   const [notifyCopyTokenId, setNotifyCopyTokenId] = useState(false);
 
   const blockheight = useBlockheight();
-
-  const convertToSimpleLedger = useCallback(async targetAddress => {
-    const simpleLedger = await addressToSlp(targetAddress);
-    setSimpleledgerAddress(simpleLedger);
-    return simpleLedger;
-  }, []);
-
-  useEffect(() => {
-    convertToSimpleLedger(addressSlp);
-  }, [addressSlp, convertToSimpleLedger]);
 
   const isBCH = !tokenId;
 
@@ -180,7 +181,7 @@ const WalletDetailScreen = ({
 
   const explorerUrl = isBCH
     ? `https://explorer.bitcoin.com/bch/address/${address}`
-    : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddress}`;
+    : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddressSlp}`;
 
   const amountFormatted = formatAmount(amount, decimals);
 
@@ -295,7 +296,7 @@ const WalletDetailScreen = ({
               : valueBch;
 
             if (txValue == null) {
-              // Fallback to previous value
+              // Fallback to previous value parameter name
               txValue = value;
             }
             if (txValue == null) {
@@ -304,9 +305,9 @@ const WalletDetailScreen = ({
             }
 
             let txType: TransactionRowTypes = "unrecognized";
-            if (to && [address, addressSlp].includes(to)) {
+            if (to && allOwnAddresses.includes(to)) {
               // Determine transaction type, consider moving this code to action.?
-              if (from && [address, addressSlp].includes(from)) {
+              if (from && allOwnAddresses.includes(from)) {
                 txType = "interwallet";
               } else {
                 if (toAddresses.length > 30) {
@@ -315,7 +316,7 @@ const WalletDetailScreen = ({
                   txType = "receive";
                 }
               }
-            } else if (from && [address, addressSlp].includes(from)) {
+            } else if (from && allOwnAddresses.includes(from)) {
               txType = "send";
             }
 
