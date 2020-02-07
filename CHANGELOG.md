@@ -1,5 +1,18 @@
 # Badger Wallet - Changelog
 
+## 0.14.0
+
+- Now in TypeScript, the code is much more maintainable now
+- Account recovery and transaction history speed improvements
+- Many minor bugs fixed
+
+## 0.13.0
+
+- Sweep SLP tokens from paper wallets, enabling more real life tipping options
+- Speed improvements when creating and restoring wallets, no longer freezing old phones
+- More token icons
+- Fixing missing error message issue
+
 ## 0.12.6
 
 - Restrict sending BCH to cash addresses

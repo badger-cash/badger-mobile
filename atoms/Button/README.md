@@ -4,6 +4,10 @@ Standardised button to use throughout the app.
 
 ## Props
 
-- Variant - The type of button it can be
-  - Primary
-  - Danger
+- nature - The type of button it can be
+  - primary
+  - danger
+  - cautionGhost
+  - ghost
+  - inverse
+  - default
