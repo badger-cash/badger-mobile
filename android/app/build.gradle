@@ -76,7 +76,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    entryFile: "index.ts",
+    entryFile: "index.js",
     enableHermes: false,  // clean and rebuild if changing
 ]
 
@@ -135,8 +135,8 @@ android {
         applicationId "com.badgermobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9000018
-        versionName "1.10.0"
+        versionCode 9000019
+        versionName "1.11.0"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
