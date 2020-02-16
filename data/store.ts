@@ -33,12 +33,18 @@ import pricesReducer, {
   initialState as initialPricesState
 } from "./prices/reducer";
 
+import settingsReducer, {
+  SettingsState as StateSettings,
+  initialState as initialSettingsState
+} from "./settings/reducer";
+
 export type FullState = {
   accounts: StateAccount;
   prices: StatePrices;
   tokens: StateTokens;
   transactions: StateTransactions;
   utxos: StateUTXOS;
+  settings: StateSettings;
   _persist?: PersistState;
 };
 
@@ -47,6 +53,7 @@ const initialState: FullState = {
   prices: initialPricesState,
   tokens: initialTokensState,
   transactions: initialTransactionsState,
+  settings: initialSettingsState,
   utxos: initialUTXOSState
 };
 
@@ -75,7 +82,9 @@ const rootReducer = combineReducers({
   prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,
-  utxos: utxosReducer
+  utxos: utxosReducer,
+  settings: settingsReducer
+  // change to persist later
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
