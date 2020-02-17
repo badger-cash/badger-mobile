@@ -28,6 +28,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
+import { tokenBlackListSelector } from "../data/settings/selectors";
 
 import { TokenData } from "../data/tokens/reducer";
 
@@ -93,6 +94,7 @@ const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);
   const initialLoadingDone = doneInitialLoadSelector(state, address);
   const fiatCurrency = currencySelector(state);
+  const tokenBlackList = tokenBlackListSelector(state);
 
   return {
     address,
@@ -102,7 +104,8 @@ const mapStateToProps = (state: FullState) => {
     spotPrices,
     fiatCurrency,
     tokensById,
-    initialLoadingDone
+    initialLoadingDone,
+    tokenBlackList
   };
 };
 
@@ -141,7 +144,8 @@ const HomeScreen = ({
   updateSpotPrice,
   updateTokensMeta,
   updateTransactions,
-  updateUtxos
+  updateUtxos,
+  tokenBlackList
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
@@ -191,6 +195,9 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
+  let curatedTokenData: WalletSection["data"] = [],
+    blacklistTokenData: WalletSection["data"] = [];
+
   const tokenData = useMemo(() => {
     const slpTokensDisplay = Object.keys(balances.slpTokens).map<
       [string, BigNumber]
@@ -205,12 +212,21 @@ const HomeScreen = ({
       const name = token ? token.name : "--------";
       const decimals = token ? token.decimals : null;
       const amountFormatted = formatAmount(amount, decimals);
-      return {
+
+      const obj = {
         symbol,
         name,
         amount: amountFormatted,
         tokenId
       };
+
+      if (tokenBlackList.includes(tokenId)) {
+        blacklistTokenData = [...blacklistTokenData, obj];
+      } else {
+        curatedTokenData = [...curatedTokenData, obj];
+      }
+
+      return obj;
     });
 
     const tokensSorted = tokensFormatted.sort((a, b) => {
@@ -249,9 +265,15 @@ const HomeScreen = ({
 
     const sectionSLP: WalletSection = {
       title: "Simple Token Vault",
-      data: tokenData
+      data: curatedTokenData
     };
-    return [sectionBCH, sectionSLP];
+
+    const tokenBlackList: WalletSection = {
+      title: "Hidden",
+      data: blacklistTokenData
+    };
+
+    return [sectionBCH, sectionSLP, tokenBlackList];
   }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
 
   return (
