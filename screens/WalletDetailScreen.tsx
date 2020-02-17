@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
@@ -29,8 +29,14 @@ import {
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
+import { tokenBlackListSelector } from "../data/settings/selectors";
 
 import { Transaction } from "../data/transactions/reducer";
+
+import {
+  addTokenToBlackList,
+  removeTokenFromBlackList
+} from "../data/settings/actions";
 
 import {
   formatAmount,
@@ -94,6 +100,8 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   const fiatCurrency = currencySelector(state);
   const transactionsAll = transactionsActiveAccountSelector(state);
   const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
+  const tokenBlackList = tokenBlackListSelector(state);
+
   const transactions = transactionsAll
     .filter(tx => {
       const txTokenId =
@@ -114,13 +122,15 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
     transactions,
     spotPrices,
     fiatCurrency,
-    isUpdatingTransactions
+    isUpdatingTransactions,
+    tokenBlackList
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = { addTokenToBlackList, removeTokenFromBlackList };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
+
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
@@ -133,7 +143,10 @@ const WalletDetailScreen = ({
   spotPrices,
   fiatCurrency,
   transactions,
-  isUpdatingTransactions
+  isUpdatingTransactions,
+  tokenBlackList,
+  addTokenToBlackList,
+  removeTokenFromBlackList
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
@@ -172,9 +185,11 @@ const WalletDetailScreen = ({
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
+  let isBlackListed = false;
 
   if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
+    isBlackListed = tokenBlackList.includes(tokenId);
   } else {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
@@ -196,6 +211,36 @@ const WalletDetailScreen = ({
     amountDecimal && [...amountDecimal].every(v => v === "0")
       ? null
       : amountDecimal;
+
+  useEffect(() => {}, [
+    tokenBlackList,
+    addTokenToBlackList,
+    removeTokenFromBlackList
+  ]);
+
+  const hideButton = (tokenId: string) => (
+    <ButtonGroup>
+      <Button
+        nature={"cautionGhost"}
+        onPress={() => {
+          addTokenToBlackList(tokenId);
+        }}
+        text="Hide this Token"
+      />
+    </ButtonGroup>
+  );
+
+  const showButton = (tokenId: string) => (
+    <ButtonGroup>
+      <Button
+        nature={"inverse"}
+        onPress={() => {
+          removeTokenFromBlackList(tokenId);
+        }}
+        text="Show this Token"
+      />
+    </ButtonGroup>
+  );
 
   return (
     <SafeAreaView>
@@ -232,7 +277,12 @@ const WalletDetailScreen = ({
               </T>
             </>
           )}
+
           <Spacer small />
+          {tokenId && isBlackListed && showButton(tokenId)}
+          {tokenId && !isBlackListed && hideButton(tokenId)}
+          <Spacer small />
+
           <IconArea>
             <IconImage source={imageSource} />
           </IconArea>
