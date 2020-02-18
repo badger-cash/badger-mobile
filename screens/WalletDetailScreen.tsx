@@ -29,7 +29,7 @@ import {
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
-import { tokenBlackListSelector } from "../data/settings/selectors";
+import { tokenBlacklistSelector } from "../data/settings/selectors";
 
 import { Transaction } from "../data/transactions/reducer";
 
@@ -100,7 +100,7 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   const fiatCurrency = currencySelector(state);
   const transactionsAll = transactionsActiveAccountSelector(state);
   const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
-  const tokenBlackList = tokenBlackListSelector(state);
+  const tokenBlacklist = tokenBlacklistSelector(state);
 
   const transactions = transactionsAll
     .filter(tx => {
@@ -123,7 +123,7 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
     spotPrices,
     fiatCurrency,
     isUpdatingTransactions,
-    tokenBlackList
+    tokenBlacklist
   };
 };
 
@@ -144,7 +144,7 @@ const WalletDetailScreen = ({
   fiatCurrency,
   transactions,
   isUpdatingTransactions,
-  tokenBlackList,
+  tokenBlacklist,
   addTokenToBlackList,
   removeTokenFromBlackList
 }: Props) => {
@@ -189,7 +189,7 @@ const WalletDetailScreen = ({
 
   if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
-    isBlackListed = tokenBlackList.includes(tokenId);
+    isBlackListed = tokenBlacklist.includes(tokenId);
   } else {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
@@ -213,7 +213,7 @@ const WalletDetailScreen = ({
       : amountDecimal;
 
   useEffect(() => {}, [
-    tokenBlackList,
+    tokenBlacklist,
     addTokenToBlackList,
     removeTokenFromBlackList
   ]);

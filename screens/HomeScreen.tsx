@@ -28,7 +28,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
-import { tokenBlackListSelector } from "../data/settings/selectors";
+import { tokenBlacklistSelector } from "../data/settings/selectors";
 
 import { TokenData } from "../data/tokens/reducer";
 
@@ -94,7 +94,7 @@ const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);
   const initialLoadingDone = doneInitialLoadSelector(state, address);
   const fiatCurrency = currencySelector(state);
-  const tokenBlackList = tokenBlackListSelector(state);
+  const tokenBlacklist = tokenBlacklistSelector(state);
 
   return {
     address,
@@ -105,7 +105,7 @@ const mapStateToProps = (state: FullState) => {
     fiatCurrency,
     tokensById,
     initialLoadingDone,
-    tokenBlackList
+    tokenBlacklist
   };
 };
 
@@ -145,7 +145,7 @@ const HomeScreen = ({
   updateTokensMeta,
   updateTransactions,
   updateUtxos,
-  tokenBlackList
+  tokenBlacklist
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
@@ -220,7 +220,7 @@ const HomeScreen = ({
         tokenId
       };
 
-      if (tokenBlackList.includes(tokenId)) {
+      if (tokenBlacklist.includes(tokenId)) {
         blacklistTokenData = [...blacklistTokenData, obj];
       } else {
         curatedTokenData = [...curatedTokenData, obj];
@@ -268,13 +268,15 @@ const HomeScreen = ({
       data: curatedTokenData
     };
 
-    const tokenBlackList: WalletSection = {
+    const tokenBlacklist: WalletSection = {
       title: "Hidden",
       data: blacklistTokenData
     };
 
-    return [sectionBCH, sectionSLP, tokenBlackList];
+    return [sectionBCH, sectionSLP, tokenBlacklist];
   }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+
+  console.log("walletSections", walletSections, typeof walletSections);
 
   return (
     <SafeAreaView>
@@ -345,6 +347,35 @@ const HomeScreen = ({
               }
               keyExtractor={(item, index) => `${index}`}
             />
+
+            <SectionList
+              sections={walletSections[2]}
+              renderSectionHeader={({ section }) => (
+                <CoinRowHeader>{section.title}</CoinRowHeader>
+              )}
+              renderSectionFooter={({ section }) =>
+                !section.data.length ? <NoTokensFound /> : <p>i dunno </p>
+              }
+              renderItem={({ item }) =>
+                item && (
+                  <CoinRow
+                    amount={item.amount}
+                    name={item.name}
+                    ticker={item.symbol}
+                    tokenId={item.tokenId}
+                    valueDisplay={item.valueDisplay}
+                    onPress={() =>
+                      navigation.navigate("WalletDetailScreen", {
+                        symbol: item.symbol,
+                        tokenId: item.tokenId
+                      })
+                    }
+                  />
+                )
+              }
+              keyExtractor={(item, index) => `${index}`}
+            />
+
             {!initialLoadingDone && (
               <InitialLoadCover>
                 <ActivityIndicator />
