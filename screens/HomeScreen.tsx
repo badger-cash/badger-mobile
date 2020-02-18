@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BigNumber from "bignumber.js";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
@@ -147,6 +147,9 @@ const HomeScreen = ({
   updateUtxos,
   tokenBlacklist
 }: Props) => {
+  const [isRevealed, setToggled] = useState(false);
+  const toggleVisibility = () => setToggled(!isRevealed);
+
   useEffect(() => {
     // Update UTXOs on an interval
     if (!address) return;
@@ -268,15 +271,19 @@ const HomeScreen = ({
       data: curatedTokenData
     };
 
+    return [sectionBCH, sectionSLP];
+  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+
+  const blacklistSection = useMemo(() => {
     const tokenBlacklist: WalletSection = {
       title: "Hidden",
       data: blacklistTokenData
     };
 
-    return [sectionBCH, sectionSLP, tokenBlacklist];
-  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+    return [tokenBlacklist];
+  }, [blacklistTokenData]);
 
-  console.log("walletSections", walletSections, typeof walletSections);
+  const showBlacklist = tokenBlacklist.length >= 1;
 
   return (
     <SafeAreaView>
@@ -347,34 +354,38 @@ const HomeScreen = ({
               }
               keyExtractor={(item, index) => `${index}`}
             />
+            <Spacer />
+            {showBlacklist && (
+              <T center onPress={() => toggleVisibility()}>
+                {isRevealed ? "collapse" : "reveal"} {tokenBlacklist.length}{" "}
+                Hidden Token{tokenBlacklist.length > 1 ? "s" : ""}
+              </T>
+            )}
+            <Spacer />
 
-            <SectionList
-              sections={walletSections[2]}
-              renderSectionHeader={({ section }) => (
-                <CoinRowHeader>{section.title}</CoinRowHeader>
-              )}
-              renderSectionFooter={({ section }) =>
-                !section.data.length ? <NoTokensFound /> : <p>i dunno </p>
-              }
-              renderItem={({ item }) =>
-                item && (
-                  <CoinRow
-                    amount={item.amount}
-                    name={item.name}
-                    ticker={item.symbol}
-                    tokenId={item.tokenId}
-                    valueDisplay={item.valueDisplay}
-                    onPress={() =>
-                      navigation.navigate("WalletDetailScreen", {
-                        symbol: item.symbol,
-                        tokenId: item.tokenId
-                      })
-                    }
-                  />
-                )
-              }
-              keyExtractor={(item, index) => `${index}`}
-            />
+            {isRevealed && (
+              <SectionList
+                sections={blacklistSection}
+                renderItem={({ item }) =>
+                  item && (
+                    <CoinRow
+                      amount={item.amount}
+                      name={item.name}
+                      ticker={item.symbol}
+                      tokenId={item.tokenId}
+                      valueDisplay={item.valueDisplay}
+                      onPress={() =>
+                        navigation.navigate("WalletDetailScreen", {
+                          symbol: item.symbol,
+                          tokenId: item.tokenId
+                        })
+                      }
+                    />
+                  )
+                }
+                keyExtractor={(item, index) => `${index}`}
+              />
+            )}
 
             {!initialLoadingDone && (
               <InitialLoadCover>
