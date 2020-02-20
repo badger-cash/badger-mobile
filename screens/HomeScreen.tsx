@@ -198,9 +198,6 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
-  let curatedTokenData: WalletSection["data"] = [],
-    blacklistTokenData: WalletSection["data"] = [];
-
   const tokenData = useMemo(() => {
     const slpTokensDisplay = Object.keys(balances.slpTokens).map<
       [string, BigNumber]
@@ -223,12 +220,6 @@ const HomeScreen = ({
         tokenId
       };
 
-      if (tokenBlacklist.includes(tokenId)) {
-        blacklistTokenData = [...blacklistTokenData, obj];
-      } else {
-        curatedTokenData = [...curatedTokenData, obj];
-      }
-
       return obj;
     });
 
@@ -241,6 +232,28 @@ const HomeScreen = ({
     });
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
+
+  const blacklistTokenData: WalletSection["data"] = useMemo(() => {
+    let array: WalletSection["data"] = [];
+
+    for (const each of tokenData) {
+      if (tokenBlacklist.includes(each.tokenId)) {
+        array = [...array, each];
+      }
+    }
+    return array;
+  }, [tokenData]);
+
+  const curatedTokenData: WalletSection["data"] = useMemo(() => {
+    let array: WalletSection["data"] = [];
+
+    for (const each of tokenData) {
+      if (!tokenBlacklist.includes(each.tokenId)) {
+        array = [...array, each];
+      }
+    }
+    return array;
+  }, [tokenData]);
 
   const BCHFiatDisplay = useMemo(() => {
     const BCHFiatAmount = computeFiatAmount(
@@ -362,7 +375,6 @@ const HomeScreen = ({
               </T>
             )}
             <Spacer />
-
             {isRevealed && (
               <SectionList
                 sections={blacklistSection}
