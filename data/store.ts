@@ -77,13 +77,19 @@ const pricesPersistConfig = {
   whitelist: ["currencySelected"]
 };
 
+const settingsPersistConfig = {
+  key: "settings",
+  storage: AsyncStorage,
+  whitelist: ["tokenBlacklist"]
+};
+
 const rootReducer = combineReducers({
   accounts: persistReducer(accountsPersistConfig, accountsReducer),
   prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,
   utxos: utxosReducer,
-  settings: settingsReducer
+  settings: persistReducer(settingsPersistConfig, settingsReducer)
   // change to persist later
 });
 
