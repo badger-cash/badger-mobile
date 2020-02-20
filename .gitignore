@@ -67,7 +67,7 @@ android/.idea/*
 android/local.properties
 android/gradle.properties
 
-flow-typed/
-
 ios/badgerMobile.xcworkspace/xcuserdata/
 ios/badgerMobile.xcodeproj/xcuserdata/
+
+coverage/

@@ -1,8 +1,15 @@
+import configureMockStore from "redux-mock-store";
+import thunk from "redux-thunk";
+import fetchMock from "fetch-mock";
+
 import * as actions from "./actions";
 import * as actionTypes from "./constants";
 import { UTXO } from "./reducer";
 
-describe("UTXO::actions", () => {
+const middlewares = [thunk];
+const mockStore = configureMockStore(middlewares);
+
+describe("UTXO::action creators", () => {
   it("should create action for - UPDATE_UTXO_SUCCESS", () => {
     const address = "testAddress";
     const utxos = [] as UTXO[];
@@ -15,5 +22,45 @@ describe("UTXO::actions", () => {
       }
     };
     expect(actions.updateUtxoSuccess(utxos, address)).toEqual(expectedAction);
+  });
+
+  it("should create action for - UPDATE_UTXO_FAIL", () => {
+    const expectedAction = {
+      type: actionTypes.UPDATE_UTXO_FAIL,
+      payload: null
+    };
+    expect(actions.updateUtxoFail()).toEqual(expectedAction);
+  });
+});
+
+describe("UTXO::asyncActions", () => {
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
+  it("creates UPDATE_UTXO_SUCCESS when fetching UTXOS completes", () => {
+    fetchMock.getOnce("/todos", {
+      body: { todos: ["do something"] },
+      headers: { "content-type": "application/json" }
+    });
+    const expectedActions = [
+      { type: actionTypes.UPDATE_UTXO_START },
+      {
+        type: actionTypes.UPDATE_UTXO_SUCCESS,
+        body: { todos: ["do something"] }
+      }
+    ];
+    const store = mockStore({ todos: [] });
+    return store
+      .dispatch(
+        actions.updateUtxos(
+          "bitcoincash:fakeaddress",
+          "simpleledger:fakeaddress"
+        )
+      )
+      .then(() => {
+        // return of async actions
+        expect(store.getActions()).toEqual(expectedActions);
+      });
   });
 });

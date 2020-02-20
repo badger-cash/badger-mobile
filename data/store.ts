@@ -2,11 +2,12 @@ import {
   createStore,
   combineReducers,
   applyMiddleware,
-  Middleware
+  Middleware,
+  AnyAction
 } from "redux";
 import { persistStore, persistReducer, PersistState } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
-import ReduxThunk from "redux-thunk";
+import ReduxThunk, { ThunkMiddleware } from "redux-thunk";
 
 import accountsReducer, {
   State as StateAccount,
@@ -89,7 +90,10 @@ const Logger: Middleware = store => next => action => {
   return next(action);
 };
 
-const middleware = [Logger, ReduxThunk];
+const middleware = [
+  Logger,
+  ReduxThunk as ThunkMiddleware<FullState, AnyAction>
+];
 
 const getStore = () => {
   // The ignore here is because it wants initialState to have all of the persist information.
