@@ -147,8 +147,7 @@ const HomeScreen = ({
   updateUtxos,
   tokenBlacklist
 }: Props) => {
-  const [isRevealed, setToggled] = useState(false);
-  const toggleVisibility = () => setToggled(!isRevealed);
+  const [isShowingBlacklist, setIsRevealed] = useState(false);
 
   useEffect(() => {
     // Update UTXOs on an interval
@@ -213,14 +212,12 @@ const HomeScreen = ({
       const decimals = token ? token.decimals : null;
       const amountFormatted = formatAmount(amount, decimals);
 
-      const obj = {
+      return {
         symbol,
         name,
         amount: amountFormatted,
         tokenId
       };
-
-      return obj;
     });
 
     const tokensSorted = tokensFormatted.sort((a, b) => {
@@ -242,7 +239,7 @@ const HomeScreen = ({
       }
     }
     return array;
-  }, [tokenData]);
+  }, [tokenData, tokenBlacklist]);
 
   const curatedTokenData: WalletSection["data"] = useMemo(() => {
     let array: WalletSection["data"] = [];
@@ -253,7 +250,7 @@ const HomeScreen = ({
       }
     }
     return array;
-  }, [tokenData]);
+  }, [tokenData, tokenBlacklist]);
 
   const BCHFiatDisplay = useMemo(() => {
     const BCHFiatAmount = computeFiatAmount(
@@ -369,13 +366,14 @@ const HomeScreen = ({
             />
             <Spacer />
             {showBlacklist && (
-              <T center onPress={() => toggleVisibility()}>
-                {isRevealed ? "collapse" : "reveal"} {tokenBlacklist.length}{" "}
-                Hidden Token{tokenBlacklist.length > 1 ? "s" : ""}
+              <T center onPress={() => setIsRevealed(!isShowingBlacklist)}>
+                {isShowingBlacklist ? "Collapse" : "Reveal"}{" "}
+                {tokenBlacklist.length} hidden
+                {tokenBlacklist.length > 1 ? "tokens" : "token"}
               </T>
             )}
             <Spacer />
-            {isRevealed && (
+            {isShowingBlacklist && (
               <SectionList
                 sections={blacklistSection}
                 renderItem={({ item }) =>

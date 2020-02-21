@@ -30,10 +30,10 @@ const addTokenToBlackList = (
 
 const removeTokenFromBlackList = (
   state: SettingsState,
-  tokenID: string
+  tokenId: string
 ): SettingsState => {
   const { tokenBlacklist } = state;
-  const updatedBlacklist = tokenBlacklist.filter(x => x !== tokenID);
+  const updatedBlacklist = tokenBlacklist.filter(x => x !== tokenId);
 
   return {
     ...state,

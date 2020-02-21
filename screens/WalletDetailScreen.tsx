@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { NavigationEvents } from "react-navigation";
 import styled from "styled-components";
@@ -185,11 +185,11 @@ const WalletDetailScreen = ({
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
-  let isBlackListed = false;
+  let isBlacklisted = false;
 
   if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
-    isBlackListed = tokenBlacklist.includes(tokenId);
+    isBlacklisted = tokenBlacklist.includes(tokenId);
   } else {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
@@ -212,13 +212,7 @@ const WalletDetailScreen = ({
       ? null
       : amountDecimal;
 
-  useEffect(() => {}, [
-    tokenBlacklist,
-    addTokenToBlackList,
-    removeTokenFromBlackList
-  ]);
-
-  const hideButton = (tokenId: string) => (
+  const HideButton = (tokenId: string) => (
     <ButtonGroup>
       <Button
         nature={"cautionGhost"}
@@ -230,7 +224,7 @@ const WalletDetailScreen = ({
     </ButtonGroup>
   );
 
-  const showButton = (tokenId: string) => (
+  const ShowButton = (tokenId: string) => (
     <ButtonGroup>
       <Button
         nature={"inverse"}
@@ -279,8 +273,8 @@ const WalletDetailScreen = ({
           )}
 
           <Spacer small />
-          {tokenId && isBlackListed && showButton(tokenId)}
-          {tokenId && !isBlackListed && hideButton(tokenId)}
+          {tokenId && isBlacklisted && ShowButton(tokenId)}
+          {tokenId && !isBlacklisted && HideButton(tokenId)}
           <Spacer small />
 
           <IconArea>

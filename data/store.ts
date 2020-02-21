@@ -61,7 +61,7 @@ const initialState: FullState = {
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["utxos", "tokens", "transactions"]
+  whitelist: ["utxos", "tokens", "transactions", "settings"]
 };
 
 // keypairs are re-computed each time the app launches, cannot persist complex objects easily.
@@ -77,20 +77,13 @@ const pricesPersistConfig = {
   whitelist: ["currencySelected"]
 };
 
-const settingsPersistConfig = {
-  key: "settings",
-  storage: AsyncStorage,
-  whitelist: ["tokenBlacklist"]
-};
-
 const rootReducer = combineReducers({
   accounts: persistReducer(accountsPersistConfig, accountsReducer),
   prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,
   utxos: utxosReducer,
-  settings: persistReducer(settingsPersistConfig, settingsReducer)
-  // change to persist later
+  settings: settingsReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
