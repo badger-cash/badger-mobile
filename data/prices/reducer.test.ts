@@ -2,7 +2,8 @@ import pricesReducer, { initialState } from "./reducer";
 import {
   updateSpotPriceSuccess,
   updateSpotPriceStart,
-  updateSpotPriceFail
+  updateSpotPriceFail,
+  setFiatCurrency
 } from "./actions";
 
 describe("prices::reducer", () => {
@@ -86,6 +87,18 @@ describe("prices::reducer", () => {
         }
       }
     };
+    expect(stateAfter).toEqual(expectedState);
+  });
+
+  it("should handle changing fiat currency", () => {
+    const stateBefore = initialState;
+    const stateAfter = pricesReducer(stateBefore, setFiatCurrency("CHF"));
+
+    const expectedState = {
+      ...initialState,
+      currencySelected: "CHF"
+    };
+
     expect(stateAfter).toEqual(expectedState);
   });
 });

@@ -56,7 +56,7 @@ describe("prices::actions", () => {
 
   describe("prices::actions async", () => {
     beforeEach(() => {
-      // Todo - Proper mock, but price endpoint uses axios.
+      // Todo - Proper mock the fetching, but price endpoint uses axios, not fetch.
       fetchMock.restore();
     });
 
