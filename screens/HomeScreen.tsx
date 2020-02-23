@@ -368,7 +368,7 @@ const HomeScreen = ({
             {showBlacklist && (
               <T center onPress={() => setIsRevealed(!isShowingBlacklist)}>
                 {isShowingBlacklist ? "Collapse" : "Reveal"}{" "}
-                {tokenBlacklist.length} hidden
+                {tokenBlacklist.length} hidden{" "}
                 {tokenBlacklist.length > 1 ? "tokens" : "token"}
               </T>
             )}

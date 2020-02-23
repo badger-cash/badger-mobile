@@ -10,13 +10,16 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
+  Text
 } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
 import useBlockheight from "../hooks/useBlockheight";
 import useSimpleledgerFormat from "../hooks/useSimpleledgerFormat";
+import EyeOpenIcon from "../assets/images/eye-open.png";
+import EyeClosedIcon from "../assets/images/eye-closed.png";
 
 import {
   getAddressSelector,
@@ -72,6 +75,26 @@ const IconImage = styled(Image)`
   height: 64;
   border-radius: 32;
   overflow: hidden;
+`;
+
+const EyeIconImage = styled(Image)`
+  width: 25;
+  height: 25;
+  overflow: hidden;
+  left: 5;
+`;
+
+const VisibilityArea = styled(View)`
+  flex-direction: row;
+  justify-content: flex-end;
+  right: 15;
+  top: 10;
+  position: absolute;
+  align-items: center;
+`;
+
+const VisibilityText = styled(Text)`
+  font-size: 9px;
 `;
 
 const IconArea = styled(View)`
@@ -215,27 +238,29 @@ const WalletDetailScreen = ({
   type tokenProps = { tokenId: string };
 
   const HideButton = ({ tokenId }: tokenProps) => (
-    <ButtonGroup>
-      <Button
-        nature={"cautionGhost"}
+    <VisibilityArea>
+      <VisibilityText
         onPress={() => {
           addTokenToBlacklist(tokenId);
         }}
-        text="Hide from Vault"
-      />
-    </ButtonGroup>
+      >
+        Visible in Vault
+      </VisibilityText>
+      <EyeIconImage source={EyeOpenIcon} />
+    </VisibilityArea>
   );
 
   const ShowButton = ({ tokenId }: tokenProps) => (
-    <ButtonGroup>
-      <Button
-        nature={"inverse"}
+    <VisibilityArea>
+      <VisibilityText
         onPress={() => {
           removeTokenFromBlacklist(tokenId);
         }}
-        text="Reveal in Vault"
-      />
-    </ButtonGroup>
+      >
+        Hidden from Vault
+      </VisibilityText>
+      <EyeIconImage source={EyeClosedIcon} />
+    </VisibilityArea>
   );
 
   return (
@@ -251,6 +276,10 @@ const WalletDetailScreen = ({
         }}
       >
         <View>
+          <Spacer small />
+          {tokenId && isBlacklisted && <ShowButton tokenId={tokenId} />}
+          {tokenId && !isBlacklisted && <HideButton tokenId={tokenId} />}
+
           <Spacer small />
           <H1 center>{name}</H1>
           {tokenId && (
@@ -274,9 +303,6 @@ const WalletDetailScreen = ({
             </>
           )}
 
-          <Spacer small />
-          {tokenId && isBlacklisted && <ShowButton tokenId={tokenId} />}
-          {tokenId && !isBlacklisted && <HideButton tokenId={tokenId} />}
           <Spacer small />
 
           <IconArea>
