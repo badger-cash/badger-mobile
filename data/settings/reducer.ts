@@ -15,7 +15,7 @@ export const initialState: SettingsState = {
   tokenBlacklist: []
 };
 
-const addTokenToBlackList = (
+const addTokenToBlacklist = (
   state: SettingsState,
   tokenId: string
 ): SettingsState => {
@@ -28,7 +28,7 @@ const addTokenToBlackList = (
   };
 };
 
-const removeTokenFromBlackList = (
+const removeTokenFromBlacklist = (
   state: SettingsState,
   tokenId: string
 ): SettingsState => {
@@ -44,10 +44,10 @@ const removeTokenFromBlackList = (
 const settings = (state = initialState, action: Action): SettingsState => {
   switch (action.type) {
     case ADD_TOKEN_TO_BLACKLIST:
-      return addTokenToBlackList(state, action.payload);
+      return addTokenToBlacklist(state, action.payload);
 
     case REMOVE_TOKEN_FROM_BLACKLIST:
-      return removeTokenFromBlackList(state, action.payload);
+      return removeTokenFromBlacklist(state, action.payload);
 
     default:
       return state;

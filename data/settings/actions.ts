@@ -3,14 +3,14 @@ import {
   ADD_TOKEN_TO_BLACKLIST
 } from "./constants";
 
-const addTokenToBlackList = (tokenId: string) => ({
+const addTokenToBlacklist = (tokenId: string) => ({
   type: ADD_TOKEN_TO_BLACKLIST,
   payload: tokenId
 });
 
-const removeTokenFromBlackList = (tokenId: string) => ({
+const removeTokenFromBlacklist = (tokenId: string) => ({
   type: REMOVE_TOKEN_FROM_BLACKLIST,
   payload: tokenId
 });
 
-export { addTokenToBlackList, removeTokenFromBlackList };
+export { addTokenToBlacklist, removeTokenFromBlacklist };
