@@ -34,8 +34,8 @@ import { tokenBlacklistSelector } from "../data/settings/selectors";
 import { Transaction } from "../data/transactions/reducer";
 
 import {
-  addTokenToBlackList,
-  removeTokenFromBlackList
+  addTokenToBlacklist,
+  removeTokenFromBlacklist
 } from "../data/settings/actions";
 
 import {
@@ -127,7 +127,7 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   };
 };
 
-const mapDispatchToProps = { addTokenToBlackList, removeTokenFromBlackList };
+const mapDispatchToProps = { addTokenToBlacklist, removeTokenFromBlacklist };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
@@ -145,8 +145,8 @@ const WalletDetailScreen = ({
   transactions,
   isUpdatingTransactions,
   tokenBlacklist,
-  addTokenToBlackList,
-  removeTokenFromBlackList
+  addTokenToBlacklist,
+  removeTokenFromBlacklist
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
@@ -212,26 +212,28 @@ const WalletDetailScreen = ({
       ? null
       : amountDecimal;
 
-  const HideButton = (tokenId: string) => (
+  type tokenProps = { tokenId: string };
+
+  const HideButton = ({ tokenId }: tokenProps) => (
     <ButtonGroup>
       <Button
         nature={"cautionGhost"}
         onPress={() => {
-          addTokenToBlackList(tokenId);
+          addTokenToBlacklist(tokenId);
         }}
-        text="Hide this Token"
+        text="Hide from Vault"
       />
     </ButtonGroup>
   );
 
-  const ShowButton = (tokenId: string) => (
+  const ShowButton = ({ tokenId }: tokenProps) => (
     <ButtonGroup>
       <Button
         nature={"inverse"}
         onPress={() => {
-          removeTokenFromBlackList(tokenId);
+          removeTokenFromBlacklist(tokenId);
         }}
-        text="Show this Token"
+        text="Reveal in Vault"
       />
     </ButtonGroup>
   );
@@ -273,8 +275,8 @@ const WalletDetailScreen = ({
           )}
 
           <Spacer small />
-          {tokenId && isBlacklisted && ShowButton(tokenId)}
-          {tokenId && !isBlacklisted && HideButton(tokenId)}
+          {tokenId && isBlacklisted && <ShowButton tokenId={tokenId} />}
+          {tokenId && !isBlacklisted && <HideButton tokenId={tokenId} />}
           <Spacer small />
 
           <IconArea>
