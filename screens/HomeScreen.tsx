@@ -197,6 +197,17 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
+  const BCHFiatDisplay = useMemo(() => {
+    const BCHFiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+
+    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
+  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+
   const tokenData = useMemo(() => {
     const slpTokensDisplay = Object.keys(balances.slpTokens).map<
       [string, BigNumber]
@@ -230,40 +241,29 @@ const HomeScreen = ({
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
 
-  const blacklistTokenData: WalletSection["data"] = useMemo(() => {
-    let array: WalletSection["data"] = [];
-
-    for (const each of tokenData) {
-      if (tokenBlacklist.includes(each.tokenId)) {
-        array = [...array, each];
-      }
-    }
-    return array;
-  }, [tokenData, tokenBlacklist]);
-
-  const curatedTokenData: WalletSection["data"] = useMemo(() => {
-    let array: WalletSection["data"] = [];
-
-    for (const each of tokenData) {
-      if (!tokenBlacklist.includes(each.tokenId)) {
-        array = [...array, each];
-      }
-    }
-    return array;
-  }, [tokenData, tokenBlacklist]);
-
-  const BCHFiatDisplay = useMemo(() => {
-    const BCHFiatAmount = computeFiatAmount(
-      balances.satoshisAvailable,
-      spotPrices,
-      fiatCurrency,
-      "bch"
+  const blacklistSection: WalletSection[] = useMemo(() => {
+    const filteredTokens = tokenData.filter(data =>
+      tokenBlacklist.includes(data.tokenId)
     );
+    return [
+      {
+        title: "Hidden Tokens",
+        data: filteredTokens
+      }
+    ];
+  }, [tokenData, tokenBlacklist]);
 
-    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
-  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+  const curatedSection: WalletSection = useMemo(() => {
+    const filteredTokens = tokenData.filter(
+      data => !tokenBlacklist.includes(data.tokenId)
+    );
+    return {
+      title: "Simple Token Vault",
+      data: filteredTokens
+    };
+  }, [tokenData, tokenBlacklist]);
 
-  const walletSections = useMemo(() => {
+  const walletSections: WalletSection[] = useMemo(() => {
     const sectionBCH: WalletSection = {
       title: "Bitcoin Cash Wallet",
       data: [
@@ -276,22 +276,10 @@ const HomeScreen = ({
       ]
     };
 
-    const sectionSLP: WalletSection = {
-      title: "Simple Token Vault",
-      data: curatedTokenData
-    };
+    const sectionSLP = curatedSection;
 
     return [sectionBCH, sectionSLP];
   }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
-
-  const blacklistSection = useMemo(() => {
-    const tokenBlacklist: WalletSection = {
-      title: "Hidden",
-      data: blacklistTokenData
-    };
-
-    return [tokenBlacklist];
-  }, [blacklistTokenData]);
 
   const showBlacklist = tokenBlacklist.length >= 1;
 
