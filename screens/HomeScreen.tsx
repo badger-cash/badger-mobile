@@ -279,7 +279,7 @@ const HomeScreen = ({
     const sectionSLP = curatedSection;
 
     return [sectionBCH, sectionSLP];
-  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+  }, [BCHFiatDisplay, balances.satoshisAvailable, curatedSection]);
 
   const showBlacklist = tokenBlacklist.length >= 1;
 
