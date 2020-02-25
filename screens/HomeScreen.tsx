@@ -147,7 +147,7 @@ const HomeScreen = ({
   updateUtxos,
   tokenBlacklist
 }: Props) => {
-  const [isShowingBlacklist, setIsRevealed] = useState(false);
+  const [isShowingBlacklist, setIsShowingBlacklist] = useState(false);
 
   useEffect(() => {
     // Update UTXOs on an interval
@@ -366,10 +366,12 @@ const HomeScreen = ({
             />
             <Spacer />
             {showBlacklist && (
-              <T center onPress={() => setIsRevealed(!isShowingBlacklist)}>
-                {isShowingBlacklist ? "Collapse" : "Reveal"}{" "}
-                {tokenBlacklist.length} hidden{" "}
-                {tokenBlacklist.length > 1 ? "tokens" : "token"}
+              <T
+                center
+                onPress={() => setIsShowingBlacklist(!isShowingBlacklist)}
+              >
+                {isShowingBlacklist ? "Hide" : "Show"} {tokenBlacklist.length}{" "}
+                hidden {tokenBlacklist.length > 1 ? "tokens" : "token"}
               </T>
             )}
             <Spacer />
