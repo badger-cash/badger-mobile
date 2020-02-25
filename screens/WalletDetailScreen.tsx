@@ -10,16 +10,14 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View,
-  Text
+  View
 } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import useBlockheight from "../hooks/useBlockheight";
 import useSimpleledgerFormat from "../hooks/useSimpleledgerFormat";
-import EyeOpenIcon from "../assets/images/eye-open.png";
-import EyeClosedIcon from "../assets/images/eye-closed.png";
 
 import {
   getAddressSelector,
@@ -77,24 +75,13 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
-const EyeIconImage = styled(Image)`
-  width: 25;
-  height: 25;
-  overflow: hidden;
-  left: 5;
-`;
-
 const VisibilityArea = styled(View)`
   flex-direction: row;
   justify-content: flex-end;
-  right: 15;
-  top: 10;
+  right: 16;
+  top: 8;
   position: absolute;
   align-items: center;
-`;
-
-const VisibilityText = styled(Text)`
-  font-size: 9px;
 `;
 
 const IconArea = styled(View)`
@@ -235,31 +222,21 @@ const WalletDetailScreen = ({
       ? null
       : amountDecimal;
 
-  type tokenProps = { tokenId: string };
+  type TokenProps = { tokenId: string };
 
-  const HideButton = ({ tokenId }: tokenProps) => (
+  const HideButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <VisibilityText
-        onPress={() => {
-          addTokenToBlacklist(tokenId);
-        }}
-      >
-        Visible in Vault
-      </VisibilityText>
-      <EyeIconImage source={EyeOpenIcon} />
+      <T onPress={() => addTokenToBlacklist(tokenId)}>
+        <FontAwesome name="eye" size={25} />
+      </T>
     </VisibilityArea>
   );
 
-  const ShowButton = ({ tokenId }: tokenProps) => (
+  const ShowButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <VisibilityText
-        onPress={() => {
-          removeTokenFromBlacklist(tokenId);
-        }}
-      >
-        Hidden from Vault
-      </VisibilityText>
-      <EyeIconImage source={EyeClosedIcon} />
+      <T onPress={() => removeTokenFromBlacklist(tokenId)} type="muted2">
+        <FontAwesome name="eye-slash" size={25} />
+      </T>
     </VisibilityArea>
   );
 
