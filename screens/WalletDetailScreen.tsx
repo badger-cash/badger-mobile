@@ -226,17 +226,21 @@ const WalletDetailScreen = ({
 
   const HideButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <T onPress={() => addTokenToBlacklist(tokenId)}>
-        <FontAwesome name="eye" size={25} />
-      </T>
+      <TouchableOpacity onPress={() => addTokenToBlacklist(tokenId)}>
+        <T type="muted2">
+          <FontAwesome name="eye" size={24} />
+        </T>
+      </TouchableOpacity>
     </VisibilityArea>
   );
 
   const ShowButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <T onPress={() => removeTokenFromBlacklist(tokenId)} type="muted2">
-        <FontAwesome name="eye-slash" size={25} />
-      </T>
+      <TouchableOpacity onPress={() => removeTokenFromBlacklist(tokenId)}>
+        <T type="muted2">
+          <FontAwesome name="eye-slash" size={24} />
+        </T>
+      </TouchableOpacity>
     </VisibilityArea>
   );
 

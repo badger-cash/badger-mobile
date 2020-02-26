@@ -354,13 +354,14 @@ const HomeScreen = ({
             />
             <Spacer />
             {showBlacklist && (
-              <T
-                center
+              <TouchableOpacity
                 onPress={() => setIsShowingBlacklist(!isShowingBlacklist)}
               >
-                {isShowingBlacklist ? "Hide" : "Show"} {tokenBlacklist.length}{" "}
-                hidden {tokenBlacklist.length > 1 ? "tokens" : "token"}
-              </T>
+                <T center>
+                  {isShowingBlacklist ? "Hide" : "Show"} {tokenBlacklist.length}{" "}
+                  hidden {tokenBlacklist.length > 1 ? "tokens" : "token"}
+                </T>
+              </TouchableOpacity>
             )}
             <Spacer />
             {isShowingBlacklist && (
