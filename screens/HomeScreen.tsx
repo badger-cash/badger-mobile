@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BigNumber from "bignumber.js";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
@@ -28,6 +28,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
+import { tokenBlacklistSelector } from "../data/settings/selectors";
 
 import { TokenData } from "../data/tokens/reducer";
 
@@ -93,6 +94,7 @@ const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);
   const initialLoadingDone = doneInitialLoadSelector(state, address);
   const fiatCurrency = currencySelector(state);
+  const tokenBlacklist = tokenBlacklistSelector(state);
 
   return {
     address,
@@ -102,7 +104,8 @@ const mapStateToProps = (state: FullState) => {
     spotPrices,
     fiatCurrency,
     tokensById,
-    initialLoadingDone
+    initialLoadingDone,
+    tokenBlacklist
   };
 };
 
@@ -141,8 +144,11 @@ const HomeScreen = ({
   updateSpotPrice,
   updateTokensMeta,
   updateTransactions,
-  updateUtxos
+  updateUtxos,
+  tokenBlacklist
 }: Props) => {
+  const [isShowingBlacklist, setIsShowingBlacklist] = useState(false);
+
   useEffect(() => {
     // Update UTXOs on an interval
     if (!address) return;
@@ -191,6 +197,17 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
+  const BCHFiatDisplay = useMemo(() => {
+    const BCHFiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+
+    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
+  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+
   const tokenData = useMemo(() => {
     const slpTokensDisplay = Object.keys(balances.slpTokens).map<
       [string, BigNumber]
@@ -205,6 +222,7 @@ const HomeScreen = ({
       const name = token ? token.name : "--------";
       const decimals = token ? token.decimals : null;
       const amountFormatted = formatAmount(amount, decimals);
+
       return {
         symbol,
         name,
@@ -223,18 +241,29 @@ const HomeScreen = ({
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
 
-  const BCHFiatDisplay = useMemo(() => {
-    const BCHFiatAmount = computeFiatAmount(
-      balances.satoshisAvailable,
-      spotPrices,
-      fiatCurrency,
-      "bch"
+  const blacklistSection: WalletSection[] = useMemo(() => {
+    const filteredTokens = tokenData.filter(data =>
+      tokenBlacklist.includes(data.tokenId)
     );
+    return [
+      {
+        title: "Hidden Tokens",
+        data: filteredTokens
+      }
+    ];
+  }, [tokenData, tokenBlacklist]);
 
-    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
-  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+  const curatedSection: WalletSection = useMemo(() => {
+    const filteredTokens = tokenData.filter(
+      data => !tokenBlacklist.includes(data.tokenId)
+    );
+    return {
+      title: "Simple Token Vault",
+      data: filteredTokens
+    };
+  }, [tokenData, tokenBlacklist]);
 
-  const walletSections = useMemo(() => {
+  const walletSections: WalletSection[] = useMemo(() => {
     const sectionBCH: WalletSection = {
       title: "Bitcoin Cash Wallet",
       data: [
@@ -247,12 +276,12 @@ const HomeScreen = ({
       ]
     };
 
-    const sectionSLP: WalletSection = {
-      title: "Simple Token Vault",
-      data: tokenData
-    };
+    const sectionSLP = curatedSection;
+
     return [sectionBCH, sectionSLP];
-  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+  }, [BCHFiatDisplay, balances.satoshisAvailable, curatedSection]);
+
+  const showBlacklist = tokenBlacklist.length >= 1;
 
   return (
     <SafeAreaView>
@@ -323,6 +352,42 @@ const HomeScreen = ({
               }
               keyExtractor={(item, index) => `${index}`}
             />
+            <Spacer />
+            {showBlacklist && (
+              <TouchableOpacity
+                onPress={() => setIsShowingBlacklist(!isShowingBlacklist)}
+              >
+                <T center>
+                  {isShowingBlacklist ? "Hide" : "Show"} {tokenBlacklist.length}{" "}
+                  hidden {tokenBlacklist.length > 1 ? "tokens" : "token"}
+                </T>
+              </TouchableOpacity>
+            )}
+            <Spacer />
+            {isShowingBlacklist && (
+              <SectionList
+                sections={blacklistSection}
+                renderItem={({ item }) =>
+                  item && (
+                    <CoinRow
+                      amount={item.amount}
+                      name={item.name}
+                      ticker={item.symbol}
+                      tokenId={item.tokenId}
+                      valueDisplay={item.valueDisplay}
+                      onPress={() =>
+                        navigation.navigate("WalletDetailScreen", {
+                          symbol: item.symbol,
+                          tokenId: item.tokenId
+                        })
+                      }
+                    />
+                  )
+                }
+                keyExtractor={(item, index) => `${index}`}
+              />
+            )}
+
             {!initialLoadingDone && (
               <InitialLoadCover>
                 <ActivityIndicator />

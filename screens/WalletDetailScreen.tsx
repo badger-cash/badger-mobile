@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import useBlockheight from "../hooks/useBlockheight";
 import useSimpleledgerFormat from "../hooks/useSimpleledgerFormat";
@@ -29,8 +30,14 @@ import {
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
+import { tokenBlacklistSelector } from "../data/settings/selectors";
 
 import { Transaction } from "../data/transactions/reducer";
+
+import {
+  addTokenToBlacklist,
+  removeTokenFromBlacklist
+} from "../data/settings/actions";
 
 import {
   formatAmount,
@@ -68,6 +75,15 @@ const IconImage = styled(Image)`
   overflow: hidden;
 `;
 
+const VisibilityArea = styled(View)`
+  flex-direction: row;
+  justify-content: flex-end;
+  right: 16;
+  top: 8;
+  position: absolute;
+  align-items: center;
+`;
+
 const IconArea = styled(View)`
   align-items: center;
   justify-content: center;
@@ -94,6 +110,8 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   const fiatCurrency = currencySelector(state);
   const transactionsAll = transactionsActiveAccountSelector(state);
   const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
+  const tokenBlacklist = tokenBlacklistSelector(state);
+
   const transactions = transactionsAll
     .filter(tx => {
       const txTokenId =
@@ -114,13 +132,15 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
     transactions,
     spotPrices,
     fiatCurrency,
-    isUpdatingTransactions
+    isUpdatingTransactions,
+    tokenBlacklist
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = { addTokenToBlacklist, removeTokenFromBlacklist };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
+
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
@@ -133,7 +153,10 @@ const WalletDetailScreen = ({
   spotPrices,
   fiatCurrency,
   transactions,
-  isUpdatingTransactions
+  isUpdatingTransactions,
+  tokenBlacklist,
+  addTokenToBlacklist,
+  removeTokenFromBlacklist
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
@@ -172,9 +195,11 @@ const WalletDetailScreen = ({
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
+  let isBlacklisted = false;
 
   if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
+    isBlacklisted = tokenBlacklist.includes(tokenId);
   } else {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
@@ -197,6 +222,28 @@ const WalletDetailScreen = ({
       ? null
       : amountDecimal;
 
+  type TokenProps = { tokenId: string };
+
+  const HideButton = ({ tokenId }: TokenProps) => (
+    <VisibilityArea>
+      <TouchableOpacity onPress={() => addTokenToBlacklist(tokenId)}>
+        <T type="muted2">
+          <FontAwesome name="eye" size={24} />
+        </T>
+      </TouchableOpacity>
+    </VisibilityArea>
+  );
+
+  const ShowButton = ({ tokenId }: TokenProps) => (
+    <VisibilityArea>
+      <TouchableOpacity onPress={() => removeTokenFromBlacklist(tokenId)}>
+        <T type="muted2">
+          <FontAwesome name="eye-slash" size={24} />
+        </T>
+      </TouchableOpacity>
+    </VisibilityArea>
+  );
+
   return (
     <SafeAreaView>
       <NavigationEvents
@@ -210,6 +257,10 @@ const WalletDetailScreen = ({
         }}
       >
         <View>
+          <Spacer small />
+          {tokenId && isBlacklisted && <ShowButton tokenId={tokenId} />}
+          {tokenId && !isBlacklisted && <HideButton tokenId={tokenId} />}
+
           <Spacer small />
           <H1 center>{name}</H1>
           {tokenId && (
@@ -232,7 +283,9 @@ const WalletDetailScreen = ({
               </T>
             </>
           )}
+
           <Spacer small />
+
           <IconArea>
             <IconImage source={imageSource} />
           </IconArea>
