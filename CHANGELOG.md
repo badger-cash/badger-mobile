@@ -1,5 +1,9 @@
 # Badger Wallet - Changelog
 
+## 0.14.1
+
+- Optionally hide specific SLP tokens from the main screen
+
 ## 0.14.0
 
 - Now in TypeScript, the code is much more maintainable now
