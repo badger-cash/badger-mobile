@@ -619,13 +619,13 @@
 			baseConfigurationReference = 03D78C19DA00365D64908E00 /* Pods-badgerMobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage-fits;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-fits";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 299HJ3G3BP;
 				INFOPLIST_FILE = badgerMobile/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.14.0;
+				MARKETING_VERSION = 0.14.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -642,12 +642,12 @@
 			baseConfigurationReference = FDFDC28AB053EF1C9457DCEC /* Pods-badgerMobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage-fits;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-fits";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 299HJ3G3BP;
 				INFOPLIST_FILE = badgerMobile/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.14.0;
+				MARKETING_VERSION = 0.14.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
