@@ -1,4 +1,7 @@
-import { currencyDecimalMap, CurrencyCode } from "../../utils/currency-utils";
+import { AnyAction } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+
+import { CurrencyCode } from "../../utils/currency-utils";
 
 import { SLP } from "../../utils/slp-sdk-utils";
 
@@ -8,6 +11,7 @@ import {
   UPDATE_BCH_SPOT_PRICE_FAIL,
   SET_FIAT_CURRENCY
 } from "./constants";
+import { FullState } from "../store";
 
 const setFiatCurrency = (currencyCode: string) => ({
   type: SET_FIAT_CURRENCY,
@@ -19,33 +23,58 @@ const updateSpotPriceStart = () => ({
   payload: null
 });
 
-const updateSpotPriceSuccess = (currency: CurrencyCode, rate: number) => ({
+const updateSpotPriceSuccess = (
+  currencyCode: CurrencyCode,
+  rate: number,
+  timestamp: number
+) => ({
   type: UPDATE_BCH_SPOT_PRICE_SUCCESS,
   payload: {
-    currency,
-    rate
+    currency: currencyCode,
+    rate,
+    timestamp
   }
 });
 
-const updateSpotPriceFail = () => ({
+const updateSpotPriceFail = (
+  currencyCode: CurrencyCode,
+  timestamp: number
+) => ({
   type: UPDATE_BCH_SPOT_PRICE_FAIL,
-  payload: null
+  payload: {
+    currency: currencyCode,
+    timestamp
+  }
 });
 
 // For now assume BCH
 const updateSpotPrice = (currencyCode: CurrencyCode) => {
-  return async (dispatch: Function, getState: Function) => {
+  return async (
+    dispatch: ThunkDispatch<FullState, null, AnyAction>,
+    getState: () => FullState
+  ) => {
     dispatch(updateSpotPriceStart());
+    try {
+      const rate = await SLP.Price.current(currencyCode);
 
-    const rate = await SLP.Price.current(currencyCode);
+      // API always returns as if currency has 2 decimals, even if it has none such as the JPY
+      const decimalAdjustedRate = rate / Math.pow(10, 2);
+      const now = +new Date();
+      // const decimalAdjustedRate =
+      //   rate / Math.pow(10, currencyDecimalMap[currencyCode]);
 
-    // API always returns as if currency has 2 decimals, even if it has none such as the JPY
-    const decimalAdjustedRate = rate / Math.pow(10, 2);
-    // const decimalAdjustedRate =
-    //   rate / Math.pow(10, currencyDecimalMap[currencyCode]);
-
-    dispatch(updateSpotPriceSuccess(currencyCode, decimalAdjustedRate));
+      dispatch(updateSpotPriceSuccess(currencyCode, decimalAdjustedRate, now));
+    } catch {
+      const now = +new Date();
+      dispatch(updateSpotPriceFail(currencyCode, now));
+    }
   };
 };
 
-export { updateSpotPrice, setFiatCurrency };
+export {
+  updateSpotPrice,
+  updateSpotPriceSuccess,
+  updateSpotPriceStart,
+  updateSpotPriceFail,
+  setFiatCurrency
+};

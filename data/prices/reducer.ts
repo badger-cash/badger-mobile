@@ -28,7 +28,7 @@ export const initialState: State = {
   currencySelected: "USD",
   spot: {
     bch: {
-      usd: {
+      USD: {
         rate: null,
         lastUpdated: null
       }
@@ -40,13 +40,14 @@ const updateSpotRate = (
   state: State,
   {
     currency,
-    rate
+    rate,
+    timestamp
   }: {
     currency: CurrencyCode;
-    rate: number;
+    rate: number | null;
+    timestamp: number;
   }
 ) => {
-  const now = +new Date();
   return {
     ...state,
     spot: {
@@ -55,7 +56,7 @@ const updateSpotRate = (
         ...state.spot.bch,
         [currency]: {
           rate,
-          lastUpdated: now
+          lastUpdated: timestamp
         }
       }
     }
@@ -78,7 +79,11 @@ const prices = (state = initialState, action: Action) => {
       return updateSpotRate(state, action.payload);
 
     case UPDATE_BCH_SPOT_PRICE_FAIL:
-      return state;
+      return updateSpotRate(state, {
+        currency: action.payload.currency,
+        rate: null,
+        timestamp: action.payload.timestamp
+      });
 
     case SET_FIAT_CURRENCY:
       return updateFiatCurrency(state, action.payload);
