@@ -19,7 +19,7 @@ import { T, H1, Spacer } from "../atoms";
 import { CoinRowHeader, CoinRow } from "../components";
 
 import { FullState } from "../data/store";
-import { balancesSelector, Balances } from "../data/selectors";
+import { balancesSelector } from "../data/selectors";
 import {
   getAddressSelector,
   getAddressSlpSelector,
@@ -28,9 +28,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
-import { tokenBlacklistSelector } from "../data/settings/selectors";
-
-import { TokenData } from "../data/tokens/reducer";
+import { tokenFavoritesSelector } from "../data/settings/selectors";
 
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
@@ -94,7 +92,7 @@ const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);
   const initialLoadingDone = doneInitialLoadSelector(state, address);
   const fiatCurrency = currencySelector(state);
-  const tokenBlacklist = tokenBlacklistSelector(state);
+  const tokenFavorites = tokenFavoritesSelector(state);
 
   return {
     address,
@@ -105,7 +103,7 @@ const mapStateToProps = (state: FullState) => {
     fiatCurrency,
     tokensById,
     initialLoadingDone,
-    tokenBlacklist
+    tokenFavorites
   };
 };
 
@@ -145,9 +143,9 @@ const HomeScreen = ({
   updateTokensMeta,
   updateTransactions,
   updateUtxos,
-  tokenBlacklist
+  tokenFavorites
 }: Props) => {
-  const [isShowingBlacklist, setIsShowingBlacklist] = useState(false);
+  const [isShowingFavorites, setIsShowingFavorites] = useState(false);
 
   useEffect(() => {
     // Update UTXOs on an interval
@@ -241,27 +239,25 @@ const HomeScreen = ({
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
 
-  const blacklistSection: WalletSection[] = useMemo(() => {
-    const filteredTokens = tokenData.filter(data =>
-      tokenBlacklist.includes(data.tokenId)
-    );
-    return [
-      {
-        title: "Hidden Tokens",
-        data: filteredTokens
-      }
-    ];
-  }, [tokenData, tokenBlacklist]);
-
-  const curatedSection: WalletSection = useMemo(() => {
+  const favoriteTokensSection: WalletSection = useMemo(() => {
     const filteredTokens = tokenData.filter(
-      data => !tokenBlacklist.includes(data.tokenId)
+      data => tokenFavorites && tokenFavorites.includes(data.tokenId)
     );
     return {
-      title: "Simple Token Vault",
+      title: "SLP Tokens - Favorites",
       data: filteredTokens
     };
-  }, [tokenData, tokenBlacklist]);
+  }, [tokenData, tokenFavorites]);
+
+  const tokensSection: WalletSection = useMemo(() => {
+    const favoriteTokens = tokenData.filter(data =>
+      tokenFavorites ? !tokenFavorites.includes(data.tokenId) : true
+    );
+    return {
+      title: "SLP Tokens",
+      data: favoriteTokens
+    };
+  }, [tokenData, tokenFavorites]);
 
   const walletSections: WalletSection[] = useMemo(() => {
     const sectionBCH: WalletSection = {
@@ -276,12 +272,15 @@ const HomeScreen = ({
       ]
     };
 
-    const sectionSLP = curatedSection;
-
-    return [sectionBCH, sectionSLP];
-  }, [BCHFiatDisplay, balances.satoshisAvailable, curatedSection]);
-
-  const showBlacklist = tokenBlacklist.length >= 1;
+    return [sectionBCH, favoriteTokensSection, tokensSection].filter(
+      target => target && target.data.length
+    );
+  }, [
+    BCHFiatDisplay,
+    balances.satoshisAvailable,
+    favoriteTokensSection,
+    tokensSection
+  ]);
 
   return (
     <SafeAreaView>
@@ -353,41 +352,6 @@ const HomeScreen = ({
               keyExtractor={(item, index) => `${index}`}
             />
             <Spacer />
-            {showBlacklist && (
-              <TouchableOpacity
-                onPress={() => setIsShowingBlacklist(!isShowingBlacklist)}
-              >
-                <T center>
-                  {isShowingBlacklist ? "Hide" : "Show"} {tokenBlacklist.length}{" "}
-                  hidden {tokenBlacklist.length > 1 ? "tokens" : "token"}
-                </T>
-              </TouchableOpacity>
-            )}
-            <Spacer />
-            {isShowingBlacklist && (
-              <SectionList
-                sections={blacklistSection}
-                renderItem={({ item }) =>
-                  item && (
-                    <CoinRow
-                      amount={item.amount}
-                      name={item.name}
-                      ticker={item.symbol}
-                      tokenId={item.tokenId}
-                      valueDisplay={item.valueDisplay}
-                      onPress={() =>
-                        navigation.navigate("WalletDetailScreen", {
-                          symbol: item.symbol,
-                          tokenId: item.tokenId
-                        })
-                      }
-                    />
-                  )
-                }
-                keyExtractor={(item, index) => `${index}`}
-              />
-            )}
-
             {!initialLoadingDone && (
               <InitialLoadCover>
                 <ActivityIndicator />

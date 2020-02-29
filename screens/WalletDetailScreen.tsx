@@ -30,13 +30,13 @@ import {
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { isUpdatingTransactionsSelector } from "../data/transactions/selectors";
-import { tokenBlacklistSelector } from "../data/settings/selectors";
+import { tokenFavoritesSelector } from "../data/settings/selectors";
 
 import { Transaction } from "../data/transactions/reducer";
 
 import {
-  addTokenToBlacklist,
-  removeTokenFromBlacklist
+  addTokenToFavorites,
+  removeTokenFromFavorites
 } from "../data/settings/actions";
 
 import {
@@ -110,7 +110,7 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
   const fiatCurrency = currencySelector(state);
   const transactionsAll = transactionsActiveAccountSelector(state);
   const isUpdatingTransactions = isUpdatingTransactionsSelector(state);
-  const tokenBlacklist = tokenBlacklistSelector(state);
+  const tokenFavorites = tokenFavoritesSelector(state);
 
   const transactions = transactionsAll
     .filter(tx => {
@@ -133,11 +133,11 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
     spotPrices,
     fiatCurrency,
     isUpdatingTransactions,
-    tokenBlacklist
+    tokenFavorites
   };
 };
 
-const mapDispatchToProps = { addTokenToBlacklist, removeTokenFromBlacklist };
+const mapDispatchToProps = { addTokenToFavorites, removeTokenFromFavorites };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
@@ -154,9 +154,9 @@ const WalletDetailScreen = ({
   fiatCurrency,
   transactions,
   isUpdatingTransactions,
-  tokenBlacklist,
-  addTokenToBlacklist,
-  removeTokenFromBlacklist
+  tokenFavorites,
+  addTokenToFavorites,
+  removeTokenFromFavorites
 }: Props) => {
   const { tokenId } = navigation.state.params;
   const token = tokenId && tokensById[tokenId];
@@ -195,11 +195,11 @@ const WalletDetailScreen = ({
   const imageSource = useMemo(() => getTokenImage(tokenId), [tokenId]);
 
   let fiatAmount = null;
-  let isBlacklisted = false;
+  let isFavorite = false;
 
   if (tokenId) {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, tokenId);
-    isBlacklisted = tokenBlacklist.includes(tokenId);
+    isFavorite = tokenFavorites ? tokenFavorites.includes(tokenId) : false;
   } else {
     fiatAmount = computeFiatAmount(amount, spotPrices, fiatCurrency, "bch");
   }
@@ -226,9 +226,9 @@ const WalletDetailScreen = ({
 
   const HideButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <TouchableOpacity onPress={() => addTokenToBlacklist(tokenId)}>
+      <TouchableOpacity onPress={() => addTokenToFavorites(tokenId)}>
         <T type="muted2">
-          <FontAwesome name="eye" size={24} />
+          <FontAwesome name="heart-o" size={24} />
         </T>
       </TouchableOpacity>
     </VisibilityArea>
@@ -236,9 +236,9 @@ const WalletDetailScreen = ({
 
   const ShowButton = ({ tokenId }: TokenProps) => (
     <VisibilityArea>
-      <TouchableOpacity onPress={() => removeTokenFromBlacklist(tokenId)}>
-        <T type="muted2">
-          <FontAwesome name="eye-slash" size={24} />
+      <TouchableOpacity onPress={() => removeTokenFromFavorites(tokenId)}>
+        <T type="primary">
+          <FontAwesome name="heart" size={24} />
         </T>
       </TouchableOpacity>
     </VisibilityArea>
@@ -258,8 +258,8 @@ const WalletDetailScreen = ({
       >
         <View>
           <Spacer small />
-          {tokenId && isBlacklisted && <ShowButton tokenId={tokenId} />}
-          {tokenId && !isBlacklisted && <HideButton tokenId={tokenId} />}
+          {tokenId && isFavorite && <ShowButton tokenId={tokenId} />}
+          {tokenId && !isFavorite && <HideButton tokenId={tokenId} />}
 
           <Spacer small />
           <H1 center>{name}</H1>

@@ -1,6 +1,6 @@
 import {
-  REMOVE_TOKEN_FROM_BLACKLIST,
-  ADD_TOKEN_TO_BLACKLIST
+  REMOVE_TOKEN_FROM_FAVORITES,
+  ADD_TOKEN_TO_FAVORITES
 } from "./constants";
 
 type Action = {
@@ -9,45 +9,49 @@ type Action = {
 };
 
 export interface SettingsState {
-  tokenBlacklist: string[];
+  tokenFavorites: string[] | undefined;
 }
 export const initialState: SettingsState = {
-  tokenBlacklist: []
+  tokenFavorites: []
 };
 
-const addTokenToBlacklist = (
+const addTokenToFavorites = (
   state: SettingsState,
   tokenId: string
 ): SettingsState => {
-  const { tokenBlacklist } = state;
-  const updatedBlacklist = [...new Set([...tokenBlacklist, tokenId])];
+  const { tokenFavorites } = state;
+  const updatedFavorites = tokenFavorites
+    ? [...new Set([...tokenFavorites, tokenId])]
+    : [tokenId];
 
   return {
     ...state,
-    tokenBlacklist: updatedBlacklist
+    tokenFavorites: updatedFavorites
   };
 };
 
-const removeTokenFromBlacklist = (
+const removeTokenFromFavorites = (
   state: SettingsState,
   tokenId: string
 ): SettingsState => {
-  const { tokenBlacklist } = state;
-  const updatedBlacklist = tokenBlacklist.filter(x => x !== tokenId);
+  const { tokenFavorites } = state;
+  const updatedFavorites = tokenFavorites
+    ? tokenFavorites.filter(x => x !== tokenId)
+    : [];
 
   return {
     ...state,
-    tokenBlacklist: updatedBlacklist
+    tokenFavorites: updatedFavorites
   };
 };
 
 const settings = (state = initialState, action: Action): SettingsState => {
   switch (action.type) {
-    case ADD_TOKEN_TO_BLACKLIST:
-      return addTokenToBlacklist(state, action.payload);
+    case ADD_TOKEN_TO_FAVORITES:
+      return addTokenToFavorites(state, action.payload);
 
-    case REMOVE_TOKEN_FROM_BLACKLIST:
-      return removeTokenFromBlacklist(state, action.payload);
+    case REMOVE_TOKEN_FROM_FAVORITES:
+      return removeTokenFromFavorites(state, action.payload);
 
     default:
       return state;

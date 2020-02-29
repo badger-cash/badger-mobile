@@ -1,16 +1,16 @@
 import {
-  REMOVE_TOKEN_FROM_BLACKLIST,
-  ADD_TOKEN_TO_BLACKLIST
+  REMOVE_TOKEN_FROM_FAVORITES,
+  ADD_TOKEN_TO_FAVORITES
 } from "./constants";
 
-const addTokenToBlacklist = (tokenId: string) => ({
-  type: ADD_TOKEN_TO_BLACKLIST,
+const addTokenToFavorites = (tokenId: string) => ({
+  type: ADD_TOKEN_TO_FAVORITES,
   payload: tokenId
 });
 
-const removeTokenFromBlacklist = (tokenId: string) => ({
-  type: REMOVE_TOKEN_FROM_BLACKLIST,
+const removeTokenFromFavorites = (tokenId: string) => ({
+  type: REMOVE_TOKEN_FROM_FAVORITES,
   payload: tokenId
 });
 
-export { addTokenToBlacklist, removeTokenFromBlacklist };
+export { addTokenToFavorites, removeTokenFromFavorites };

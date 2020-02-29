@@ -3,8 +3,8 @@ import { FullState } from "../store";
 
 const settingsSelector = (state: FullState) => state.settings;
 
-const tokenBlacklistSelector = createSelector(settingsSelector, settings => {
-  return settings.tokenBlacklist;
+const tokenFavoritesSelector = createSelector(settingsSelector, settings => {
+  return settings.tokenFavorites;
 });
 
-export { settingsSelector, tokenBlacklistSelector };
+export { settingsSelector, tokenFavoritesSelector };

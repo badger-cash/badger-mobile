@@ -14,7 +14,7 @@ import {
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
-import { currencySymbolMap, CurrencyCode } from "../utils/currency-utils";
+import { currencySymbolMap } from "../utils/currency-utils";
 import { currencySelector } from "../data/prices/selectors";
 
 import { T, Spacer } from "../atoms";
