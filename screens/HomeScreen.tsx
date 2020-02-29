@@ -237,14 +237,17 @@ const HomeScreen = ({
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
 
-  const favoriteTokensSection: WalletSection = useMemo(() => {
+  const favoriteTokensSection: WalletSection | null = useMemo(() => {
     const filteredTokens = tokenData.filter(
       data => tokenFavorites && tokenFavorites.includes(data.tokenId)
     );
-    return {
-      title: "SLP Tokens - Favorites",
-      data: filteredTokens
-    };
+
+    return filteredTokens.length
+      ? {
+          title: "SLP Tokens - Favorites",
+          data: filteredTokens
+        }
+      : null;
   }, [tokenData, tokenFavorites]);
 
   const tokensSection: WalletSection = useMemo(() => {
@@ -271,8 +274,8 @@ const HomeScreen = ({
     };
 
     return [sectionBCH, favoriteTokensSection, tokensSection].filter(
-      target => target && target.data.length
-    );
+      Boolean
+    ) as WalletSection[];
   }, [
     BCHFiatDisplay,
     balances.satoshisAvailable,
