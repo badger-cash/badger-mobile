@@ -145,8 +145,6 @@ const HomeScreen = ({
   updateUtxos,
   tokenFavorites
 }: Props) => {
-  const [isShowingFavorites, setIsShowingFavorites] = useState(false);
-
   useEffect(() => {
     // Update UTXOs on an interval
     if (!address) return;
