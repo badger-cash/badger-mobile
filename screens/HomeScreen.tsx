@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BigNumber from "bignumber.js";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
@@ -19,7 +19,7 @@ import { T, H1, Spacer } from "../atoms";
 import { CoinRowHeader, CoinRow } from "../components";
 
 import { FullState } from "../data/store";
-import { balancesSelector, Balances } from "../data/selectors";
+import { balancesSelector } from "../data/selectors";
 import {
   getAddressSelector,
   getAddressSlpSelector,
@@ -28,8 +28,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { doneInitialLoadSelector } from "../data/utxos/selectors";
-
-import { TokenData } from "../data/tokens/reducer";
+import { tokenFavoritesSelector } from "../data/settings/selectors";
 
 import { updateTransactions } from "../data/transactions/actions";
 import { updateUtxos } from "../data/utxos/actions";
@@ -93,6 +92,7 @@ const mapStateToProps = (state: FullState) => {
   const seedViewed = getSeedViewedSelector(state);
   const initialLoadingDone = doneInitialLoadSelector(state, address);
   const fiatCurrency = currencySelector(state);
+  const tokenFavorites = tokenFavoritesSelector(state);
 
   return {
     address,
@@ -102,7 +102,8 @@ const mapStateToProps = (state: FullState) => {
     spotPrices,
     fiatCurrency,
     tokensById,
-    initialLoadingDone
+    initialLoadingDone,
+    tokenFavorites
   };
 };
 
@@ -141,7 +142,8 @@ const HomeScreen = ({
   updateSpotPrice,
   updateTokensMeta,
   updateTransactions,
-  updateUtxos
+  updateUtxos,
+  tokenFavorites
 }: Props) => {
   useEffect(() => {
     // Update UTXOs on an interval
@@ -191,6 +193,17 @@ const HomeScreen = ({
     return () => clearInterval(spotPriceInterval);
   }, [fiatCurrency, updateSpotPrice]);
 
+  const BCHFiatDisplay = useMemo(() => {
+    const BCHFiatAmount = computeFiatAmount(
+      balances.satoshisAvailable,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+
+    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
+  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+
   const tokenData = useMemo(() => {
     const slpTokensDisplay = Object.keys(balances.slpTokens).map<
       [string, BigNumber]
@@ -205,6 +218,7 @@ const HomeScreen = ({
       const name = token ? token.name : "--------";
       const decimals = token ? token.decimals : null;
       const amountFormatted = formatAmount(amount, decimals);
+
       return {
         symbol,
         name,
@@ -223,18 +237,30 @@ const HomeScreen = ({
     return tokensSorted;
   }, [balances.slpTokens, tokensById]);
 
-  const BCHFiatDisplay = useMemo(() => {
-    const BCHFiatAmount = computeFiatAmount(
-      balances.satoshisAvailable,
-      spotPrices,
-      fiatCurrency,
-      "bch"
+  const favoriteTokensSection: WalletSection | null = useMemo(() => {
+    const filteredTokens = tokenData.filter(
+      data => tokenFavorites && tokenFavorites.includes(data.tokenId)
     );
 
-    return formatFiatAmount(BCHFiatAmount, fiatCurrency, "bch");
-  }, [balances.satoshisAvailable, fiatCurrency, spotPrices]);
+    return filteredTokens.length
+      ? {
+          title: "SLP Tokens - Favorites",
+          data: filteredTokens
+        }
+      : null;
+  }, [tokenData, tokenFavorites]);
 
-  const walletSections = useMemo(() => {
+  const tokensSection: WalletSection = useMemo(() => {
+    const favoriteTokens = tokenData.filter(data =>
+      tokenFavorites ? !tokenFavorites.includes(data.tokenId) : true
+    );
+    return {
+      title: "SLP Tokens",
+      data: favoriteTokens
+    };
+  }, [tokenData, tokenFavorites]);
+
+  const walletSections: WalletSection[] = useMemo(() => {
     const sectionBCH: WalletSection = {
       title: "Bitcoin Cash Wallet",
       data: [
@@ -247,12 +273,15 @@ const HomeScreen = ({
       ]
     };
 
-    const sectionSLP: WalletSection = {
-      title: "Simple Token Vault",
-      data: tokenData
-    };
-    return [sectionBCH, sectionSLP];
-  }, [BCHFiatDisplay, balances.satoshisAvailable, tokenData]);
+    return [sectionBCH, favoriteTokensSection, tokensSection].filter(
+      Boolean
+    ) as WalletSection[];
+  }, [
+    BCHFiatDisplay,
+    balances.satoshisAvailable,
+    favoriteTokensSection,
+    tokensSection
+  ]);
 
   return (
     <SafeAreaView>
@@ -323,6 +352,7 @@ const HomeScreen = ({
               }
               keyExtractor={(item, index) => `${index}`}
             />
+            <Spacer />
             {!initialLoadingDone && (
               <InitialLoadCover>
                 <ActivityIndicator />
