@@ -14,7 +14,7 @@ import {
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
-import { currencySymbolMap, CurrencyCode } from "../utils/currency-utils";
+import { currencySymbolMap } from "../utils/currency-utils";
 import { currencySelector } from "../data/prices/selectors";
 
 import { T, Spacer } from "../atoms";
@@ -176,7 +176,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer small />
         <T center size="small" type="muted2">
           {/* Version {packageJson.version} */}
-          Version 0.14.1
+          Version 0.14.2
         </T>
         <Spacer small />
       </StyledScrollView>
