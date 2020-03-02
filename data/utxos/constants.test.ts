@@ -4,7 +4,7 @@ import {
   UPDATE_UTXO_FAIL
 } from "./constants";
 
-describe("UTXO::constants", () => {
+describe("utxos::constants", () => {
   it("UPDATE_UTXO_START defined", () => {
     expect(UPDATE_UTXO_START).toBeDefined();
   });

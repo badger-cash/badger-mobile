@@ -9,7 +9,7 @@ import { UTXO } from "./reducer";
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-describe("UTXO::action creators", () => {
+describe("utxos::actions::creators", () => {
   it("should create action for - UPDATE_UTXO_SUCCESS", () => {
     const address = "testAddress";
     const utxos = [] as UTXO[];
@@ -33,7 +33,7 @@ describe("UTXO::action creators", () => {
   });
 });
 
-describe("UTXO::asyncActions", () => {
+describe("utxos::actions::async", () => {
   afterEach(() => {
     fetchMock.restore();
   });

@@ -1,0 +1,1 @@
+describe("transactions::constants", () => null);
