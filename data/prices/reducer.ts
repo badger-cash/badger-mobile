@@ -1,3 +1,4 @@
+import { AnyAction } from "redux";
 import {
   UPDATE_BCH_SPOT_PRICE_START,
   UPDATE_BCH_SPOT_PRICE_SUCCESS,
@@ -17,11 +18,6 @@ export type State = {
       };
     };
   };
-};
-
-type Action = {
-  type: string;
-  payload: any;
 };
 
 export const initialState: State = {
@@ -70,7 +66,7 @@ const updateFiatCurrency = (state: State, currencyCode: CurrencyCode) => {
   };
 };
 
-const prices = (state = initialState, action: Action) => {
+const prices = (state = initialState, action: AnyAction) => {
   switch (action.type) {
     case UPDATE_BCH_SPOT_PRICE_START:
       return state;

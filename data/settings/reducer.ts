@@ -1,12 +1,8 @@
+import { AnyAction } from "redux";
 import {
   REMOVE_TOKEN_FROM_FAVORITES,
   ADD_TOKEN_TO_FAVORITES
 } from "./constants";
-
-type Action = {
-  type: string;
-  payload: any;
-};
 
 export interface SettingsState {
   tokenFavorites: string[] | undefined;
@@ -45,7 +41,7 @@ const removeTokenFromFavorites = (
   };
 };
 
-const settings = (state = initialState, action: Action): SettingsState => {
+const settings = (state = initialState, action: AnyAction): SettingsState => {
   switch (action.type) {
     case ADD_TOKEN_TO_FAVORITES:
       return addTokenToFavorites(state, action.payload);

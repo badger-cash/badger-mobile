@@ -39,30 +39,4 @@ describe("utxos::actions::async", () => {
   });
 
   it.todo("creates UPDATE_UTXO_SUCCESS when fetching UTXOS completes");
-  //, () => {
-
-  // TODO
-  // fetchMock.getOnce("/todos", {
-  //   body: { todos: ["do something"] },
-  //   headers: { "content-type": "application/json" }
-  // });
-  // const expectedActions = [
-  //   { type: actionTypes.UPDATE_UTXO_START },
-  //   {
-  //     type: actionTypes.UPDATE_UTXO_SUCCESS,
-  //     body: { todos: ["do something"] }
-  //   }
-  // ];
-  // return store
-  //   .dispatch(
-  //     actions.updateUtxos(
-  //       "bitcoincash:fakeaddress",
-  //       "simpleledger:fakeaddress"
-  //     )
-  //   )
-  //   .then(() => {
-  //     // return of async actions
-  //     expect(store.getActions()).toEqual(expectedActions);
-  //   });
-  // });
 });

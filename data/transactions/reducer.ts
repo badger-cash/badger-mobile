@@ -1,3 +1,5 @@
+import { AnyAction } from "redux";
+
 import {
   GET_TRANSACTIONS_START,
   GET_TRANSACTIONS_SUCCESS,
@@ -24,11 +26,6 @@ export type Transaction = {
   time: number;
   block: number;
   networkId: "mainnet" | "testnet";
-};
-
-type Action = {
-  type: string;
-  payload: any;
 };
 
 export type State = {
@@ -88,7 +85,10 @@ const addTransactions = (
   };
 };
 
-const transactions = (state: State = initialState, action: Action): State => {
+const transactions = (
+  state: State = initialState,
+  action: AnyAction
+): State => {
   switch (action.type) {
     case GET_TRANSACTIONS_START:
       return {

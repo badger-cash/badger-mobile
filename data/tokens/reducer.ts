@@ -1,3 +1,5 @@
+import { AnyAction } from "redux";
+
 import {
   UPDATE_TOKENS_META_START,
   UPDATE_TOKENS_META_SUCCESS,
@@ -13,11 +15,6 @@ export type TokenData = {
   protocolData?: {
     baton: boolean;
   };
-};
-
-type Action = {
-  type: string;
-  payload: any;
 };
 
 export type State = {
@@ -52,7 +49,7 @@ const updateTokens = (state: State, tokens: TokenData[]) => {
   };
 };
 
-const tokensReducer = (state = initialState, action: Action) => {
+const tokensReducer = (state = initialState, action: AnyAction) => {
   switch (action.type) {
     case UPDATE_TOKENS_META_START:
       return {

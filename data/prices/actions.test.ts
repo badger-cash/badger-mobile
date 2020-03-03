@@ -1,7 +1,6 @@
 import { AnyAction } from "redux";
 import thunk, { ThunkDispatch } from "redux-thunk";
 import configureMockStore from "redux-mock-store";
-import fetchMock from "fetch-mock";
 
 import * as actions from "./actions";
 import * as actionTypes from "./constants";
@@ -56,14 +55,15 @@ describe("prices::actions", () => {
 
   describe("prices::actions async", () => {
     beforeEach(() => {
-      // Todo - Proper mock the fetching, but price endpoint uses axios, not fetch.
-      fetchMock.restore();
+      // Todo - setup the price API mock
     });
 
     it("fetches and passes on the new price", async () => {
-      fetchMock.getOnce(`https://index-api.bitcoin.com/api/v0/cash/price/chf`, {
-        data: { price: 500000 }
-      });
+      // Hits live price API currently, so this is an integration test.
+
+      // fetchMock.getOnce(`https://index-api.bitcoin.com/api/v0/cash/price/chf`, {
+      //   data: { price: 500000 }
+      // });
       const expectedActions = [
         { type: actionTypes.UPDATE_BCH_SPOT_PRICE_START },
         {

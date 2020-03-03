@@ -1,3 +1,4 @@
+import { AnyAction } from "redux";
 import BigNumber from "bignumber.js";
 
 import {
@@ -27,11 +28,6 @@ export type UTXO = {
   spendable: boolean;
   address: string;
   keypair?: ECPair;
-};
-
-type Action = {
-  type: string;
-  payload: any;
 };
 
 export type State = {
@@ -84,7 +80,7 @@ const addUtxos = (
   return nextState;
 };
 
-const utxos = (state: State = initialState, action: Action): State => {
+const utxos = (state: State = initialState, action: AnyAction): State => {
   switch (action.type) {
     case UPDATE_UTXO_START:
       return {
