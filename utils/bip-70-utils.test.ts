@@ -1,1 +1,3 @@
-describe("bip-70-utils", () => null);
+describe("bip-70-utils", () => {
+  it.todo("to complete");
+});
