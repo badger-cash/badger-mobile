@@ -48,9 +48,11 @@ const getAddressSlpSelector = createSelector(activeAccountSelector, account => {
 const getSeedViewedSelector = createSelector(activeAccountSelector, account => {
   return account && account.seedViewed;
 });
+
 export {
   activeAccountIdSelector,
   activeAccountSelector,
+  accountsByIdSelector,
   getAddressSelector,
   getAddressSlpSelector,
   getKeypairSelector,

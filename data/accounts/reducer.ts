@@ -72,6 +72,7 @@ const addAccount = (
 
   const existingAcounts = state.allIds;
 
+  // TODO - Investigate this early-exit, may not be needed anymore.
   if (existingAcounts.includes(address)) {
     return {
       ...state,
@@ -124,7 +125,6 @@ const setSeedViewed = (
     ...state,
     byId: {
       ...state.byId,
-
       [address]: updatedAccount
     }
   };
