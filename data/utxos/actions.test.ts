@@ -10,6 +10,16 @@ const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 describe("utxos::actions::creators", () => {
+  it("should create action for - UPDATE_UTXO_SUCCESS_START", () => {
+    const address = "testAddress";
+
+    const expectedAction = {
+      type: actionTypes.UPDATE_UTXO_START,
+      payload: null
+    };
+    expect(actions.updateUtxoStart()).toEqual(expectedAction);
+  });
+
   it("should create action for - UPDATE_UTXO_SUCCESS", () => {
     const address = "testAddress";
     const utxos = [] as UTXO[];

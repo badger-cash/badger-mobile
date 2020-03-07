@@ -26,11 +26,16 @@ const getTransactionsStart = () => ({
   payload: null
 });
 
-const getTransactionsSuccess = (transactions: any[], address: string) => ({
+const getTransactionsSuccess = (
+  transactions: Transaction[],
+  address: string,
+  timestamp: number
+) => ({
   type: GET_TRANSACTIONS_SUCCESS,
   payload: {
     transactions,
-    address
+    address,
+    timestamp
   }
 });
 
@@ -345,8 +350,17 @@ const updateTransactions = (address: string, addressSlp: string) => {
       ...formattedTransactionsSLP
     ];
 
-    dispatch(getTransactionsSuccess(formattedTransactionsNew, address));
+    const updateTime = +new Date();
+
+    dispatch(
+      getTransactionsSuccess(formattedTransactionsNew, address, updateTime)
+    );
   };
 };
 
-export { updateTransactions };
+export {
+  updateTransactions,
+  getTransactionsStart,
+  getTransactionsFail,
+  getTransactionsSuccess
+};

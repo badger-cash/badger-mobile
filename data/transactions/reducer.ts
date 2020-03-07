@@ -53,9 +53,10 @@ const addTransactions = (
   payload: {
     transactions: Transaction[];
     address: string;
+    timestamp: number;
   }
 ) => {
-  const { transactions, address } = payload;
+  const { transactions, address, timestamp } = payload;
 
   const transactionsById = transactions.reduce((acc, tx) => {
     return {
@@ -79,9 +80,9 @@ const addTransactions = (
       ...state.byAccount,
       [address]: [...nextAccountTxs]
     },
-    allIds: [...state.allIds, ...txIds],
+    allIds: [...new Set([...state.allIds, ...txIds])],
     updating: false,
-    lastUpdate: +new Date()
+    lastUpdate: timestamp
   };
 };
 

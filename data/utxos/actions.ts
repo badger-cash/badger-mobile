@@ -181,4 +181,4 @@ const updateUtxos = (address: string, addressSlp: string) => {
   };
 };
 
-export { updateUtxos, updateUtxoSuccess, updateUtxoFail };
+export { updateUtxos, updateUtxoStart, updateUtxoSuccess, updateUtxoFail };
