@@ -7,6 +7,7 @@ import {
 } from "./currency-utils";
 
 import { SLP } from "./slp-sdk-utils";
+import { getSlpTransactions } from "../api/rest.bitcoin";
 
 // Minimal interface for what the app needs.
 // Reference the BitDB docs to access fields not listed here.
@@ -109,67 +110,18 @@ const getHistoricalSlpTransactions = async (
   addressSlp: string,
   latestBlock: number
 ): Promise<ResultSlpDB[]> => {
-  if (!address) {
+  if (!address || !addressSlp) {
     return [] as ResultSlpDB[];
   }
-  const query = {
-    v: 3,
-    q: {
-      find: {
-        db: ["c", "u"],
-        $query: {
-          $or: [
-            {
-              "in.e.a": address.slice(12)
-            },
-            {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
-            },
-            {
-              "in.e.a": SLP.Address.toSLPAddress(addressSlp)
-            },
-            {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(addressSlp)
-            }
-          ],
-          "slp.valid": true,
-          "blk.i": {
-            $not: {
-              $lte: latestBlock
-            }
-          }
-        },
-        $orderby: {
-          "blk.i": -1
-        }
-      },
-      project: {
-        _id: 0,
-        "tx.h": 1,
-        "in.i": 1,
-        "in.e": 1,
-        "out.e": 1,
-        "out.a": 1,
-        "slp.detail": 1,
-        blk: 1
-      },
-      limit: 500
-    }
-  };
+
   let transactions: ResultSlpDB[] = [];
 
   try {
     // combine confirmed and unconfirmed
     // errors = slpdb, error = REST rate limit
-    const result = await SLP.SLPDB.get(query);
+    const result = await getSlpTransactions(address, addressSlp, latestBlock);
 
-    if (result.c) {
-      transactions = [...transactions, ...result.c];
-    }
-
-    if (result.u) {
-      transactions = [...transactions, ...result.u];
-    }
+    return result;
   } catch (e) {
     console.warn("Error while fetching from slpdb");
     console.warn(e);
