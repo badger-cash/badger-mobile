@@ -9,7 +9,17 @@ import { UTXO } from "./reducer";
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-describe("UTXO::action creators", () => {
+describe("utxos::actions::creators", () => {
+  it("should create action for - UPDATE_UTXO_SUCCESS_START", () => {
+    const address = "testAddress";
+
+    const expectedAction = {
+      type: actionTypes.UPDATE_UTXO_START,
+      payload: null
+    };
+    expect(actions.updateUtxoStart()).toEqual(expectedAction);
+  });
+
   it("should create action for - UPDATE_UTXO_SUCCESS", () => {
     const address = "testAddress";
     const utxos = [] as UTXO[];
@@ -33,34 +43,10 @@ describe("UTXO::action creators", () => {
   });
 });
 
-describe("UTXO::asyncActions", () => {
+describe("utxos::actions::async", () => {
   afterEach(() => {
     fetchMock.restore();
   });
 
-  it("creates UPDATE_UTXO_SUCCESS when fetching UTXOS completes", () => {
-    // TODO
-    // fetchMock.getOnce("/todos", {
-    //   body: { todos: ["do something"] },
-    //   headers: { "content-type": "application/json" }
-    // });
-    // const expectedActions = [
-    //   { type: actionTypes.UPDATE_UTXO_START },
-    //   {
-    //     type: actionTypes.UPDATE_UTXO_SUCCESS,
-    //     body: { todos: ["do something"] }
-    //   }
-    // ];
-    // return store
-    //   .dispatch(
-    //     actions.updateUtxos(
-    //       "bitcoincash:fakeaddress",
-    //       "simpleledger:fakeaddress"
-    //     )
-    //   )
-    //   .then(() => {
-    //     // return of async actions
-    //     expect(store.getActions()).toEqual(expectedActions);
-    //   });
-  });
+  it.todo("creates UPDATE_UTXO_SUCCESS when fetching UTXOS completes");
 });

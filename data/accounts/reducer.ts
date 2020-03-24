@@ -1,3 +1,4 @@
+import { AnyAction } from "redux";
 import {
   GET_ACCOUNT_START,
   GET_ACCOUNT_SUCCESS,
@@ -22,11 +23,6 @@ export interface Account {
   accountIndex: number;
   seedViewed?: boolean;
 }
-
-type Action = {
-  type: string;
-  payload: any;
-};
 
 export type State = {
   byId: {
@@ -72,6 +68,7 @@ const addAccount = (
 
   const existingAcounts = state.allIds;
 
+  // TODO - Investigate this early-exit, may not be needed anymore.
   if (existingAcounts.includes(address)) {
     return {
       ...state,
@@ -124,13 +121,12 @@ const setSeedViewed = (
     ...state,
     byId: {
       ...state.byId,
-
       [address]: updatedAccount
     }
   };
 };
 
-const accounts = (state: State = initialState, action: Action): State => {
+const accounts = (state: State = initialState, action: AnyAction): State => {
   switch (action.type) {
     case GET_ACCOUNT_START:
       return state;

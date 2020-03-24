@@ -14,15 +14,15 @@ describe("prices::reducer", () => {
   });
 
   it("should handle starting price by doing nothing", () => {
-    const stateBefore = initialState;
+    const stateBefore = { ...initialState };
     const stateAfter = pricesReducer(stateBefore, updateSpotPriceStart());
 
-    const expectedState = initialState;
+    const expectedState = { ...initialState };
     expect(stateAfter).toEqual(expectedState);
   });
 
   it("should handle updating spot price success - new currency", () => {
-    const stateBefore = initialState;
+    const stateBefore = { ...initialState };
     const now = +new Date();
     const stateAfter = pricesReducer(
       stateBefore,
@@ -45,7 +45,7 @@ describe("prices::reducer", () => {
   });
 
   it("should handle updating spot price success - over initial currency", () => {
-    const stateBefore = initialState;
+    const stateBefore = { ...initialState };
     const now = +new Date();
     const stateAfter = pricesReducer(
       stateBefore,
@@ -68,7 +68,7 @@ describe("prices::reducer", () => {
   });
 
   it("should handle updating spot price fail", () => {
-    const stateBefore = initialState;
+    const stateBefore = { ...initialState };
     const now = +new Date();
     const stateAfter = pricesReducer(
       stateBefore,
@@ -91,7 +91,7 @@ describe("prices::reducer", () => {
   });
 
   it("should handle changing fiat currency", () => {
-    const stateBefore = initialState;
+    const stateBefore = { ...initialState };
     const stateAfter = pricesReducer(stateBefore, setFiatCurrency("CHF"));
 
     const expectedState = {

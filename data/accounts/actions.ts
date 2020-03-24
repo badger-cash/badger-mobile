@@ -79,4 +79,11 @@ const viewSeed = (address: string) => {
   };
 };
 
-export { getAccount, logoutAccount, viewSeed };
+export {
+  getAccount,
+  getAccountStart,
+  getAccountSuccess,
+  getAccountFail,
+  logoutAccount,
+  viewSeed
+};

@@ -1,3 +1,5 @@
+import { AnyAction } from "redux";
+
 import {
   GET_TRANSACTIONS_START,
   GET_TRANSACTIONS_SUCCESS,
@@ -26,11 +28,6 @@ export type Transaction = {
   networkId: "mainnet" | "testnet";
 };
 
-type Action = {
-  type: string;
-  payload: any;
-};
-
 export type State = {
   byId: {
     [transactionId: string]: Transaction;
@@ -56,9 +53,10 @@ const addTransactions = (
   payload: {
     transactions: Transaction[];
     address: string;
+    timestamp: number;
   }
 ) => {
-  const { transactions, address } = payload;
+  const { transactions, address, timestamp } = payload;
 
   const transactionsById = transactions.reduce((acc, tx) => {
     return {
@@ -82,13 +80,16 @@ const addTransactions = (
       ...state.byAccount,
       [address]: [...nextAccountTxs]
     },
-    allIds: [...state.allIds, ...txIds],
+    allIds: [...new Set([...state.allIds, ...txIds])],
     updating: false,
-    lastUpdate: +new Date()
+    lastUpdate: timestamp
   };
 };
 
-const transactions = (state: State = initialState, action: Action): State => {
+const transactions = (
+  state: State = initialState,
+  action: AnyAction
+): State => {
   switch (action.type) {
     case GET_TRANSACTIONS_START:
       return {

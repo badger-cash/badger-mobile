@@ -84,6 +84,12 @@ Navigation is managed with the `react-navigation` library. To contain the logic 
 
 This project use `react-native`. Please refer to the React Native documentation to get the iOS or Android emulator installed and running before running `badger-mobile`
 
+### Run Local Tests
+
+```bash
+yarn test
+```
+
 ### Initial Setup
 
 - [React Native Getting Started Docs](https://facebook.github.io/react-native/docs/getting-started)
