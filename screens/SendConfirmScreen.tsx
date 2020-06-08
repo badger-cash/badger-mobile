@@ -5,6 +5,7 @@ import {
   ScrollView,
   SafeAreaView,
   StyleSheet,
+  Switch,
   View,
   Image
 } from "react-native";
@@ -35,6 +36,8 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
+import { getPostageRates } from "../api/pay.cointext";
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
   padding: 0 16px;
@@ -51,6 +54,13 @@ const IconImage = styled(Image)`
 `;
 
 const ButtonsContainer = styled(View)`
+  align-items: center;
+`;
+
+const PostOfficeArea = styled(View)`
+  margin: 0 60px;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `;
 
@@ -183,6 +193,9 @@ const SendConfirmScreen = ({
           }
         };
 
+        if (usePostOffice && postOfficeData && postOfficeData !== true)
+          txParams.postOfficeData = postOfficeData;
+
         await signAndPublishSlpTransaction(
           txParams,
           spendableUTXOS,
@@ -254,6 +267,37 @@ const SendConfirmScreen = ({
       )
     : null;
 
+  const postageInfo = () => {
+    const [result, setResult] = React.useState(null);
+    const [available, setAvailable] = React.useState(false);
+
+    React.useEffect(() => {
+      const fetchPostageData = async () => {
+        try {
+          const postageInfo = await getPostageRates();
+          setResult(postageInfo);
+          const availableStamps = postageInfo.stamps;
+          if (tokenId) {
+            for (let i = 0; i < availableStamps.length; i++) {
+              let stamp = availableStamps[i];
+              if (stamp.tokenId == tokenId) setAvailable(true);
+            }
+          }
+        } catch (error) {
+          setResult(null);
+        }
+      };
+
+      fetchPostageData();
+    });
+
+    return [available, result];
+  };
+
+  const [postOfficeAvailable, postOfficeData] = postageInfo();
+  const [usePostOffice, setUsePostOffice] = useState(false);
+  const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
+
   return (
     <ScreenWrapper>
       <ScrollView
@@ -295,6 +339,19 @@ const SendConfirmScreen = ({
           <T size="small">{addressMiddle}</T>
           <T weight="bold">{addressEnd}</T>
         </T>
+        {postOfficeAvailable && <Spacer medium />}
+        {postOfficeAvailable && (
+          <PostOfficeArea>
+            <T weight="bold">Use Post Office?</T>
+            <Switch
+              trackColor={{ false: "#767577", true: "#11a87e" }}
+              thumbColor={usePostOffice ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch}
+              value={usePostOffice}
+            />
+          </PostOfficeArea>
+        )}
         <Spacer small />
         {sendError && (
           <ErrorHolder>

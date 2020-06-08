@@ -22,6 +22,7 @@ export interface TxParams {
   sendTokenData?: {
     tokenId: string;
   };
+  postOfficeData?: object | null;
 }
 
 const getSLPTxType = (scriptASMArray: string[]) => {
