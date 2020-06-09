@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { connect, ConnectedProps, Connect } from "react-redux";
 import styled from "styled-components";
 import {
+  ActivityIndicator,
   ScrollView,
   SafeAreaView,
   StyleSheet,
@@ -268,6 +269,9 @@ const SendConfirmScreen = ({
     : null;
 
   const postageInfo = () => {
+    // Postage Protocol is not available for BCH transactions
+    if (!tokenId) return [false, null];
+
     const [result, setResult] = React.useState(null);
     const [available, setAvailable] = React.useState(false);
 
@@ -276,27 +280,27 @@ const SendConfirmScreen = ({
         try {
           let postageInfo = await getPostageRates();
           const availableStamps = postageInfo.stamps;
-          if (tokenId) {
-            for (let i = 0; i < availableStamps.length; i++) {
-              let stamp = availableStamps[i];
-              if (stamp.tokenId == tokenId) {
-                // Only include the stamp that is available
-                stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
-                  3
-                );
-                stamp.feePerByte = (
-                  stamp.rateDecimal / postageInfo.weight
-                ).toFixed(3);
-                postageInfo.stamps = [stamp];
-                setResult(postageInfo);
-                // Enable use of post office
-                setAvailable(true);
-              }
+
+          for (let i = 0; i < availableStamps.length; i++) {
+            let stamp = availableStamps[i];
+            if (stamp.tokenId == tokenId) {
+              // Only include the stamp that is available
+              stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
+                3
+              );
+              stamp.feePerByte = (
+                stamp.rateDecimal / postageInfo.weight
+              ).toFixed(3);
+              postageInfo.stamps = [stamp];
+              setResult(postageInfo);
+              // Enable use of post office
+              setAvailable(true);
             }
           }
         } catch (error) {
           setResult(null);
         }
+        setshowSwipe(true);
       };
 
       fetchPostageData();
@@ -308,6 +312,8 @@ const SendConfirmScreen = ({
   const [postOfficeAvailable, postOfficeData] = postageInfo();
   const [usePostOffice, setUsePostOffice] = useState(false);
   const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
+
+  const [showSwipe, setshowSwipe] = useState(false);
 
   return (
     <ScreenWrapper>
@@ -350,6 +356,7 @@ const SendConfirmScreen = ({
           <T size="small">{addressMiddle}</T>
           <T weight="bold">{addressEnd}</T>
         </T>
+
         {postOfficeAvailable && <Spacer medium />}
         {postOfficeAvailable && (
           <PostOfficeArea>
@@ -371,6 +378,9 @@ const SendConfirmScreen = ({
           </T>
         )}
         <Spacer small />
+
+        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
+
         {sendError && (
           <ErrorHolder>
             <T center type="danger">
@@ -381,27 +391,29 @@ const SendConfirmScreen = ({
         <Spacer fill />
         <Spacer small />
 
-        <ButtonsContainer>
-          <SwipeButton
-            swipeFn={() => signSendTransaction()}
-            labelAction="To Send"
-            labelRelease="Release to send"
-            labelHalfway="Keep going"
-            controlledState={
-              transactionState === "signing" ? "pending" : undefined
-            }
-          />
-
-          <Spacer />
-
-          {transactionState !== "signing" && (
-            <Button
-              nature="cautionGhost"
-              text="Cancel Transaction"
-              onPress={() => navigation.goBack()}
+        {showSwipe && (
+          <ButtonsContainer>
+            <SwipeButton
+              swipeFn={() => signSendTransaction()}
+              labelAction="To Send"
+              labelRelease="Release to send"
+              labelHalfway="Keep going"
+              controlledState={
+                transactionState === "signing" ? "pending" : undefined
+              }
             />
-          )}
-        </ButtonsContainer>
+
+            <Spacer />
+
+            {transactionState !== "signing" && (
+              <Button
+                nature="cautionGhost"
+                text="Cancel Transaction"
+                onPress={() => navigation.goBack()}
+              />
+            )}
+          </ButtonsContainer>
+        )}
         <Spacer small />
       </ScrollView>
     </ScreenWrapper>

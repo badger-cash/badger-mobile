@@ -322,6 +322,7 @@ const signAndPublishSlpTransaction = async (
   }
 
   const postOfficeData = txParams.postOfficeData;
+
   let stampObj;
   if (postOfficeData)
     stampObj = postOfficeData.stamps.find(
@@ -419,14 +420,18 @@ const signAndPublishSlpTransaction = async (
   } else {
     // Recalculate and verify sufficient fee if using postage protocol
     for (let i = 0; i <= remainingTokenUtxos.length; i++) {
-      byteCount = SLPJS.calculateSendCost(
-        sendOpReturn.length,
-        inputUtxos.length,
-        tokenReceiverAddressArray.length,
-        from
+      // TODO: Get this byte count more accurate
+      byteCount = SLP.BitcoinCash.getByteCount(
+        { P2PKH: inputUtxos.length },
+        { P2PKH: tokenReceiverAddressArray.length }
       );
 
+      byteCount += sendOpReturn.length;
+      // Account for difference in inputs and outputs
+      byteCount += 365 * (tokenReceiverAddressArray.length - inputUtxos.length);
+
       let stampsNeeded = Math.ceil(byteCount / postOfficeData.weight);
+      if (stampsNeeded < 1) stampsNeeded = 1;
       let stampPayment = stampObj.rate * stampsNeeded;
 
       if (tokenChangeAmount.isGreaterThan(stampPayment)) {
@@ -466,8 +471,10 @@ const signAndPublishSlpTransaction = async (
   });
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
+  console.log("satoshisRemaining", satoshisRemaining);
+
   if (!postOfficeData) {
-    if (satoshisRemaining < 0) {
+    if (satoshisRemaining < 0 || spendableUtxos.length == 0) {
       throw new Error(
         "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
       );
@@ -506,8 +513,6 @@ const signAndPublishSlpTransaction = async (
     );
   });
   const hex = transactionBuilder.build().toHex();
-
-  console.log("hex", hex);
 
   let txid = null;
 
