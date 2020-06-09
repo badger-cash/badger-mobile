@@ -274,13 +274,24 @@ const SendConfirmScreen = ({
     React.useEffect(() => {
       const fetchPostageData = async () => {
         try {
-          const postageInfo = await getPostageRates();
-          setResult(postageInfo);
+          let postageInfo = await getPostageRates();
           const availableStamps = postageInfo.stamps;
           if (tokenId) {
             for (let i = 0; i < availableStamps.length; i++) {
               let stamp = availableStamps[i];
-              if (stamp.tokenId == tokenId) setAvailable(true);
+              if (stamp.tokenId == tokenId) {
+                // Only include the stamp that is available
+                stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
+                  3
+                );
+                stamp.feePerByte = (
+                  stamp.rateDecimal / postageInfo.weight
+                ).toFixed(3);
+                postageInfo.stamps = [stamp];
+                setResult(postageInfo);
+                // Enable use of post office
+                setAvailable(true);
+              }
             }
           }
         } catch (error) {
@@ -351,6 +362,13 @@ const SendConfirmScreen = ({
               value={usePostOffice}
             />
           </PostOfficeArea>
+        )}
+        {usePostOffice && postOfficeData && (
+          <T size="small" center>
+            Fee Rate: {postOfficeData.stamps[0].rateDecimal}{" "}
+            {postOfficeData.stamps[0].symbol} per each {postOfficeData.weight}{" "}
+            bytes
+          </T>
         )}
         <Spacer small />
         {sendError && (

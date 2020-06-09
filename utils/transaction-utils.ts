@@ -429,10 +429,6 @@ const signAndPublishSlpTransaction = async (
       let stampsNeeded = Math.ceil(byteCount / postOfficeData.weight);
       let stampPayment = stampObj.rate * stampsNeeded;
 
-      console.log("stampsNeeded", stampsNeeded);
-      console.log("stampPayment", stampPayment);
-      console.log("tokenChangeAmenout", tokenChangeAmount);
-
       if (tokenChangeAmount.isGreaterThan(stampPayment)) {
         // Recalculate and rebuild sendOpReturn
         const postageBN = new BigNumber(stampPayment);
@@ -445,7 +441,6 @@ const signAndPublishSlpTransaction = async (
           tokenIdHex: sendTokenData.tokenId,
           outputQtyArray: outputQtyArray
         });
-        console.log("outputQtyArray", outputQtyArray);
         break;
       } else {
         if (remainingTokenUtxos.length > 0) {
