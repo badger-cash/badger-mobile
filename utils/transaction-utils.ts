@@ -1,10 +1,15 @@
+import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
 
+import { postAsArrayBuffer, decodePaymentResponse } from "./bip70-utils";
+
 import { SLP } from "./slp-sdk-utils";
+
+import { postageEndpoint } from "../api/pay.cointext";
 
 const slpjs = require("slpjs");
 
@@ -58,6 +63,16 @@ const getTransactionDetails = async (txid: string | string[]) => {
   } catch (e) {
     throw e;
   }
+};
+
+const txidFromHex = (hex: string) => {
+  const buffer = Buffer.from(hex, "hex");
+  const hash = SLP.Crypto.hash256(buffer).toString("hex");
+  const txid = hash
+    .match(/[a-fA-F0-9]{2}/g)
+    .reverse()
+    .join("");
+  return txid;
 };
 
 // Straight from existing badger plugin slp-utils.js
@@ -295,6 +310,7 @@ const signAndPublishSlpTransaction = async (
   const from = txParams.from;
   const to = txParams.to;
   const tokenDecimals = tokenMetadata.decimals;
+
   const scaledTokenSendAmount = new BigNumber(txParams.value).decimalPlaces(
     tokenDecimals
   );
@@ -305,6 +321,13 @@ const signAndPublishSlpTransaction = async (
     throw new Error("Error getting token data.");
   }
 
+  const postOfficeData = txParams.postOfficeData;
+  let stampObj;
+  if (postOfficeData)
+    stampObj = postOfficeData.stamps.find(
+      stamp => stamp.tokenId == sendTokenData.tokenId
+    );
+
   if (tokenSendAmount.lt(1)) {
     throw new Error(
       "Amount below minimum for this token. Increase the send amount and try again."
@@ -312,15 +335,25 @@ const signAndPublishSlpTransaction = async (
   }
 
   let tokenBalance = new BigNumber(0);
+  let tokenChangeAmount = new BigNumber(0);
   const tokenUtxosToSpend = [];
+  let remainingTokenUtxos = [];
 
   // Gather enough SLP UTXO's
-  for (const tokenUtxo of spendableTokenUtxos) {
+  for (let i = 0; i < spendableTokenUtxos.length; i++) {
+    const tokenUtxo = spendableTokenUtxos[i];
     const utxoBalance = tokenUtxo.slp.quantity;
     tokenBalance = tokenBalance.plus(utxoBalance);
     tokenUtxosToSpend.push(tokenUtxo);
+    tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
 
     if (tokenBalance.gte(tokenSendAmount)) {
+      // Calculate postage and add UTXOs if necessary
+      if (postOfficeData) {
+        if (tokenBalance.eq(tokenSendAmount)) continue;
+        else if (spendableTokenUtxos.length > i + 1)
+          remainingTokenUtxos = spendableTokenUtxos.slice(i + 1);
+      }
       break;
     }
   }
@@ -329,22 +362,32 @@ const signAndPublishSlpTransaction = async (
     throw new Error("Insufficient tokens");
   }
 
-  const tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
   let sendOpReturn = null;
+  let outputQtyArray = [];
 
   if (tokenChangeAmount.isGreaterThan(0)) {
-    sendOpReturn = slpjs.Slp.buildSendOpReturn({
-      tokenIdHex: sendTokenData.tokenId,
-      outputQtyArray: [tokenSendAmount, tokenChangeAmount]
-    });
+    // Put a placeholder to do postage calculation
+    if (postOfficeData) {
+      let placeholder = new BigNumber(0);
+      outputQtyArray = [tokenSendAmount, placeholder, tokenChangeAmount];
+    } else {
+      outputQtyArray = [tokenSendAmount, tokenChangeAmount];
+    }
   } else {
-    sendOpReturn = slpjs.Slp.buildSendOpReturn({
-      tokenIdHex: sendTokenData.tokenId,
-      outputQtyArray: [tokenSendAmount]
-    });
+    outputQtyArray = [tokenSendAmount];
   }
 
+  // Build The OP_RETURN
+  sendOpReturn = slpjs.Slp.buildSendOpReturn({
+    tokenIdHex: sendTokenData.tokenId,
+    outputQtyArray: outputQtyArray
+  });
+
   const tokenReceiverAddressArray = [to];
+
+  if (postOfficeData) {
+    tokenReceiverAddressArray.push(postOfficeData.address);
+  }
 
   if (tokenChangeAmount.isGreaterThan(0)) {
     tokenReceiverAddressArray.push(tokenChangeAddress);
@@ -355,21 +398,66 @@ const signAndPublishSlpTransaction = async (
 
   const inputUtxos = [...tokenUtxosToSpend];
 
-  // Verify sufficient fee
-  for (const utxo of spendableUtxos) {
-    inputSatoshis = inputSatoshis + utxo.satoshis;
+  // Verify sufficient fee if not using postage protocol (BCH as "change")
+  if (!postOfficeData) {
+    for (const utxo of spendableUtxos) {
+      inputSatoshis = inputSatoshis + utxo.satoshis;
 
-    inputUtxos.push(utxo);
+      inputUtxos.push(utxo);
 
-    byteCount = SLPJS.calculateSendCost(
-      sendOpReturn.length,
-      inputUtxos.length,
-      tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
-      from
-    );
+      byteCount = SLPJS.calculateSendCost(
+        sendOpReturn.length,
+        inputUtxos.length,
+        tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
+        from
+      );
 
-    if (inputSatoshis >= byteCount) {
-      break;
+      if (inputSatoshis >= byteCount) {
+        break;
+      }
+    }
+  } else {
+    // Recalculate and verify sufficient fee if using postage protocol
+    for (let i = 0; i <= remainingTokenUtxos.length; i++) {
+      byteCount = SLPJS.calculateSendCost(
+        sendOpReturn.length,
+        inputUtxos.length,
+        tokenReceiverAddressArray.length,
+        from
+      );
+
+      let stampsNeeded = Math.ceil(byteCount / postOfficeData.weight);
+      let stampPayment = stampObj.rate * stampsNeeded;
+
+      console.log("stampsNeeded", stampsNeeded);
+      console.log("stampPayment", stampPayment);
+      console.log("tokenChangeAmenout", tokenChangeAmount);
+
+      if (tokenChangeAmount.isGreaterThan(stampPayment)) {
+        // Recalculate and rebuild sendOpReturn
+        const postageBN = new BigNumber(stampPayment);
+        outputQtyArray = [
+          tokenSendAmount,
+          postageBN,
+          tokenChangeAmount.minus(postageBN)
+        ];
+        sendOpReturn = slpjs.Slp.buildSendOpReturn({
+          tokenIdHex: sendTokenData.tokenId,
+          outputQtyArray: outputQtyArray
+        });
+        console.log("outputQtyArray", outputQtyArray);
+        break;
+      } else {
+        if (remainingTokenUtxos.length > 0) {
+          const tokenUtxo = remainingTokenUtxos[i];
+          const utxoBalance = tokenUtxo.slp.quantity;
+          tokenBalance = tokenBalance.plus(utxoBalance);
+          inputUtxos.push(tokenUtxo);
+          tokenChangeAmount = tokenBalance.minus(tokenSendAmount);
+        } else {
+          throw new Error("Insufficient tokens to pay for postage");
+        }
+      }
     }
   }
 
@@ -383,48 +471,113 @@ const signAndPublishSlpTransaction = async (
   });
   const satoshisRemaining = totalUtxoAmount - byteCount;
 
-  if (satoshisRemaining < 0) {
-    throw new Error(
-      "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
-    );
+  if (!postOfficeData) {
+    if (satoshisRemaining < 0) {
+      throw new Error(
+        "Not enough Bitcoin Cash for fee. Deposit a small amount and try again."
+      );
+    }
   }
 
   // SLP data output
   transactionBuilder.addOutput(sendOpReturn, 0);
-  // Token destination output
-  transactionBuilder.addOutput(to, 546);
 
-  // Return remaining token balance output
-  if (tokenChangeAmount.isGreaterThan(0)) {
-    transactionBuilder.addOutput(tokenChangeAddress, 546);
+  for (let i = 0; i < tokenReceiverAddressArray.length; i++) {
+    // Token destination output
+    let tokenReceiverAddress = SLP.Address.toCashAddress(
+      tokenReceiverAddressArray[i]
+    );
+    transactionBuilder.addOutput(tokenReceiverAddress, 546);
   }
 
-  // Return remaining bch balance output
-  transactionBuilder.addOutput(from, satoshisRemaining + 546);
+  if (!postOfficeData) {
+    // Return remaining bch balance output
+    transactionBuilder.addOutput(from, satoshisRemaining + 546);
+  }
+
+  const sighashType = postOfficeData
+    ? transactionBuilder.hashTypes.SIGHASH_ALL |
+      transactionBuilder.hashTypes.SIGHASH_ANYONECANPAY
+    : transactionBuilder.hashTypes.SIGHASH_ALL;
+
   let redeemScript: any;
   inputUtxos.forEach((utxo, index) => {
     transactionBuilder.sign(
       index,
       utxo.keypair,
       redeemScript,
-      transactionBuilder.hashTypes.SIGHASH_ALL,
+      sighashType,
       utxo.satoshis
     );
   });
   const hex = transactionBuilder.build().toHex();
+
+  console.log("hex", hex);
+
   let txid = null;
 
-  try {
-    txid = await publishTx(hex);
-  } catch (e) {
-    // Currently can only handle 24 inputs in a single tx
-    if (inputUtxos.length > 24) {
-      throw new Error(
-        "Too many inputs, send this transaction in multiple smaller transactions"
-      );
+  if (postOfficeData) {
+    // send the postage transaction
+    let payment = new PaymentProtocol().makePayment();
+    let merchantData = '{"returnRawTx":false}';
+    payment.set("merchant_data", Buffer.from(merchantData, "utf-8"));
+    payment.set("transactions", [Buffer.from(hex, "hex")]);
+
+    // calculate refund script pubkey from change address
+    const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
+    const addressFormat = SLP.Address.detectAddressFormat(tokenChangeAddress);
+    let refundHash160 = SLP.Address.cashToHash160(tokenChangeAddress);
+    let encodingFunc = SLP.Script.pubKeyHash.output.encode;
+    if (addressType == "p2sh")
+      encodingFunc = SLP.Script.scriptHash.output.encode;
+    if (addressFormat == "legacy")
+      refundHash160 = SLP.Address.legacyToHash160(tokenChangeAddress);
+    const refundScriptPubkey = encodingFunc(Buffer.from(refundHash160, "hex"));
+
+    // define the refund outputs
+    let refundOutputs = [];
+    let refundOutput = new PaymentProtocol().makeOutput();
+    refundOutput.set("amount", 0);
+    refundOutput.set("script", refundScriptPubkey);
+    refundOutputs.push(refundOutput.message);
+    payment.set("refund_to", refundOutputs);
+    payment.set("memo", "");
+
+    // Send to Post Office?
+    const paymentUrl = postageEndpoint;
+
+    // serialize and send
+    const rawbody = payment.serialize();
+    const headers = {
+      Accept: "application/simpleledger-paymentack",
+      "Content-Type": "application/simpleledger-payment",
+      "Content-Transfer-Encoding": "binary"
+    };
+
+    // POST payment
+    const rawPaymentResponse = await postAsArrayBuffer(
+      paymentUrl,
+      headers,
+      rawbody
+    );
+
+    const { responsePayment } = await decodePaymentResponse(rawPaymentResponse);
+    const responseTxHex = responsePayment.message.transactions[0].toHex();
+    txid = txidFromHex(responseTxHex);
+  } else {
+    try {
+      txid = await publishTx(hex);
+    } catch (e) {
+      // Currently can only handle 24 inputs in a single tx
+      if (inputUtxos.length > 24) {
+        throw new Error(
+          "Too many inputs, send this transaction in multiple smaller transactions"
+        );
+      }
+      throw e;
     }
-    throw e;
   }
+
   return txid;
 };
 

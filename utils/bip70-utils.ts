@@ -634,6 +634,7 @@ export {
   signAndPublishPaymentRequestTransactionSLP,
   decodePaymentResponse,
   decodePaymentRequest,
+  postAsArrayBuffer,
   getAsArrayBuffer,
   txidFromHex
 };

@@ -16,4 +16,4 @@ const getPostageRates = async () => {
   }
 };
 
-export { getPostageRates };
+export { postageEndpoint, getPostageRates };
