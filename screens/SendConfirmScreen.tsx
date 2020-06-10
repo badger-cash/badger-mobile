@@ -304,7 +304,7 @@ const SendConfirmScreen = ({
       };
 
       fetchPostageData();
-    });
+    }, []); // Empty array ensures this runs only once
 
     return [available, result];
   };

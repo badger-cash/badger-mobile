@@ -428,7 +428,7 @@ const signAndPublishSlpTransaction = async (
 
       byteCount += sendOpReturn.length;
       // Account for difference in inputs and outputs
-      byteCount += 365 * (tokenReceiverAddressArray.length - inputUtxos.length);
+      byteCount += 546 * (tokenReceiverAddressArray.length - inputUtxos.length);
 
       let stampsNeeded = Math.ceil(byteCount / postOfficeData.weight);
       if (stampsNeeded < 1) stampsNeeded = 1;
@@ -442,6 +442,7 @@ const signAndPublishSlpTransaction = async (
           postageBN,
           tokenChangeAmount.minus(postageBN)
         ];
+        console.log("outputQtyArray", outputQtyArray);
         sendOpReturn = slpjs.Slp.buildSendOpReturn({
           tokenIdHex: sendTokenData.tokenId,
           outputQtyArray: outputQtyArray
@@ -470,8 +471,6 @@ const signAndPublishSlpTransaction = async (
     totalUtxoAmount += utxo.satoshis;
   });
   const satoshisRemaining = totalUtxoAmount - byteCount;
-
-  console.log("satoshisRemaining", satoshisRemaining);
 
   if (!postOfficeData) {
     if (satoshisRemaining < 0 || spendableUtxos.length == 0) {
