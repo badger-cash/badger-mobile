@@ -313,7 +313,7 @@ const SendConfirmScreen = ({
   const [usePostOffice, setUsePostOffice] = useState(false);
   const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
 
-  const [showSwipe, setshowSwipe] = useState(false);
+  const [showSwipe, setshowSwipe] = useState(tokenId ? false : true);
 
   return (
     <ScreenWrapper>
