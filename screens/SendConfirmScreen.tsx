@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { connect, ConnectedProps, Connect } from "react-redux";
 import styled from "styled-components";
 import {
+  ActivityIndicator,
   ScrollView,
   SafeAreaView,
   StyleSheet,
+  Switch,
   View,
   Image
 } from "react-native";
@@ -35,6 +37,8 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
+import { getPostageRates } from "../api/pay.cointext";
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
   padding: 0 16px;
@@ -51,6 +55,13 @@ const IconImage = styled(Image)`
 `;
 
 const ButtonsContainer = styled(View)`
+  align-items: center;
+`;
+
+const PostOfficeArea = styled(View)`
+  margin: 0 60px;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `;
 
@@ -183,6 +194,9 @@ const SendConfirmScreen = ({
           }
         };
 
+        if (usePostOffice && postOfficeData && postOfficeData !== true)
+          txParams.postOfficeData = postOfficeData;
+
         await signAndPublishSlpTransaction(
           txParams,
           spendableUTXOS,
@@ -254,6 +268,53 @@ const SendConfirmScreen = ({
       )
     : null;
 
+  const postageInfo = () => {
+    // Postage Protocol is not available for BCH transactions
+    if (!tokenId) return [false, null];
+
+    const [result, setResult] = React.useState(null);
+    const [available, setAvailable] = React.useState(false);
+
+    React.useEffect(() => {
+      const fetchPostageData = async () => {
+        try {
+          let postageInfo = await getPostageRates();
+          const availableStamps = postageInfo.stamps;
+
+          for (let i = 0; i < availableStamps.length; i++) {
+            let stamp = availableStamps[i];
+            if (stamp.tokenId == tokenId) {
+              // Only include the stamp that is available
+              stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
+                3
+              );
+              stamp.feePerByte = (
+                stamp.rateDecimal / postageInfo.weight
+              ).toFixed(3);
+              postageInfo.stamps = [stamp];
+              setResult(postageInfo);
+              // Enable use of post office
+              setAvailable(true);
+            }
+          }
+        } catch (error) {
+          setResult(null);
+        }
+        setshowSwipe(true);
+      };
+
+      fetchPostageData();
+    }, []); // Empty array ensures this runs only once
+
+    return [available, result];
+  };
+
+  const [postOfficeAvailable, postOfficeData] = postageInfo();
+  const [usePostOffice, setUsePostOffice] = useState(false);
+  const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
+
+  const [showSwipe, setshowSwipe] = useState(tokenId ? false : true);
+
   return (
     <ScreenWrapper>
       <ScrollView
@@ -295,7 +356,31 @@ const SendConfirmScreen = ({
           <T size="small">{addressMiddle}</T>
           <T weight="bold">{addressEnd}</T>
         </T>
+
+        {postOfficeAvailable && <Spacer medium />}
+        {postOfficeAvailable && (
+          <PostOfficeArea>
+            <T weight="bold">Use Post Office?</T>
+            <Switch
+              trackColor={{ false: "#767577", true: "#11a87e" }}
+              thumbColor={usePostOffice ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch}
+              value={usePostOffice}
+            />
+          </PostOfficeArea>
+        )}
+        {usePostOffice && postOfficeData && (
+          <T size="small" center>
+            Fee Rate: {postOfficeData.stamps[0].rateDecimal}{" "}
+            {postOfficeData.stamps[0].symbol} per each {postOfficeData.weight}{" "}
+            bytes
+          </T>
+        )}
         <Spacer small />
+
+        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
+
         {sendError && (
           <ErrorHolder>
             <T center type="danger">
@@ -306,27 +391,29 @@ const SendConfirmScreen = ({
         <Spacer fill />
         <Spacer small />
 
-        <ButtonsContainer>
-          <SwipeButton
-            swipeFn={() => signSendTransaction()}
-            labelAction="To Send"
-            labelRelease="Release to send"
-            labelHalfway="Keep going"
-            controlledState={
-              transactionState === "signing" ? "pending" : undefined
-            }
-          />
-
-          <Spacer />
-
-          {transactionState !== "signing" && (
-            <Button
-              nature="cautionGhost"
-              text="Cancel Transaction"
-              onPress={() => navigation.goBack()}
+        {showSwipe && (
+          <ButtonsContainer>
+            <SwipeButton
+              swipeFn={() => signSendTransaction()}
+              labelAction="To Send"
+              labelRelease="Release to send"
+              labelHalfway="Keep going"
+              controlledState={
+                transactionState === "signing" ? "pending" : undefined
+              }
             />
-          )}
-        </ButtonsContainer>
+
+            <Spacer />
+
+            {transactionState !== "signing" && (
+              <Button
+                nature="cautionGhost"
+                text="Cancel Transaction"
+                onPress={() => navigation.goBack()}
+              />
+            )}
+          </ButtonsContainer>
+        )}
         <Spacer small />
       </ScrollView>
     </ScreenWrapper>

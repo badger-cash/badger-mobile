@@ -244,6 +244,7 @@ const Bip70ConfirmScreen = ({
           return;
         }
       }
+      console.log("details", details);
       setPaymentDetails(details);
       setStep("review");
     };
