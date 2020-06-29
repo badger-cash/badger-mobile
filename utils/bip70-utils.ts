@@ -124,6 +124,57 @@ const txidFromHex = (hex: string) => {
   return txid;
 };
 
+const BNToInt64BE = (bn: BigNumber): Buffer => {
+  if (!bn.isInteger()) {
+    throw new Error("bn not an integer");
+  }
+
+  if (!bn.isPositive()) {
+    throw new Error("bn not positive integer");
+  }
+
+  const h = bn.toString(16);
+  if (h.length > 16) {
+    throw new Error("bn outside of range");
+  }
+
+  return Buffer.from(h.padStart(16, "0"), "hex");
+};
+
+const appendOptionalOutput = (
+  output: object,
+  pr: PaymentRequest,
+  tokenMetadata: object | null = null
+) => {
+  const baseTokenAmount = output.amount * 10 ** tokenMetadata.decimals;
+  const outInfo: OutputInfo = {
+    script: output.script,
+    amount: new BigNumber(baseTokenAmount),
+    tokenAmount: null,
+    tokenId: null
+  };
+  // handle SLP
+  if (pr.tokenId) {
+    outInfo.amount = new BigNumber(546);
+    outInfo.tokenId = pr.tokenId;
+    outInfo.tokenAmount = new BigNumber(baseTokenAmount);
+    // Add output to OP_RETURN
+    const opRetBuf = Buffer.from(pr.outputs[0].script, "hex");
+    const concatBuf = Buffer.concat([
+      opRetBuf,
+      BNToInt64BE(outInfo.tokenAmount)
+    ]);
+    pr.outputs[0].script = concatBuf.toString("hex");
+    // Increase totalTokenAmount
+    pr.totalTokenAmount = pr.totalTokenAmount.plus(
+      outInfo.tokenAmount ? outInfo.tokenAmount : 0
+    );
+  }
+  pr.outputs.push(outInfo);
+  pr.totalValue = pr.totalValue.plus(outInfo.amount);
+  return pr;
+};
+
 const decodePaymentResponse = async (responseData: any) => {
   const buffer = await Buffer.from(responseData);
 
@@ -654,5 +705,6 @@ export {
   decodePaymentRequest,
   postAsArrayBuffer,
   getAsArrayBuffer,
-  txidFromHex
+  txidFromHex,
+  appendOptionalOutput
 };
