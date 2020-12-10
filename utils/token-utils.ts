@@ -14,6 +14,8 @@ import LEADTokenImage from "../assets/images/token-icons/29d353a3d19cdd7324f1c14
 import ZBCHTokenImage from "../assets/images/token-icons/f66c6d0ac6b8c5c4ed469234ec9734f6d3499b0351b22349f40e617d22254fec.png";
 import HonkHonkTokenImage from "../assets/images/token-icons/7f8889682d57369ed0e32336f8b7e0ffec625a35cca183f4e81fde4e71a538a1.png";
 import MiamiTokenImage from "../assets/images/token-icons/eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149.png";
+import ForkTokenImage from "../assets/images/token-icons/4bad853480dd5c52871ee3c2e779f78c7b43912cca974211d10b50fec9d6f81b.png";
+import HamTokenImage from "../assets/images/token-icons/6ef92fa35cf791a6ae26fab62c16a9a9780c7520fd2366e2125b17bb8e968d7f.png";
 
 import BitcoinCashImage from "../assets/images/icon.png";
 
@@ -31,7 +33,9 @@ const tokenIdImageMap: { [tokenId: string]: any } = {
   "29d353a3d19cdd7324f1c14b3fe289293976842869fed1bea3f9510558f6f006": LEADTokenImage,
   f66c6d0ac6b8c5c4ed469234ec9734f6d3499b0351b22349f40e617d22254fec: ZBCHTokenImage,
   "7f8889682d57369ed0e32336f8b7e0ffec625a35cca183f4e81fde4e71a538a1": HonkHonkTokenImage,
-  eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149: MiamiTokenImage
+  eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149: MiamiTokenImage,
+   "4bad853480dd5c52871ee3c2e779f78c7b43912cca974211d10b50fec9d6f81b": ForkTokenImage,
+  "6ef92fa35cf791a6ae26fab62c16a9a9780c7520fd2366e2125b17bb8e968d7f": HamTokenImage
 };
 
 let blockieCache: { [tokenId: string]: any } = {};
