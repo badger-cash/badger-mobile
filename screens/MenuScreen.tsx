@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { NavigationScreenProps } from "react-navigation";
 import styled from "styled-components";
@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   StyleSheet
 } from "react-native";
+
+import AsyncStorage from "@react-native-community/async-storage";
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
@@ -112,6 +114,26 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
 const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
+  var [lang, setLang] = useState();
+
+  async function getLang() {
+    try {
+      let value = await AsyncStorage.getItem("@lang");
+      // value previously stored
+      // console.log(value.toString());
+      value = JSON.parse(value).name;
+      setLang(value);
+    } catch (e) {
+      // error reading value
+    }
+  }
+
+  useEffect(() => {
+    setInterval(() => {
+      getLang();
+    }, 500);
+  });
+
   return (
     <SafeAreaView>
       <StyledScrollView
@@ -132,6 +154,13 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
             navigation.navigate("SelectCurrencyScreen");
           }}
           label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
+        />
+        <OptionsRow
+          text="Langues"
+          pressFn={() => {
+            navigation.navigate("SelectLanguesScreen");
+          }}
+          label={`${lang}`}
         />
         <OptionsRow
           text="Frequently Asked Questions - FAQ"
