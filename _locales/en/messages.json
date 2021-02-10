@@ -1,0 +1,11 @@
+{
+  "pages": {
+    "WelcomeScreen": {
+      "name_wallet": "Badger Wallet",
+      "msg_welcome": "Your gateway to the world of Bitcoin Cash (BCH)",
+      "des": "Bitcoin Cash (BCH) and Simple Token (SLP) wallet ",
+      "btn_new_wallet": "New Wallet",
+      "btn_restore_wallet": "Restore Wallet"
+    }
+  }
+}
