@@ -6,9 +6,6 @@ import styled from "styled-components";
 import { T, H1, H2, Spacer, Button } from "../atoms";
 
 import BadgerIcon from "../assets/images/icon-full.png";
-import lang from "../_locales/index";
-
-let langs = new lang("ar", "WelcomeScreen");
 
 const StyledWrapper = styled(SafeAreaView)`
   display: flex;
@@ -23,7 +20,7 @@ const WelcomeScreen = ({ navigation }: Props) => {
   return (
     <StyledWrapper>
       <Spacer />
-      <H1>{langs.getStr("name_wallet")}</H1>
+      <H1>Badger Wallet</H1>
       <Spacer />
       <Image
         source={BadgerIcon}
@@ -43,10 +40,10 @@ const WelcomeScreen = ({ navigation }: Props) => {
             textAlign: "center"
           }}
         >
-          {langs.getStr("msg_welcome")}
+          Your gateway to the world of Bitcoin Cash (BCH)
         </H2>
         <Spacer small />
-        <T center>{langs.getStr("des")} </T>
+        <T center>Bitcoin Cash (BCH) and Simple Token (SLP) wallet </T>
       </View>
 
       <View
@@ -56,12 +53,12 @@ const WelcomeScreen = ({ navigation }: Props) => {
       >
         <Button
           onPress={() => navigation.navigate("CreateWallet")}
-          text={langs.getStr("btn_new_wallet")}
+          text="New Wallet"
         />
         <Spacer small />
         <Button
           onPress={() => navigation.navigate("RestoreFromBackup")}
-          text={langs.getStr("btn_restore_wallet")}
+          text="Restore Wallet"
         />
       </View>
     </StyledWrapper>
