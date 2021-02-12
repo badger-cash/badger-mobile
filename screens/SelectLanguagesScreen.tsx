@@ -66,7 +66,7 @@ type Props = PropsFromParent;
 
 const Langs = require("../_locales/index.json");
 
-const SelectLanguesScreen = ({ navigation }: Props) => {
+const SelectLanguagesScreen = ({ navigation }: Props) => {
   var [currencyActive, setCurrencyActive] = useState();
 
   getLang(setCurrencyActive);
@@ -76,7 +76,7 @@ const SelectLanguesScreen = ({ navigation }: Props) => {
       <ScreenWrapper>
         <ActiveSection>
           <Spacer />
-          <T center>Active Langues:</T>
+          <T center>Active Languages:</T>
           <Spacer tiny />
           <T center weight="bold">
             {` ${(getLang(setCurrencyActive), currencyActive)} `}
@@ -104,4 +104,4 @@ const SelectLanguesScreen = ({ navigation }: Props) => {
   );
 };
 
-export default connector(SelectLanguesScreen);
+export default connector(SelectLanguagesScreen);

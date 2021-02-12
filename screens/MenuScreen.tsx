@@ -146,9 +146,9 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
           label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
         />
         <OptionsRow
-          text="Langues"
+          text="Languages"
           pressFn={() => {
-            navigation.navigate("SelectLanguesScreen");
+            navigation.navigate("SelectLanguagesScreen");
           }}
           label={`${lang}`}
         />

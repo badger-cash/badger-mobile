@@ -14,7 +14,7 @@ import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
 import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
-import SelectLanguesScreen from "../screens/SelectLanguesScreen";
+import SelectLanguagesScreen from "../screens/SelectLanguagesScreen";
 import RequestScreen from "../screens/RequestScreen";
 import FAQScreen from "../screens/FAQScreen";
 import KeySweepScreen from "../screens/KeySweepScreen";
@@ -125,10 +125,10 @@ const MenuStack = createStackNavigator(
         title: "Select Currency"
       }
     },
-    SelectLanguesScreen: {
-      screen: SelectLanguesScreen,
+    SelectLanguagesScreen: {
+      screen: SelectLanguagesScreen,
       navigationOptions: {
-        title: "Select Langues"
+        title: "Select Languages"
       }
     }
   },
