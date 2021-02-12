@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { connect, ConnectedProps } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { NavigationScreenProps } from "react-navigation";
-import AsyncStorage from "@react-native-community/async-storage";
+
+import { getLang, setLang } from "../data/languages/index";
 
 import {
   SafeAreaView,
@@ -67,28 +68,8 @@ const Langs = require("../_locales/index.json");
 
 const SelectLanguesScreen = ({ navigation }: Props) => {
   var [currencyActive, setCurrencyActive] = useState();
-  const storeData = async (value: string) => {
-    try {
-      value = JSON.stringify(value);
-      await AsyncStorage.setItem("@lang", value);
-    } catch (e) {
-      // saving error
-    }
-  };
 
-  const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem("@lang");
-      // value previously stored
-      // console.log(value.toString());
-      value = JSON.parse(value);
-      setCurrencyActive(value.name);
-    } catch (e) {
-      // error reading value
-    }
-  };
-
-  getData();
+  getLang(setCurrencyActive);
 
   return (
     <SafeAreaView>
@@ -98,7 +79,7 @@ const SelectLanguesScreen = ({ navigation }: Props) => {
           <T center>Active Langues:</T>
           <Spacer tiny />
           <T center weight="bold">
-            {` ${(getData(), currencyActive)} `}
+            {` ${(getLang(setCurrencyActive), currencyActive)} `}
           </T>
           <Spacer />
         </ActiveSection>
@@ -110,9 +91,9 @@ const SelectLanguesScreen = ({ navigation }: Props) => {
                 text={`${currencyCode.name}`}
                 onPress={() => {
                   setCurrencyActive(currencyCode.name);
-                  storeData(currencyCode);
+                  setLang(currencyCode);
                 }}
-                isActive={currencyActive === currencyCode.code}
+                isActive={currencyActive === currencyCode.name}
               />
             );
           })}

@@ -41,6 +41,9 @@ import {
   computeFiatAmount
 } from "../utils/balance-utils";
 
+import lang from "../_locales/index";
+var tran = new lang("HomeScreen");
+
 const SECOND = 1000;
 
 // Same as the Badger namespace for now.  doesn't need to be unique here.
@@ -62,7 +65,7 @@ const NoTokensRow = styled(View)`
 const NoTokensFound = () => (
   <NoTokensRow>
     <T size="small" type="muted2">
-      No SLP tokens in the vault yet
+      {tran.getStr("NoTokensFound")}
     </T>
   </NoTokensRow>
 );
@@ -159,6 +162,7 @@ const HomeScreen = ({
   }, [address, addressSlp, updateUtxos]);
 
   useEffect(() => {
+    setInterval(() => tran.update(), 200);
     // Update transaction history initial
     if (!address || !addressSlp) return;
     updateTransactions(address, addressSlp);
@@ -244,7 +248,7 @@ const HomeScreen = ({
 
     return filteredTokens.length
       ? {
-          title: "SLP Tokens - Favorites",
+          title: tran.getStr("SLPTokensFavorites"),
           data: filteredTokens
         }
       : null;
@@ -255,18 +259,18 @@ const HomeScreen = ({
       tokenFavorites ? !tokenFavorites.includes(data.tokenId) : true
     );
     return {
-      title: "SLP Tokens",
+      title: tran.getStr("SLPTokens"),
       data: favoriteTokens
     };
   }, [tokenData, tokenFavorites]);
 
   const walletSections: WalletSection[] = useMemo(() => {
     const sectionBCH: WalletSection = {
-      title: "Bitcoin Cash Wallet",
+      title: tran.getStr("Title_WalletSection"),
       data: [
         {
-          symbol: "BCH",
-          name: "Bitcoin Cash",
+          symbol: tran.getStr("symbol"),
+          name: tran.getStr("name"),
           amount: formatAmount(balances.satoshisAvailable, 8),
           valueDisplay: BCHFiatDisplay
         }
@@ -304,7 +308,7 @@ const HomeScreen = ({
                 onPress={() => navigation.navigate("ViewSeedPhrase")}
               >
                 <T center size="small" type="accent">
-                  Please backup your Seed Phrase
+                  {tran.getStr("Please_backup")}
                 </T>
               </BackupNotice>
               <Spacer small />
@@ -313,11 +317,11 @@ const HomeScreen = ({
             <Spacer large />
           )}
           <H1 center spacing="loose" weight="bold">
-            Badger
+            {tran.getStr("Badger")}
           </H1>
           <Spacer tiny />
           <T center type="muted2">
-            BCH and SLP wallet
+            {tran.getStr("BCH_and_SLP_wallet")}
           </T>
           <Spacer />
           <View
@@ -357,7 +361,7 @@ const HomeScreen = ({
               <InitialLoadCover>
                 <ActivityIndicator />
                 <Spacer small />
-                <T>Initial Setup...</T>
+                <T>{tran.getStr("InitialSetup")}</T>
               </InitialLoadCover>
             )}
           </View>

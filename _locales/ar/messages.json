@@ -6,6 +6,23 @@
       "des": "Bitcoin Cash (BCH) and Simple Token (SLP) wallet ",
       "btn_new_wallet": "إنشاء محفظة جديدة",
       "btn_restore_wallet": "إستعادة محفظة"
+    },
+    "AuthLoadingScreen": {
+      "parseError1": "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.",
+      "parseError2": "Invalid address detected",
+      "Herding_Badgers": "Herding Badgers"
+    },
+    "HomeScreen": {
+      "NoTokensFound": "ليس هناك توكنز لديك",
+      "SLPTokensFavorites": "SLP Tokens - Favorites",
+      "SLPTokens": "SLP Tokens",
+      "Title_WalletSection": "Bitcoin Cash Wallet",
+      "symbol": "BCH",
+      "name": "Bitcoin Cash",
+      "Please_backup": "Please backup your Seed Phrase",
+      "Badger": "Badger",
+      "BCH_and_SLP_wallet": "BCH and SLP wallet",
+      "InitialSetup": "Initial Setup..."
     }
   }
 }

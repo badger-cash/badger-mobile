@@ -12,7 +12,7 @@ import {
   StyleSheet
 } from "react-native";
 
-import AsyncStorage from "@react-native-community/async-storage";
+import { getLang } from "../data/languages/index";
 
 import { getSeedViewedSelector } from "../data/accounts/selectors";
 
@@ -116,22 +116,12 @@ type Props = PropsFromParent & PropsFromRedux;
 const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
   var [lang, setLang] = useState();
 
-  async function getLang() {
-    try {
-      let value = await AsyncStorage.getItem("@lang");
-      // value previously stored
-      // console.log(value.toString());
-      value = JSON.parse(value).name;
-      setLang(value);
-    } catch (e) {
-      // error reading value
-    }
-  }
+  getLang(setLang);
 
   useEffect(() => {
     setInterval(() => {
-      getLang();
-    }, 500);
+      getLang(setLang);
+    }, 100);
   });
 
   return (

@@ -12,6 +12,9 @@ import { addressToSlp, addressToCash } from "../utils/account-utils";
 import { getType } from "../utils/schemeParser-utils";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("AuthLoadingScreen");
+
 const Wrapper = styled(View)`
   justify-content: center;
   align-items: center;
@@ -81,8 +84,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       });
 
       if (amountsFormatted.length > 1) {
-        parseError =
-          "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+        parseError = tran.getStr("parseError1");
       } else if (amountsFormatted.length === 1) {
         const target = amountsFormatted[0];
         tokenId = target.tokenId;
@@ -100,7 +102,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
             ? await addressToCash(formattedURI)
             : await addressToSlp(formattedURI);
       } catch (e) {
-        parseError = `Invalid address detected`;
+        parseError = tran.getStr("parseError2");
       }
 
       navigation.navigate("SendSetup", {
