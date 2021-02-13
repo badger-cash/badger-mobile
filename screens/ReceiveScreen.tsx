@@ -26,6 +26,9 @@ import BitcoinCashImage from "../assets/images/icon.png";
 import SLPImage from "../assets/images/slp-logo.png";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("ReceiveScreen");
+
 const ToggleRow = styled(View)`
   justify-content: center;
   flex-direction: row;
@@ -145,10 +148,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
         ref={scrollRef}
       >
         <Spacer small />
-        <T center>
-          Scan a public key below to receive funds. Tap on a QR code to copy the
-          address.
-        </T>
+        <T center>{tran.getStr("Msg_Scan_public")}</T>
         <Spacer />
         <ToggleRow>
           <ToggleLeft
@@ -159,7 +159,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             }}
           >
             <T weight="bold" type={showing === "BCH" ? "inverse" : "primary"}>
-              BCH
+              {tran.getStr("BCH")}
             </T>
           </ToggleLeft>
           <ToggleRight
@@ -170,14 +170,14 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             }}
           >
             <T weight="bold" type={showing === "SLP" ? "inverse" : "primary"}>
-              SLP
+              {tran.getStr("SLP")}
             </T>
           </ToggleRight>
         </ToggleRow>
         <Spacer />
         {showing === "BCH" && (
           <>
-            <H2 center>Bitcoin Cash (BCH)</H2>
+            <H2 center>{tran.getStr("Bitcoin_Cash")}</H2>
             <Spacer tiny />
 
             <TouchableOpacity
@@ -209,7 +209,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                   </TypeOverlay>
                   {showing !== "BCH" && (
                     <QROverlay>
-                      <T>Tap to show</T>
+                      <T>{tran.getStr("Tap_to_show")}</T>
                     </QROverlay>
                   )}
                 </QRHolder>
@@ -217,13 +217,13 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </TouchableOpacity>
             <Spacer tiny />
             <T center size="small" type="primary">
-              {copyNotify === "BCH" ? "Copied BCH Address" : " "}
+              {copyNotify === "BCH" ? tran.getStr("Copied_BCH_Address") : " "}
             </T>
           </>
         )}
         {showing === "SLP" && (
           <>
-            <H2 center>Simple Token (SLP)</H2>
+            <H2 center>{tran.getStr("Simple_Token")}</H2>
             <Spacer tiny />
             <TouchableOpacity
               onPress={() => {
@@ -254,7 +254,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
                   </TypeOverlay>
                   {showing !== "SLP" && (
                     <QROverlay>
-                      <T>Tap to show</T>
+                      <T>{tran.getStr("Tap_to_show")}</T>
                     </QROverlay>
                   )}
                 </QRHolder>
@@ -262,7 +262,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             </TouchableOpacity>
             <Spacer tiny />
             <T center size="small" type="primary">
-              {copyNotify === "SLP" ? "Copied SLP Address" : " "}
+              {copyNotify === "SLP" ? tran.getStr("Copied_SLP_Address") : " "}
             </T>
           </>
         )}

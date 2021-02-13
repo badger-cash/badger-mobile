@@ -16,6 +16,9 @@ import {
 
 import { T, Spacer } from "../atoms";
 
+import lang from "../_locales/index";
+var tran = new lang("SelectLanguagesScreen");
+
 const ScreenWrapper = styled(View)`
   height: 100%;
 `;
@@ -76,7 +79,7 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
       <ScreenWrapper>
         <ActiveSection>
           <Spacer />
-          <T center>Active Languages:</T>
+          <T center>{tran.getStr("Active_Languages")} :</T>
           <Spacer tiny />
           <T center weight="bold">
             {` ${(getLang(setCurrencyActive), currencyActive)} `}
@@ -84,16 +87,16 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
           <Spacer />
         </ActiveSection>
         <ScrollView>
-          {Langs.map(currencyCode => {
+          {Langs.map((lang: any) => {
             return (
               <CurrencyRow
-                key={currencyCode}
-                text={`${currencyCode.name}`}
+                key={lang}
+                text={`${lang.name}`}
                 onPress={() => {
-                  setCurrencyActive(currencyCode.name);
-                  setLang(currencyCode);
+                  setCurrencyActive(lang.name);
+                  setLang(lang);
                 }}
-                isActive={currencyActive === currencyCode.name}
+                isActive={currencyActive === lang.name}
               />
             );
           })}

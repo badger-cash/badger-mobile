@@ -23,6 +23,27 @@
       "Badger": "Badger",
       "BCH_and_SLP_wallet": "BCH and SLP wallet",
       "InitialSetup": "Initial Setup..."
+    },
+    "SelectCurrencyScreen": {
+      "Active_Currency": "العملة النشطة"
+    },
+    "SelectLanguagesScreen": {
+      "Active_Languages": "اللغة النشطة"
+    },
+    "RequestScreen": {
+      "Requesting": "Requesting",
+      "Copied_to_clipboard": "Copied to clipboard",
+      "Amount Required": "Amount Required"
+    },
+    "ReceiveScreen": {
+      "Msg_Scan_public": "Scan a public key below to receive funds. Tap on a QR code to copy the address.",
+      "BCH": "BCH",
+      "SLP": "SLP",
+      "Bitcoin_Cash": "Bitcoin Cash (BCH)",
+      "Tap_to_show": "Tap to show",
+      "Copied_BCH_Address": "Copied BCH Address",
+      "Simple_Token": "Simple Token (SLP)",
+      "Copied_SLP_Address": "Copied SLP Address"
     }
   }
 }

@@ -34,6 +34,9 @@ import { formatAmountInput, formatFiatAmount } from "../utils/balance-utils";
 import { currencyDecimalMap } from "../utils/currency-utils";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("RequestScreen");
+
 const TitleRow = styled(View)`
   flex-direction: row;
   align-items: center;
@@ -340,7 +343,7 @@ const RequestSetupScreen = ({
         </T>
         <Spacer />
         <T center size="small">
-          Requesting
+          {tran.getStr("Requesting")}
         </T>
         <Spacer tiny />
         <H2 center monospace>
@@ -361,7 +364,7 @@ const RequestSetupScreen = ({
           onPress={() => {
             if (isShowing) {
               Clipboard.setString(requestUri);
-              setCopiedMessage("Copied to clipboard");
+              setCopiedMessage(tran.getStr("Copied_to_clipboard"));
             }
           }}
         >
@@ -375,7 +378,7 @@ const RequestSetupScreen = ({
             {!isShowing && (
               <QROverlay>
                 <T type="accent" center>
-                  Amount Required
+                  {tran.getStr("Amount_Required")}
                 </T>
               </QROverlay>
             )}

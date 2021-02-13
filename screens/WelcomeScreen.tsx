@@ -8,7 +8,7 @@ import { T, H1, H2, Spacer, Button } from "../atoms";
 import BadgerIcon from "../assets/images/icon-full.png";
 import lang from "../_locales/index";
 
-let langs = new lang("ar", "WelcomeScreen");
+let langs = new lang("WelcomeScreen");
 
 const StyledWrapper = styled(SafeAreaView)`
   display: flex;
