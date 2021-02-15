@@ -44,6 +44,20 @@
       "Copied_BCH_Address": "Copied BCH Address",
       "Simple_Token": "Simple Token (SLP)",
       "Copied_SLP_Address": "Copied SLP Address"
+    },
+    "RestoreWalletScreen": {
+      "Restore_Wallet": "Restore Wallet",
+      "Msg_Enter_your_12_word": "Enter your 12 word seed phrase or mnemonic to restore and access an existing wallet",
+      "Msg_Enter_Backup_Phrase": "Enter Backup Phrase / Mnemonic",
+      "btn_Cancel": "Cancel",
+      "erorrMsg": "Double check the recovery phrase and try again",
+      "Msg_check_the_recovery": "check the recovery phrase and try again",
+      "erorrMsg_Seed_Phrase": "Seed Phrase / Mnemonic cannot be empty",
+      "btn_Restore": "Restore Wallet"
+    },
+    "WalletDetailScreen": {
+      "Msg": "Token ID copied to clipboard",
+      "": ""
     }
   }
 }
