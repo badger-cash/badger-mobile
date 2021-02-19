@@ -44,6 +44,81 @@
       "Copied_BCH_Address": "Copied BCH Address",
       "Simple_Token": "Simple Token (SLP)",
       "Copied_SLP_Address": "Copied SLP Address"
+    },
+    "RestoreWalletScreen": {
+      "Restore_Wallet": "Restore Wallet",
+      "Msg_Enter_your_12_word": "Enter your 12 word seed phrase or mnemonic to restore and access an existing wallet",
+      "Msg_Enter_Backup_Phrase": "Enter Backup Phrase / Mnemonic",
+      "btn_Cancel": "Cancel",
+      "erorrMsg": "Double check the recovery phrase and try again",
+      "Msg_check_the_recovery": "check the recovery phrase and try again",
+      "erorrMsg_Seed_Phrase": "Seed Phrase / Mnemonic cannot be empty",
+      "btn_Restore": "Restore Wallet"
+    },
+    "WalletDetailScreen": {
+      "Msg_Token_copied": "Token ID copied to clipboard",
+      "Balance": "Balance",
+      "Transaction_History": "Transaction History (max 30)",
+      "Transaction_history_updating": "Transaction history updating...",
+      "Msg_take_few_minutes": "This may take a few minutes.",
+      "Full_History": "Full History"
+    },
+    "ContactUsScreen": {
+      "Msg_we_hope": "We hope you are enjoying Badger Wallet",
+      "msg_if_you wish": "If you wish to give feedback, ask a question, or contact us for another reason, get in touch with the team through electronic mail or Telegram",
+      "Email": "Email",
+      "Email_badger@bitcoin.com": "badger@bitcoin.com",
+      "Msg_Telegram": "Telegram",
+      "Badger_Wallet_Group": "Badger Wallet Group"
+    },
+    "Bip70ConfirmScreen": {
+      "Payment_Amount": "Payment Amount",
+      "Payment_URL": "Payment URL",
+      "Msg_Memo": "Memo",
+      "Loading_Transaction_Details...": "Loading Transaction Details...",
+      "Sending_Payment": "Sending Payment",
+      "This_payment_request": "This payment request is invalid, expired or already paid, please check with the merchant and try again.",
+      "Error_while_sending_payment.": "Error while sending payment.",
+      "To_pay": "To pay",
+      "Release_to_pay": "Release to pay",
+      "Keep_going": "Keep going",
+      "Cancel_payment": "Cancel payment"
+    },
+    "Bip70SuccessScreen": {
+      "Payment_sent_to_merchant": "Payment sent to merchant",
+      "Transaction_ID": "Transaction ID",
+      "Msg_Success!": "Success!",
+      "btn_Finish": "Finish"
+    },
+    "CreateWalletScreen": {
+      "Msg_Loading_Wallet": "Loading Wallet..."
+    },
+    "LogoutScreen": {
+      "about_to_logout": "You are about to logout of your wallet. You will need to use this wallets seed phrase to access the held funds again.",
+      "Make_sure": " Make sure you have the seed phrase backed up in a secure location before logging out.",
+      "If_the_seed": "If the seed phrase is lost, we are unable to recover the wallet for you.",
+      "Btn_Cancel": "Cancel",
+      "SwipeButton_labelAction": "To Logout",
+      "SwipeButton_labelRelease": "Release to logout",
+      "SwipeButton_labelHalfway": "Keep going"
+    },
+    "MenuScreen": {
+      "ViewSeedPhrase": "View Seed Phrase",
+      "Currency": "Currency",
+      "Languages": "Languages",
+      "FAQ": "Frequently Asked Questions - FAQ",
+      "Paper_Wallet_Sweep": "Paper Wallet Sweep",
+      "Terms_of_Use": "Terms of Use",
+      "Privacy_Policy": "Privacy Policy",
+      "Contact_Us": "Contact Us",
+      "Logout": "Logout"
+    },
+    "ViewSeedScreen": {
+      "Text_This_seed_phrase": "This seed phrase is the key to the funds in this wallet.",
+      "Text_losing_this": "Losing this phrase is losing access to this wallet. If lost we will be unable to help you recover your Seed Phrase or wallet.",
+      "Text_Write_the_12-word": "Write the 12-word seed phrase down in order, keep it safe, and do not share it with anyone you do not trust with access to your wallet.",
+      "Text_I_am_in": "I am in a private area and wish to see my seed phrase",
+      "Btn_Reveal_Seed": "Reveal Seed Phrase"
     }
   }
 }

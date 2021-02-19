@@ -49,6 +49,9 @@ import {
 
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("Bip70ConfirmScreen");
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
 `;
@@ -411,7 +414,7 @@ const Bip70ConfirmScreen = ({
             <T center monospace size="large">{`${minutes}:${seconds}`}</T>
             <Spacer />
             <T center size="small" type="muted">
-              Payment Amount
+              {tran.getStr("Payment_Amount")}
             </T>
             <Spacer tiny />
             <T center monospace size="large" weight="bold">
@@ -434,12 +437,12 @@ const Bip70ConfirmScreen = ({
             {}
             <Spacer small />
             <T center size="small" type="muted">
-              Payment URL
+              {tran.getStr("Payment_URL")}
             </T>
             <T center>{paymentDetails.paymentUrl}</T>
             <Spacer small />
             <T center size="small" type="muted">
-              Memo
+              {tran.getStr("Msg_Memo")}
             </T>
             <T center>{paymentDetails.memo}</T>
             <Spacer fill />
@@ -447,14 +450,14 @@ const Bip70ConfirmScreen = ({
             <ButtonsContainer>
               <SwipeButton
                 swipeFn={sendPayment}
-                labelAction="To pay"
-                labelRelease="Release to pay"
-                labelHalfway="Keep going"
+                labelAction={tran.getStr("To_pay")}
+                labelRelease={tran.getStr("Release_to_pay")}
+                labelHalfway={tran.getStr("Keep_going")}
               />
               <Spacer small />
               <Button
                 nature="cautionGhost"
-                text="Cancel payment"
+                text={tran.getStr("Cancel_payment")}
                 onPress={() => navigation.goBack()}
               />
             </ButtonsContainer>
@@ -466,7 +469,7 @@ const Bip70ConfirmScreen = ({
               <ActivityIndicator />
               <Spacer small />
               <T center type="muted" monospace>
-                Loading Transaction Details...
+                {tran.getStr("Loading_Transaction_Details...")}
               </T>
             </View>
           </FullView>
@@ -477,7 +480,7 @@ const Bip70ConfirmScreen = ({
               <ActivityIndicator />
               <Spacer small />
               <T center type="muted" monospace>
-                Sending Payment
+                {tran.getStr("Sending_Payment")}
               </T>
             </View>
           </FullView>
@@ -486,8 +489,7 @@ const Bip70ConfirmScreen = ({
           <FullView>
             <View>
               <T type="accent" center>
-                This payment request is invalid, expired or already paid, please
-                check with the merchant and try again.
+                {tran.getStr("This_payment_request")}
               </T>
             </View>
           </FullView>
@@ -496,7 +498,7 @@ const Bip70ConfirmScreen = ({
           <FullView>
             <View>
               <T type="danger" center>
-                Error while sending payment.
+                {tran.getStr("Error_while_sending_payment")}
               </T>
               <Spacer small />
               <T type="danger" center>

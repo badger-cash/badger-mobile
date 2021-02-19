@@ -22,7 +22,10 @@ import { currencySelector } from "../data/prices/selectors";
 import { T, Spacer } from "../atoms";
 import { FullState } from "../data/store";
 
-// import packageJson from "../package.json";
+import packageJson from "../package.json";
+
+import lang from "../_locales/index";
+var tran = new lang("MenuScreen");
 
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
@@ -132,61 +135,61 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         }}
       >
         <OptionsRow
-          text="View Seed Phrase"
+          text={tran.getStr("ViewSeedPhrase")}
           pressFn={() => {
             navigation.navigate("ViewSeedPhrase");
           }}
           hasNotification={!seedViewed}
         />
         <OptionsRow
-          text="Currency"
+          text={tran.getStr("Currency")}
           pressFn={() => {
             navigation.navigate("SelectCurrencyScreen");
           }}
           label={`${currencySymbolMap[fiatCurrency]} ${fiatCurrency}`}
         />
         <OptionsRow
-          text="Languages"
+          text={tran.getStr("Languages")}
           pressFn={() => {
             navigation.navigate("SelectLanguagesScreen");
           }}
           label={`${lang}`}
         />
         <OptionsRow
-          text="Frequently Asked Questions - FAQ"
+          text={tran.getStr("FAQ")}
           pressFn={() => {
             navigation.navigate("FAQScreen");
           }}
         />
         <OptionsRow
-          text="Paper Wallet Sweep"
+          text={tran.getStr("Paper_Wallet_Sweep")}
           pressFn={() => {
             navigation.navigate("SweepScreen");
           }}
         />
         <OptionsRow
-          text="Terms of Use"
+          text={tran.getStr("Terms_of_Use")}
           muted
           pressFn={() => {
             navigation.navigate("ViewTermsOfUse");
           }}
         />
         <OptionsRow
-          text="Privacy Policy"
+          text={tran.getStr("Privacy_Policy")}
           muted
           pressFn={() => {
             navigation.navigate("ViewPrivacyPolicy");
           }}
         />
         <OptionsRow
-          text="Contact Us"
+          text={tran.getStr("Contact_Us")}
           muted
           pressFn={() => {
             navigation.navigate("ContactUsScreen");
           }}
         />
         <OptionsRow
-          text="Logout"
+          text={tran.getStr("Logout")}
           pressFn={() => {
             navigation.navigate("LogoutScreen");
           }}
@@ -194,8 +197,7 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
         <Spacer fill />
         <Spacer small />
         <T center size="small" type="muted2">
-          {/* Version {packageJson.version} */}
-          Version 0.14.2
+          Version {packageJson.version}
         </T>
         <Spacer small />
       </StyledScrollView>

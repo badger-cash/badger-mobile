@@ -1,3 +1,4 @@
+const { NativeModules } = require("react-native");
 const langs = require("./index.json");
 const en = require("./en/messages.json");
 const ar = require("./ar/messages.json");
@@ -16,8 +17,15 @@ class lang {
   }
 
   getDBlang() {
+    console.log(
+      "Lange def: " + NativeModules.I18nManager.localeIdentifier.split("_")[0]
+    );
     console.log(this.lang);
-    switch (this.lang["_55"]) {
+    let lang =
+      this.lang["_55"] != null
+        ? this.lang["_55"]
+        : NativeModules.I18nManager.localeIdentifier.split("_")[0];
+    switch (lang) {
       case "en":
         return en;
         break;

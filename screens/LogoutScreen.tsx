@@ -9,6 +9,9 @@ import { Button, T, Spacer, SwipeButton } from "../atoms";
 import { logoutAccount } from "../data/accounts/actions";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("LogoutScreen");
+
 const ButtonContainer = styled(View)``;
 const Screen = styled(SafeAreaView)`
   flex: 1;
@@ -39,20 +42,11 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
         }}
       >
         <Spacer />
-        <T center>
-          You are about to logout of your wallet. You will need to use this
-          wallets seed phrase to access the held funds again.
-        </T>
+        <T center>{tran.getStr("about_to_logout")}</T>
         <Spacer />
-        <T center>
-          Make sure you have the seed phrase backed up in a secure location
-          before logging out.
-        </T>
+        <T center>{tran.getStr("Make_sure")}</T>
         <Spacer />
-        <T center>
-          If the seed phrase is lost, we are unable to recover the wallet for
-          you.
-        </T>
+        <T center>{tran.getStr("If_the_seed")}</T>
         <Spacer small />
 
         <Spacer fill />
@@ -60,7 +54,7 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
         <ButtonContainer>
           <Button
             nature="cautionGhost"
-            text="Cancel"
+            text={tran.getStr("Btn_Cancel")}
             onPress={() => navigation.goBack()}
           />
           <Spacer />
@@ -70,9 +64,9 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
 
               _.delay(() => navigation.navigate("AuthLoadingCheck"), 25);
             }}
-            labelAction="To Logout"
-            labelRelease="Release to logout"
-            labelHalfway="Keep going"
+            labelAction={tran.getStr("SwipeButton_labelAction")}
+            labelRelease={tran.getStr("SwipeButton_labelRelease")}
+            labelHalfway={tran.getStr("SwipeButton_labelHalfway")}
           />
         </ButtonContainer>
         <Spacer />

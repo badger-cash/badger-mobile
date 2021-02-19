@@ -13,6 +13,9 @@ import {
 import { T, Spacer, Button } from "../atoms";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("ViewSeedScreen");
+
 const Screen = styled(ScrollView)`
   padding: 0 16px;
 `;
@@ -68,27 +71,19 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
       />
       <Screen>
         <Spacer />
-        <T center>This seed phrase is the key to the funds in this wallet.</T>
+        <T center>{tran.getStr("Text_This_seed_phrase")}</T>
         <Spacer small />
-        <T center>
-          Losing this phrase is losing access to this wallet. If lost we will be
-          unable to help you recover your Seed Phrase or wallet.
-        </T>
+        <T center>{tran.getStr("Text_losing_this")}</T>
         <Spacer small />
-        <T center>
-          Write the 12-word seed phrase down in order, keep it safe, and do not
-          share it with anyone you do not trust with access to your wallet.
-        </T>
+        <T center>{tran.getStr("Text_Write_the_12-word")}</T>
         <Spacer />
         <WordHolder>
           {!showing && (
             <Cover>
-              <T center>
-                I am in a private area and wish to see my seed phrase
-              </T>
+              <T center>{tran.getStr("Text_I_am_in")}</T>
               <Spacer />
               <Button
-                text="Reveal Seed Phrase"
+                text={tran.getStr("Btn_Reveal_Seed")}
                 onPress={() => {
                   setShowing(true);
                   viewSeed(address);

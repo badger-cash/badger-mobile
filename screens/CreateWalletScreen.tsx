@@ -10,6 +10,9 @@ import { hasMnemonicSelector } from "../data/accounts/selectors";
 import { getAccount } from "../data/accounts/actions";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("CreateWalletScreen");
+
 const ScreenWrapper = styled(SafeAreaView)`
   align-items: center;
   justify-content: center;
@@ -45,7 +48,7 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
     <ScreenWrapper>
       <ActivityIndicator />
       <Spacer />
-      <T monospace>Loading Wallet...</T>
+      <T monospace>{tran.getStr("Msg_Loading_Wallet")}</T>
     </ScreenWrapper>
   );
 };
