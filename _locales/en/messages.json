@@ -56,8 +56,12 @@
       "btn_Restore": "Restore Wallet"
     },
     "WalletDetailScreen": {
-      "Msg": "Token ID copied to clipboard",
-      "": ""
+      "Msg_Token_copied": "Token ID copied to clipboard",
+      "Balance": "Balance",
+      "Transaction_History": "Transaction History (max 30)",
+      "Transaction_history_updating": "Transaction history updating...",
+      "Msg_take_few_minutes": "This may take a few minutes.",
+      "Full_History": "Full History"
     }
   }
 }

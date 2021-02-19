@@ -53,6 +53,9 @@ import TransactionRow, {
 } from "../components/TransactionRow/TransactionRow";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("WalletDetailScreen");
+
 const TransactionArea = styled(View)`
   border-top-width: ${StyleSheet.hairlineWidth};
   border-top-color: ${props => props.theme.fg700};
@@ -279,7 +282,7 @@ const WalletDetailScreen = ({
             <>
               <Spacer minimal />
               <T center size="small" type="primary">
-                Token ID copied to clipboard
+                {tran.getStr("Msg_Token_copied")}
               </T>
             </>
           )}
@@ -291,7 +294,7 @@ const WalletDetailScreen = ({
           </IconArea>
 
           <Spacer />
-          <T center>Balance</T>
+          <T center>{tran.getStr("Balance")}</T>
           <H1 center>
             {amountWhole}
             {amountDecimal ? <H2>.{amountDecimal}</H2> : null}
@@ -332,7 +335,7 @@ const WalletDetailScreen = ({
           size="small"
           type="muted"
         >
-          Transaction History (max 30)
+          {tran.getStr("Transaction_History")}
         </T>
         <TransactionArea>
           {transactions.map((tx: Transaction) => {
@@ -409,10 +412,10 @@ const WalletDetailScreen = ({
             <>
               <Spacer small />
               <T size="small" type="muted" center>
-                Transaction history updating...
+                {tran.getStr("Transaction_history_updating")}
               </T>
               <T size="xsmall" type="muted2" center>
-                This may take a few minutes.
+                {tran.getStr("Msg_take_few_minutes")}
               </T>
               <Spacer small />
             </>
@@ -424,7 +427,7 @@ const WalletDetailScreen = ({
               type="muted2"
               onPress={() => Linking.openURL(explorerUrl)}
             >
-              Full History
+              {tran.getStr("Full_History")}
             </T>
             <Spacer small />
           </ExplorerRow>
