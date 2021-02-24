@@ -35,6 +35,9 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("SendConfirmScreen");
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
   padding: 0 16px;
@@ -274,7 +277,7 @@ const SendConfirmScreen = ({
         </IconArea>
 
         <Spacer />
-        <H2 center>Sending</H2>
+        <H2 center>{tran.getStr("Sending")}</H2>
         <Spacer small />
         <H2 center weight="bold">
           {sendAmountBase.toFormat() || "--"} {displaySymbol}
@@ -285,7 +288,7 @@ const SendConfirmScreen = ({
           </T>
         )}
         <Spacer large />
-        <H2 center>To Address</H2>
+        <H2 center>{tran.getStr("To_Address")}</H2>
         <Spacer small />
         <T size="small" center>
           {protocol}:
@@ -309,9 +312,9 @@ const SendConfirmScreen = ({
         <ButtonsContainer>
           <SwipeButton
             swipeFn={() => signSendTransaction()}
-            labelAction="To Send"
-            labelRelease="Release to send"
-            labelHalfway="Keep going"
+            labelAction={tran.getStr("SwipeButton_labelAction")}
+            labelRelease={tran.getStr("SwipeButton_labelRelease")}
+            labelHalfway={tran.getStr("SwipeButton_labelHalfway")}
             controlledState={
               transactionState === "signing" ? "pending" : undefined
             }
@@ -322,7 +325,7 @@ const SendConfirmScreen = ({
           {transactionState !== "signing" && (
             <Button
               nature="cautionGhost"
-              text="Cancel Transaction"
+              text={tran.getStr("Button_Cancel")}
               onPress={() => navigation.goBack()}
             />
           )}

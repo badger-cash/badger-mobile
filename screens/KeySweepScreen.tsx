@@ -39,6 +39,9 @@ import {
 
 import { T, H2, Spacer, Button } from "../atoms";
 
+import lang from "../_locales/index";
+var tran = new lang("KeySweepScreen");
+
 const ScreenWrapper = styled(View)`
   position: relative;
   flex: 1;
@@ -201,7 +204,9 @@ const KeySweepScreen = ({
       }
     } catch (e) {
       setSweepState("error");
-      setSweepError(e.message || "Error scanning paper wallet");
+      setSweepError(
+        e.message || tran.getStr("Msg_Error_scanning_paper_wallet")
+      );
     }
   }, []);
   const confirmSweep = useCallback(async () => {
@@ -220,9 +225,7 @@ const KeySweepScreen = ({
       setSweepState("success");
     } catch (e) {
       setSweepState("error");
-      setSweepError(
-        "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee"
-      );
+      setSweepError(tran.getStr("Msg_Error_Sweep_failed"));
     }
   }, [
     wif,
@@ -260,7 +263,7 @@ const KeySweepScreen = ({
         {isCameraOpen && (
           <QROverlayScreen>
             <Spacer small />
-            <H2 center>Scan QR Code</H2>
+            <H2 center>{tran.getStr("Scan_QR_Code")}</H2>
             <Spacer small />
             {/* Uncomment below to easily test on emulators */}
             {/* <H2
@@ -293,7 +296,7 @@ const KeySweepScreen = ({
             <Button
               nature="cautionGhost"
               onPress={() => setCameraOpen(false)}
-              text="Cancel Scan"
+              text={tran.getStr("Btn_Cancel_Scan")}
             />
           </QROverlayScreen>
         )}
@@ -307,11 +310,12 @@ const KeySweepScreen = ({
         >
           <View>
             <Spacer />
-            <T weight="bold">Scan QR</T>
+            <T weight="bold">{tran.getStr("Scan_QR")}</T>
             <Spacer tiny />
             <Button text="Open QR Scanner" onPress={() => setCameraOpen(true)}>
               <T center spacing="loose" type="inverse" weight="bold">
-                <Ionicons name="ios-qr-scanner" size={18} /> Open Camera
+                <Ionicons name="ios-qr-scanner" size={18} />{" "}
+                {tran.getStr("Open_Camera")}
               </T>
             </Button>
             <Spacer />
@@ -325,30 +329,23 @@ const KeySweepScreen = ({
             {sweepState === "neutral" && (
               <>
                 <T size="small" center>
-                  To recover Bitcoin Cash (BCH) or SLP Tokens from a paper
-                  wallet, follow the steps below.
+                  {tran.getStr("Text_To_recover")}
                 </T>
                 <Spacer />
-                <T size="small">
-                  1. Scan the private QR code on the paper wallet.
-                </T>
+                <T size="small">{tran.getStr("Text_1")}</T>
                 <Spacer small />
-                <T size="small">2. Select a token if there are multiple.</T>
+                <T size="small">{tran.getStr("Text_2")}</T>
                 <Spacer small />
-                <T size="small">3. Review details.</T>
+                <T size="small">{tran.getStr("Text_3")}</T>
                 <Spacer small />
-                <T size="small">4. Sweep to your Badger Wallet.</T>
+                <T size="small">{tran.getStr("Text_4")}</T>
                 <Spacer small />
-                <T size="small">
-                  5. Repeat until all BCH and tokens have been swept.
-                </T>
+                <T size="small">{tran.getStr("Text_5")}</T>
               </>
             )}
             {sweepState === "tokenSelect" && (
               <>
-                <T>
-                  Multiple SLP tokens detected, select one to sweep first...
-                </T>
+                <T>{tran.getStr("Multiple_SLP_tokens_detected")}</T>
                 <Spacer small />
                 {Object.entries(paperBalances).map(item => {
                   if (item[0] === "BCH") return null;
@@ -387,10 +384,10 @@ const KeySweepScreen = ({
             )}
             {sweepState === "scanned" && (
               <>
-                <T weight="bold">Review Details</T>
+                <T weight="bold">{tran.getStr("Review_Details")}</T>
                 <Spacer small />
                 <T weight="bold" type="muted2">
-                  Wif
+                  {tran.getStr("Wif")}
                 </T>
                 <Spacer tiny />
                 <T monospace size="small">
@@ -398,12 +395,12 @@ const KeySweepScreen = ({
                 </T>
                 <Spacer />
                 <T weight="bold" type="muted2">
-                  Balance to Sweep
+                  {tran.getStr("Balance_to_Sweep")}
                 </T>
                 <Spacer tiny />
                 {paperBalances["BCH"] && (
                   <>
-                    <T>Bitcoin Cash</T>
+                    <T>{tran.getStr("Bitcoin_Cash")}</T>
                     <Spacer minimal />
                     <T weight="bold">{paperBalances["BCH"].toFormat()} BCH</T>
                     <Spacer small />
@@ -411,7 +408,7 @@ const KeySweepScreen = ({
                 )}
                 {tokenId && paperBalances[tokenId] && (
                   <>
-                    <T>SLP Token</T>
+                    <T>{tran.getStr("SLP_Token")}</T>
                     <Spacer minimal />
                     <T weight="bold">
                       {paperBalances[tokenId].toFormat()} {symbolToken}
@@ -424,11 +421,12 @@ const KeySweepScreen = ({
 
                 {!hasBalance && (
                   <>
-                    <T>No balances found on this paper wallet</T>
+                    <T>{tran.getStr("Msg_No_balances_found")}</T>
                     <Spacer small />
                     <T>
-                      If the funds appear on a block explorer, wait a few
-                      minutes and try again.
+                      {tran.getStr(
+                        "Msg_If_the_funds_appear_on_a_block_explorer"
+                      )}
                     </T>
                   </>
                 )}
@@ -448,7 +446,7 @@ const KeySweepScreen = ({
             {sweepState === "success" && (
               <>
                 <T type="primary" center weight="bold">
-                  Sweep Success!
+                  {tran.getStr("Sweep_Success")}
                 </T>
                 <Spacer small />
                 <SuccessContainer>
@@ -456,7 +454,7 @@ const KeySweepScreen = ({
                     <>
                       <Spacer small />
                       <T type="primary" center weight="bold">
-                        Bitcoin Cash
+                        {tran.getStr("Bitcoin_Cash")}
                       </T>
                       <T type="primary" size="large" center weight="bold">
                         {paperBalances["BCH"].toFormat()} BCH
@@ -467,7 +465,7 @@ const KeySweepScreen = ({
                     <>
                       <Spacer small />
                       <T type="primary" center weight="bold">
-                        SLP Token
+                        {tran.getStr("SLP_Token")}
                       </T>
                       <T type="primary" center size="large" weight="bold">
                         {paperBalances[tokenId].toFormat()} {symbolToken}
@@ -478,8 +476,7 @@ const KeySweepScreen = ({
                 </SuccessContainer>
                 <Spacer />
                 <T size="small" type="muted" center>
-                  Sweep again if this paper wallet had more than 1 type of SLP
-                  token.
+                  {tran.getStr("Msg_Sweep_again")}
                 </T>
               </>
             )}
@@ -490,7 +487,7 @@ const KeySweepScreen = ({
                 </T>
                 <Spacer small />
                 <T type="accent" center>
-                  Please try again
+                  {tran.getStr("Please_try_again")}
                 </T>
               </ErrorContainer>
             )}
@@ -500,10 +497,13 @@ const KeySweepScreen = ({
             <View>
               <Spacer small />
               <T weight="bold" type="muted">
-                Sweep Funds
+                {tran.getStr("Sweep_Funds")}
               </T>
               <Spacer tiny />
-              <Button text="Confirm Sweep" onPress={confirmSweep} />
+              <Button
+                text={tran.getStr("Btn_Confirm_Sweep")}
+                onPress={confirmSweep}
+              />
               <Spacer />
             </View>
           )}

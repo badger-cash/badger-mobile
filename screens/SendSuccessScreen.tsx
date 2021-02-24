@@ -24,6 +24,9 @@ import { formatFiatAmount } from "../utils/balance-utils";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+var tran = new lang("SendSuccessScreen");
+
 const ScreenCover = styled(View)`
   flex: 1;
   background-color: ${props => props.theme.primary500};
@@ -148,7 +151,7 @@ const SendSuccessScreen = ({
         >
           <Spacer />
           <H1 center type="inverse" weight="bold">
-            Success!
+            {tran.getStr("Success")}!
           </H1>
           <Spacer small />
           <IconArea>
@@ -165,7 +168,7 @@ const SendSuccessScreen = ({
           )}
           <Spacer />
           <H2 center weight="bold" type="inverse">
-            Sent
+            {tran.getStr("Sent")}
           </H2>
           <Spacer tiny />
           <H2 center weight="bold" type="inverse">
@@ -178,7 +181,7 @@ const SendSuccessScreen = ({
           )}
           <Spacer large />
           <H2 center type="inverse" weight="bold">
-            To
+            {tran.getStr("To")}
           </H2>
           <Spacer small />
           <T center type="inverse">
@@ -214,7 +217,7 @@ const SendSuccessScreen = ({
               marginRight: 7
             }}
             onPress={() => navigation.navigate("Home")}
-            text="Finish"
+            text={tran.getStr("Btn_Finish")}
           />
           <Spacer small />
         </ScrollView>

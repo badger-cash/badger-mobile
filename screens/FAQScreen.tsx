@@ -10,6 +10,9 @@ import styled from "styled-components";
 
 import { T, Spacer } from "../atoms";
 
+import lang from "../_locales/index";
+var tran = new lang("FAQScreen");
+
 const ScreenWrapper = styled(ScrollView)`
   padding: 7px 16px;
 `;
@@ -42,26 +45,19 @@ const FAQScreen = (props: Props) => {
           flexGrow: 1
         }}
       >
-        <FAQItem title="What is Badger Wallet?">
-          <T>
-            Badger Wallet is a Bitcoin Cash (BCH) and SLP token wallet, designed
-            to prioritize simplicity for everyday use.
-          </T>
+        <FAQItem title={tran.getStr("Frist_FAQ").title}>
+          <T>{tran.getStr("Frist_FAQ").body.join("\n")}</T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://badger.bitcoin.com")}
           >
             <T type="accent">badger.bitcoin.com</T>
           </TouchableOpacity>
         </FAQItem>
-        <FAQItem title="Which cryptocurrencies does Badger wallet support?">
-          <T>Bitcoin Cash (BCH) and thousands of SLP tokens.</T>
+        <FAQItem title={tran.getStr("Second_FAQ").title}>
+          <T>{tran.getStr("Second_FAQ").body.join("\n")}</T>
         </FAQItem>
-        <FAQItem title="What is Bitcoin Cash (BCH)?">
-          <T>
-            Bitcoin Cash (BCH) is a peer-to-peer electronic cash system for the
-            world. BCH enables permissionless spending for micro transactions,
-            everyday spending, large business deals, and everything in between.
-          </T>
+        <FAQItem title={tran.getStr("Third_FAQ").title}>
+          <T>{tran.getStr("Third_FAQ").body.join("\n")}</T>
           <TouchableOpacity
             onPress={() => Linking.openURL("https://bitcoincash.org")}
           >
@@ -69,18 +65,10 @@ const FAQScreen = (props: Props) => {
           </TouchableOpacity>
         </FAQItem>
 
-        <FAQItem title="What are Simple Ledger Protocol (SLP) tokens?">
-          <T>
-            SLP is a token system built upon the Bitcoin Cash network. SLP
-            tokens allow anyone - or business - to create, send, and receive
-            their own tokens for whatever they want.
-          </T>
+        <FAQItem title={tran.getStr("Fourth_FAQ").title}>
+          <T>{tran.getStr("Fourth_FAQ").body.join("\n")}</T>
           <Spacer small />
-          <T>
-            SLP tokens enable hundreds of new use-cases on the BCH network. From
-            voting systems, reward / loyalty points, ticketing systems, event
-            payouts, and many many more.
-          </T>
+          <T>{tran.getStr("Fourth_FAQ").body_toice.join("\n")}</T>
 
           <TouchableOpacity
             onPress={() => Linking.openURL("https://simpleledger.cash")}
@@ -89,39 +77,22 @@ const FAQScreen = (props: Props) => {
           </TouchableOpacity>
         </FAQItem>
 
-        <FAQItem title="Why can't I send tokens?">
-          <T>
-            Receiving tokens is free, but sending tokens requires a bit of
-            Bitcoin Cash (BCH) to pay the transaction fee - typically
-            ~0.00000400 BCH.
-          </T>
+        <FAQItem title={tran.getStr("Fifth_FAQ").title}>
+          <T>{tran.getStr("Fifth_FAQ").body.join("\n")}</T>
           <Spacer small />
-          <T>
-            Be sure to add a little bit of BCH to your wallet and try again.
-          </T>
+          <T>{tran.getStr("Fifth_FAQ").body_toice.join("\n")}</T>
         </FAQItem>
 
-        <FAQItem title="How private is Badger?">
-          <T>
-            Badger uses a single address for all transactions. This means
-            transactions to and from Badger can be linked together with analysis
-            relatively easily.
-          </T>
+        <FAQItem title={tran.getStr("Sixth_FAQ").title}>
+          <T>{tran.getStr("Sixth_FAQ").body.join("\n")}</T>
           <Spacer small />
-          <T>We will make updates focused on privacy in the future.</T>
+          <T>{tran.getStr("Sixth_FAQ").body_toice.join("\n")}</T>
         </FAQItem>
 
-        <FAQItem title="Should I store a lot of money in Badger?">
-          <T>
-            No. You probably shouldn't store a lot of money on any mobile
-            wallet.
-          </T>
+        <FAQItem title={tran.getStr("Seventh_FAQ").title}>
+          <T>{tran.getStr("Sixth_FAQ").body.join("\n")}</T>
           <Spacer small />
-          <T>
-            Treat Badger similar to your regular wallet. Keep some BCH and
-            tokens in it for spending, but store the rest of your crypto in a
-            secure hardware wallet.
-          </T>
+          <T>{tran.getStr("Sixth_FAQ").body_toice.join("\n")}</T>
         </FAQItem>
 
         <Spacer large />
