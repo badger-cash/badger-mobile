@@ -3,26 +3,26 @@
     "WelcomeScreen": {
       "name_wallet": "محفظة بادجر",
       "msg_welcome": "بوابتك إلى عالم البيتكوين كاش",
-      "des": "Bitcoin Cash (BCH) and Simple Token (SLP) wallet ",
+      "des": "محفظة بيتكوين كاش (BCH) ومصكوكات (SLP) البسيطة ",
       "btn_new_wallet": "إنشاء محفظة جديدة",
       "btn_restore_wallet": "إستعادة محفظة"
     },
     "AuthLoadingScreen": {
-      "parseError1": "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.",
-      "parseError2": "Invalid address detected",
-      "Herding_Badgers": "Herding Badgers"
+      "parseError1": "تدعم محفظة بادجر إرسال عملة واحدة في نفس الوقت حاليا. هذا URI يطلب عدة عملات.",
+      "parseError2": "عثر على عنوان غير صالح",
+      "Herding_Badgers": "نجمع المبعثر"
     },
     "HomeScreen": {
-      "NoTokensFound": "ليس هناك توكنز لديك",
-      "SLPTokensFavorites": "SLP Tokens - Favorites",
-      "SLPTokens": "SLP Tokens",
-      "Title_WalletSection": "Bitcoin Cash Wallet",
+      "NoTokensFound": "ليس هناك مصكوكات لديك",
+      "SLPTokensFavorites": "مصكوكات SLP - المفضلات",
+      "SLPTokens": "مصكوكات SLP",
+      "Title_WalletSection": "محفظة بيتكوين كاش",
       "symbol": "BCH",
-      "name": "Bitcoin Cash",
-      "Please_backup": "Please backup your Seed Phrase",
-      "Badger": "Badger",
-      "BCH_and_SLP_wallet": "BCH and SLP wallet",
-      "InitialSetup": "Initial Setup..."
+      "name": "بيتكوين كاش",
+      "Please_backup": "رجاء احتفظ بعبارة البذور",
+      "Badger": "بادجر",
+      "BCH_and_SLP_wallet": "محفظة BCH و SLP",
+      "InitialSetup": "الإعداد الأولي..."
     },
     "SelectCurrencyScreen": {
       "Active_Currency": "العملة النشطة"
@@ -31,218 +31,218 @@
       "Active_Languages": "اللغة النشطة"
     },
     "RequestScreen": {
-      "Requesting": "Requesting",
-      "Copied_to_clipboard": "Copied to clipboard",
-      "Amount Required": "Amount Required"
+      "Requesting": "يلطب",
+      "Copied_to_clipboard": "نسخت إلى الحافظة",
+      "Amount Required": "المقدار المطلوب"
     },
     "ReceiveScreen": {
-      "Msg_Scan_public": "Scan a public key below to receive funds. Tap on a QR code to copy the address.",
+      "Msg_Scan_public": "امسح المفتاح العام أسفله لتلقي المال . انقر على الرمز التربيعي لنسخ العنوان.",
       "BCH": "BCH",
       "SLP": "SLP",
-      "Bitcoin_Cash": "Bitcoin Cash (BCH)",
-      "Tap_to_show": "Tap to show",
-      "Copied_BCH_Address": "Copied BCH Address",
-      "Simple_Token": "Simple Token (SLP)",
-      "Copied_SLP_Address": "Copied SLP Address"
+      "Bitcoin_Cash": "بيتكوين كاش (BCH)",
+      "Tap_to_show": "انقر للعرض",
+      "Copied_BCH_Address": "نُسخ عنوان BCH",
+      "Simple_Token": "مصكوكات (SLP) البسيطة",
+      "Copied_SLP_Address": "نُسخ عنوان SLP"
     },
     "RestoreWalletScreen": {
-      "Restore_Wallet": "Restore Wallet",
-      "Msg_Enter_your_12_word": "Enter your 12 word seed phrase or mnemonic to restore and access an existing wallet",
-      "Msg_Enter_Backup_Phrase": "Enter Backup Phrase / Mnemonic",
-      "btn_Cancel": "Cancel",
-      "erorrMsg": "Double check the recovery phrase and try again",
-      "Msg_check_the_recovery": "check the recovery phrase and try again",
-      "erorrMsg_Seed_Phrase": "Seed Phrase / Mnemonic cannot be empty",
-      "btn_Restore": "Restore Wallet"
+      "Restore_Wallet": "استعادة محفظة",
+      "Msg_Enter_your_12_word": "أدخل البذور الـ 12 أو الكلمات التذكيرية للوصول لمحفظة سابقة.",
+      "Msg_Enter_Backup_Phrase": "أدخل عبارة النسخ الاحتياطي / التذكير",
+      "btn_Cancel": "ألغ",
+      "erorrMsg": "أعد التأكد من كلمة الاستعادة وحاول مجددا",
+      "Msg_check_the_recovery": "تأكد من كلمة الاستعادة وحاول مجددا",
+      "erorrMsg_Seed_Phrase": "لا يمكن أن تكون العبارة أو التذكير فارغا",
+      "btn_Restore": "استرجع المحفظة"
     },
     "WalletDetailScreen": {
-      "Msg_Token_copied": "Token ID copied to clipboard",
-      "Balance": "Balance",
-      "Transaction_History": "Transaction History (max 30)",
-      "Transaction_history_updating": "Transaction history updating...",
-      "Msg_take_few_minutes": "This may take a few minutes.",
-      "Full_History": "Full History"
+      "Msg_Token_copied": "نُسخ معرف المصكوكة إلى الحافظة",
+      "Balance": "الرصيد",
+      "Transaction_History": "سجل المعاملات (الأقصى 30)",
+      "Transaction_history_updating": "يحدث سجل المعاملات...",
+      "Msg_take_few_minutes": "قد يستغرق ذلك عدة دقائق.",
+      "Full_History": "السجل الكامل"
     },
     "ContactUsScreen": {
-      "Msg_we_hope": "We hope you are enjoying Badger Wallet",
-      "msg_if_you wish": "If you wish to give feedback, ask a question, or contact us for another reason, get in touch with the team through electronic mail or Telegram",
-      "Email": "Email",
+      "Msg_we_hope": "نأمل بأن تكون مستمتعا باستخدام محفظة بادجر",
+      "msg_if_you wish": "إذا رغبت بتقديم رأي, أو طرح سؤال, أو التواصل معنا لسبب آخر, يمكنك التواصل مع الفريق عبر بريدنا أو عبر تلغرام",
+      "Email": "البريد",
       "Email_badger@bitcoin.com": "badger@bitcoin.com",
-      "Msg_Telegram": "Telegram",
-      "Badger_Wallet_Group": "Badger Wallet Group"
+      "Msg_Telegram": "تلغرام",
+      "Badger_Wallet_Group": "مجموعة بادجر على تلغرام"
     },
     "Bip70ConfirmScreen": {
-      "Payment_Amount": "Payment Amount",
-      "Payment_URL": "Payment URL",
-      "Msg_Memo": "Memo",
-      "Loading_Transaction_Details...": "Loading Transaction Details...",
-      "Sending_Payment": "Sending Payment",
-      "This_payment_request": "This payment request is invalid, expired or already paid, please check with the merchant and try again.",
-      "Error_while_sending_payment.": "Error while sending payment.",
+      "Payment_Amount": "مقدار الدفعة",
+      "Payment_URL": "عنوان الدفع",
+      "Msg_Memo": "ملاحظة",
+      "Loading_Transaction_Details...": "جلب بيانات المعاملة...",
+      "Sending_Payment": "يجري الدفع",
+      "This_payment_request": "طلب الدفع هذا غير صالح، قد انتهى أو دُفع مسبقا، رجاء تحقق مع البائع وحاول مجددا.",
+      "Error_while_sending_payment.": "خطأ عند الدفع.",
       "To_pay": "To pay",
-      "Release_to_pay": "Release to pay",
-      "Keep_going": "Keep going",
-      "Cancel_payment": "Cancel payment"
+      "Release_to_pay": "أفلت للدفع",
+      "Keep_going": "استمر",
+      "Cancel_payment": "ألغ الدفع"
     },
     "Bip70SuccessScreen": {
-      "Payment_sent_to_merchant": "Payment sent to merchant",
-      "Transaction_ID": "Transaction ID",
-      "Msg_Success!": "Success!",
-      "btn_Finish": "Finish"
+      "Payment_sent_to_merchant": "أرسل المبلغ إلى البائع",
+      "Transaction_ID": "معرف المعاملة",
+      "Msg_Success!": "تهانينا!",
+      "btn_Finish": "أنه"
     },
     "CreateWalletScreen": {
-      "Msg_Loading_Wallet": "Loading Wallet..."
+      "Msg_Loading_Wallet": "تحميل المحفظة..."
     },
     "LogoutScreen": {
-      "about_to_logout": "You are about to logout of your wallet. You will need to use this wallets seed phrase to access the held funds again.",
-      "Make_sure": " Make sure you have the seed phrase backed up in a secure location before logging out.",
-      "If_the_seed": "If the seed phrase is lost, we are unable to recover the wallet for you.",
-      "Btn_Cancel": "Cancel",
-      "SwipeButton_labelAction": "To Logout",
-      "SwipeButton_labelRelease": "Release to logout",
-      "SwipeButton_labelHalfway": "Keep going"
+      "about_to_logout": "أنت على وشك الخروج من المحفظة. ستضطر لاستخدام بذور الاستعادة لتصل إلى المبالغ المتواجدة مرة أخرى.",
+      "Make_sure": " تأكد من أن بذور الاستعادة محفوظة في مكان آمن قبل الخروج.",
+      "If_the_seed": "إذا فقدت بذور الاستعادة، فإننا لن نتمكن من استعادة محفظتك.",
+      "Btn_Cancel": "ألغ",
+      "SwipeButton_labelAction": "للخروج",
+      "SwipeButton_labelRelease": "أفلت للخروج",
+      "SwipeButton_labelHalfway": "استمر"
     },
     "MenuScreen": {
-      "ViewSeedPhrase": "View Seed Phrase",
-      "Currency": "Currency",
-      "Languages": "Languages",
-      "FAQ": "Frequently Asked Questions - FAQ",
-      "Paper_Wallet_Sweep": "Paper Wallet Sweep",
-      "Terms_of_Use": "Terms of Use",
-      "Privacy_Policy": "Privacy Policy",
-      "Contact_Us": "Contact Us",
-      "Logout": "Logout"
+      "ViewSeedPhrase": "أظهر عبارة البذورة",
+      "Currency": "العملة",
+      "Languages": "اللغات",
+      "FAQ": "الأسئلة الشائعة - FAQ",
+      "Paper_Wallet_Sweep": "سحب محفظة ورقية",
+      "Terms_of_Use": "شروط الاستخدام",
+      "Privacy_Policy": "سياسة الخصوصية",
+      "Contact_Us": "تواصل معنا",
+      "Logout": "الخروج"
     },
     "ViewSeedScreen": {
-      "Text_This_seed_phrase": "This seed phrase is the key to the funds in this wallet.",
-      "Text_losing_this": "Losing this phrase is losing access to this wallet. If lost we will be unable to help you recover your Seed Phrase or wallet.",
-      "Text_Write_the_12-word": "Write the 12-word seed phrase down in order, keep it safe, and do not share it with anyone you do not trust with access to your wallet.",
-      "Text_I_am_in": "I am in a private area and wish to see my seed phrase",
-      "Btn_Reveal_Seed": "Reveal Seed Phrase"
+      "Text_This_seed_phrase": "عبارة البذور هي مفتاح الوصول للأموال في هذه المحفظة.",
+      "Text_losing_this": "إضاعة هذه العبارة يعني فقدان الوصول للمحفظة. إن أضيعت لن نستطيع مساعدتك باستراجاع عبارة البذور أو المحفظة.",
+      "Text_Write_the_12-word": "اكتب الـ 12 بذرة بالترتيب، أبقها محفوظة بأمان، ولا تظهرها لأحد لا تريده أن يصل لمحتوى المحفظة.",
+      "Text_I_am_in": "أنا في مكان خاص وأريد رؤية عبارة البذور",
+      "Btn_Reveal_Seed": "أظهر عبارة البذور"
     },
     "SendConfirmScreen": {
-      "Sending": "Sending",
-      "To_Address": "To Address",
-      "SwipeButton_labelAction": "To Send",
-      "SwipeButton_labelRelease": "Release to send",
-      "labelHalfway": "Keep going",
-      "Button_Cancel": "Cancel Transaction"
+      "Sending": "يرسل",
+      "To_Address": "إلى العنوان",
+      "SwipeButton_labelAction": "ليرسل",
+      "SwipeButton_labelRelease": "أفلت ليرسل",
+      "labelHalfway": "استمر",
+      "Button_Cancel": "ألغ المعاملة"
     },
     "SendSetupScreen": {
-      "Scan_QR_Code": "Scan QR Code",
-      "Btn_Cancel_Scan": "Cancel Scan",
-      "Balance": "Balance",
-      "Send_To": "Send To",
-      "Paste": "Paste",
-      "Btn_Scan_QR": "Scan QR",
-      "Scan_QR": "Scan QR",
-      "Amount": "Amount",
-      "Send_Max": "Send Max",
-      "Btn_Next_Step": "Next Step",
-      "Btn_Cancel": "Cancel",
-      "Msg_Error_Invalid_address": "Invalid address, double check and try again.",
-      "Msg_Error_Can_only_send_SLP_tokens": "Can only send SLP tokens to Simpleledger addresses.  The to address should begin with 'simpleledger:'",
-      "Msg_Error_Can_only_send_BCH": "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with 'bitcoincash:'",
-      "Msg_Error_Cannot_send_more_available": "Cannot send more funds than are available",
-      "Msg_Error_Amount_required": "Amount required",
-      "Msg_Error_Sending_different_coin_or_token": "Sending different coin or token than selected, go to the target coin screen and try again"
+      "Scan_QR_Code": "امسح الكود التربيعي",
+      "Btn_Cancel_Scan": "ألغ الإرسال",
+      "Balance": "الرصيد",
+      "Send_To": "أرسل إلى",
+      "Paste": "ألصق",
+      "Btn_Scan_QR": "امسح الرمز",
+      "Scan_QR": "امسح الرمز",
+      "Amount": "المقدار",
+      "Send_Max": "أرسل الكل",
+      "Btn_Next_Step": "التالي",
+      "Btn_Cancel": "ألغ",
+      "Msg_Error_Invalid_address": "عنوان خاطئ، كرر التحقق وحاول مجددا.",
+      "Msg_Error_Can_only_send_SLP_tokens": "يمكنك إرسال مصكوكات SLP إلى عنوان Simpleledger. يجب أن يبدأ عنوان المرسل إليه بـ 'simpleledger:'",
+      "Msg_Error_Can_only_send_BCH": "يمكنك إرسال بيتكوين كاش (BCH) إلى عناوين كاش فقط، العنوان يجب أن يبدأ بـ 'bitcoincash:'",
+      "Msg_Error_Cannot_send_more_available": "لا يمكنك إرسال أ:كثر من الموجود",
+      "Msg_Error_Amount_required": "المقدار المطلوب",
+      "Msg_Error_Sending_different_coin_or_token": "يرسل عملة أو مصكوكة غير المحددة، عد إلى شاشة اختيار العملة وحاول مجددا"
     },
     "SendSuccessScreen": {
-      "Success": "Success",
-      "Sent": "Sent",
-      "To": "To",
-      "Btn_Finish": "Finish"
+      "Success": "تمت",
+      "Sent": "أرسلت",
+      "To": "إلى",
+      "Btn_Finish": "أنه"
     },
     "KeySweepScreen": {
-      "Scan_QR_Code": "Scan QR Code",
-      "Btn_Cancel_Scan": "Cancel Scan",
-      "Scan_QR": "Scan QR",
-      "Open_Camera": "Open Camera",
-      "Text_To_recover": "To recover Bitcoin Cash (BCH) or SLP Tokens from a paper wallet, follow the steps below.",
-      "Text_1": "1. Scan the private QR code on the paper wallet.",
-      "Text_2": "2. Select a token if there are multiple.",
-      "Text_3": "3. Review details.",
-      "Text_4": "4. Sweep to your Badger Wallet.",
-      "Text_5": "5. Repeat until all BCH and tokens have been swept.",
-      "Multiple_SLP_tokens_detected": "Multiple SLP tokens detected, select one to sweep first...",
-      "Review_Details": "Review Details",
+      "Scan_QR_Code": "امسح الكود التربيعي",
+      "Btn_Cancel_Scan": "ألغ المسح",
+      "Scan_QR": "امسح الرمز",
+      "Open_Camera": "افتح الكمرا",
+      "Text_To_recover": "لاستخراج بيتكوين كاش (BCH) أو مصكوكات SLP من المحفظة الورقية، اتبع الخطوات اسفله.",
+      "Text_1": "1. امسح المفتاح الخاص من المحفظة الورقية.",
+      "Text_2": "2. اختر مصكوكة إذا كان هناك عدد منها.",
+      "Text_3": "3. راجع التفاصيل.",
+      "Text_4": "4. اسحب إلى محفظة بادجر.",
+      "Text_5": "5. كرر حتى استخراج كل BCH و المصكوكات.",
+      "Multiple_SLP_tokens_detected": "عُثر على عدة مصكوكات SLP، انتق واحدة لسحبها كبداية...",
+      "Review_Details": "راجع التفاصيل",
       "Wif": "Wif",
-      "Balance_to_Sweep": "Balance to Sweep",
-      "Bitcoin_Cash": "Bitcoin Cash",
-      "SLP_Token": "SLP Token",
-      "Msg_No_balances_found": "No balances found on this paper wallet",
-      "Msg_If_the_funds_appear_on_a_block_explorer": "If the funds appear on a block explorer, wait a few minutes and try again.",
-      "Sweep_Success": "Sweep Success!",
-      "Msg_Sweep_again": "Sweep again if this paper wallet had more than 1 type of SLP token.",
-      "Please_try_again": "Please try again",
-      "Sweep_Funds": "Sweep Funds",
-      "Btn_Confirm_Sweep": "Confirm Sweep",
-      "Msg_Error_scanning_paper_wallet": "Error scanning paper wallet",
-      "Msg_Error_Sweep_failed": "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee"
+      "Balance_to_Sweep": "الرصيد الذي سيُسحب",
+      "Bitcoin_Cash": "بيتكوين كاش",
+      "SLP_Token": "مصكوكات SLP",
+      "Msg_No_balances_found": "لم يعثر على رصيد في هذه المحفظة الورقية",
+      "Msg_If_the_funds_appear_on_a_block_explorer": "إن كان الرصيد يظهر في مستعرض الشبكة، انتظر عدة دقائق وحاول مجددا.",
+      "Sweep_Success": "تم السحب!",
+      "Msg_Sweep_again": "اسحب مجددا إن كانت المحفظة الورقية فيها أكثر من نوع من مصكوكات SLP.",
+      "Please_try_again": "رجاء حاول مجددا",
+      "Sweep_Funds": "اسحب الأموال",
+      "Btn_Confirm_Sweep": "أكد السحب",
+      "Msg_Error_scanning_paper_wallet": "خطأ عند مسح المحفظة الورقية",
+      "Msg_Error_Sweep_failed": "فشل السحب، تأكد من أن محفظتك أو المحفظة الورقية فيها BCH كافية لدفع أجر المعاملة"
     },
     "FAQScreen": {
       "Frist_FAQ": {
-        "title": "What is Badger Wallet?",
+        "title": "ما هي محفظة بادجر?",
         "body": [
-          "Badger Wallet is a Bitcoin Cash (BCH) and SLP token wallet, designed",
-          "to prioritize simplicity for everyday use."
+          "محفظة بادجر هي محفظة بيتكوين كاش (BCH) ومصكوكات SLP, أولت",
+          "أهمية للبساطة في استخدامك اليومي."
         ]
       },
       "Second_FAQ": {
-        "title": "Which cryptocurrencies does Badger wallet support?",
-        "body": ["Bitcoin Cash (BCH) and thousands of SLP tokens."]
+        "title": "ماهي العملات الرقمية التي تدعمها محفظة بادجر?",
+        "body": ["بيتكوين كاش (BCH) والآلاف من مصكوكات SLP."]
       },
       "Third_FAQ": {
-        "title": "What is Bitcoin Cash (BCH)?",
+        "title": "ماهي بيتكوين كاش (BCH)?",
         "body": [
-          "Bitcoin Cash (BCH) is a peer-to-peer electronic cash system for the",
-          "world. BCH enables permissionless spending for micro transactions,",
-          "everyday spending, large business deals, and everything in between."
+          "بيتكوين كاش (BCH) هي نظام نقدي ند-إلى-ند لكل",
+          "العالم. BCH تمكنك من إرسال بلا استئذان لمعاملات مصغرة،",
+          "و معاملات يومية، وصفقات الأعمال، وكل شيء بين ذلك."
         ]
       },
       "Fourth_FAQ": {
-        "title": "What are Simple Ledger Protocol (SLP) tokens?",
+        "title": "ما هي مصكوكات بروتوكول دفتر السجل المبسط (SLP)؟",
         "body": [
-          "SLP is a token system built upon the Bitcoin Cash network. SLP",
-          "tokens allow anyone - or business - to create, send, and receive",
-          "their own tokens for whatever they want."
+          "SLP هي نظام مصكوكات مبني على شبكة بيتكوين كاش. مصكوكات",
+          "SLP تسمح لأي فرد - أو شركة - بإنشاء، وإرسال، واستقبال",
+          "مصكوكات خاصة بهم كما يشاؤون."
         ],
         "body_toice": [
-          "SLP tokens enable hundreds of new use-cases on the BCH network. From",
-          "voting systems, reward / loyalty points, ticketing systems, event",
-          "payouts, and many many more."
+          "مع مصكوكات SLP أصبحت مئات من طرق الاستخدام ممكنة على شبكة BCH . من",
+          "أنظمة التصويت، مكافئات / نقاط الولاء، وأنظمة التذاكر والفعاليات",
+          "المدفوعات، والكثير الكثير غيرها."
         ]
       },
       "Fifth_FAQ": {
-        "title": "Why can't I send tokens?",
+        "title": "لماذا لا أستطيع إرسال مصكوكات؟",
         "body": [
-          "Receiving tokens is free, but sending tokens requires a bit of",
-          "Bitcoin Cash (BCH) to pay the transaction fee - typically",
+          "استقبال مصكوكات مجاني، لكن إرسالها يحتاج قليلا من",
+          "بيتكوين كاش (BCH) لدفع أجرة المعاملة - تقدر بـ",
           "~0.00000400 BCH."
         ],
         "body_toice": [
-          "Be sure to add a little bit of BCH to your wallet and try again."
+          "تأكد من إضافة قليل من BCH إلى محفظتك ثم حاول مجددا."
         ]
       },
       "Sixth_FAQ": {
-        "title": "How private is Badger?",
+        "title": "هل تحفظ بادجر خصوصيتي؟",
         "body": [
-          "Badger uses a single address for all transactions. This means",
-          "transactions to and from Badger can be linked together with analysis",
-          "relatively easily."
+          "تستخدم بادجر عنوانا واحدا لكل المعاملات. هذا يعني",
+          "هذا يعني أن المعاملات من وإلى بادجر يمكن ربطها معا بالتحليل",
+          "بسهولة نسبيا."
         ],
-        "body_toice": ["We will make updates focused on privacy in the future."]
+        "body_toice": ["سنطور ميزات الخصوصية في المستقبل."]
       },
       "Seventh_FAQ": {
-        "title": "Should I store a lot of money in Badger?",
+        "title": "هل علي أن أضع مبلغا كبيرا في بادجر؟",
         "body": [
-          "No. You probably shouldn't store a lot of money on any mobile",
-          "wallet."
+          "لا. لربما يفضل أن لا تحتفظ بقدر كبير من المال في محفظة",
+          "جوال."
         ],
         "body_toice": [
-          "Treat Badger similar to your regular wallet. Keep some BCH and",
-          "tokens in it for spending, but store the rest of your crypto in a",
-          "secure hardware wallet."
+          "تعامل مع بادجر مثل محفظة اعتادية. احتفظ بقليل من BCH",
+          "وببعض المصكوكات لسهولة الدفع، لكن احتفظ بباقي أموالك في",
+          "في محفظة عتادية آمنة."
         ]
       }
     }
