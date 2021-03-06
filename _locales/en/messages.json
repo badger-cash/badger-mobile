@@ -245,6 +245,23 @@
           "secure hardware wallet."
         ]
       }
+    },
+    "MainTabNavigator": {
+      "Request": "Request",
+      "Receive": "Receive",
+      "Menu": "Menu",
+      "Seed_Phrase": "Seed Phrase",
+      "F.A.Q.": "F.A.Q.",
+      "Sweep": "Sweep",
+      "Contact_Us": "Contact Us",
+      "Logout?": "Logout?",
+      "Select_Currency": "Select Currency",
+      "Select_Languages": "Select Languages"
+    },
+    "SendStack": {
+      "Setup_Transaction": "Setup Transaction",
+      "Confirm & Send": "Confirm & Send",
+      "Payment Request": "Payment Request"
     }
   }
 }

@@ -61,7 +61,9 @@
       "Transaction_History": "سجل المعاملات (الأقصى 30)",
       "Transaction_history_updating": "يحدث سجل المعاملات...",
       "Msg_take_few_minutes": "قد يستغرق ذلك عدة دقائق.",
-      "Full_History": "السجل الكامل"
+      "Full_History": "السجل الكامل",
+      "Btn_text_Send": "Send",
+      "Btn_text_Request": "Request"
     },
     "ContactUsScreen": {
       "Msg_we_hope": "نأمل بأن تكون مستمتعا باستخدام محفظة بادجر",
@@ -220,9 +222,7 @@
           "بيتكوين كاش (BCH) لدفع أجرة المعاملة - تقدر بـ",
           "~0.00000400 BCH."
         ],
-        "body_toice": [
-          "تأكد من إضافة قليل من BCH إلى محفظتك ثم حاول مجددا."
-        ]
+        "body_toice": ["تأكد من إضافة قليل من BCH إلى محفظتك ثم حاول مجددا."]
       },
       "Sixth_FAQ": {
         "title": "هل تحفظ بادجر خصوصيتي؟",
@@ -245,6 +245,23 @@
           "في محفظة عتادية آمنة."
         ]
       }
+    },
+    "MainTabNavigator": {
+      "Request": "Request",
+      "Receive": "Receive",
+      "Menu": "Menu",
+      "Seed_Phrase": "Seed Phrase",
+      "F.A.Q.": "F.A.Q.",
+      "Sweep": "Sweep",
+      "Contact_Us": "Contact Us",
+      "Logout?": "Logout?",
+      "Select_Currency": "Select Currency",
+      "Select_Languages": "Select Languages"
+    },
+    "SendStack": {
+      "Setup_Transaction": "Setup Transaction",
+      "Confirm & Send": "Confirm & Send",
+      "Payment Request": "Payment Request"
     }
   }
 }

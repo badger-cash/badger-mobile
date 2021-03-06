@@ -10,24 +10,27 @@ import Bip70SuccessScreen from "../screens/Bip70SuccessScreen";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
+import lang from "../_locales/index";
+var tran = new lang("SendStack");
+
 const SendStack = createStackNavigator(
   {
     SendSetup: {
       screen: SendSetupScreen,
       navigationOptions: {
-        title: "Setup Transaction"
+        title: tran.getStr("Setup_Transaction")
       }
     },
     SendConfirm: {
       screen: SendConfirmScreen,
       navigationOptions: {
-        title: "Confirm & Send"
+        title: tran.getStr("Confirm & Send")
       }
     },
     Bip70Confirm: {
       screen: Bip70ConfirmScreen,
       navigationOptions: {
-        title: "Payment Request"
+        title: tran.getStr("Payment Request")
       }
     },
     Bip70Success: {

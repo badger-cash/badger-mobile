@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-community/async-storage";
 import * as Storage from "./store";
+import RNRestart from "react-native-restart";
 
 function get_lang(callback: Function) {
   let op;
@@ -48,6 +49,7 @@ const setLang = async (value: any) => {
   try {
     value = JSON.stringify(value);
     await Storage.store("@lang", value);
+    RNRestart.Restart();
   } catch (e) {
     // saving error
     console.log(e);

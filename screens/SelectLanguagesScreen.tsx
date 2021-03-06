@@ -94,7 +94,6 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
                 text={`${lang.name}`}
                 onPress={() => {
                   setCurrencyActive(lang.name);
-                  tran.update();
                   setLang(lang);
                 }}
                 isActive={currencyActive === lang.name}

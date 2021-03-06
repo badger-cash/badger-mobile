@@ -313,7 +313,7 @@ const WalletDetailScreen = ({
                   tokenId
                 })
               }
-              text="Request"
+              text={tran.getStr("Btn_text_Send")}
             />
             <Button
               onPress={() =>
@@ -321,7 +321,7 @@ const WalletDetailScreen = ({
                   tokenId
                 })
               }
-              text="Send"
+              text={tran.getStr("Btn_text_Request")}
             />
           </ButtonGroup>
           <Spacer />

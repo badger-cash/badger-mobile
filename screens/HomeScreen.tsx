@@ -162,7 +162,6 @@ const HomeScreen = ({
   }, [address, addressSlp, updateUtxos]);
 
   useEffect(() => {
-    setInterval(() => tran.update(), 200);
     // Update transaction history initial
     if (!address || !addressSlp) return;
     updateTransactions(address, addressSlp);
