@@ -1,3 +1,4 @@
+سطر 66
 {
   "pages": {
     "WelcomeScreen": {
@@ -31,7 +32,7 @@
       "Active_Languages": "اللغة النشطة"
     },
     "RequestScreen": {
-      "Requesting": "يلطب",
+      "Requesting": "يطلب",
       "Copied_to_clipboard": "نسخت إلى الحافظة",
       "Amount Required": "المقدار المطلوب"
     },
@@ -62,8 +63,8 @@
       "Transaction_history_updating": "يحدث سجل المعاملات...",
       "Msg_take_few_minutes": "قد يستغرق ذلك عدة دقائق.",
       "Full_History": "السجل الكامل",
-      "Btn_text_Send": "Send",
-      "Btn_text_Request": "Request"
+      "Btn_text_Send": "أرسل",
+      "Btn_text_Request": "استقبل"
     },
     "ContactUsScreen": {
       "Msg_we_hope": "نأمل بأن تكون مستمتعا باستخدام محفظة بادجر",
@@ -105,7 +106,7 @@
       "SwipeButton_labelHalfway": "استمر"
     },
     "MenuScreen": {
-      "ViewSeedPhrase": "أظهر عبارة البذورة",
+      "ViewSeedPhrase": "أظهر عبارة البذور",
       "Currency": "العملة",
       "Languages": "اللغات",
       "FAQ": "الأسئلة الشائعة - FAQ",
@@ -247,21 +248,21 @@
       }
     },
     "MainTabNavigator": {
-      "Request": "Request",
-      "Receive": "Receive",
-      "Menu": "Menu",
-      "Seed_Phrase": "Seed Phrase",
-      "F.A.Q.": "F.A.Q.",
-      "Sweep": "Sweep",
-      "Contact_Us": "Contact Us",
-      "Logout?": "Logout?",
-      "Select_Currency": "Select Currency",
-      "Select_Languages": "Select Languages"
+      "Request": "اطلب",
+      "Receive": "استقبل",
+      "Menu": "قائمة",
+      "Seed_Phrase": "عبارة البذور",
+      "F.A.Q.": "الأسئلة الشائعة",
+      "Sweep": "سحب",
+      "Contact_Us": "التواصل معنا",
+      "Logout?": "الخروج؟",
+      "Select_Currency": "اختر عملة",
+      "Select_Languages": "اختر لغة"
     },
     "SendStack": {
-      "Setup_Transaction": "Setup Transaction",
-      "Confirm & Send": "Confirm & Send",
-      "Payment Request": "Payment Request"
+      "Setup_Transaction": "إعداد المعاملة",
+      "Confirm & Send": "أكّد وأرسل",
+      "Payment Request": "طلب الدفع"
     }
   }
 }
