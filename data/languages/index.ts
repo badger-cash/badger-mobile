@@ -32,19 +32,6 @@ const getLang = async (setLang: Function) => {
   }
 };
 
-const getLangCode = async (setLang: any) => {
-  try {
-    let value: any = get_lang((data: string) => {
-      let value: String = JSON.parse(data).code;
-      setLang = value.toString();
-      return value;
-    });
-  } catch (e) {
-    // error reading value
-    console.log(e);
-  }
-};
-
 const setLang = async (value: any) => {
   try {
     value = JSON.stringify(value);
@@ -56,4 +43,4 @@ const setLang = async (value: any) => {
   }
 };
 
-export { getLang, getLangCode, setLang, get_lang };
+export { getLang, setLang, get_lang };

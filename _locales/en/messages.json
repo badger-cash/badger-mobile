@@ -256,7 +256,10 @@
       "Contact_Us": "Contact Us",
       "Logout?": "Logout?",
       "Select_Currency": "Select Currency",
-      "Select_Languages": "Select Languages"
+      "Select_Languages": "Select Languages",
+      "BottomTabNavigator_Home": "Home",
+      "BottomTabNavigator_Menu": "Menu",
+      "BottomTabNavigator_Receive": "Receive"
     },
     "SendStack": {
       "Setup_Transaction": "Setup Transaction",

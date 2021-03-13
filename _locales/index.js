@@ -2,7 +2,7 @@ const { NativeModules } = require("react-native");
 const langs = require("./index.json");
 const en = require("./en/messages.json");
 const ar = require("./ar/messages.json");
-const { getLangCode, get_lang } = require("../data/languages/index");
+const { get_lang } = require("../data/languages/index");
 
 class lang {
   constructor(screen) {
@@ -24,13 +24,13 @@ class lang {
 
     switch (lang) {
       case "en":
-        return en;
+        return require("./en/messages.json");
         break;
       case "ar":
-        return ar;
+        return require("./ar/messages.json");
         break;
       default:
-        return en;
+        return require("./en/messages.json");
         break;
     }
   }
