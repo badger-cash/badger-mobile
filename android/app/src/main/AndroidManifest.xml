@@ -15,7 +15,8 @@
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+        android:launchMode="singleTask"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize">
         <intent-filter>
@@ -35,7 +36,6 @@
             <data android:scheme="simpleledger" />
         </intent-filter>
       </activity>
-      <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
 
 </manifest>
