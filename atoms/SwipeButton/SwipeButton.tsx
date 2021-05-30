@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ActivityIndicator, View, Dimensions } from "react-native";
 import styled from "styled-components";
 
-import Swipeable from "react-native-swipeable";
+import Swipeable from "react-native-swipeable-patched";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import T from "../T";
@@ -109,7 +109,7 @@ const SwipeButton = ({
                 paddingTop: 2
               }}
             >
-              <Ionicons name="ios-arrow-round-forward" size={25} />
+              <Ionicons name="ios-arrow-forward-circle-outline" size={25} />
             </T>
             <T weight="bold" type="inverse">
               {" "}

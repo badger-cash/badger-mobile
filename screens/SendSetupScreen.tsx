@@ -702,7 +702,7 @@ const SendSetupScreen = ({
                 onPress={() => setQrOpen(true)}
               >
                 <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-qr-scanner" size={18} /> Scan QR
+                  <Ionicons name="ios-qr-code-outline" size={18} /> Scan QR
                 </T>
               </StyledButton>
             </ButtonArea>
@@ -758,7 +758,7 @@ const SendSetupScreen = ({
               {!tokenId ? (
                 <StyledButton nature="ghost" onPress={toggleAmountType}>
                   <T center spacing="loose" type="primary" size="small">
-                    <Ionicons name="ios-swap" size={18} />{" "}
+                    <Ionicons name="ios-swap-horizontal" size={18} />{" "}
                     {amountType === "crypto"
                       ? fiatCurrency.toUpperCase()
                       : displaySymbol}

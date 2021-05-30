@@ -1,7 +1,7 @@
 // Helper methods to communicate with the PostOffice REST API
 // Prefer this over using BitBox when possible.
 
-const API = `https://pay.cointext.io`;
+const API = `https://api.slpswap.com`;
 
 const postageEndpoint = `${API}/postage`;
 

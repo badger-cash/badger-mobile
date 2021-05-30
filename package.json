@@ -58,7 +58,7 @@
     "react-native-randombytes": "^3.5.3",
     "react-native-screens": "^3.3.0",
     "react-native-svg": "^9.13.2",
-    "react-native-swipeable": "^0.6.0",
+    "react-native-swipeable-patched": "^0.6.1",
     "react-native-vector-icons": "^6.6.0",
     "react-navigation": "^3.11.1",
     "react-redux": "^7.1.0",
