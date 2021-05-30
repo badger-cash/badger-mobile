@@ -13,7 +13,7 @@ const SLPJS = new slpjs.Slp(SLP);
 export type PaymentRequest = {
   expires: number;
   memo: string;
-  merchantData?: string | null;
+  merchantData?: string | object | null;
   network: string;
   outputs: OutputInfo[];
   paymentUrl: string;
@@ -124,6 +124,57 @@ const txidFromHex = (hex: string) => {
   return txid;
 };
 
+const BNToInt64BE = (bn: BigNumber): Buffer => {
+  if (!bn.isInteger()) {
+    throw new Error("bn not an integer");
+  }
+
+  if (!bn.isPositive()) {
+    throw new Error("bn not positive integer");
+  }
+
+  const h = bn.toString(16);
+  if (h.length > 16) {
+    throw new Error("bn outside of range");
+  }
+
+  return Buffer.from(h.padStart(16, "0"), "hex");
+};
+
+const appendOptionalOutput = (
+  output: object,
+  pr: PaymentRequest,
+  tokenMetadata: object | null = null
+) => {
+  const baseTokenAmount = output.amount * 10 ** tokenMetadata.decimals;
+  const outInfo: OutputInfo = {
+    script: output.script,
+    amount: new BigNumber(baseTokenAmount),
+    tokenAmount: null,
+    tokenId: null
+  };
+  // handle SLP
+  if (pr.tokenId) {
+    outInfo.amount = new BigNumber(546);
+    outInfo.tokenId = pr.tokenId;
+    outInfo.tokenAmount = new BigNumber(baseTokenAmount);
+    // Add output to OP_RETURN
+    const opRetBuf = Buffer.from(pr.outputs[0].script, "hex");
+    const concatBuf = Buffer.concat([
+      opRetBuf,
+      BNToInt64BE(outInfo.tokenAmount)
+    ]);
+    pr.outputs[0].script = concatBuf.toString("hex");
+    // Increase totalTokenAmount
+    pr.totalTokenAmount = pr.totalTokenAmount.plus(
+      outInfo.tokenAmount ? outInfo.tokenAmount : 0
+    );
+  }
+  pr.outputs.push(outInfo);
+  pr.totalValue = pr.totalValue.plus(outInfo.amount);
+  return pr;
+};
+
 const decodePaymentResponse = async (responseData: any) => {
   const buffer = await Buffer.from(responseData);
 
@@ -209,6 +260,9 @@ const decodePaymentRequest = async (
 
     const merchantData = details.get("merchant_data");
     detailsData.merchantData = merchantData && merchantData.toString();
+    try {
+      detailsData.merchantData = JSON.parse(detailsData.merchantData);
+    } catch (e) {}
     detailsData.requiredFeeRate = details.get("required_fee_rate");
 
     let tokenId: string | null = null;
@@ -524,18 +578,30 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   let inputSatoshis = 0;
   const inputUtxos = tokenUtxosToSpend;
 
-  for (const utxo of spendableUTxos) {
-    inputSatoshis = inputSatoshis + utxo.satoshis;
-    inputUtxos.push(utxo);
-    byteCount = SLPJS.calculateSendCost(
-      sendOpReturn.length,
-      inputUtxos.length,
-      to.length + 1, // +1 to receive remaining BCH
-      tokenChangeAddress
-    );
+  // Is Postage Paid by Merchant?
+  let postagePaid = false;
+  if (typeof merchantData === "object" && merchantData.postage) {
+    let stamps = merchantData.postage.stamps;
+    let listing = stamps.find(stamp => stamp.tokenId == paymentRequest.tokenId);
+    if (listing && listing.rate == 0) {
+      postagePaid = true;
+    }
+  }
 
-    if (inputSatoshis >= byteCount) {
-      break;
+  if (!postagePaid) {
+    for (const utxo of spendableUTxos) {
+      inputSatoshis = inputSatoshis + utxo.satoshis;
+      inputUtxos.push(utxo);
+      byteCount = SLPJS.calculateSendCost(
+        sendOpReturn.length,
+        inputUtxos.length,
+        to.length + 1, // +1 to receive remaining BCH
+        tokenChangeAddress
+      );
+
+      if (inputSatoshis >= byteCount) {
+        break;
+      }
     }
   }
 
@@ -562,8 +628,12 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     transactionBuilder.addOutput(toOutput.address, 546);
   }
 
-  // Return remaining bch balance output
-  transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
+  if (!postagePaid) {
+    // Return remaining bch balance output
+    transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
+  }
+
+  const sigHash = transactionBuilder.hashTypes.SIGHASH_ALL;
 
   let redeemScript: any;
   inputUtxos.forEach((utxo, index) => {
@@ -571,16 +641,15 @@ const signAndPublishPaymentRequestTransactionSLP = async (
       index,
       utxo.keypair,
       redeemScript,
-      transactionBuilder.hashTypes.SIGHASH_ALL,
+      postagePaid
+        ? sigHash | transactionBuilder.hashTypes.SIGHASH_ANYONECANPAY
+        : sigHash,
       utxo.satoshis
     );
   });
   const hex = transactionBuilder.build().toHex();
   const payment = new PaymentProtocol().makePayment();
-  payment.set(
-    "merchant_data",
-    Buffer.from(paymentRequest.merchantData || "", "utf-8")
-  );
+  payment.set("merchant_data", Buffer.from("", "utf-8"));
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
   const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
@@ -634,6 +703,8 @@ export {
   signAndPublishPaymentRequestTransactionSLP,
   decodePaymentResponse,
   decodePaymentRequest,
+  postAsArrayBuffer,
   getAsArrayBuffer,
-  txidFromHex
+  txidFromHex,
+  appendOptionalOutput
 };
