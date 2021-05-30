@@ -348,7 +348,7 @@ const HomeScreen = ({
                 <Spacer />
                 {!initialLoadingDone && (
                   <InitialLoadCover>
-                    <ActivityIndicator />
+                    <ActivityIndicator size="large" color="green" />
                     <Spacer small />
                     <T>Initial Setup...</T>
                   </InitialLoadCover>

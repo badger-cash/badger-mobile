@@ -559,7 +559,7 @@ const Bip70ConfirmScreen = ({
         {step === "fetching" && (
           <FullView>
             <View>
-              <ActivityIndicator />
+              <ActivityIndicator size="large" color="green" />
               <Spacer small />
               <T center type="muted" monospace>
                 Loading Transaction Details...
@@ -570,7 +570,7 @@ const Bip70ConfirmScreen = ({
         {step === "sending" && (
           <FullView>
             <View>
-              <ActivityIndicator />
+              <ActivityIndicator size="large" color="green" />
               <Spacer small />
               <T center type="muted" monospace>
                 Sending Payment

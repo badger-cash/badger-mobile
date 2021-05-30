@@ -73,7 +73,7 @@ const SwipeButton = ({
   return (
     <SwipeButtonContainer>
       {state === "pending" ? (
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#11a87e" />
       ) : (
         <Swipeable
           leftActionActivationDistance={

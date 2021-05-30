@@ -43,7 +43,7 @@ const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
 
   return (
     <ScreenWrapper>
-      <ActivityIndicator />
+      <ActivityIndicator size="large" color="green" />
       <Spacer />
       <T monospace>Loading Wallet...</T>
     </ScreenWrapper>
