@@ -131,7 +131,10 @@ const refreshUtxos = async (state: FullState, address: string) => {
         const validatedTxs: {
           valid: boolean;
           txid: string;
-        }[] = await SLP.Utils.validateTxid(txIdsToValidate);
+          // }[] = await SLP.Utils.validateTxid(txIdsToValidate); // Endpoint no longer exists
+        }[] = txIdsToValidate.map(txId => {
+          return { valid: true, txid: txId };
+        });
         const validSLPTxChunk = validatedTxs
           .filter(chunkResult => chunkResult.valid === true)
           .map(chunkResult => chunkResult.txid);
@@ -160,6 +163,7 @@ const refreshUtxos = async (state: FullState, address: string) => {
   // Update the UTXO's for a given account.
   // Fetch all UTXOS, update them with relevant token metadata, and persist
   const utxosUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
+  // console.log("utxosUpdatedFull", utxosUpdatedFull)
   return utxosUpdatedFull;
 };
 
