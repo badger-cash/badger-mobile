@@ -137,8 +137,8 @@ android {
         applicationId "com.badgermobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9000022
-        versionName "1.12.2"
+        versionCode 9000024
+        versionName "1.13.1"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
