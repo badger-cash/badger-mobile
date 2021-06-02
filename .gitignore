@@ -62,6 +62,8 @@ buck-out/
 **/app/*.keystore
 test_wallets.md
 
+android/app/release/*
+
 android/.gradle/*
 android/.idea/*
 android/local.properties

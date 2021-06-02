@@ -375,7 +375,7 @@ const KeySweepScreen = ({
                               </T>
                             </>
                           ) : (
-                            <ActivityIndicator />
+                            <ActivityIndicator size="large" color="green" />
                           )}
                         </TokenCard>
                       </TouchableOpacity>
@@ -442,7 +442,7 @@ const KeySweepScreen = ({
                   justifyContent: "center"
                 }}
               >
-                <ActivityIndicator size="large" />
+                <ActivityIndicator size="large" color="green" />
               </View>
             )}
             {sweepState === "success" && (

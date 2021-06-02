@@ -325,7 +325,7 @@ const RequestSetupScreen = ({
           {!tokenId ? (
             <Button nature="ghost" onPress={toggleAmountType}>
               <T center spacing="loose" type="primary" size="small">
-                <Ionicons name="ios-swap" size={18} />{" "}
+                <Ionicons name="ios-swap-horizontal" size={18} />{" "}
                 {amountType === "crypto" ? fiatCurrency.toUpperCase() : symbol}
               </T>
             </Button>

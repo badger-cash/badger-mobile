@@ -7,8 +7,11 @@ import {
   ScrollView,
   SafeAreaView,
   View,
-  Image
+  Image,
+  TextInput,
+  StyleSheet
 } from "react-native";
+import { Overlay, Text } from "react-native-elements";
 import BigNumber from "bignumber.js";
 
 import { Button, T, Spacer, SwipeButton } from "../atoms";
@@ -32,6 +35,7 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
 import {
   formatAmount,
+  formatAmountInput,
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
@@ -44,6 +48,7 @@ import {
   signAndPublishPaymentRequestTransaction,
   signAndPublishPaymentRequestTransactionSLP,
   txidFromHex,
+  appendOptionalOutput,
   PaymentRequest
 } from "../utils/bip70-utils";
 
@@ -61,6 +66,35 @@ const IconImage = styled(Image)`
   height: 64;
   border-radius: 32;
   overflow: hidden;
+`;
+
+const StyledTextInputAmount = styled(TextInput)`
+  border-color: ${props => props.theme.accent500};
+  border-right-width: ${StyleSheet.hairlineWidth};
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  border-top-width: ${StyleSheet.hairlineWidth};
+  border-bottom-right-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 16px 8px;
+  flex: 1;
+  color: ${props => props.theme.fg100};
+`;
+
+const AmountLabel = styled(View)`
+  padding: 0 8px;
+  align-items: center;
+  justify-content: center;
+  border-left-width: ${StyleSheet.hairlineWidth};
+  border-top-width: ${StyleSheet.hairlineWidth};
+  border-bottom-width: ${StyleSheet.hairlineWidth};
+  border-bottom-left-radius: 3px;
+  border-top-left-radius: 3px;
+  border-color: ${props => props.theme.accent500};
+`;
+
+const AmountInputRow = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const ButtonsContainer = styled(View)`
@@ -151,6 +185,9 @@ const Bip70ConfirmScreen = ({
   const [paymentDetails, setPaymentDetails] = useState<PaymentRequest | null>(
     null
   );
+
+  const [overlayVisible, setOverlayVisible] = useState<Boolean | null>(null);
+  const [addOutputAmount, setAddOutputAmount] = useState("");
 
   const [step, setStep] = useState("fetching");
 
@@ -244,6 +281,7 @@ const Bip70ConfirmScreen = ({
           return;
         }
       }
+      // console.log("details", details);
       setPaymentDetails(details);
       setStep("review");
     };
@@ -374,6 +412,21 @@ const Bip70ConfirmScreen = ({
     return null;
   }, [paymentDetails, fiatCurrency, spotPrices]);
 
+  const addOutput = amount => {
+    const output = {
+      script: paymentDetails.merchantData.optional_output.script,
+      amount: amount
+    };
+    const updatedpaymentDetails = appendOptionalOutput(
+      output,
+      paymentDetails,
+      coinInfo
+    );
+    // console.log('updatedPaymentDetails', updatedpaymentDetails)
+    setPaymentDetails(updatedpaymentDetails);
+    setOverlayVisible(false);
+  };
+
   const requestAmount =
     paymentDetails && paymentDetails.tokenId
       ? paymentDetails.totalTokenAmount
@@ -385,8 +438,51 @@ const Bip70ConfirmScreen = ({
     true
   )} ${coinInfo ? coinInfo.symbol : ""}`;
 
+  // console.log('paymentDetails', paymentDetails)
+  let optionalOutputText = "";
+  if (paymentDetails && paymentDetails.merchantData.optional_output) {
+    optionalOutputText = paymentDetails.merchantData.optional_output.msg;
+    if (overlayVisible == null) {
+      setOverlayVisible(true);
+    }
+  }
+
   return (
     <ScreenWrapper>
+      <Overlay
+        isVisible={overlayVisible}
+        onBackdropPress={() => setOverlayVisible(false)}
+        width="auto"
+        height="auto"
+      >
+        <T>{optionalOutputText}</T>
+        <Spacer small />
+        <AmountInputRow>
+          <AmountLabel>
+            <T type="muted2" weight="bold">
+              {coinInfo.symbol}
+            </T>
+          </AmountLabel>
+          <StyledTextInputAmount
+            keyboardType="numeric"
+            editable
+            placeholder="0.0"
+            autoCompleteType="off"
+            autoCorrect={false}
+            autoCapitalize="none"
+            value={addOutputAmount}
+            onChangeText={text => {
+              // setErrors([]);
+              setAddOutputAmount(formatAmountInput(text, coinInfo.decimals));
+            }}
+          />
+        </AmountInputRow>
+        <Spacer small />
+        <Button
+          onPress={() => addOutput(addOutputAmount)}
+          text={parseFloat(addOutputAmount) > 0 ? "Add Amount" : "Cancel"}
+        />
+      </Overlay>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -463,7 +559,7 @@ const Bip70ConfirmScreen = ({
         {step === "fetching" && (
           <FullView>
             <View>
-              <ActivityIndicator />
+              <ActivityIndicator size="large" color="green" />
               <Spacer small />
               <T center type="muted" monospace>
                 Loading Transaction Details...
@@ -474,7 +570,7 @@ const Bip70ConfirmScreen = ({
         {step === "sending" && (
           <FullView>
             <View>
-              <ActivityIndicator />
+              <ActivityIndicator size="large" color="green" />
               <Spacer small />
               <T center type="muted" monospace>
                 Sending Payment

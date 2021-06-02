@@ -290,79 +290,74 @@ const HomeScreen = ({
           height: "100%"
         }}
       >
-        <ScrollView
-          style={{
-            flex: 1
-          }}
-          contentContainerStyle={{
-            flexGrow: 1
-          }}
-        >
-          {!seedViewed ? (
+        <SectionList
+          ListHeaderComponent={
             <>
-              <BackupNotice
-                onPress={() => navigation.navigate("ViewSeedPhrase")}
-              >
-                <T center size="small" type="accent">
-                  Please backup your Seed Phrase
-                </T>
-              </BackupNotice>
-              <Spacer small />
-            </>
-          ) : (
-            <Spacer large />
-          )}
-          <H1 center spacing="loose" weight="bold">
-            Badger
-          </H1>
-          <Spacer tiny />
-          <T center type="muted2">
-            BCH and SLP wallet
-          </T>
-          <Spacer />
-          <View
-            style={{
-              position: "relative"
-            }}
-          >
-            <SectionList
-              sections={walletSections}
-              renderSectionHeader={({ section }) => (
-                <CoinRowHeader>{section.title}</CoinRowHeader>
+              {!seedViewed ? (
+                <>
+                  <BackupNotice
+                    onPress={() => navigation.navigate("ViewSeedPhrase")}
+                  >
+                    <T center size="small" type="accent">
+                      Please backup your Seed Phrase
+                    </T>
+                  </BackupNotice>
+                  <Spacer small />
+                </>
+              ) : (
+                <Spacer large />
               )}
-              renderSectionFooter={({ section }) =>
-                !section.data.length ? <NoTokensFound /> : null
-              }
-              renderItem={({ item }) =>
-                item && (
-                  <CoinRow
-                    amount={item.amount}
-                    name={item.name}
-                    ticker={item.symbol}
-                    tokenId={item.tokenId}
-                    valueDisplay={item.valueDisplay}
-                    onPress={() =>
-                      navigation.navigate("WalletDetailScreen", {
-                        symbol: item.symbol,
-                        tokenId: item.tokenId
-                      })
-                    }
-                  />
-                )
-              }
-              keyExtractor={(item, index) => `${index}`}
-            />
-            <Spacer />
-            {!initialLoadingDone && (
-              <InitialLoadCover>
-                <ActivityIndicator />
+              <H1 center spacing="loose" weight="bold">
+                Badger
+              </H1>
+              <Spacer tiny />
+              <T center type="muted2">
+                BCH and SLP wallet
+              </T>
+              <Spacer />
+            </>
+          }
+          sections={walletSections}
+          renderSectionHeader={({ section }) => (
+            <CoinRowHeader>{section.title}</CoinRowHeader>
+          )}
+          renderSectionFooter={({ section }) =>
+            !section.data.length ? <NoTokensFound /> : null
+          }
+          renderItem={({ item }) =>
+            item && (
+              <CoinRow
+                amount={item.amount}
+                name={item.name}
+                ticker={item.symbol}
+                tokenId={item.tokenId}
+                valueDisplay={item.valueDisplay}
+                onPress={() =>
+                  navigation.navigate("WalletDetailScreen", {
+                    symbol: item.symbol,
+                    tokenId: item.tokenId
+                  })
+                }
+              />
+            )
+          }
+          keyExtractor={(item, index) => `${index}`}
+          ListFooterComponent={
+            <>
+              <View>
+                <Spacer />
+                {!initialLoadingDone && (
+                  <InitialLoadCover>
+                    <ActivityIndicator size="large" color="green" />
+                    <Spacer small />
+                    <T>Initial Setup...</T>
+                  </InitialLoadCover>
+                )}
                 <Spacer small />
-                <T>Initial Setup...</T>
-              </InitialLoadCover>
-            )}
-          </View>
-          <Spacer small />
-        </ScrollView>
+              </View>
+            </>
+          }
+        />
       </View>
     </SafeAreaView>
   );
