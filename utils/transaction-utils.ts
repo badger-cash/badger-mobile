@@ -9,7 +9,7 @@ import { postAsArrayBuffer, decodePaymentResponse } from "./bip70-utils";
 
 import { SLP } from "./slp-sdk-utils";
 
-import { postageEndpoint } from "../api/pay.cointext";
+import { postageEndpoint } from "../api/pay.badger";
 
 const slpjs = require("slpjs");
 

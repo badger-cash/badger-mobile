@@ -37,7 +37,7 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
-import { getPostageRates } from "../api/pay.cointext";
+import { getPostageRates } from "../api/pay.badger";
 
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;

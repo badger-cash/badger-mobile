@@ -45,11 +45,11 @@ const ContactUsScreen = (props: Props) => {
         <Spacer tiny />
         <TouchableOpacity
           onPress={() =>
-            Linking.openURL("mailto:badger@bitcoin.com?subject=Badger Wallet")
+            Linking.openURL("mailto:info@badger.cash?subject=Badger Wallet")
           }
         >
           <T center size="large">
-            badger@bitcoin.com
+            info@badger.cash
           </T>
         </TouchableOpacity>
         <Spacer />
@@ -59,7 +59,7 @@ const ContactUsScreen = (props: Props) => {
         <Spacer tiny />
         <TouchableOpacity
           onPress={() =>
-            Linking.openURL("https://t.me/joinchat/IoTQ_hGflnfwd3YJSF8cRQ")
+            Linking.openURL("https://t.me/joinchat/188N82Umbe5lNGVh")
           }
         >
           <T center size="large">
