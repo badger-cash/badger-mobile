@@ -1,6 +1,7 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
+import { grpcUrl, getUtxosByAddress } from "../api/grpc";
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
@@ -54,6 +55,14 @@ const getSLPTxType = (scriptASMArray: string[]) => {
 const getAllUtxo = async (address: string) => {
   const result = await SLP.Address.utxo(address);
   return result.utxos;
+};
+
+const getAllUtxoGrpc = async (
+  address: string,
+  includeTxData: boolean = true
+) => {
+  const result = await getUtxosByAddress(address, includeTxData);
+  return result;
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
@@ -930,6 +939,7 @@ export {
   decodeTokenMetadata,
   decodeTxOut,
   getAllUtxo,
+  getAllUtxoGrpc,
   getTransactionDetails,
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction,
