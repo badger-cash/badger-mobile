@@ -91,7 +91,6 @@ const getUtxosByAddress = async function(
     includeTokenMetadata: true
   });
   const utxos = utxosPb.toObject().outputsList;
-  // console.log('utxos', utxos);
   const outs = [];
   for (let i = 0; i < utxos.length; i++) {
     const value = parseInt(utxos[i].value);
@@ -180,36 +179,33 @@ const formatUtxo = async function(utxo: any): Promise<UTXOResult> {
   return formattedUtxo;
 };
 
-const getTransaction = async function(txhash: string) {
+const getTransactions = async function(
+  txhashes: string[],
+  returnPb: Boolean = false
+) {
+  let txs = [];
+  for (let i = 0; i < txhashes.length; i++) {
+    const tx = await getTransaction(txhashes[i], returnPb);
+    if (tx) txs.push(tx);
+  }
+  return txs;
+};
+
+const getTransaction = async function(
+  txhash: string,
+  returnPb: Boolean = false
+) {
   const txPb = await GrpcClient.getTransaction({
     hash: txhash,
     reversedHashOrder: true,
     includeTokenMetadata: true
   });
+  if (returnPb) return txPb;
   const tx = formatTransaction(txPb.toObject());
   return tx;
 };
 
-const getTransactionsByAddress = async function(
-  address: string,
-  height: number,
-  limit: number = 30,
-  offset: number = 0
-) {
-  const txPb = await GrpcClient.getAddressTransactions({
-    address: address.replace("bitcoincash:", ""),
-    height: height,
-    nbFetch: limit,
-    nbSkip: offset
-  });
-  // const txs = txPb.toObject();
-  const confirmed = txPb.getConfirmedTransactionsList() || [];
-  const unconfirmed = txPb.getUnconfirmedTransactionsList() || [];
-  const allTxs = [...unconfirmed.map(tx => tx.getTransaction()), ...confirmed];
-  return allTxs;
-};
-
-const formatTransactionOld = function(tx: any) {
+const formatTransaction = function(tx: any) {
   tx.transaction.hash = base64ToHex(tx.transaction.hash, true);
   tx.transaction.blockHash =
     tx.transaction.blockHash != ""
@@ -303,6 +299,25 @@ const formatTransactionOld = function(tx: any) {
   return tx;
 };
 
+const getTransactionsByAddress = async function(
+  address: string,
+  height: number,
+  limit: number = 30,
+  offset: number = 0
+) {
+  const txPb = await GrpcClient.getAddressTransactions({
+    address: address.replace("bitcoincash:", ""),
+    height: height,
+    nbFetch: limit,
+    nbSkip: offset
+  });
+  // const txs = txPb.toObject();
+  const confirmed = txPb.getConfirmedTransactionsList() || [];
+  const unconfirmed = txPb.getUnconfirmedTransactionsList() || [];
+  const allTxs = [...unconfirmed.map(tx => tx.getTransaction()), ...confirmed];
+  return allTxs;
+};
+
 export {
   formatUtxo,
   grpcUrl,
@@ -310,5 +325,7 @@ export {
   getUtxo,
   getUtxosByAddress,
   getTransaction,
+  getTransactions,
+  formatTransaction,
   getTransactionsByAddress
 };
