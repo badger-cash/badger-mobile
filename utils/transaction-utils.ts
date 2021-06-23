@@ -1,7 +1,7 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
-import { grpcUrl, getUtxosByAddress } from "../api/grpc";
+import { grpcUrl, getUtxosByAddress, sendTx } from "../api/grpc";
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
@@ -204,7 +204,7 @@ const encodeOpReturn = async (dataArray: string[]) => {
 };
 
 const publishTx = async (hex: string) => {
-  const result = await SLP.RawTransactions.sendRawTransaction(hex);
+  const result = await sendTx(hex);
 
   try {
     if (result.length === 64) {

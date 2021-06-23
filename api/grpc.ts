@@ -318,6 +318,18 @@ const getTransactionsByAddress = async function(
   return allTxs;
 };
 
+const sendTx = async function(
+  hex: string,
+  log: Boolean = true
+): Promise<string> {
+  const res = await await GrpcClient.submitTransaction({
+    txnHex: hex
+  });
+  const hash = Buffer.from(res.getHash_asU8().reverse()).toString("hex");
+  if (log) console.log("sendTx() res: ", hash);
+  return hash;
+};
+
 export {
   formatUtxo,
   grpcUrl,
@@ -327,5 +339,6 @@ export {
   getTransaction,
   getTransactions,
   formatTransaction,
-  getTransactionsByAddress
+  getTransactionsByAddress,
+  sendTx
 };
