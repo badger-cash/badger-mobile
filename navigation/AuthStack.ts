@@ -1,6 +1,5 @@
 import React from "react";
-
-import { createStackNavigator } from "react-navigation";
+import { createStackNavigator } from "@react-navigation/stack";
 
 import WelcomeScreen from "../screens/WelcomeScreen";
 import TermsOfUseScreen from "../screens/TermsOfUseScreen";
@@ -9,7 +8,7 @@ import CreateWalletScreen from "../screens/CreateWalletScreen";
 
 import RestoreWalletScreen from "../screens/RestoreWalletScreen";
 
-const AuthStack = createStackNavigator(
+const AuthStack = createCompatNavigatorFactory(createStackNavigator)(
   {
     Welcome: {
       screen: WelcomeScreen

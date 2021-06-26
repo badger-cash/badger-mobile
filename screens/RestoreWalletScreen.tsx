@@ -69,7 +69,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
 
   useEffect(() => {
     if (isCreated) {
-      navigation.navigate("Home");
+      navigation.navigate("Main");
     }
   }, [isCreated]);
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
-  Clipboard,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -12,6 +11,7 @@ import {
   TextInput,
   View
 } from "react-native";
+import Clipboard from "@react-native-community/clipboard";
 import { Header, NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
@@ -45,14 +45,12 @@ import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state?: {
-      params: {
-        tokenId?: string | null;
-        uriAmount?: string | null;
-        uriAddress?: string | null;
-        uriError?: string | null;
-      };
+  route: {
+    params: {
+      tokenId?: string | null;
+      uriAmount?: string | null;
+      uriAddress?: string | null;
+      uriError?: string | null;
     };
   };
 };
@@ -200,6 +198,7 @@ const ErrorContainer = styled(View)`
 
 const SendSetupScreen = ({
   navigation,
+  route,
   tokensById,
   balances,
   utxos,
@@ -218,8 +217,7 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState<string[]>([] as string[]);
 
-  const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
-    navigation.state.params) || {
+  const { tokenId, uriAddress, uriAmount, uriError } = route.params || {
     tokenId: null,
     uriAddress: null,
     uriAmount: null,

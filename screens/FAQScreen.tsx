@@ -48,9 +48,9 @@ const FAQScreen = (props: Props) => {
             to prioritize simplicity for everyday use.
           </T>
           <TouchableOpacity
-            onPress={() => Linking.openURL("https://badger.bitcoin.com")}
+            onPress={() => Linking.openURL("http://www.badger.cash")}
           >
-            <T type="accent">badger.bitcoin.com</T>
+            <T type="accent">badger.cash</T>
           </TouchableOpacity>
         </FAQItem>
         <FAQItem title="Which cryptocurrencies does Badger wallet support?">

@@ -90,15 +90,13 @@ const IconArea = styled(View)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: { tokenId?: string };
-    };
+  route: {
+    params: { tokenId?: string };
   };
 };
 
 const mapStateToProps = (state: FullState, props: PropsFromParent) => {
-  const tokenId = props.navigation.state.params.tokenId;
+  const tokenId = props.route.params.tokenId;
 
   const address = getAddressSelector(state);
   const addressSlp = getAddressSlpSelector(state);
@@ -124,6 +122,7 @@ const mapStateToProps = (state: FullState, props: PropsFromParent) => {
       return !txTokenId || tx.txParams.valueBch;
     })
     .slice(0, 30);
+
   return {
     address,
     addressSlp,
@@ -149,6 +148,7 @@ const WalletDetailScreen = ({
   addressSlp,
   balances,
   navigation,
+  route,
   tokensById,
   spotPrices,
   fiatCurrency,
@@ -158,7 +158,7 @@ const WalletDetailScreen = ({
   addTokenToFavorites,
   removeTokenFromFavorites
 }: Props) => {
-  const { tokenId } = navigation.state.params;
+  const { tokenId } = route.params;
   const token = tokenId && tokensById[tokenId];
 
   if (!address || !addressSlp) {
@@ -246,11 +246,11 @@ const WalletDetailScreen = ({
 
   return (
     <SafeAreaView>
-      <NavigationEvents
+      {/* <NavigationEvents
         onWillBlur={() => {
           setNotifyCopyTokenId(false);
         }}
-      />
+      /> */}
       <ScrollView
         style={{
           height: "100%"
@@ -314,7 +314,7 @@ const WalletDetailScreen = ({
             />
             <Button
               onPress={() =>
-                navigation.navigate("SendSetup", {
+                navigation.navigate("SendStack", {
                   tokenId
                 })
               }

@@ -1,13 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { SafeAreaView, ScrollView, Linking, StyleSheet } from "react-native";
-import { NavigationScreenProps } from "react-navigation";
 
 import Markdown from "react-native-markdown-package";
 
 import { H2, Spacer, Button } from "../atoms";
-
-type Props = NavigationScreenProps & {};
 
 const ScreenView = styled(SafeAreaView)`
   height: 100%;
@@ -156,7 +153,7 @@ Users with questions, complaints or claims with respect to the Service may conta
 `;
 
 // Edit - This version no longer used, was used in onboarding.  Maybe remove
-const TermsOfUseScreen = ({ navigation }: Props) => {
+const TermsOfUseScreen = ({ navigation }) => {
   return (
     <ScreenView>
       <Spacer small />
@@ -179,7 +176,7 @@ const TermsOfUseScreen = ({ navigation }: Props) => {
 };
 
 // This one is viewed from Menu
-const ViewTermsOfUseScreen = ({ navigation }: Props) => {
+const ViewTermsOfUseScreen = ({ navigation }) => {
   return (
     <ScreenView>
       <Spacer small />

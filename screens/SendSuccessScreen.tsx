@@ -74,12 +74,13 @@ const SendSuccessScreen = ({
   addressSlp,
   tokensById,
   navigation,
+  route,
   spotPrices,
   fiatCurrency,
   updateUtxos,
   updateTransactions
 }: Props) => {
-  const { txParams } = navigation.state.params;
+  const { txParams } = route.params;
   const { to, from, value, data } = txParams;
 
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;

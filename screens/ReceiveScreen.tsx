@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { NavigationEvents, NavigationScreenProps } from "react-navigation";
+import { NavigationScreenProps } from "react-navigation";
 import styled, { css } from "styled-components";
 import {
-  Clipboard,
   Dimensions,
   Image,
   SafeAreaView,
@@ -12,6 +11,7 @@ import {
   StyleSheet,
   View
 } from "react-native";
+import Clipboard from "@react-native-community/clipboard";
 import QRCode from "react-native-qrcode-svg";
 
 import {
@@ -112,7 +112,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
-const ReceiveScreen = ({ address, addressSlp }: Props) => {
+const ReceiveScreen = ({ address, addressSlp, navigation }: Props) => {
   const scrollRef = useRef<ScrollView>(null);
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
@@ -133,11 +133,6 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
 
   return (
     <SafeAreaView>
-      <NavigationEvents
-        onWillBlur={() => {
-          setCopyNotify("");
-        }}
-      />
       <ScrollView
         style={{
           padding: 10

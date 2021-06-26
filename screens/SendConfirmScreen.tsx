@@ -75,13 +75,11 @@ const ErrorHolder = styled(View)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state?: {
-      params: {
-        tokenId: string | null | undefined;
-        sendAmount?: string;
-        toAddress: string;
-      };
+  route: {
+    params: {
+      tokenId: string | null | undefined;
+      sendAmount?: string;
+      toAddress: string;
     };
   };
 };
@@ -115,6 +113,7 @@ type Props = PropsFromParent & PropsFromRedux;
 
 const SendConfirmScreen = ({
   navigation,
+  route,
   tokensById,
   activeAccount,
   utxos,
@@ -124,7 +123,7 @@ const SendConfirmScreen = ({
 }: Props) => {
   if (!activeAccount || !keypair) {
     navigation.goBack();
-    return <View></View>;
+    // return <View></View>;
   }
 
   const [sendError, setSendError] = useState<{
@@ -134,8 +133,7 @@ const SendConfirmScreen = ({
 
   const [transactionState, setTransactionState] = useState("setup");
 
-  const { tokenId, sendAmount, toAddress } = (navigation.state &&
-    navigation.state.params) || {
+  const { tokenId, sendAmount, toAddress } = route.params || {
     tokenId: null,
     sendAmount: undefined,
     toAddress: ""
