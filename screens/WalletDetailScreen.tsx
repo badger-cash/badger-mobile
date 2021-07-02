@@ -315,7 +315,8 @@ const WalletDetailScreen = ({
             <Button
               onPress={() =>
                 navigation.navigate("SendStack", {
-                  tokenId
+                  screen: "SendSetup",
+                  params: { tokenId: tokenId }
                 })
               }
               text="Send"

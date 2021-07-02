@@ -5,7 +5,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import styled, { ThemeProvider } from "styled-components";
 import { Provider } from "react-redux";
-import { View } from "react-native";
+import { View, LogBox } from "react-native";
+LogBox.ignoreLogs(["Require cycle"]);
 import { PersistGate } from "redux-persist/integration/react";
 
 import AppNavigator from "./navigation/AppNavigator";

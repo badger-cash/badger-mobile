@@ -161,6 +161,7 @@ const SendConfirmScreen = ({
 
   const signSendTransaction = async () => {
     setTransactionState("signing");
+    return;
 
     const utxoWithKeypair = utxos.map(utxo => ({
       ...utxo,
@@ -282,13 +283,14 @@ const SendConfirmScreen = ({
           for (let i = 0; i < availableStamps.length; i++) {
             let stamp = availableStamps[i];
             if (stamp.tokenId == tokenId) {
+              const rateDec = stamp.rate / 10 ** stamp.decimals;
+              const firstSigDig = Math.ceil(-Math.log10(rateDec));
+              const fixed = firstSigDig > 3 ? firstSigDig : 3;
               // Only include the stamp that is available
-              stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
-                3
-              );
+              stamp.rateDecimal = rateDec.toFixed(fixed);
               stamp.feePerByte = (
                 stamp.rateDecimal / postageInfo.weight
-              ).toFixed(3);
+              ).toFixed(fixed);
               postageInfo.stamps = [stamp];
               setResult(postageInfo);
               // Enable use of post office
@@ -307,7 +309,9 @@ const SendConfirmScreen = ({
     return [available, result];
   };
 
-  const [postOfficeAvailable, postOfficeData] = postageInfo();
+  const [postOfficeAvailable, postOfficeData] = tokenId
+    ? postageInfo()
+    : [false, null];
   const [usePostOffice, setUsePostOffice] = useState(false);
   const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
 
@@ -320,19 +324,19 @@ const SendConfirmScreen = ({
           flexGrow: 1
         }}
       >
-        <Spacer small />
+        {/* <Spacer small />
         <H1 center>{coinName}</H1>
         {tokenId && (
           <T size="tiny" center>
             {tokenId}
           </T>
-        )}
-        <Spacer small />
+        )}*/}
+        <Spacer tiny />
         <IconArea>
           <IconImage source={imageSource} />
         </IconArea>
 
-        <Spacer />
+        <Spacer small />
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
@@ -343,7 +347,7 @@ const SendConfirmScreen = ({
             {fiatDisplay}
           </T>
         )}
-        <Spacer large />
+        <Spacer medium />
         <H2 center>To Address</H2>
         <Spacer small />
         <T size="small" center>

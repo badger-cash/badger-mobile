@@ -145,11 +145,9 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: {
-        paymentURL: string;
-      };
+  route: {
+    params: {
+      paymentURL: string;
     };
   };
 };
@@ -158,6 +156,7 @@ type Props = PropsFromRedux & PropsFromParent;
 
 const Bip70ConfirmScreen = ({
   navigation,
+  route,
   tokensById,
   address,
   addressSlp,
@@ -171,7 +170,7 @@ const Bip70ConfirmScreen = ({
   updateTokensMeta
 }: Props) => {
   // Props / state variables
-  const { paymentURL } = navigation.state && navigation.state.params;
+  const { paymentURL } = route.params;
 
   if (!paymentURL) {
     console.warn("No BIP70 payment URL found, returning to previous screen");
