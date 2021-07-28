@@ -2,8 +2,7 @@ import { AnyAction } from "redux";
 import { ThunkDispatch } from "redux-thunk";
 
 import { CurrencyCode } from "../../utils/currency-utils";
-
-import { SLP } from "../../utils/slp-sdk-utils";
+import { getPrice } from "../../api/api.bitcoin.com";
 
 import {
   UPDATE_BCH_SPOT_PRICE_START,
@@ -55,7 +54,7 @@ const updateSpotPrice = (currencyCode: CurrencyCode) => {
   ) => {
     dispatch(updateSpotPriceStart());
     try {
-      const rate = await SLP.Price.current(currencyCode);
+      const rate = await getPrice(currencyCode);
 
       // API always returns as if currency has 2 decimals, even if it has none such as the JPY
       const decimalAdjustedRate = rate / Math.pow(10, 2);

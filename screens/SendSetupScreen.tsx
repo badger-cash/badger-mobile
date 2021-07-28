@@ -39,9 +39,11 @@ import {
   formatFiatAmount
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
+import { getByteCount } from "../utils/transaction-utils";
 import { currencyDecimalMap, CurrencyCode } from "../utils/currency-utils";
+import { getType } from "../utils/schemeParser-utils";
 
-import { SLP } from "../utils/slp-sdk-utils";
+import { isCashAddress, isSlpAddress } from "bchaddrjs-slp";
 import { FullState } from "../data/store";
 
 type PropsFromParent = NavigationScreenProps & {
@@ -266,7 +268,7 @@ const SendSetupScreen = ({
       result = balances.slpTokens[tokenId];
     } else {
       const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
-      const allUTXOFee = SLP.BitcoinCash.getByteCount(
+      const allUTXOFee = getByteCount(
         {
           P2PKH: spendableUTXOS.length
         },
@@ -366,7 +368,7 @@ const SendSetupScreen = ({
     let addressFormat = null;
 
     try {
-      addressFormat = SLP.Address.detectAddressFormat(toAddress);
+      addressFormat = getType(toAddress);
     } catch (e) {
       setErrors(["Invalid address, double check and try again."]);
       return;
@@ -509,8 +511,7 @@ const SendSetupScreen = ({
         setToAddress(parsedData.address);
 
         try {
-          SLP.Address.isCashAddress(parsedData.address) ||
-            SLP.Address.isSLPAddress(parsedData.address);
+          isCashAddress(parsedData.address) || isSlpAddress(parsedData.address);
         } catch (e) {
           setErrors([e.message]);
         }

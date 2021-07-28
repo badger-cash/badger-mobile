@@ -60,18 +60,6 @@ const updateTransactions = (address: string, addressSlp: string) => {
     const latestBlock = transactionsLatestBlockSelector(currentState);
     const allTxIds = new Set(transactionsSelector(currentState).allIds);
 
-    // const transactionsBCH = getHistoricalBchTransactions(
-    //   address,
-    //   addressSlp,
-    //   latestBlock
-    // );
-
-    // const transactionsSlp = getHistoricalSlpTransactions(
-    //   address,
-    //   addressSlp,
-    //   latestBlock
-    // );
-
     const transactionsBCH = getTransactionsByAddress(address, latestBlock);
 
     const transactionsSlp = getTransactionsByAddress(addressSlp, latestBlock);

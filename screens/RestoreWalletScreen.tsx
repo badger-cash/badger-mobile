@@ -15,7 +15,7 @@ import { H1, Button, T, Spacer } from "../atoms";
 import { getAccount } from "../data/accounts/actions";
 import { hasMnemonicSelector } from "../data/accounts/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
+import bcoin from "bcash";
 import { FullState } from "../data/store";
 
 const Screen = styled(ScrollView)`
@@ -123,10 +123,14 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
           onPress={() => {
             let errorMessage = "Double check the recovery phrase and try again";
 
-            const mnemonicMessage = SLP.Mnemonic.validate(
-              mnemonic,
-              SLP.Mnemonic.wordLists().english
-            );
+            let mnemonicMessage = "Invalid mnemonic";
+
+            try {
+              new bcoin.Mnemonic(mnemonic);
+              mnemonicMessage = "Valid mnemonic";
+            } catch (e) {
+              console.error(e);
+            }
 
             if (mnemonicMessage === "Valid mnemonic") {
               getAccount(mnemonic.trim());

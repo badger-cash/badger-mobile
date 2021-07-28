@@ -4,11 +4,11 @@ import { View, Image, Linking, TouchableOpacity } from "react-native";
 import makeBlockie from "ethereum-blockies-base64";
 import moment from "moment";
 import BigNumber from "bignumber.js";
+import { toSlpAddress } from "bchaddrjs-slp";
 
 import Feather from "react-native-vector-icons/Feather";
 
 import { T } from "../../atoms";
-import { SLP } from "../../utils/slp-sdk-utils";
 
 export type TransactionRowTypes =
   | "send"
@@ -126,7 +126,7 @@ const TransactionRow = ({
   try {
     // Above method returns an error instead of throwing one for now.
     formattedTransactionAddress = tokenId
-      ? SLP.Address.toSLPAddress(transactionAddress)
+      ? toSlpAddress(transactionAddress)
       : transactionAddress;
 
     if (typeof formattedTransactionAddress !== "string") {

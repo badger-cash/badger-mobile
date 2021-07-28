@@ -13,6 +13,8 @@ import {
 import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
+import { toSlpAddress } from "bchaddrjs-slp";
+
 import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
 
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -34,7 +36,6 @@ import {
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
 import { getPostageRates } from "../api/pay.badger";
@@ -185,7 +186,7 @@ const SendConfirmScreen = ({
           );
         });
         txParams = {
-          to: SLP.Address.toCashAddress(toAddress),
+          to: toSlpAddress(toAddress),
           from: activeAccount.address,
           value: sendAmountParam,
           sendTokenData: {
