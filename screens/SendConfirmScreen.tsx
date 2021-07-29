@@ -162,7 +162,8 @@ const SendConfirmScreen = ({
 
   const signSendTransaction = async () => {
     setTransactionState("signing");
-    return;
+
+    console.log("keypair", keypair);
 
     const utxoWithKeypair = utxos.map(utxo => ({
       ...utxo,

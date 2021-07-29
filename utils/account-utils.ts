@@ -27,7 +27,7 @@ const deriveAccount = (
   const address = keyring.getKeyAddress().toString();
   return {
     mnemonic,
-    keyring,
+    keypair: keyring,
     address,
     accountIndex
   };

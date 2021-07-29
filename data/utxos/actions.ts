@@ -52,7 +52,6 @@ const refreshUtxos = async (state: FullState, address: string) => {
     .filter(Boolean);
 
   // Get all UTXO for account
-  // const utxosAll: UTXO[] = await getAllUtxo(address);
   const utxosAll: UTXOResult[] = await getAllUtxoGrpc(address);
 
   const utxosAllWithId = utxosAll.map(utxo => ({
@@ -174,6 +173,7 @@ const updateUtxos = (address: string, addressSlp: string) => {
     const utxosUpdatedFull = await refreshUtxos(state, address);
 
     const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
+    // console.log('utxosUpdatedFullSlp', JSON.stringify(utxosUpdatedFullSlp[utxosUpdatedFullSlp.length - 2]))
 
     dispatch(
       updateUtxoSuccess([...utxosUpdatedFull, ...utxosUpdatedFullSlp], address)
