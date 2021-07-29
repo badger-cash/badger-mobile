@@ -471,8 +471,8 @@ const signAndPublishPaymentRequestTransaction = async (
 
   // calculate refund script pubkey
   const refundScriptPubkey = bcoin.Script.fromAddress(
-    refundKeypair.getKeyAddress().toRaw()
-  );
+    refundKeypair.getKeyAddress()
+  ).toRaw();
 
   // define the refund outputs
   let refundOutputs = [];
