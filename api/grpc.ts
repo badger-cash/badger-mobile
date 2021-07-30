@@ -1,7 +1,6 @@
-const jeton = require("jeton-lib");
+import bcoin from "bcash";
 const bchaddr = require("bchaddrjs-slp");
 const bchrpc = require("grpc-bchrpc-web");
-const reverse = require("buffer-reverse");
 const ReactNativeTransport = require("@improbable-eng/grpc-web-react-native-transport")
   .ReactNativeTransport;
 const grpcUrl = "https://bchd.fountainhead.cash:443";
@@ -55,7 +54,9 @@ const base64ToHex = function(
   reversedHashOrder: boolean = false
 ): string {
   const buf = Buffer.from(base64String, "base64");
-  return reversedHashOrder ? reverse(buf).toString("hex") : buf.toString("hex");
+  return reversedHashOrder
+    ? buf.reverse().toString("hex")
+    : buf.toString("hex");
 };
 
 const base64ToUtf8 = function(base64String: string): string {
@@ -146,9 +147,9 @@ const formatUtxo = async function(utxo: any): Promise<UTXOResult> {
     utxo.tokenMetadata = tx.tokenMetadata;
     utxo.slpToken = slpToken;
   }
-  const cashAddress = jeton.Script.fromHex(utxo.scriptPubKey)
-    .toAddress()
-    .toCashAddress();
+  const cashAddress = bcoin.Address.fromScript(
+    bcoin.Script.fromRaw(utxo.scriptPubKey, "hex")
+  ).toString();
   let formattedUtxo = {
     ...utxo,
     ...{
@@ -220,7 +221,7 @@ const formatTransaction = function(tx: any) {
       n: input.index,
       scriptSig: {
         hex: sigScriptHex,
-        asm: jeton.Script.fromHex(sigScriptHex).toASM()
+        asm: bcoin.Script.fromRaw(sigScriptHex, "hex").toASM()
       },
       previousScript: base64ToHex(input.previousScript),
       value: input.value,
