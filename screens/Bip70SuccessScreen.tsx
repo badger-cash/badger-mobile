@@ -21,17 +21,15 @@ const ReceiptArea = styled(View)`
 `;
 
 type Props = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: {
-        txid: string;
-      };
+  route: {
+    params: {
+      txid: string;
     };
   };
 };
 
-const Bip70SuccessScreen = ({ navigation }: Props) => {
-  const { txid } = navigation.state.params;
+const Bip70SuccessScreen = ({ navigation, route }: Props) => {
+  const { txid } = route.params;
   return (
     <ScreenCover>
       <SafeAreaView

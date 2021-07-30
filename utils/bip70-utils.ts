@@ -1,16 +1,11 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
-import { SLP } from "./slp-sdk-utils";
 import bcoin from "bcash";
 import bcrypto from "bcrypto";
-import { ECPair } from "../data/accounts/reducer";
+import { TokenType1 } from "slp-mdm";
 import { UTXO } from "../data/utxos/reducer";
 import { decodeTxOut, getByteCount } from "./transaction-utils";
-
-const slpjs = require("slpjs");
-
-const SLPJS = new slpjs.Slp(SLP);
 
 export type PaymentRequest = {
   expires: number;
@@ -364,7 +359,7 @@ const decodePaymentRequest = async (
 const signAndPublishPaymentRequestTransaction = async (
   paymentRequest: PaymentRequest,
   fromAddress: string,
-  refundKeypair: ECPair,
+  refundKeypair: typeof bcoin.KeyRing,
   spendableUtxos: UTXO[]
 ) => {
   const from = fromAddress;
@@ -398,10 +393,16 @@ const signAndPublishPaymentRequestTransaction = async (
       throw new Error("Cannot spend unspendable utxo");
     }
 
-    transactionBuilder.addOutpoint({
-      hash: Buffer.from(utxo.txid, "hex"),
-      index: utxo.vout
+    const coin = new bcoin.Coin({
+      hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+      index: utxo.vout,
+      script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+      value: utxo.satoshis,
+      height: utxo.height
     });
+
+    transactionBuilder.addCoin(coin);
+
     totalUtxoAmount += utxo.satoshis;
     inputUtxos.push(utxo);
     byteCount = getByteCount(
@@ -461,12 +462,7 @@ const signAndPublishPaymentRequestTransaction = async (
   // send the payment transaction
   let payment = new PaymentProtocol().makePayment();
 
-  paymentRequest.merchantData &&
-    payment.set(
-      "merchant_data",
-      Buffer.from(paymentRequest.merchantData, "utf-8")
-    );
-
+  payment.set("merchant_data", Buffer.from("", "utf-8"));
   payment.set("transactions", [Buffer.from(hex, "hex")]);
 
   // calculate refund script pubkey
@@ -509,7 +505,7 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   tokenMetadata: {
     decimals: number | null;
   },
-  spendableUTxos: UTXO[],
+  spendableUtxos: UTXO[],
   spendableTokenUtxos: UTXO[]
 ) => {
   if (!tokenMetadata.decimals) {
@@ -576,10 +572,10 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     ];
   }
 
-  const sendOpReturn = slpjs.Slp.buildSendOpReturn({
-    tokenIdHex: paymentRequest.tokenId,
-    outputQtyArray: to.map(toInfo => toInfo.tokenAmount)
-  });
+  const sendOpReturn = TokenType1.send(
+    paymentRequest.tokenId,
+    to.map(toInfo => toInfo.tokenAmount)
+  );
   let byteCount = 0;
   let inputSatoshis = 0;
   const inputUtxos = tokenUtxosToSpend;
@@ -595,15 +591,16 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   }
 
   if (!postagePaid) {
-    for (const utxo of spendableUTxos) {
+    for (const utxo of spendableUtxos) {
       inputSatoshis = inputSatoshis + utxo.satoshis;
       inputUtxos.push(utxo);
-      byteCount = SLPJS.calculateSendCost(
-        sendOpReturn.length,
-        inputUtxos.length,
-        to.length + 1, // +1 to receive remaining BCH
-        tokenChangeAddress
+      byteCount = getByteCount(
+        { P2PKH: inputUtxos.length },
+        { P2PKH: to.length + 1 }
       );
+
+      byteCount += sendOpReturn.length;
+      byteCount += 546 * (to.length + 1); // dust for SLP outputs
 
       if (inputSatoshis >= byteCount) {
         break;
@@ -611,11 +608,20 @@ const signAndPublishPaymentRequestTransactionSLP = async (
     }
   }
 
-  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+  const transactionBuilder = new bcoin.MTX();
   let totalUtxoAmount = 0;
 
   inputUtxos.forEach(utxo => {
-    transactionBuilder.addInput(utxo.txid, utxo.vout);
+    const coin = new bcoin.Coin({
+      hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+      index: utxo.vout,
+      script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+      value: utxo.satoshis,
+      height: utxo.height
+    });
+
+    transactionBuilder.addCoin(coin);
+
     totalUtxoAmount += utxo.satoshis;
   });
   const satoshisRemaining = totalUtxoAmount - byteCount;
@@ -628,32 +634,48 @@ const signAndPublishPaymentRequestTransactionSLP = async (
   }
 
   // SLP data output
-  transactionBuilder.addOutput(sendOpReturn, 0);
+  transactionBuilder.addOutput(bcoin.Script.fromRaw(sendOpReturn), 0);
   // Token destination output
   for (let toOutput of to) {
-    transactionBuilder.addOutput(toOutput.address, 546);
-  }
-
-  if (!postagePaid) {
-    // Return remaining bch balance output
-    transactionBuilder.addOutput(bchChangeAddress, satoshisRemaining + 546);
-  }
-
-  const sigHash = transactionBuilder.hashTypes.SIGHASH_ALL;
-
-  let redeemScript: any;
-  inputUtxos.forEach((utxo, index) => {
-    transactionBuilder.sign(
-      index,
-      utxo.keypair,
-      redeemScript,
-      postagePaid
-        ? sigHash | transactionBuilder.hashTypes.SIGHASH_ANYONECANPAY
-        : sigHash,
-      utxo.satoshis
+    transactionBuilder.addOutput(
+      bcoin.Address.fromString(toOutput.address),
+      546
     );
-  });
-  const hex = transactionBuilder.build().toHex();
+  }
+
+  if (!postagePaid && satoshisRemaining >= 546) {
+    // Return remaining bch balance output
+    transactionBuilder.addOutput(
+      bcoin.Address.fromString(bchChangeAddress),
+      satoshisRemaining
+    );
+  }
+
+  const hashTypes = bcoin.script.common.hashType;
+  const sighashType = postagePaid
+    ? hashTypes.ALL | hashTypes.ANYONECANPAY
+    : hashTypes.ALL;
+
+  // const sigHash = transactionBuilder.hashTypes.SIGHASH_ALL;
+
+  // let redeemScript: any;
+  // inputUtxos.forEach((utxo, index) => {
+  //   transactionBuilder.sign(
+  //     index,
+  //     utxo.keypair,
+  //     redeemScript,
+  //     postagePaid
+  //       ? sigHash | transactionBuilder.hashTypes.SIGHASH_ANYONECANPAY
+  //       : sigHash,
+  //     utxo.satoshis
+  //   );
+  // });
+  // const hex = transactionBuilder.build().toHex();
+
+  transactionBuilder.sign(spendableTokenUtxos[0].keypair, sighashType);
+  transactionBuilder.sign(spendableUtxos[0].keypair, sighashType);
+  const hex = transactionBuilder.toRaw().toString("hex");
+
   const payment = new PaymentProtocol().makePayment();
   payment.set("merchant_data", Buffer.from("", "utf-8"));
   payment.set("transactions", [Buffer.from(hex, "hex")]);
