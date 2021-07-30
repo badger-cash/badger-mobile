@@ -1,14 +1,18 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
-import { grpcUrl, getUtxosByAddress, sendTx, UTXOResult } from "../api/grpc";
+import {
+  getTransaction,
+  getUtxosByAddress,
+  sendTx,
+  UTXOResult
+} from "../api/grpc";
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
 
 import { postAsArrayBuffer, decodePaymentResponse } from "./bip70-utils";
 
-import { SLP } from "./slp-sdk-utils";
 import { toCashAddress, toSlpAddress, toLegacyAddress } from "bchaddrjs-slp";
 import { TokenType1 } from "slp-mdm";
 import bcoin from "bcash";
@@ -59,8 +63,15 @@ const getAllUtxoGrpc = async (
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
+  if (typeof txid == "string") {
+    txid = [txid];
+  }
   try {
-    const result = await SLP.Transaction.details(txid);
+    const result = [];
+    for (let i = 0; i < txid.length; i++) {
+      const tx = await getTransaction(txid[0]);
+      result.push(tx.transaction);
+    }
     return result;
   } catch (e) {
     throw e;
