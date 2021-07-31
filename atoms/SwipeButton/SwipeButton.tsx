@@ -46,48 +46,28 @@ type ButtonStates =
 
 interface Props {
   swipeFn(): void;
-  controlledState?: ButtonStates;
   labelAction: string;
-  labelRelease: string;
-  labelHalfway: string;
 }
 
-const SwipeButtonAtom = ({
-  swipeFn,
-  controlledState,
-  labelAction,
-  labelRelease,
-  labelHalfway
-}: Props) => {
-  const [state, setState] = useState<ButtonStates>(controlledState);
-  // const [swipeActivated, setSwipeActivated] = useState(false);
-
+const SwipeButtonAtom = ({ swipeFn, labelAction }: Props) => {
   const forwardCircle = () => (
     <Ionicons name="ios-arrow-forward-circle" size={25} color="#11a87e" />
   );
 
-  useEffect(() => {
-    if (controlledState) setState(controlledState);
-  }, [controlledState]);
-
   return (
     <SwipeButtonContainer>
-      {state === "pending" ? (
-        <ActivityIndicator size="large" color="#11a87e" />
-      ) : (
-        <SwipeButton
-          onSwipeSuccess={() => swipeFn()}
-          swipeSuccessThreshold={70}
-          titleColor="#FFFFFF"
-          railBackgroundColor="#11a87e"
-          railBorderColor="#11a87e"
-          railFillBackgroundColor="#FFFFFF"
-          railFillBorderColor="#FFFFFF"
-          thumbIconBackgroundColor="#FFFFFF"
-          thumbIconComponent={forwardCircle}
-          title={"Slide to send"}
-        />
-      )}
+      <SwipeButton
+        onSwipeSuccess={() => swipeFn()}
+        swipeSuccessThreshold={70}
+        titleColor="#FFFFFF"
+        railBackgroundColor="#11a87e"
+        railBorderColor="#11a87e"
+        railFillBackgroundColor="#FFFFFF"
+        railFillBorderColor="#FFFFFF"
+        thumbIconBackgroundColor="#FFFFFF"
+        thumbIconComponent={forwardCircle}
+        title={`Slide ${labelAction}`}
+      />
     </SwipeButtonContainer>
   );
 };

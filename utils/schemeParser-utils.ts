@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-// import { Utils } from "slpjs";
 import {
   toSlpAddress,
   toCashAddress,
@@ -130,31 +129,6 @@ const parseBCHScheme = (
   return obj;
 };
 
-// const parseSLPScheme = (
-//   scheme: string,
-//   tokensById: { [tokenId: string]: TokenData }
-// ) => {
-//   const parsed = Utils.parseSlpUri(scheme);
-//   const { amountBch, amountToken, tokenId } = parsed;
-
-//   const address = getAddress(scheme);
-//   const label = getValue(scheme, "label");
-
-//   const tokenInBalance = tokenId != undefined ? tokensById[tokenId] : tokenId;
-//   const symbol = tokenInBalance != undefined ? tokenInBalance.symbol : "---";
-
-//   let obj = {
-//     address,
-//     amount: parseAmount(amountBch),
-//     tokenAmount: parseAmount(amountToken),
-//     label,
-//     tokenId,
-//     symbol
-//   };
-//   obj = removeEmpty(obj);
-//   return obj;
-// };
-
 const getAddress = (scheme: string) => {
   return scheme.split("?")[0];
 };
@@ -211,7 +185,6 @@ export {
   parseAddress,
   parseSLP,
   parseBCHScheme,
-  // parseSLPScheme,
   getAddress,
   getValue,
   parseAmount,

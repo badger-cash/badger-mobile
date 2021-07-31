@@ -42,11 +42,9 @@ const IconImage = styled(Image)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: {
-        txParams: any;
-      };
+  route: {
+    params: {
+      txParams: any;
     };
   };
 };

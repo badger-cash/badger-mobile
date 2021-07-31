@@ -544,8 +544,6 @@ const Bip70ConfirmScreen = ({
               <SwipeButton
                 swipeFn={() => sendPayment()}
                 labelAction="To Send"
-                labelRelease="Release to send"
-                labelHalfway="Keep going"
               />
               <Spacer small />
               <Button

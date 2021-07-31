@@ -381,7 +381,9 @@ const SendConfirmScreen = ({
         )}
         <Spacer small />
 
-        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
+        {(!showSwipe || transactionState == "signing") && (
+          <ActivityIndicator size="large" color="#11a87e" />
+        )}
 
         {sendError && (
           <ErrorHolder>
@@ -393,27 +395,22 @@ const SendConfirmScreen = ({
         <Spacer fill />
         <Spacer small />
 
-        {showSwipe && (
+        {showSwipe && transactionState != "signing" && (
           <ButtonsContainer>
-            <SwipeButton
-              swipeFn={() => signSendTransaction()}
-              labelAction="To Send"
-              labelRelease="Release to send"
-              labelHalfway="Keep going"
-              controlledState={
-                transactionState === "signing" ? "pending" : undefined
-              }
-            />
+            {!sendError && (
+              <SwipeButton
+                swipeFn={() => signSendTransaction()}
+                labelAction="To Send"
+              />
+            )}
 
             <Spacer />
 
-            {transactionState !== "signing" && (
-              <Button
-                nature="cautionGhost"
-                text="Cancel Transaction"
-                onPress={() => navigation.goBack()}
-              />
-            )}
+            <Button
+              nature="cautionGhost"
+              text="Cancel Transaction"
+              onPress={() => navigation.goBack()}
+            />
           </ButtonsContainer>
         )}
         <Spacer small />
