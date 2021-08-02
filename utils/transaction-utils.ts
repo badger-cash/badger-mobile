@@ -1,19 +1,24 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
+import {
+  getTransaction,
+  getUtxosByAddress,
+  sendTx,
+  UTXOResult
+} from "../api/grpc";
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
 
 import { postAsArrayBuffer, decodePaymentResponse } from "./bip70-utils";
 
-import { SLP } from "./slp-sdk-utils";
+import { toCashAddress, toSlpAddress, toLegacyAddress } from "bchaddrjs-slp";
+import { TokenType1 } from "slp-mdm";
+import bcoin from "bcash";
+import bcrypto from "bcrypto";
 
-import { postageEndpoint } from "../api/pay.cointext";
-
-const slpjs = require("slpjs");
-
-const SLPJS = new slpjs.Slp(SLP);
+import { postageEndpoint } from "../api/pay.badger";
 
 const LOKAD_ID_HEX = "534c5000";
 
@@ -30,36 +35,48 @@ export interface TxParams {
   postOfficeData?: object | null;
 }
 
-const getSLPTxType = (scriptASMArray: string[]) => {
-  if (scriptASMArray[0] !== "OP_RETURN") {
+const getSLPTxType = (scriptASMArray: typeof bcoin.Script[]) => {
+  if (scriptASMArray[0].toASM() !== "OP_RETURN") {
     throw new Error("Not an OP_RETURN");
   }
 
-  if (scriptASMArray[1] !== LOKAD_ID_HEX) {
+  if (scriptASMArray[1].toString("hex") !== LOKAD_ID_HEX) {
     throw new Error("Not a SLP OP_RETURN");
   }
 
-  if (scriptASMArray[2] !== "OP_1") {
+  if (scriptASMArray[2].toASM() !== "1") {
     // NOTE: bitcoincashlib-js converts hex 01 to OP_1 due to BIP62.3 enforcement
     throw new Error("Unknown token type");
   }
 
-  var type = Buffer.from(scriptASMArray[3], "hex")
-    .toString("ascii")
-    .toLowerCase();
+  var type = scriptASMArray[3].toString("ascii").toLowerCase();
 
   return type;
 };
 
-const getAllUtxo = async (address: string) => {
-  const result = await SLP.Address.utxo(address);
-  return result.utxos;
+const getAllUtxoGrpc = async (
+  address: string,
+  includeTxData: boolean = true
+) => {
+  const result = await getUtxosByAddress(address, includeTxData);
+  return result;
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
   try {
-    const result = await SLP.Transaction.details(txid);
-    return result;
+    if (typeof txid == "string") {
+      const tx = await getTransaction(txid);
+      tx.txid = txid;
+      return tx.transaction;
+    } else {
+      const result = [];
+      for (let i = 0; i < txid.length; i++) {
+        const tx = await getTransaction(txid[i]);
+        tx.txid = txid;
+        result.push(tx.transaction);
+      }
+      return result;
+    }
   } catch (e) {
     throw e;
   }
@@ -67,12 +84,64 @@ const getTransactionDetails = async (txid: string | string[]) => {
 
 const txidFromHex = (hex: string) => {
   const buffer = Buffer.from(hex, "hex");
-  const hash = SLP.Crypto.hash256(buffer).toString("hex");
+  const hash = bcrypto.Hash256.digest(buffer).toString("hex");
   const txid = hash
     .match(/[a-fA-F0-9]{2}/g)
     .reverse()
     .join("");
   return txid;
+};
+
+const getByteCount = (inputs: any, outputs: any): number => {
+  // from https://github.com/bitcoinjs/bitcoinjs-lib/issues/921#issuecomment-354394004
+  let totalWeight: number = 0;
+  let hasWitness: boolean = false;
+  // assumes compressed pubkeys in all cases.
+  const types: any = {
+    inputs: {
+      "MULTISIG-P2SH": 49 * 4,
+      "MULTISIG-P2WSH": 6 + 41 * 4,
+      "MULTISIG-P2SH-P2WSH": 6 + 76 * 4,
+      P2PKH: 148 * 4,
+      P2WPKH: 108 + 41 * 4,
+      "P2SH-P2WPKH": 108 + 64 * 4
+    },
+    outputs: {
+      P2SH: 32 * 4,
+      P2PKH: 34 * 4,
+      P2WPKH: 31 * 4,
+      P2WSH: 43 * 4
+    }
+  };
+
+  Object.keys(inputs).forEach(function(key) {
+    if (key.slice(0, 8) === "MULTISIG") {
+      // ex. "MULTISIG-P2SH:2-3" would mean 2 of 3 P2SH MULTISIG
+      const keyParts = key.split(":");
+      if (keyParts.length !== 2) throw new Error(`invalid input: ${key}`);
+      const newKey = keyParts[0];
+      const mAndN = keyParts[1].split("-").map(function(item) {
+        return parseInt(item);
+      });
+
+      totalWeight += types.inputs[newKey] * inputs[key];
+      const multiplyer = newKey === "MULTISIG-P2SH" ? 4 : 1;
+      totalWeight += (73 * mAndN[0] + 34 * mAndN[1]) * multiplyer;
+    } else {
+      totalWeight += types.inputs[key] * inputs[key];
+    }
+    if (key.indexOf("W") >= 0) hasWitness = true;
+  });
+
+  Object.keys(outputs).forEach(function(key) {
+    totalWeight += types.outputs[key] * outputs[key];
+  });
+
+  if (hasWitness) totalWeight += 2;
+
+  totalWeight += 10 * 4;
+
+  return Math.ceil(totalWeight / 4);
 };
 
 // Straight from existing badger plugin slp-utils.js
@@ -85,20 +154,17 @@ const decodeTxOut = (txOut: UTXO) => {
 
   const vout = parseInt(txOut.vout, 10);
 
-  const script = SLP.Script.toASM(
-    Buffer.from(txOut.tx.vout[0].scriptPubKey.hex, "hex")
-  ).split(" ");
+  const script = bcoin.Script.fromRaw(
+    txOut.tx.vout[0].scriptPubKey.hex,
+    "hex"
+  ).toArray();
 
   const type = getSLPTxType(script);
 
   if (type === "genesis") {
-    if (typeof script[9] === "string" && script[9].startsWith("OP_")) {
-      script[9] = parseInt(script[9].slice(3), 10).toString(16);
-    }
-
     if (
-      (script[9] === "OP_2" && vout === 2) ||
-      parseInt(script[9], 16) === vout
+      (script[9].toASM() === "2" && vout === 2) ||
+      script[9].toInt() === vout
     ) {
       out.token = txOut.txid;
       out.baton = true;
@@ -110,17 +176,13 @@ const decodeTxOut = (txOut: UTXO) => {
     }
 
     out.token = txOut.txid;
-    out.quantity = new BigNumber(script[10], 16);
+    out.quantity = new BigNumber(script[10].toASM(), 16);
   } else if (type === "mint") {
-    if (typeof script[5] === "string" && script[5].startsWith("OP_")) {
-      script[5] = parseInt(script[5].slice(3), 10).toString(16);
-    }
-
     if (
-      (script[5] === "OP_2" && vout === 2) ||
-      parseInt(script[5], 16) === vout
+      (script[5].toASM() === "2" && vout === 2) ||
+      script[5].toInt() === vout
     ) {
-      out.token = script[4];
+      out.token = script[4].toString("hex");
       out.baton = true;
       return out;
     }
@@ -129,28 +191,17 @@ const decodeTxOut = (txOut: UTXO) => {
       throw new Error("Not a SLP txout");
     }
 
-    out.token = script[4];
+    out.token = script[4].toString("hex");
 
-    if (typeof script[6] === "string" && script[6].startsWith("OP_")) {
-      script[6] = parseInt(script[6].slice(3), 10).toString(16);
-    }
-
-    out.quantity = new BigNumber(script[6], 16);
+    out.quantity = new BigNumber(script[6].toASM(), 16);
   } else if (type === "send") {
     if (script.length <= vout + 4) {
       throw new Error("Not a SLP txout");
     }
 
-    out.token = script[4];
+    out.token = script[4].toString("hex");
 
-    if (
-      typeof script[vout + 4] === "string" &&
-      script[vout + 4].startsWith("OP_")
-    ) {
-      script[vout + 4] = parseInt(script[vout + 4].slice(3), 10).toString(16);
-    }
-
-    out.quantity = new BigNumber(script[vout + 4], 16);
+    out.quantity = new BigNumber(script[vout + 4].toASM(), 16);
   } else {
     throw new Error("Invalid tx type");
   }
@@ -160,19 +211,18 @@ const decodeTxOut = (txOut: UTXO) => {
 
 // Straight from Badger plugin
 const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
-  const script = SLP.Script.toASM(
-    Buffer.from(txDetails.vout[0].scriptPubKey.hex, "hex")
-  ).split(" ");
+  const script = bcoin.Script.fromRaw(
+    txDetails.vout[0].scriptPubKey.hex,
+    "hex"
+  ).toArray();
   const type = getSLPTxType(script);
 
   if (type === "genesis") {
     return {
-      tokenId: txDetails.txid,
-      symbol: Buffer.from(script[4], "hex").toString("ascii"),
-      name: Buffer.from(script[5], "hex").toString("ascii"),
-      decimals: script[8].startsWith("OP_")
-        ? parseInt(script[8].slice(3), 10)
-        : parseInt(script[8], 16),
+      tokenId: txDetails.hash,
+      symbol: script[4].toString("ascii"),
+      name: script[5].toString("ascii"),
+      decimals: parseInt(script[8].toASM()),
       protocol: "slp"
     };
   } else {
@@ -180,8 +230,8 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
   }
 };
 
-const encodeOpReturn = async (dataArray: string[]) => {
-  const script = [SLP.Script.opcodes.OP_RETURN];
+const encodeOpReturn = (dataArray: string[]) => {
+  const script = [bcoin.Opcode.fromSymbol("OP_RETURN").toRaw()];
 
   dataArray.forEach(data => {
     if (typeof data === "string" && data.substring(0, 2) === "0x") {
@@ -191,11 +241,11 @@ const encodeOpReturn = async (dataArray: string[]) => {
     }
   });
 
-  return await SLP.Script.encode(script);
+  return bcoin.Script.fromItems(script).toRaw();
 };
 
 const publishTx = async (hex: string) => {
-  const result = await SLP.RawTransactions.sendRawTransaction(hex);
+  const result = await sendTx(hex);
 
   try {
     if (result.length === 64) {
@@ -220,11 +270,9 @@ const signAndPublishBchTransaction = async (
     const { from, to, value, opReturn } = txParams;
 
     const satoshisToSend = parseInt(value, 10);
-    const encodedOpReturn = opReturn
-      ? await encodeOpReturn(opReturn.data)
-      : null;
+    const encodedOpReturn = opReturn ? encodeOpReturn(opReturn.data) : null;
 
-    const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+    const transactionBuilder = new bcoin.MTX();
     const inputUtxos = [];
     let byteCount = 0;
     let totalUtxoAmount = 0;
@@ -234,11 +282,19 @@ const signAndPublishBchTransaction = async (
         throw new Error("Cannot spend unspendable utxo");
       }
 
-      transactionBuilder.addInput(utxo.txid, utxo.vout);
+      const coin = new bcoin.Coin({
+        hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+        index: utxo.vout,
+        script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+        value: utxo.satoshis,
+        height: utxo.height
+      });
+
+      transactionBuilder.addCoin(coin);
       totalUtxoAmount += utxo.satoshis;
       inputUtxos.push(utxo);
 
-      byteCount = SLP.BitcoinCash.getByteCount(
+      byteCount = getByteCount(
         {
           P2PKH: inputUtxos.length
         },
@@ -265,31 +321,24 @@ const signAndPublishBchTransaction = async (
       );
     }
 
-    // Destination output
-    transactionBuilder.addOutput(to, satoshisToSend);
-
     // Op Return
-    // TODO: Allow dev to pass in "position" property for vout of opReturn
     if (encodedOpReturn) {
-      transactionBuilder.addOutput(encodedOpReturn, 0);
+      transactionBuilder.addOutput(bcoin.Script.fromRaw(encodedOpReturn), 0);
     }
+
+    // Destination output
+    transactionBuilder.addOutput(bcoin.Address.fromString(to), satoshisToSend);
 
     // Return remaining balance output
     if (satoshisRemaining >= 546) {
-      transactionBuilder.addOutput(from, satoshisRemaining);
+      transactionBuilder.addOutput(
+        bcoin.Address.fromString(from),
+        satoshisRemaining
+      );
     }
 
-    let redeemScript: any;
-    inputUtxos.forEach((utxo, index) => {
-      transactionBuilder.sign(
-        index,
-        utxo.keypair,
-        redeemScript,
-        transactionBuilder.hashTypes.SIGHASH_ALL,
-        utxo.satoshis
-      );
-    });
-    const hex = transactionBuilder.build().toHex();
+    transactionBuilder.sign(inputUtxos[0].keypair);
+    const hex = transactionBuilder.toRaw().toString("hex");
     const txid = await publishTx(hex);
     return txid;
   } catch (err) {
@@ -338,7 +387,7 @@ const signAndPublishSlpTransaction = async (
   let tokenBalance = new BigNumber(0);
   let tokenChangeAmount = new BigNumber(0);
   const tokenUtxosToSpend = [];
-  let remainingTokenUtxos = [];
+  let remainingTokenUtxos: UTXO[] = [];
 
   // Gather enough SLP UTXO's
   for (let i = 0; i < spendableTokenUtxos.length; i++) {
@@ -379,10 +428,7 @@ const signAndPublishSlpTransaction = async (
   }
 
   // Build The OP_RETURN
-  sendOpReturn = slpjs.Slp.buildSendOpReturn({
-    tokenIdHex: sendTokenData.tokenId,
-    outputQtyArray: outputQtyArray
-  });
+  sendOpReturn = TokenType1.send(sendTokenData.tokenId, outputQtyArray);
 
   const tokenReceiverAddressArray = [to];
 
@@ -395,33 +441,33 @@ const signAndPublishSlpTransaction = async (
   }
 
   let byteCount = 0;
-  let inputSatoshis = 0;
+  let inputSatoshis = tokenUtxosToSpend.length * 546;
 
   const inputUtxos = [...tokenUtxosToSpend];
 
   // Verify sufficient fee if not using postage protocol (BCH as "change")
   if (!postOfficeData) {
     for (const utxo of spendableUtxos) {
-      inputSatoshis = inputSatoshis + utxo.satoshis;
-
-      inputUtxos.push(utxo);
-
-      byteCount = SLPJS.calculateSendCost(
-        sendOpReturn.length,
-        inputUtxos.length,
-        tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
-        from
+      byteCount = getByteCount(
+        { P2PKH: inputUtxos.length },
+        { P2PKH: tokenReceiverAddressArray.length + 1 }
       );
+
+      byteCount += sendOpReturn.length;
+      byteCount += 546 * tokenReceiverAddressArray.length; // 546 sats for each output
 
       if (inputSatoshis >= byteCount) {
         break;
       }
+
+      inputSatoshis = inputSatoshis + utxo.satoshis;
+      inputUtxos.push(utxo);
     }
   } else {
     // Recalculate and verify sufficient fee if using postage protocol
     for (let i = 0; i <= remainingTokenUtxos.length; i++) {
       // TODO: Get this byte count more accurate
-      byteCount = SLP.BitcoinCash.getByteCount(
+      byteCount = getByteCount(
         { P2PKH: inputUtxos.length },
         { P2PKH: tokenReceiverAddressArray.length }
       );
@@ -443,10 +489,7 @@ const signAndPublishSlpTransaction = async (
           tokenChangeAmount.minus(postageBN)
         ];
         console.log("outputQtyArray", outputQtyArray);
-        sendOpReturn = slpjs.Slp.buildSendOpReturn({
-          tokenIdHex: sendTokenData.tokenId,
-          outputQtyArray: outputQtyArray
-        });
+        sendOpReturn = TokenType1.send(sendTokenData.tokenId, outputQtyArray);
         break;
       } else {
         if (remainingTokenUtxos.length > 0) {
@@ -462,11 +505,19 @@ const signAndPublishSlpTransaction = async (
     }
   }
 
-  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+  const transactionBuilder = new bcoin.MTX();
   let totalUtxoAmount = 0;
 
   inputUtxos.forEach(utxo => {
-    transactionBuilder.addInput(utxo.txid, utxo.vout);
+    const coin = new bcoin.Coin({
+      hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+      index: utxo.vout,
+      script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+      value: utxo.satoshis,
+      height: utxo.height
+    });
+
+    transactionBuilder.addCoin(coin);
 
     totalUtxoAmount += utxo.satoshis;
   });
@@ -481,37 +532,47 @@ const signAndPublishSlpTransaction = async (
   }
 
   // SLP data output
-  transactionBuilder.addOutput(sendOpReturn, 0);
+  transactionBuilder.addOutput(bcoin.Script.fromRaw(sendOpReturn), 0);
 
   for (let i = 0; i < tokenReceiverAddressArray.length; i++) {
     // Token destination output
-    let tokenReceiverAddress = SLP.Address.toCashAddress(
-      tokenReceiverAddressArray[i]
+    let tokenReceiverAddress = toCashAddress(tokenReceiverAddressArray[i]);
+    transactionBuilder.addOutput(
+      bcoin.Address.fromString(tokenReceiverAddress),
+      546
     );
-    transactionBuilder.addOutput(tokenReceiverAddress, 546);
   }
 
-  if (!postOfficeData) {
+  if (!postOfficeData && satoshisRemaining >= 546) {
     // Return remaining bch balance output
-    transactionBuilder.addOutput(from, satoshisRemaining + 546);
+    transactionBuilder.addOutput(
+      bcoin.Address.fromString(from),
+      satoshisRemaining
+    );
   }
 
+  const hashTypes = bcoin.script.common.hashType;
   const sighashType = postOfficeData
-    ? transactionBuilder.hashTypes.SIGHASH_ALL |
-      transactionBuilder.hashTypes.SIGHASH_ANYONECANPAY
-    : transactionBuilder.hashTypes.SIGHASH_ALL;
+    ? hashTypes.ALL | hashTypes.ANYONECANPAY
+    : hashTypes.ALL;
 
-  let redeemScript: any;
-  inputUtxos.forEach((utxo, index) => {
-    transactionBuilder.sign(
-      index,
-      utxo.keypair,
-      redeemScript,
-      sighashType,
-      utxo.satoshis
-    );
-  });
-  const hex = transactionBuilder.build().toHex();
+  // TODO: Might be better to sign each input in this loop using MTX.signInput
+  // let redeemScript: any;
+  // inputUtxos.forEach((utxo, index) => {
+  //   transactionBuilder.sign(
+  //     index,
+  //     utxo.keypair,
+  //     redeemScript,
+  //     sighashType,
+  //     utxo.satoshis
+  //   );
+  // });
+  // const hex = transactionBuilder.build().toHex();
+
+  // Sign both BCH and SLP inputs
+  transactionBuilder.sign(spendableTokenUtxos[0].keypair, sighashType);
+  transactionBuilder.sign(spendableUtxos[0].keypair, sighashType);
+  const hex = transactionBuilder.toRaw().toString("hex");
 
   let txid = null;
 
@@ -522,16 +583,10 @@ const signAndPublishSlpTransaction = async (
     payment.set("merchant_data", Buffer.from(merchantData, "utf-8"));
     payment.set("transactions", [Buffer.from(hex, "hex")]);
 
-    // calculate refund script pubkey from change address
-    const addressType = SLP.Address.detectAddressType(tokenChangeAddress);
-    const addressFormat = SLP.Address.detectAddressFormat(tokenChangeAddress);
-    let refundHash160 = SLP.Address.cashToHash160(tokenChangeAddress);
-    let encodingFunc = SLP.Script.pubKeyHash.output.encode;
-    if (addressType == "p2sh")
-      encodingFunc = SLP.Script.scriptHash.output.encode;
-    if (addressFormat == "legacy")
-      refundHash160 = SLP.Address.legacyToHash160(tokenChangeAddress);
-    const refundScriptPubkey = encodingFunc(Buffer.from(refundHash160, "hex"));
+    // calculate refund script pubkey
+    const refundScriptPubkey = bcoin.Script.fromAddress(
+      bcoin.Address.fromString(tokenChangeAddress)
+    ).toRaw();
 
     // define the refund outputs
     let refundOutputs = [];
@@ -591,7 +646,7 @@ type PaperUTXO = {
 };
 
 type UtxosByKey = {
-  [utxoType: string]: PaperUTXO[];
+  [utxoType: string]: UTXOResult[];
 };
 
 type Balances = {
@@ -612,7 +667,11 @@ const getUtxosBalances = async (utxosByKey: UtxosByKey): Promise<Balances> => {
       }, new BigNumber(0));
     } else {
       total = utxos.reduce((acc, curr) => {
-        const tokenAmount = new BigNumber(curr.tokenQty ? curr.tokenQty : 0);
+        const tokenAmount = new BigNumber(
+          curr.slpToken
+            ? curr.slpToken.amount / 10 ** curr.slpToken.decimals
+            : 0
+        );
         return acc.plus(tokenAmount);
       }, new BigNumber(0));
     }
@@ -629,30 +688,31 @@ const getPaperKeypair = async (wif?: string | null) => {
     );
   }
 
-  const keypair = await SLP.ECPair.fromWIF(wif);
+  const keypair = bcoin.KeyRing.fromSecret(wif);
   return keypair;
 };
 
-const getPaperUtxos = async (keypair: ECPair): Promise<UtxosByKey> => {
+const getPaperUtxos = async (
+  keypair: typeof bcoin.KeyRing
+): Promise<UtxosByKey> => {
   try {
     // Generate the public address associated with the private key.
-    const fromAddr: string = SLP.ECPair.toCashAddress(keypair);
+    const fromAddr: string = keypair.getKeyAddress().toString();
 
     // Get UTXOs associated with public address.
-    const u = await SLP.Address.utxo(fromAddr);
-    const utxosAll = u.utxos as PaperUTXO[];
+    const utxosAll = await getUtxosByAddress(fromAddr);
 
-    let utxosDetails = [] as PaperUTXO[];
-    utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
-    console.assert(
-      utxosAll.length === utxosDetails.length,
-      "UTXO Details and UTXOs differ in length"
-    );
+    // let utxosDetails = [] as PaperUTXO[];
+    // utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
+    // console.assert(
+    //   utxosAll.length === utxosDetails.length,
+    //   "UTXO Details and UTXOs differ in length"
+    // );
 
-    const utxosByKey = {} as { [utxoKey: string]: PaperUTXO[] };
+    const utxosByKey = {} as { [utxoKey: string]: UTXOResult[] };
     utxosAll.forEach((utxo, i) => {
-      const token = utxosDetails[i];
-      const utxoKey = token ? token.tokenId : "BCH";
+      const token = utxosAll[i].slp;
+      const utxoKey = token ? token.token : "BCH";
 
       if (utxoKey) {
         if (utxosByKey[utxoKey]) {
@@ -672,7 +732,7 @@ const getPaperUtxos = async (keypair: ECPair): Promise<UtxosByKey> => {
 const sweepPaperWallet = async (
   wif: string | null,
   utxosByKey: {
-    [balanceKey: string]: PaperUTXO[];
+    [balanceKey: string]: UTXOResult[];
   },
   addressBch: string,
   addressSlp: string,
@@ -707,11 +767,9 @@ const sweepPaperWallet = async (
     const hasBCH = paperBalanceKeys.includes("BCH");
 
     // Generate a keypair from the WIF
-    const keyPair = SLP.ECPair.fromWIF(wif);
-    const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
-    const transactionBuilder = new SLP.TransactionBuilder(
-      SLP.Address.detectAddressNetwork(fromAddr)
-    );
+    const keyPair = bcoin.KeyRing.fromSecret(wif);
+    // const fromAddr: string = keyPair.getKeyAddress().toString();
+    const transactionBuilder = new bcoin.MTX();
 
     if (tokenId && tokenDecimals != null && hasBCH) {
       // SLP + BCH sweep
@@ -722,51 +780,64 @@ const sweepPaperWallet = async (
       ).decimalPlaces(tokenDecimals);
 
       const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
-      const sendOpReturn = slpjs.Slp.buildSendOpReturn({
-        tokenIdHex: tokenId,
-        outputQtyArray: [tokenSendAmount]
-      });
+      const sendOpReturn = TokenType1.send(tokenId, [tokenSendAmount]);
 
       const tokenReceiverAddressArray = [addressSlp];
       const slpUtxos = [...utxosByKey[tokenId]];
       const bchUtxos = [...utxosByKey["BCH"]];
       let inputUtxos = [...slpUtxos, ...bchUtxos];
 
-      let byteCount = SLPJS.calculateSendCost(
-        sendOpReturn.length,
-        inputUtxos.length,
-        tokenReceiverAddressArray.length + 1, // +1 to receive remaining BCH
-        fromAddr
+      let byteCount = getByteCount(
+        { P2PKH: inputUtxos.length },
+        { P2PKH: tokenReceiverAddressArray.length + 1 }
       );
+
+      byteCount += sendOpReturn.length;
+      byteCount += 546 * tokenReceiverAddressArray.length + 1; // 546 sats for each output
+
       let totalUtxoAmount = 0;
 
       inputUtxos.forEach(utxo => {
-        transactionBuilder.addInput(utxo.txid, utxo.vout);
+        const coin = new bcoin.Coin({
+          hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+          index: utxo.vout,
+          script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+          value: utxo.satoshis,
+          height: utxo.height
+        });
+
+        transactionBuilder.addCoin(coin);
         totalUtxoAmount += utxo.satoshis;
       });
       const satoshisRemaining = totalUtxoAmount - byteCount;
 
       // SLP data output
-      transactionBuilder.addOutput(sendOpReturn, 0);
+      transactionBuilder.addOutput(bcoin.Script.fromRaw(sendOpReturn), 0);
 
       // Token destination output
-      transactionBuilder.addOutput(addressSlp, 546);
+      transactionBuilder.addOutput(bcoin.Address.fromString(addressSlp), 546);
 
       // Return remaining bch balance output
-      transactionBuilder.addOutput(addressBch, satoshisRemaining + 546);
-
-      let redeemScript: any;
-      inputUtxos.forEach((utxo, index) => {
-        transactionBuilder.sign(
-          index,
-          keyPair,
-          redeemScript,
-          transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
+      if (satoshisRemaining >= 546)
+        transactionBuilder.addOutput(
+          bcoin.Address.fromString(addressBch),
+          satoshisRemaining
         );
-      });
 
-      const hex = transactionBuilder.build().toHex();
+      // let redeemScript: any;
+      // inputUtxos.forEach((utxo, index) => {
+      //   transactionBuilder.sign(
+      //     index,
+      //     keyPair,
+      //     redeemScript,
+      //     transactionBuilder.hashTypes.SIGHASH_ALL,
+      //     utxo.satoshis
+      //   );
+      // });
+
+      // const hex = transactionBuilder.build().toHex();
+      transactionBuilder.sign(keyPair);
+      const hex: string = transactionBuilder.toRaw().toString("hex");
 
       txid = await publishTx(hex);
     } else if (hasBCH && !tokenId) {
@@ -780,11 +851,19 @@ const sweepPaperWallet = async (
       for (let i = 0; i < bchUtxos.length; i++) {
         const utxo = bchUtxos[i]; // +1 to receive remaining BCH
         originalAmount = originalAmount + utxo.satoshis;
-        transactionBuilder.addInput(utxo.txid, utxo.vout);
+        const coin = new bcoin.Coin({
+          hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+          index: utxo.vout,
+          script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+          value: utxo.satoshis,
+          height: utxo.height
+        });
+
+        transactionBuilder.addCoin(coin);
       }
 
       // get byte count to calculate fee. paying 1.1 sat/byte
-      const byteCount: number = SLP.BitcoinCash.getByteCount(
+      const byteCount: number = getByteCount(
         { P2PKH: bchUtxos.length },
         { P2PKH: 1 }
       );
@@ -795,30 +874,32 @@ const sweepPaperWallet = async (
 
       // add output w/ address and amount to send
       transactionBuilder.addOutput(
-        SLP.Address.toLegacyAddress(addressBch),
+        bcoin.Address.fromString(addressBch),
         sendAmount
       );
 
       let redeemScript;
 
-      // Loop through each input and sign it with the private key.
-      for (let i: number = 0; i < bchUtxos.length; i++) {
-        const utxo = bchUtxos[i];
-        transactionBuilder.sign(
-          i,
-          keyPair,
-          redeemScript,
-          transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
-        );
-      }
+      // // Loop through each input and sign it with the private key.
+      // for (let i: number = 0; i < bchUtxos.length; i++) {
+      //   const utxo = bchUtxos[i];
+      //   transactionBuilder.sign(
+      //     i,
+      //     keyPair,
+      //     redeemScript,
+      //     transactionBuilder.hashTypes.SIGHASH_ALL,
+      //     utxo.satoshis
+      //   );
+      // }
 
-      // build tx
-      const tx = transactionBuilder.build();
-      const hex: string = tx.toHex();
+      // // build tx
+      // const tx = transactionBuilder.build();
+      // const hex: string = tx.toHex();
+      transactionBuilder.sign(keyPair);
+      const hex: string = transactionBuilder.toRaw().toString("hex");
 
       // Broadcast the transaction to the BCH network.
-      txid = await SLP.RawTransactions.sendRawTransaction(hex);
+      txid = await publishTx(hex);
       return txid;
     } else if (tokenId && tokenDecimals != null && !hasBCH) {
       // SLP only sweep
@@ -839,10 +920,7 @@ const sweepPaperWallet = async (
       ).decimalPlaces(tokenDecimals);
 
       const tokenSendAmount = scaledTokenSendAmount.times(10 ** tokenDecimals);
-      const sendOpReturn = slpjs.Slp.buildSendOpReturn({
-        tokenIdHex: tokenId,
-        outputQtyArray: [tokenSendAmount]
-      });
+      const sendOpReturn = TokenType1.send(tokenId, [tokenSendAmount]);
 
       const tokenReceiverAddressArray = [addressSlp];
 
@@ -857,12 +935,13 @@ const sweepPaperWallet = async (
         inputSatoshis = inputSatoshis + utxo.satoshis;
         inputOwnUtxos.push(utxo);
 
-        byteCount = SLPJS.calculateSendCost(
-          sendOpReturn.length,
-          [...inputPaperUtxos, ...inputOwnUtxos].length,
-          tokenReceiverAddressArray.length + 1,
-          fromAddr
+        byteCount = getByteCount(
+          { P2PKH: [...inputPaperUtxos, ...inputOwnUtxos].length },
+          { P2PKH: tokenReceiverAddressArray.length + 1 }
         );
+
+        byteCount += sendOpReturn.length;
+        byteCount += 546 * tokenReceiverAddressArray.length + 1; // 546 sats for each output
 
         if (inputSatoshis >= byteCount) {
           break;
@@ -872,10 +951,19 @@ const sweepPaperWallet = async (
       const inputCombinedUtxos = [...inputPaperUtxos, ...inputOwnUtxos];
       let totalUtxoAmount = 0;
       inputCombinedUtxos.forEach(utxo => {
-        transactionBuilder.addInput(utxo.txid, utxo.vout);
+        const coin = new bcoin.Coin({
+          hash: Buffer.from(utxo.txid, "hex").reverse(), // must reverse bytes
+          index: utxo.vout,
+          script: Buffer.from(utxo.tx.vout[utxo.vout].scriptPubKey.hex, "hex"),
+          value: utxo.satoshis,
+          height: utxo.height
+        });
+
+        transactionBuilder.addCoin(coin);
         totalUtxoAmount += utxo.satoshis;
       });
       const satoshisRemaining = totalUtxoAmount - byteCount;
+      console.log(inputSatoshis, byteCount, satoshisRemaining);
 
       // Verify sufficient fee
       if (satoshisRemaining < 0) {
@@ -885,35 +973,43 @@ const sweepPaperWallet = async (
       }
 
       // SLP Data output
-      transactionBuilder.addOutput(sendOpReturn, 0);
+      transactionBuilder.addOutput(bcoin.Script.fromRaw(sendOpReturn), 0);
 
       // Token destination output
-      transactionBuilder.addOutput(addressSlp, 546);
+      transactionBuilder.addOutput(bcoin.Address.fromString(addressSlp), 546);
 
-      // return remaining BCH to own wallet
-      transactionBuilder.addOutput(addressBch, satoshisRemaining + 546);
-      let redeemScript: any;
-      inputPaperUtxos.forEach((utxo, index) => {
-        transactionBuilder.sign(
-          index,
-          keyPair,
-          redeemScript,
-          transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
+      // return remaining BCH to own wallet if greater than dust
+      if (satoshisRemaining >= 546)
+        transactionBuilder.addOutput(
+          bcoin.Address.fromString(addressBch),
+          satoshisRemaining
         );
-      });
+      // let redeemScript: any;
+      // inputPaperUtxos.forEach((utxo, index) => {
+      //   transactionBuilder.sign(
+      //     index,
+      //     keyPair,
+      //     redeemScript,
+      //     transactionBuilder.hashTypes.SIGHASH_ALL,
+      //     utxo.satoshis
+      //   );
+      // });
 
-      inputOwnUtxos.forEach((utxo, index) => {
-        const indexOffset = inputPaperUtxos.length;
-        transactionBuilder.sign(
-          indexOffset + index,
-          utxo.keypair,
-          redeemScript,
-          transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
-        );
-      });
-      const hex = transactionBuilder.build().toHex();
+      // inputOwnUtxos.forEach((utxo, index) => {
+      //   const indexOffset = inputPaperUtxos.length;
+      //   transactionBuilder.sign(
+      //     indexOffset + index,
+      //     utxo.keypair,
+      //     redeemScript,
+      //     transactionBuilder.hashTypes.SIGHASH_ALL,
+      //     utxo.satoshis
+      //   );
+      // });
+      // const hex = transactionBuilder.build().toHex();
+      transactionBuilder.sign(keyPair);
+      transactionBuilder.sign(inputOwnUtxos[0].keypair);
+      const hex: string = transactionBuilder.toRaw().toString("hex");
+
       txid = await publishTx(hex);
     } else {
       throw new Error("Unknown sweep error, try again");
@@ -929,7 +1025,8 @@ const sweepPaperWallet = async (
 export {
   decodeTokenMetadata,
   decodeTxOut,
-  getAllUtxo,
+  getByteCount,
+  getAllUtxoGrpc,
   getTransactionDetails,
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction,

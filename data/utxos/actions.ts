@@ -12,12 +12,9 @@ import { activeAccountIdSelector } from "../accounts/selectors";
 
 import { FullState } from "../store";
 
-import {
-  getAllUtxo,
-  getTransactionDetails,
-  decodeTxOut
-} from "../../utils/transaction-utils";
-import { SLP } from "../../utils/slp-sdk-utils";
+import { decodeTxOut, getAllUtxoGrpc } from "../../utils/transaction-utils";
+
+import { getTransactions, UTXOResult } from "../../api/grpc";
 
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -55,7 +52,7 @@ const refreshUtxos = async (state: FullState, address: string) => {
     .filter(Boolean);
 
   // Get all UTXO for account
-  const utxosAll: UTXO[] = await getAllUtxo(address);
+  const utxosAll: UTXOResult[] = await getAllUtxoGrpc(address);
 
   const utxosAllWithId = utxosAll.map(utxo => ({
     ...utxo,
@@ -78,16 +75,15 @@ const refreshUtxos = async (state: FullState, address: string) => {
     utxoCurrent => !cachedUtxoFilteredIds.includes(utxoCurrent._id)
   );
 
-  // Update UTXOS with tx details before saving
-  const newTxIds = utxosNew.map(utxo => utxo.txid);
-  const txDetailChunks = await Promise.all(
-    chunk(newTxIds, 20).map(txIds => getTransactionDetails(txIds))
-  );
+  // // Update UTXOS with tx details before saving
+  // const newTxIds = utxosNew.map(utxo => utxo.txid);
+  // const txDetailChunks = await Promise.all(
+  //   chunk(newTxIds, 20).map(txIds => getTransactions(txIds, true))
+  // );
 
-  const txDetails = [].concat(...txDetailChunks);
+  // const txDetails: any[] = [].concat(...txDetailChunks);
   const utxosNewWithTxDetails = utxosNew.map((utxo, idx) => ({
     ...utxo,
-    tx: txDetails[idx],
     address
   }));
 
@@ -131,7 +127,6 @@ const refreshUtxos = async (state: FullState, address: string) => {
         const validatedTxs: {
           valid: boolean;
           txid: string;
-          // }[] = await SLP.Utils.validateTxid(txIdsToValidate); // Endpoint no longer exists
         }[] = txIdsToValidate.map(txId => {
           return { valid: true, txid: txId };
         });
@@ -178,6 +173,7 @@ const updateUtxos = (address: string, addressSlp: string) => {
     const utxosUpdatedFull = await refreshUtxos(state, address);
 
     const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
+    // console.log('utxosUpdatedFullSlp', JSON.stringify(utxosUpdatedFullSlp[utxosUpdatedFullSlp.length - 2]))
 
     dispatch(
       updateUtxoSuccess([...utxosUpdatedFull, ...utxosUpdatedFullSlp], address)

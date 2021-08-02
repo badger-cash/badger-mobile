@@ -145,11 +145,9 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: {
-        paymentURL: string;
-      };
+  route: {
+    params: {
+      paymentURL: string;
     };
   };
 };
@@ -158,6 +156,7 @@ type Props = PropsFromRedux & PropsFromParent;
 
 const Bip70ConfirmScreen = ({
   navigation,
+  route,
   tokensById,
   address,
   addressSlp,
@@ -171,7 +170,7 @@ const Bip70ConfirmScreen = ({
   updateTokensMeta
 }: Props) => {
   // Props / state variables
-  const { paymentURL } = navigation.state && navigation.state.params;
+  const { paymentURL } = route.params;
 
   if (!paymentURL) {
     console.warn("No BIP70 payment URL found, returning to previous screen");
@@ -342,6 +341,7 @@ const Bip70ConfirmScreen = ({
         );
       }
     } catch (e) {
+      console.warn(e);
       setSendError(e.message);
       setStep("error");
       return;
@@ -450,38 +450,40 @@ const Bip70ConfirmScreen = ({
   return (
     <ScreenWrapper>
       <Overlay
-        isVisible={overlayVisible}
+        isVisible={!overlayVisible ? false : true}
         onBackdropPress={() => setOverlayVisible(false)}
         width="auto"
         height="auto"
       >
-        <T>{optionalOutputText}</T>
-        <Spacer small />
-        <AmountInputRow>
-          <AmountLabel>
-            <T type="muted2" weight="bold">
-              {coinInfo.symbol}
-            </T>
-          </AmountLabel>
-          <StyledTextInputAmount
-            keyboardType="numeric"
-            editable
-            placeholder="0.0"
-            autoCompleteType="off"
-            autoCorrect={false}
-            autoCapitalize="none"
-            value={addOutputAmount}
-            onChangeText={text => {
-              // setErrors([]);
-              setAddOutputAmount(formatAmountInput(text, coinInfo.decimals));
-            }}
+        <View>
+          <T>{optionalOutputText}</T>
+          <Spacer small />
+          <AmountInputRow>
+            <AmountLabel>
+              <T type="muted2" weight="bold">
+                {coinInfo.symbol}
+              </T>
+            </AmountLabel>
+            <StyledTextInputAmount
+              keyboardType="numeric"
+              editable
+              placeholder="0.0"
+              autoCompleteType="off"
+              autoCorrect={false}
+              autoCapitalize="none"
+              value={addOutputAmount}
+              onChangeText={text => {
+                // setErrors([]);
+                setAddOutputAmount(formatAmountInput(text, coinInfo.decimals));
+              }}
+            />
+          </AmountInputRow>
+          <Spacer small />
+          <Button
+            onPress={() => addOutput(addOutputAmount)}
+            text={parseFloat(addOutputAmount) > 0 ? "Add Amount" : "Cancel"}
           />
-        </AmountInputRow>
-        <Spacer small />
-        <Button
-          onPress={() => addOutput(addOutputAmount)}
-          text={parseFloat(addOutputAmount) > 0 ? "Add Amount" : "Cancel"}
-        />
+        </View>
       </Overlay>
       <ScrollView
         contentContainerStyle={{
@@ -525,9 +527,7 @@ const Bip70ConfirmScreen = ({
                 </T>
               </>
             )}
-            <Spacer />
-            {}
-            {}
+
             <Spacer small />
             <T center size="small" type="muted">
               Payment URL
@@ -542,10 +542,8 @@ const Bip70ConfirmScreen = ({
             <Spacer small />
             <ButtonsContainer>
               <SwipeButton
-                swipeFn={sendPayment}
-                labelAction="To pay"
-                labelRelease="Release to pay"
-                labelHalfway="Keep going"
+                swipeFn={() => sendPayment()}
+                labelAction="To Send"
               />
               <Spacer small />
               <Button

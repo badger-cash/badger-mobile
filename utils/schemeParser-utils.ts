@@ -1,6 +1,10 @@
 import BigNumber from "bignumber.js";
-import { Utils } from "slpjs";
-import { SLP } from "./slp-sdk-utils";
+import {
+  toSlpAddress,
+  toCashAddress,
+  isCashAddress,
+  isSlpAddress
+} from "bchaddrjs-slp";
 
 import { TokenData } from "../data/tokens/reducer";
 
@@ -14,7 +18,7 @@ const parseAddress = (address: string) => {
       throw new Error("invalid address");
     }
 
-    return SLP.Address.toCashAddress(address);
+    return toCashAddress(address);
   } else if (type === "slpaddr") {
     try {
       checkIsValid("slpaddr", address);
@@ -22,7 +26,7 @@ const parseAddress = (address: string) => {
       throw new Error("invalid address");
     }
 
-    return SLP.Address.toSLPAddress(address);
+    return toSlpAddress(address);
   }
   return address;
 };
@@ -103,7 +107,7 @@ const parseBCHScheme = (
   } catch (error) {
     throw new Error("invalid address");
   }
-  const cashAddress = SLP.Address.toCashAddress(addressFromScheme);
+  const cashAddress = toCashAddress(addressFromScheme);
 
   const amount = getValue(scheme, "amount");
   const parsedAmount = parseAmount(amount);
@@ -122,31 +126,6 @@ const parseBCHScheme = (
 
   obj = removeEmpty(obj);
 
-  return obj;
-};
-
-const parseSLPScheme = (
-  scheme: string,
-  tokensById: { [tokenId: string]: TokenData }
-) => {
-  const parsed = Utils.parseSlpUri(scheme);
-  const { amountBch, amountToken, tokenId } = parsed;
-
-  const address = getAddress(scheme);
-  const label = getValue(scheme, "label");
-
-  const tokenInBalance = tokenId != undefined ? tokensById[tokenId] : tokenId;
-  const symbol = tokenInBalance != undefined ? tokenInBalance.symbol : "---";
-
-  let obj = {
-    address,
-    amount: parseAmount(amountBch),
-    tokenAmount: parseAmount(amountToken),
-    label,
-    tokenId,
-    symbol
-  };
-  obj = removeEmpty(obj);
   return obj;
 };
 
@@ -183,14 +162,16 @@ const parseAmount = (value?: string | number | null): string | null => {
 };
 
 const getType = (address: string) => {
-  return SLP.Address.detectAddressFormat(address);
+  if (isCashAddress(address)) return "cashaddr";
+  else if (isSlpAddress(address)) return "slpaddr";
+  else throw new Error("Invalid Address");
 };
 
 const checkIsValid = (type: string, address: string) => {
   if (type === "cashaddr") {
-    return SLP.Address.isCashAddress(address);
+    return isCashAddress(address);
   } else if (type === "slpaddr") {
-    return SLP.Address.isSLPAddress(address);
+    return isSlpAddress(address);
   } else {
     console.warn("error in checkisvalid");
   }
@@ -204,7 +185,6 @@ export {
   parseAddress,
   parseSLP,
   parseBCHScheme,
-  parseSLPScheme,
   getAddress,
   getValue,
   parseAmount,

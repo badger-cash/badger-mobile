@@ -1,8 +1,11 @@
-import { SLP } from "./slp-sdk-utils";
+import { toCashAddress, toSlpAddress } from "bchaddrjs-slp";
+import bcoin from "bcash";
 
 const generateMnemonic = () => {
-  const mnemonic = SLP.Mnemonic.generate(128);
-  return mnemonic;
+  const mnemonic = new bcoin.Mnemonic({
+    bits: 128
+  });
+  return mnemonic.getPhrase();
 };
 
 const deriveAccount = (
@@ -15,31 +18,27 @@ const deriveAccount = (
     throw new Error("Mnemonic required to derive account"); // mnemonic = SLP.Mnemonic.generate(128);
   }
 
-  const seed = SLP.Mnemonic.toSeed(mnemonic);
-  const hdWallet = SLP.HDNode.fromSeed(seed, "mainnet");
+  const mnemonicObj = new bcoin.Mnemonic(mnemonic);
+  const master = bcoin.hd.fromMnemonic(mnemonicObj);
+  const hdkey = master.derivePath(`${hdPathString}/${accountIndex}'/0`);
+  const child = hdkey.derive(childIndex);
+  const keyring = bcoin.KeyRing.fromPrivate(child.privateKey);
 
-  const rootNode = SLP.HDNode.derivePath(hdWallet, hdPathString);
-  const child = SLP.HDNode.derivePath(
-    rootNode,
-    `${accountIndex}'/0/${childIndex}`
-  );
-  const keypair = SLP.HDNode.toKeyPair(child);
-
-  const address = SLP.ECPair.toCashAddress(keypair);
+  const address = keyring.getKeyAddress().toString();
   return {
     mnemonic,
-    keypair,
+    keypair: keyring,
     address,
     accountIndex
   };
 };
 
 const addressToSlp = async (address: string) => {
-  return await SLP.Address.toSLPAddress(address);
+  return toSlpAddress(address);
 };
 
 const addressToCash = async (address: string) => {
-  return await SLP.Address.toCashAddress(address);
+  return toCashAddress(address);
 };
 
 export { deriveAccount, addressToSlp, addressToCash, generateMnemonic };

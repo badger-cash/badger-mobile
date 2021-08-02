@@ -1,7 +1,6 @@
-// Helper methods to communicate with the PostOffice REST API
-// Prefer this over using BitBox when possible.
+// Helper methods to communicate with the Post Office REST API
 
-const API = `https://pay.cointext.io`;
+const API = `https://pay.badger.cash`;
 
 const postageEndpoint = `${API}/postage`;
 

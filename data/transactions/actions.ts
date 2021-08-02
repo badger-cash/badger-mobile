@@ -6,18 +6,14 @@ import {
   GET_TRANSACTIONS_FAIL
 } from "./constants";
 
-import {
-  getHistoricalBchTransactions,
-  getHistoricalSlpTransactions,
-  ResultBitDB,
-  ResultSlpDB
-} from "../../utils/balance-utils";
-
-import { SLP } from "../../utils/slp-sdk-utils";
+import { getTransactionsByAddress } from "../../api/grpc";
 
 import { Transaction } from "./reducer";
 import { transactionsLatestBlockSelector } from "../selectors";
 import { transactionsSelector } from "./selectors";
+
+import bchaddr from "bchaddrjs-slp";
+import { isConstructSignatureDeclaration } from "typescript";
 
 const appendBCHPrefix = (target: string) => `bitcoincash:${target}`;
 
@@ -55,37 +51,45 @@ const updateTransactions = (address: string, addressSlp: string) => {
     const now = +new Date();
 
     // Short circuit if already processing, and it's been under 7 minutes
-    if (isUpdating && now - lastUpdate < 1000 * 60 * 7) {
-      return;
-    }
+    // if (isUpdating && now - lastUpdate < 1000 * 60 * 7) {
+    //   return;
+    // }
 
     dispatch(getTransactionsStart());
 
     const latestBlock = transactionsLatestBlockSelector(currentState);
     const allTxIds = new Set(transactionsSelector(currentState).allIds);
 
-    const transactionsBCH = getHistoricalBchTransactions(
-      address,
-      addressSlp,
-      latestBlock
+    const transactionsBCH = getTransactionsByAddress(address, latestBlock);
+
+    const transactionsSlp = getTransactionsByAddress(addressSlp, latestBlock);
+
+    let [bchHistory, slpHistory] = await Promise.all([
+      transactionsBCH,
+      transactionsSlp
+    ]);
+
+    const slpInBch = bchHistory.filter(
+      t => t.getSlpTransactionInfo().getSlpAction() > 0
+    );
+    const bchInSlp = slpHistory.filter(
+      t => t.getSlpTransactionInfo().getSlpAction() == 0
     );
 
-    const transactionsSlp = getHistoricalSlpTransactions(
-      address,
-      addressSlp,
-      latestBlock
-    );
-
-    const [bchHistory, slpHistory] = await Promise.all<
-      ResultBitDB[],
-      ResultSlpDB[]
-    >([transactionsBCH, transactionsSlp]);
+    bchHistory = [
+      ...bchHistory.filter(t => t.getSlpTransactionInfo().getSlpAction() == 0),
+      ...bchInSlp
+    ];
+    slpHistory = [
+      ...slpHistory.filter(t => t.getSlpTransactionInfo().getSlpAction() > 0),
+      ...slpInBch
+    ];
 
     const formattedTransactionsBCH: Transaction[] = [];
 
     for (let tx of bchHistory) {
-      const block = tx.blk && tx.blk.i ? tx.blk.i : 0;
-      const hash = tx.tx.h;
+      const block = tx.getBlockHeight();
+      const hash = Buffer.from(tx.getHash_asU8().reverse()).toString("hex");
 
       // Unconfirmed and already parsed, skip
       if (block === 0 && allTxIds.has(hash)) {
@@ -93,9 +97,9 @@ const updateTransactions = (address: string, addressSlp: string) => {
       }
 
       // All input addresses in CashAddress format
-      const fromAddressesAll = tx.in
-        .map(input => input?.e?.a && appendBCHPrefix(input.e.a))
-        .filter(Boolean);
+      const fromAddressesAll = tx
+        .getInputsList()
+        .map(input => bchaddr.toCashAddress(input.getAddress()));
 
       const fromAddresses = [...new Set(fromAddressesAll)];
 
@@ -111,10 +115,14 @@ const updateTransactions = (address: string, addressSlp: string) => {
         }
       }
 
-      // All transaction output addresse, in CashAddr format
-      const toAddressesAll = tx.out
-        .map(output => output?.e?.a && appendBCHPrefix(output.e.a))
-        .filter(Boolean);
+      // All transaction output address, in CashAddr format
+      const toAddressesAll = tx
+        .getOutputsList()
+        .map(output => {
+          const address = output.getAddress();
+          if (address != "") return bchaddr.toCashAddress(address);
+        })
+        .filter(a => a);
 
       const toAddresses = [...new Set(toAddressesAll)];
 
@@ -153,13 +161,13 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       // Determine BCH value
       if (toAddress && fromAddress !== toAddress) {
-        value = tx.out.reduce((accumulator, currentTx) => {
+        value = tx.getOutputsList().reduce((accumulator, currentOut) => {
+          const address = currentOut.getAddress();
           if (
-            currentTx.e &&
-            currentTx.e.v &&
-            valueAddresses.includes(appendBCHPrefix(currentTx.e.a))
+            address != "" &&
+            valueAddresses.includes(bchaddr.toCashAddress(address))
           ) {
-            accumulator += currentTx.e.v;
+            accumulator += currentOut.getValue();
           }
 
           return accumulator;
@@ -175,7 +183,7 @@ const updateTransactions = (address: string, addressSlp: string) => {
           toAddresses,
           valueBch: value
         },
-        time: tx?.blk?.t ? tx.blk.t * 1000 : new Date().getTime(),
+        time: tx.getTimestamp() * 1000 || new Date().getTime(),
         block,
         networkId: "mainnet"
       };
@@ -185,34 +193,45 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     const formattedTransactionsSLP: Transaction[] = [];
 
-    const addressSimpleledger = await SLP.Address.toSLPAddress(address);
-    const addressSlpSimpleledger = await SLP.Address.toSLPAddress(addressSlp);
+    const addressSimpleledger = bchaddr.toSlpAddress(address);
+    const addressSlpSimpleledger = bchaddr.toSlpAddress(addressSlp);
 
     for (let tx of slpHistory) {
-      const block = tx?.blk?.i || 0;
-      const hash = tx.tx.h;
+      const block = tx.getBlockHeight();
+      const hash = Buffer.from(tx.getHash_asU8().reverse()).toString("hex");
 
       // Unconfirmed and already parsed, skip
       if (block === 0 && allTxIds.has(hash)) {
         continue;
       }
 
-      const { slp } = tx;
+      const slp = tx.getSlpTransactionInfo();
+      const tokenIdHex = Buffer.from(slp.getTokenId_asU8()).toString("hex");
 
-      const inputs = tx.in;
-      const { outputs, tokenIdHex, transactionType, decimals } = slp.detail;
+      const inputs = tx.getInputsList();
+      const outputs = tx.getOutputsList();
+      const decimals = outputs[1].getSlpToken().getDecimals();
+      const transactionType = slp.getSlpAction();
 
       // All from addresses in simpleledger format
-      const fromAddresses = inputs.map(input => input?.e?.a).filter(Boolean);
+      // const fromAddresses = inputs.map(input => input?.e?.a).filter(Boolean);
+      const fromAddresses = inputs.map(input => {
+        if (input.hasSlpToken())
+          return bchaddr.toSlpAddress(input.getAddress());
+        else return bchaddr.toCashAddress(input.getAddress());
+      });
 
       // All to addresses
-      const toAddressesSLP = outputs
-        .map(output => output?.address)
-        .filter(Boolean);
 
-      const toAddressesBCH = tx.out
-        .map(output => output?.e?.a && output.e.a)
-        .filter(Boolean);
+      const toAddressesSLP: string[] = [];
+      const toAddressesBCH: string[] = [];
+      for (let out of outputs) {
+        const address = out.getAddress();
+        if (address == "") continue;
+        if (out.hasSlpToken())
+          toAddressesSLP.push(bchaddr.toSlpAddress(address));
+        else toAddressesBCH.push(bchaddr.toCashAddress(address));
+      }
       const toAddresses = [...new Set([...toAddressesSLP, ...toAddressesBCH])];
 
       // Detect if an output is from this wallet
@@ -275,28 +294,38 @@ const updateTransactions = (address: string, addressSlp: string) => {
       const valueAddressesSLP = fromUser
         ? toAddresses.filter(
             target =>
+              target.includes("simpleledger") &&
               ![addressSimpleledger, addressSlpSimpleledger].includes(target)
           )
-        : toAddresses.filter(target =>
-            [addressSimpleledger, addressSlpSimpleledger].includes(target)
+        : toAddresses.filter(
+            target =>
+              target.includes("simpleledger") &&
+              [addressSimpleledger, addressSlpSimpleledger].includes(target)
           );
 
       const valueAddressesBCH =
         fromUser || interWallet
           ? toAddresses.filter(
               target =>
+                target.includes("bitcoincash") &&
                 ![addressSimpleledger, addressSlpSimpleledger].includes(target)
             )
-          : toAddresses.filter(target =>
-              [addressSimpleledger, addressSlpSimpleledger].includes(target)
+          : toAddresses.filter(
+              target =>
+                target.includes("bitcoincash") &&
+                [addressSimpleledger, addressSlpSimpleledger].includes(target)
             );
 
       // Determine SLP value
-      value = outputs.reduce((accumulator, currentValue) => {
-        if (currentValue.address && currentValue.amount) {
-          if (valueAddressesSLP.includes(currentValue.address)) {
-            accumulator = accumulator.plus(new BigNumber(currentValue.amount));
-          }
+      value = outputs.reduce((accumulator, out) => {
+        const address = out.getAddress();
+        if (
+          address != "" &&
+          valueAddressesSLP.includes(bchaddr.toSlpAddress(address))
+        ) {
+          const slpAmount =
+            Number(out.getSlpToken().getAmount()) / 10 ** decimals;
+          accumulator = accumulator.plus(new BigNumber(slpAmount));
         }
 
         return accumulator;
@@ -306,13 +335,13 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
       if (toAddress && fromAddress !== toAddress) {
         // Determine BCH value
-        bchValue = tx.out.reduce((accumulator, currentTx) => {
+        bchValue = outputs.reduce((accumulator, out) => {
+          const address = out.getAddress();
           if (
-            currentTx?.e?.v &&
-            valueAddressesBCH.includes(currentTx.e.a) &&
-            currentTx.e.v !== 546
+            address != "" &&
+            valueAddressesBCH.includes(bchaddr.toCashAddress(address))
           ) {
-            accumulator += currentTx.e.v;
+            accumulator = accumulator + out.getValue();
           }
 
           return accumulator;
@@ -327,14 +356,19 @@ const updateTransactions = (address: string, addressSlp: string) => {
           fromAddresses,
           toAddresses,
           valueBch: bchValue,
-          transactionType,
+          transactionType:
+            transactionType == 6
+              ? "SEND"
+              : transactionType == 5
+              ? "MINT"
+              : "GENESIS",
           sendTokenData: {
             tokenProtocol: "slp",
             tokenId: tokenIdHex,
             valueToken: value.toFixed(decimals)
           }
         },
-        time: tx.blk && tx.blk.t ? tx.blk.t * 1000 : new Date().getTime(),
+        time: tx.getTimestamp() * 1000 || new Date().getTime(),
         block,
         networkId: "mainnet"
       };

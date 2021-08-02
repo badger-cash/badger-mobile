@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { SLP } from "../utils/slp-sdk-utils";
+import { toSlpAddress } from "bchaddrjs-slp";
 
 const useSimpleledgerFormat = (address: string) => {
   const addressSimpleledger = useMemo(() => {
-    return SLP.Address.toSLPAddress(address);
+    return toSlpAddress(address);
   }, [address]);
 
   return addressSimpleledger;

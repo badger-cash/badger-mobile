@@ -152,13 +152,13 @@ const MenuScreen = ({ navigation, seedViewed, fiatCurrency }: Props) => {
             navigation.navigate("ViewTermsOfUse");
           }}
         />
-        <OptionsRow
+        {/* <OptionsRow
           text="Privacy Policy"
           muted
           pressFn={() => {
             navigation.navigate("ViewPrivacyPolicy");
           }}
-        />
+        /> */}
         <OptionsRow
           text="Contact Us"
           muted

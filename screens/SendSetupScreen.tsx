@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
-  Clipboard,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -12,6 +11,7 @@ import {
   TextInput,
   View
 } from "react-native";
+import Clipboard from "@react-native-community/clipboard";
 import { Header, NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
@@ -39,20 +39,20 @@ import {
   formatFiatAmount
 } from "../utils/balance-utils";
 import { getTokenImage } from "../utils/token-utils";
+import { getByteCount } from "../utils/transaction-utils";
 import { currencyDecimalMap, CurrencyCode } from "../utils/currency-utils";
+import { getType } from "../utils/schemeParser-utils";
 
-import { SLP } from "../utils/slp-sdk-utils";
+import { isCashAddress, isSlpAddress } from "bchaddrjs-slp";
 import { FullState } from "../data/store";
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state?: {
-      params: {
-        tokenId?: string | null;
-        uriAmount?: string | null;
-        uriAddress?: string | null;
-        uriError?: string | null;
-      };
+  route: {
+    params: {
+      tokenId?: string | null;
+      uriAmount?: string | null;
+      uriAddress?: string | null;
+      uriError?: string | null;
     };
   };
 };
@@ -200,6 +200,7 @@ const ErrorContainer = styled(View)`
 
 const SendSetupScreen = ({
   navigation,
+  route,
   tokensById,
   balances,
   utxos,
@@ -218,8 +219,7 @@ const SendSetupScreen = ({
 
   const [errors, setErrors] = useState<string[]>([] as string[]);
 
-  const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
-    navigation.state.params) || {
+  const { tokenId, uriAddress, uriAmount, uriError } = route.params || {
     tokenId: null,
     uriAddress: null,
     uriAmount: null,
@@ -268,7 +268,7 @@ const SendSetupScreen = ({
       result = balances.slpTokens[tokenId];
     } else {
       const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
-      const allUTXOFee = SLP.BitcoinCash.getByteCount(
+      const allUTXOFee = getByteCount(
         {
           P2PKH: spendableUTXOS.length
         },
@@ -368,7 +368,7 @@ const SendSetupScreen = ({
     let addressFormat = null;
 
     try {
-      addressFormat = SLP.Address.detectAddressFormat(toAddress);
+      addressFormat = getType(toAddress);
     } catch (e) {
       setErrors(["Invalid address, double check and try again."]);
       return;
@@ -511,8 +511,7 @@ const SendSetupScreen = ({
         setToAddress(parsedData.address);
 
         try {
-          SLP.Address.isCashAddress(parsedData.address) ||
-            SLP.Address.isSLPAddress(parsedData.address);
+          isCashAddress(parsedData.address) || isSlpAddress(parsedData.address);
         } catch (e) {
           setErrors([e.message]);
         }

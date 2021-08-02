@@ -21,7 +21,7 @@ import { Button, T, Spacer, H1, H2 } from "../atoms";
 import { getTokenImage } from "../utils/token-utils";
 import { formatFiatAmount } from "../utils/balance-utils";
 
-import { SLP } from "../utils/slp-sdk-utils";
+import { toSlpAddress, toCashAddress } from "bchaddrjs-slp";
 import { FullState } from "../data/store";
 
 const ScreenCover = styled(View)`
@@ -42,11 +42,9 @@ const IconImage = styled(Image)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state: {
-      params: {
-        txParams: any;
-      };
+  route: {
+    params: {
+      txParams: any;
     };
   };
 };
@@ -74,12 +72,13 @@ const SendSuccessScreen = ({
   addressSlp,
   tokensById,
   navigation,
+  route,
   spotPrices,
   fiatCurrency,
   updateUtxos,
   updateTransactions
 }: Props) => {
-  const { txParams } = navigation.state.params;
+  const { txParams } = route.params;
   const { to, from, value, data } = txParams;
 
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;
@@ -91,9 +90,7 @@ const SendSuccessScreen = ({
   }, [address, addressSlp]);
 
   const imageSource = getTokenImage(tokenId);
-  const toConverted = tokenId
-    ? SLP.Address.toSLPAddress(to)
-    : SLP.Address.toCashAddress(to);
+  const toConverted = tokenId ? toSlpAddress(to) : toCashAddress(to);
 
   // toAddress like
   // -> simpleledger:qq2addressHash

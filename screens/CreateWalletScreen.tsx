@@ -35,7 +35,7 @@ type Props = PropsFromRedux & PropsFromParent;
 const CreateWalletScreen = ({ navigation, isCreated, getAccount }: Props) => {
   useEffect(() => {
     if (isCreated) {
-      navigation.navigate("Home");
+      navigation.navigate("Main");
     } else {
       getAccount();
     }

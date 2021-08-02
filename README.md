@@ -27,8 +27,7 @@ Badger Mobile Wallet is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wa
   - redux
   - react-navigation
   - styled-components
-- bitbox-sdk
-- slp-sdk
+- bcash (Bitcoin Cash version of bcoin)
 - prettier
 - yarn
 - TypeScript

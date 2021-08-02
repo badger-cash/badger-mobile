@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
-  Clipboard,
   SafeAreaView,
   ScrollView,
   Dimensions,
@@ -12,6 +11,7 @@ import {
   StyleSheet,
   TouchableOpacity
 } from "react-native";
+import Clipboard from "@react-native-community/clipboard";
 import { NavigationScreenProps } from "react-navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import BigNumber from "bignumber.js";
@@ -114,12 +114,10 @@ const QROverlay = styled(View)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state?: {
-      params: {
-        symbol: string;
-        tokenId: string | null | undefined;
-      };
+  route: {
+    params: {
+      symbol: string;
+      tokenId: string | null | undefined;
     };
   };
 };
@@ -151,11 +149,12 @@ const RequestSetupScreen = ({
   address,
   addressSlp,
   navigation,
+  route,
   tokensById,
   fiatCurrency,
   spotPrices
 }: Props) => {
-  const { symbol, tokenId } = (navigation.state && navigation.state.params) || {
+  const { symbol, tokenId } = route.params || {
     symbol: null,
     tokenId: null
   };

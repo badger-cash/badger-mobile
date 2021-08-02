@@ -61,11 +61,6 @@ const ViewSeedScreen = ({ mnemonic, viewSeed, address }: Props) => {
 
   return (
     <SafeAreaView>
-      <NavigationEvents
-        onWillBlur={() => {
-          setShowing(false);
-        }}
-      />
       <Screen>
         <Spacer />
         <T center>This seed phrase is the key to the funds in this wallet.</T>

@@ -13,6 +13,8 @@ import {
 import { NavigationScreenProps } from "react-navigation";
 import BigNumber from "bignumber.js";
 
+import { toSlpAddress } from "bchaddrjs-slp";
+
 import { Button, T, H1, H2, Spacer, SwipeButton } from "../atoms";
 
 import { tokensByIdSelector } from "../data/tokens/selectors";
@@ -34,10 +36,9 @@ import {
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
 
-import { getPostageRates } from "../api/pay.cointext";
+import { getPostageRates } from "../api/pay.badger";
 
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
@@ -75,13 +76,11 @@ const ErrorHolder = styled(View)`
 `;
 
 type PropsFromParent = NavigationScreenProps & {
-  navigation: {
-    state?: {
-      params: {
-        tokenId: string | null | undefined;
-        sendAmount?: string;
-        toAddress: string;
-      };
+  route: {
+    params: {
+      tokenId: string | null | undefined;
+      sendAmount?: string;
+      toAddress: string;
     };
   };
 };
@@ -115,6 +114,7 @@ type Props = PropsFromParent & PropsFromRedux;
 
 const SendConfirmScreen = ({
   navigation,
+  route,
   tokensById,
   activeAccount,
   utxos,
@@ -124,7 +124,7 @@ const SendConfirmScreen = ({
 }: Props) => {
   if (!activeAccount || !keypair) {
     navigation.goBack();
-    return <View></View>;
+    // return <View></View>;
   }
 
   const [sendError, setSendError] = useState<{
@@ -134,8 +134,7 @@ const SendConfirmScreen = ({
 
   const [transactionState, setTransactionState] = useState("setup");
 
-  const { tokenId, sendAmount, toAddress } = (navigation.state &&
-    navigation.state.params) || {
+  const { tokenId, sendAmount, toAddress } = route.params || {
     tokenId: null,
     sendAmount: undefined,
     toAddress: ""
@@ -186,7 +185,7 @@ const SendConfirmScreen = ({
           );
         });
         txParams = {
-          to: SLP.Address.toCashAddress(toAddress),
+          to: toSlpAddress(toAddress),
           from: activeAccount.address,
           value: sendAmountParam,
           sendTokenData: {
@@ -284,13 +283,14 @@ const SendConfirmScreen = ({
           for (let i = 0; i < availableStamps.length; i++) {
             let stamp = availableStamps[i];
             if (stamp.tokenId == tokenId) {
+              const rateDec = stamp.rate / 10 ** stamp.decimals;
+              const firstSigDig = Math.ceil(-Math.log10(rateDec));
+              const fixed = firstSigDig > 3 ? firstSigDig : 3;
               // Only include the stamp that is available
-              stamp.rateDecimal = (stamp.rate / 10 ** stamp.decimals).toFixed(
-                3
-              );
+              stamp.rateDecimal = rateDec.toFixed(fixed);
               stamp.feePerByte = (
                 stamp.rateDecimal / postageInfo.weight
-              ).toFixed(3);
+              ).toFixed(fixed);
               postageInfo.stamps = [stamp];
               setResult(postageInfo);
               // Enable use of post office
@@ -309,7 +309,9 @@ const SendConfirmScreen = ({
     return [available, result];
   };
 
-  const [postOfficeAvailable, postOfficeData] = postageInfo();
+  const [postOfficeAvailable, postOfficeData] = tokenId
+    ? postageInfo()
+    : [false, null];
   const [usePostOffice, setUsePostOffice] = useState(false);
   const toggleSwitch = () => setUsePostOffice(previousState => !previousState);
 
@@ -322,19 +324,19 @@ const SendConfirmScreen = ({
           flexGrow: 1
         }}
       >
-        <Spacer small />
+        {/* <Spacer small />
         <H1 center>{coinName}</H1>
         {tokenId && (
           <T size="tiny" center>
             {tokenId}
           </T>
-        )}
-        <Spacer small />
+        )}*/}
+        <Spacer tiny />
         <IconArea>
           <IconImage source={imageSource} />
         </IconArea>
 
-        <Spacer />
+        <Spacer small />
         <H2 center>Sending</H2>
         <Spacer small />
         <H2 center weight="bold">
@@ -345,7 +347,7 @@ const SendConfirmScreen = ({
             {fiatDisplay}
           </T>
         )}
-        <Spacer large />
+        <Spacer medium />
         <H2 center>To Address</H2>
         <Spacer small />
         <T size="small" center>
@@ -379,7 +381,9 @@ const SendConfirmScreen = ({
         )}
         <Spacer small />
 
-        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
+        {(!showSwipe || transactionState == "signing") && (
+          <ActivityIndicator size="large" color="#11a87e" />
+        )}
 
         {sendError && (
           <ErrorHolder>
@@ -391,27 +395,22 @@ const SendConfirmScreen = ({
         <Spacer fill />
         <Spacer small />
 
-        {showSwipe && (
+        {showSwipe && transactionState != "signing" && (
           <ButtonsContainer>
-            <SwipeButton
-              swipeFn={() => signSendTransaction()}
-              labelAction="To Send"
-              labelRelease="Release to send"
-              labelHalfway="Keep going"
-              controlledState={
-                transactionState === "signing" ? "pending" : undefined
-              }
-            />
+            {!sendError && (
+              <SwipeButton
+                swipeFn={() => signSendTransaction()}
+                labelAction="To Send"
+              />
+            )}
 
             <Spacer />
 
-            {transactionState !== "signing" && (
-              <Button
-                nature="cautionGhost"
-                text="Cancel Transaction"
-                onPress={() => navigation.goBack()}
-              />
-            )}
+            <Button
+              nature="cautionGhost"
+              text="Cancel Transaction"
+              onPress={() => navigation.goBack()}
+            />
           </ButtonsContainer>
         )}
         <Spacer small />

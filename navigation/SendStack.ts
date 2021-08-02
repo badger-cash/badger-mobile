@@ -1,6 +1,7 @@
 import React from "react";
 
-import { createStackNavigator } from "react-navigation";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createCompatNavigatorFactory } from "@react-navigation/compat";
 
 import SendSetupScreen from "../screens/SendSetupScreen";
 import SendConfirmScreen from "../screens/SendConfirmScreen";
@@ -10,7 +11,7 @@ import Bip70SuccessScreen from "../screens/Bip70SuccessScreen";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
-const SendStack = createStackNavigator(
+const SendStackOld = createCompatNavigatorFactory(createStackNavigator)(
   {
     SendSetup: {
       screen: SendSetupScreen,
