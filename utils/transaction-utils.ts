@@ -63,16 +63,20 @@ const getAllUtxoGrpc = async (
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
-  if (typeof txid == "string") {
-    txid = [txid];
-  }
   try {
-    const result = [];
-    for (let i = 0; i < txid.length; i++) {
-      const tx = await getTransaction(txid[0]);
-      result.push(tx.transaction);
+    if (typeof txid == "string") {
+      const tx = await getTransaction(txid);
+      tx.txid = txid;
+      return tx.transaction;
+    } else {
+      const result = [];
+      for (let i = 0; i < txid.length; i++) {
+        const tx = await getTransaction(txid[i]);
+        tx.txid = txid;
+        result.push(tx.transaction);
+      }
+      return result;
     }
-    return result;
   } catch (e) {
     throw e;
   }
@@ -215,7 +219,7 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
 
   if (type === "genesis") {
     return {
-      tokenId: txDetails.txid,
+      tokenId: txDetails.hash,
       symbol: script[4].toString("ascii"),
       name: script[5].toString("ascii"),
       decimals: parseInt(script[8].toASM()),
