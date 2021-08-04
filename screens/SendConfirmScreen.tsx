@@ -381,9 +381,7 @@ const SendConfirmScreen = ({
         )}
         <Spacer small />
 
-        {(!showSwipe || transactionState == "signing") && (
-          <ActivityIndicator size="large" color="#11a87e" />
-        )}
+        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
 
         {sendError && (
           <ErrorHolder>
@@ -392,10 +390,9 @@ const SendConfirmScreen = ({
             </T>
           </ErrorHolder>
         )}
-        <Spacer fill />
-        <Spacer small />
+        <Spacer />
 
-        {showSwipe && transactionState != "signing" && (
+        {showSwipe && (
           <ButtonsContainer>
             {!sendError && (
               <SwipeButton
