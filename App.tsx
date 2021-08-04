@@ -9,13 +9,10 @@ import { View, LogBox } from "react-native";
 LogBox.ignoreLogs(["Require cycle"]);
 import { PersistGate } from "redux-persist/integration/react";
 
-// import AppNavigator from "./navigation/AppNavigator";
 import { getStore } from "./data/store";
 import { spaceBadger } from "./themes/spaceBadger";
-import { StackFrame } from "react-native/Libraries/Core/Devtools/parseErrorStack";
 import MainAppStack from "./navigation/MainTabNavigator";
 import AuthLoadingScreen from "./navigation/AuthLoadingScreen";
-// import AuthStack from "./navigation/AuthStack";
 // Auth Screens
 import WelcomeScreen from "./screens/WelcomeScreen";
 import TermsOfUseScreen from "./screens/TermsOfUseScreen";
