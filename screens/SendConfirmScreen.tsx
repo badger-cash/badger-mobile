@@ -349,7 +349,7 @@ const SendConfirmScreen = ({
         )}
         <Spacer medium />
         <H2 center>To Address</H2>
-        <Spacer small />
+        <Spacer />
         <T size="small" center>
           {protocol}:
         </T>
@@ -390,7 +390,7 @@ const SendConfirmScreen = ({
             </T>
           </ErrorHolder>
         )}
-        <Spacer />
+        <Spacer fill />
 
         {showSwipe && (
           <ButtonsContainer>
@@ -410,7 +410,7 @@ const SendConfirmScreen = ({
             />
           </ButtonsContainer>
         )}
-        <Spacer small />
+        <Spacer large />
       </ScrollView>
     </ScreenWrapper>
   );

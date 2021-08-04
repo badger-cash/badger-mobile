@@ -6984,7 +6984,7 @@ prompts@^2.0.1, prompts@^2.4.0:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -7261,13 +7261,6 @@ react-native-screens@^3.4.0:
   dependencies:
     warn-once "^0.1.0"
 
-react-native-slider@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/react-native-slider/-/react-native-slider-0.11.0.tgz#b68a0bc43c8422b24cd57947cc5ac2bcdb58fadc"
-  integrity sha512-jV9K87eu9uWr0uJIyrSpBLnCKvVlOySC2wynq9TFCdV9oGgjt7Niq8Q1A8R8v+5GHsuBw/s8vEj1AAkkUi+u+w==
-  dependencies:
-    prop-types "^15.5.6"
-
 react-native-status-bar-height@^2.5.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/react-native-status-bar-height/-/react-native-status-bar-height-2.6.0.tgz#b6afd25b6e3d533c43d0fcdcfd5cafd775592cea"
@@ -7280,13 +7273,6 @@ react-native-svg@^9.13.2:
   dependencies:
     css-select "^2.0.2"
     css-tree "^1.0.0-alpha.37"
-
-react-native-swipeable-patched@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/react-native-swipeable-patched/-/react-native-swipeable-patched-0.6.1.tgz#38e58fec716e11f6207fd971f5395bd03dd921c6"
-  integrity sha512-HjC+TUp7muaxOBsVNxKX5KGokH8Pst2yqqlSO0bORGK96tsIqk29jnpBe3pY8Nm8uH7Z96k71WkvCUS5DPrKMQ==
-  dependencies:
-    prop-types "^15.5.10"
 
 react-native-tab-view@^1.2.0, react-native-tab-view@^1.4.1:
   version "1.4.1"
@@ -7721,11 +7707,6 @@ rn-nodeify@^10.0.1:
     run-parallel "^1.1.2"
     semver "^5.0.1"
     xtend "^4.0.0"
-
-rn-swipe-button@^1.3.4:
-  version "1.3.6"
-  resolved "https://registry.yarnpkg.com/rn-swipe-button/-/rn-swipe-button-1.3.6.tgz#02e6ce0664fc94900851871a532fa0e2fbc7fd35"
-  integrity sha512-H4//cnGE7r4S3lTc1DbLR5gIZuibkk+Svy3g3LtRhyfd/vr1qfnQ70kMhCB/iIHD06yYOWgRdyqfyCb7jTosGg==
 
 rsvp@^4.8.4:
   version "4.8.5"

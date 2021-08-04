@@ -5,13 +5,14 @@ import styled from "styled-components";
 import { spaceBadger } from "../../themes/spaceBadger";
 
 import T from "../T";
+import Spacer from "../Spacer";
 
-const arrowIcon = require("../../assets/images/icons/forward_arrow.png");
+const arrowIcon = require("../../assets/images/icons/forward_150.png");
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 
 const SwipeButtonContainer = styled(View)`
-  overflow: hidden;
+  overflow: visible;
   width: ${SWIPEABLE_WIDTH_PERCENT}%;
   height: 70px;
   align-self: center;
@@ -19,7 +20,6 @@ const SwipeButtonContainer = styled(View)`
 
 const SwipeContent = styled(View)`
   border-radius: 45px;
-  height: 70%;
   align-items: center;
   align-content: center;
   justify-content: center;
@@ -58,6 +58,7 @@ const SwipeButtonAtom = ({ swipeFn, labelAction }: Props) => {
   };
 
   const endSlide = (value: Number) => {
+    setSliderValue(1);
     setSliderValue(0);
   };
 
@@ -72,10 +73,11 @@ const SwipeButtonAtom = ({ swipeFn, labelAction }: Props) => {
       <T center={true} weight={"bold"} type={"primary"}>
         {visible ? `Slide ${labelAction}` : ""}
       </T>
+      <Spacer tiny />
       {visible && (
         <SwipeContent>
           <Slider
-            style={{ width: "95%", height: 40 }}
+            style={{ width: "90%", height: "50%", overflow: "visible" }}
             thumbImage={arrowIcon}
             value={sliderValue}
             minimumValue={0}
@@ -83,7 +85,6 @@ const SwipeButtonAtom = ({ swipeFn, labelAction }: Props) => {
             minimumTrackTintColor={spaceBadger.primary900}
             maximumTrackTintColor={spaceBadger.primary500}
             onValueChange={value => sliding(value)}
-            onSlidingComplete={value => endSlide(value)}
           />
         </SwipeContent>
       )}
