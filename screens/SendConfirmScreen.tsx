@@ -349,7 +349,7 @@ const SendConfirmScreen = ({
         )}
         <Spacer medium />
         <H2 center>To Address</H2>
-        <Spacer small />
+        <Spacer />
         <T size="small" center>
           {protocol}:
         </T>
@@ -381,9 +381,7 @@ const SendConfirmScreen = ({
         )}
         <Spacer small />
 
-        {(!showSwipe || transactionState == "signing") && (
-          <ActivityIndicator size="large" color="#11a87e" />
-        )}
+        {!showSwipe && <ActivityIndicator size="large" color="#11a87e" />}
 
         {sendError && (
           <ErrorHolder>
@@ -393,9 +391,8 @@ const SendConfirmScreen = ({
           </ErrorHolder>
         )}
         <Spacer fill />
-        <Spacer small />
 
-        {showSwipe && transactionState != "signing" && (
+        {showSwipe && (
           <ButtonsContainer>
             {!sendError && (
               <SwipeButton
@@ -413,7 +410,7 @@ const SendConfirmScreen = ({
             />
           </ButtonsContainer>
         )}
-        <Spacer small />
+        <Spacer large />
       </ScrollView>
     </ScreenWrapper>
   );

@@ -1,39 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator, View, Dimensions } from "react-native";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { Slider } from "@miblanchard/react-native-slider";
 import styled from "styled-components";
-
-// import Swipeable from "react-native-swipeable-patched";
-import Ionicons from "react-native-vector-icons/Ionicons";
-
-import SwipeButton from "rn-swipe-button";
+import { spaceBadger } from "../../themes/spaceBadger";
 
 import T from "../T";
+import Spacer from "../Spacer";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const SWIPEABLE_WIDTH_PERCENT = 78;
 
 const SwipeButtonContainer = styled(View)`
-  overflow: hidden;
+  overflow: visible;
   width: ${SWIPEABLE_WIDTH_PERCENT}%;
-  height: 64px;
+  height: 70px;
   align-self: center;
 `;
 
-const SwipeContent = styled(View)<{ activated: boolean }>`
-  height: 64px;
-  padding-right: 10px;
-  align-items: flex-end;
-  justify-content: center;
-
-  background-color: ${props =>
-    props.activated ? props.theme.success500 : props.theme.pending500};
+const SwipeContent = styled(View)`
+  border-radius: 45px;
+  background-color: ${props => props.theme.primary500};
 `;
 
 const SwipeActivity = styled(View)`
-  height: 64px;
   align-items: center;
   justify-content: center;
   align-self: center;
-  flex-direction: row;
+`;
+
+const Swiper = styled(Slider)`
+  flex: 1;
+  margin-left: 10;
+  margin-right: 10;
+  align-items: stretch;
+  justify-content: center;
+  overflow: visible;
 `;
 
 type ButtonStates =
@@ -50,24 +51,55 @@ interface Props {
 }
 
 const SwipeButtonAtom = ({ swipeFn, labelAction }: Props) => {
+  const [visible, setVisible] = useState(true);
+  const [sliderValue, setSliderValue] = useState(0);
+
+  const sliding = (value: any) => {
+    if (value > 90) {
+      swipeFn();
+      setVisible(false);
+    }
+    setSliderValue(value);
+  };
+
+  const endSlide = () => {
+    setSliderValue(0);
+  };
+
   const forwardCircle = () => (
-    <Ionicons name="ios-arrow-forward-circle" size={25} color="#11a87e" />
+    <Ionicons
+      name="ios-chevron-forward-circle"
+      size={60}
+      color={spaceBadger.fg100}
+    />
   );
 
   return (
     <SwipeButtonContainer>
-      <SwipeButton
-        onSwipeSuccess={() => swipeFn()}
-        swipeSuccessThreshold={70}
-        titleColor="#FFFFFF"
-        railBackgroundColor="#11a87e"
-        railBorderColor="#11a87e"
-        railFillBackgroundColor="#FFFFFF"
-        railFillBorderColor="#FFFFFF"
-        thumbIconBackgroundColor="#FFFFFF"
-        thumbIconComponent={forwardCircle}
-        title={`Slide ${labelAction}`}
+      <ActivityIndicator
+        animating={!visible}
+        hidesWhenStopped={true}
+        size={visible ? 0 : "large"}
+        color="#11a87e"
       />
+      <T center={true} weight={"bold"} type={"primary"}>
+        {visible ? `Slide ${labelAction}` : ""}
+      </T>
+      <Spacer tiny />
+      {visible && (
+        <SwipeContent>
+          <Swiper
+            minimumValue={0}
+            maximumValue={100}
+            minimumTrackTintColor={spaceBadger.primary900}
+            maximumTrackTintColor={spaceBadger.primary500}
+            renderThumbComponent={forwardCircle}
+            value={sliderValue}
+            onValueChange={value => sliding(value)}
+            onSlidingComplete={() => endSlide()}
+          />
+        </SwipeContent>
+      )}
     </SwipeButtonContainer>
   );
 };
