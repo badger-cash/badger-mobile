@@ -210,7 +210,7 @@ const WalletDetailScreen = ({
 
   const explorerUrl = isBCH
     ? `https://explorer.bitcoin.com/bch/address/${address}`
-    : `https://explorer.bitcoin.com/bch/address/${simpleledgerAddressSlp}`;
+    : `https://simpleledger.info/#address/${simpleledgerAddressSlp}`;
 
   const amountFormatted = formatAmount(amount, decimals);
 
