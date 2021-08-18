@@ -13,7 +13,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { updateUtxos } from "../data/utxos/actions";
+import { updateUtxos, addRemoveUtxos } from "../data/utxos/actions";
 import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
@@ -59,6 +59,7 @@ const mapStateToProps = (state: FullState) => ({
 
 const mapDispatchToProps = {
   updateUtxos,
+  addRemoveUtxos,
   updateTransactions
 };
 
@@ -76,17 +77,23 @@ const SendSuccessScreen = ({
   spotPrices,
   fiatCurrency,
   updateUtxos,
+  addRemoveUtxos,
   updateTransactions
 }: Props) => {
   const { txParams } = route.params;
-  const { to, from, value, data } = txParams;
+  const { to, from, value, data, transaction } = txParams;
+
+  // try {
+  //   console.log('transaction', transaction.inputs[0].prevout);
+  // } catch (e) { console.log(e); }
 
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    _.delay(() => updateUtxos(address, addressSlp), 1750);
-    _.delay(() => updateTransactions(address, addressSlp), 2000);
+    addRemoveUtxos(address, transaction.outputs, transaction.inputs);
+    // _.delay(() => updateUtxos(address, addressSlp), 1750);
+    // _.delay(() => updateTransactions(address, addressSlp), 2000);
   }, [address, addressSlp]);
 
   const imageSource = getTokenImage(tokenId);

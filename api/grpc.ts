@@ -86,29 +86,34 @@ const getUtxosByAddress = async function(
   address: string,
   includeTxData: boolean = true
 ): Promise<UTXOResult[]> {
-  const utxosPb = await GrpcClient.getAddressUtxos({
-    address: address,
-    includeMempool: true,
-    includeTokenMetadata: true
-  });
-  const utxos = utxosPb.toObject().outputsList;
-  const outs = [];
-  for (let i = 0; i < utxos.length; i++) {
-    const value = parseInt(utxos[i].value);
-    let utxo = {
-      amount: value / 10 ** 8,
-      height: utxos[i].blockHeight,
-      satoshis: value,
-      txid: base64ToHex(utxos[i].outpoint.hash, true),
-      vout: parseInt(utxos[i].outpoint.index),
-      scriptPubKey: base64ToHex(utxos[i].pubkeyScript)
-    };
-    if (includeTxData) {
-      utxo = await formatUtxo(utxo);
+  try {
+    const utxosPb = await GrpcClient.getAddressUtxos({
+      address: address,
+      includeMempool: true,
+      includeTokenMetadata: true
+    });
+    const utxos = utxosPb.toObject().outputsList;
+    const outs = [];
+    for (let i = 0; i < utxos.length; i++) {
+      const value = parseInt(utxos[i].value);
+      let utxo = {
+        amount: value / 10 ** 8,
+        height: utxos[i].blockHeight,
+        satoshis: value,
+        txid: base64ToHex(utxos[i].outpoint.hash, true),
+        vout: parseInt(utxos[i].outpoint.index),
+        scriptPubKey: base64ToHex(utxos[i].pubkeyScript)
+      };
+      if (includeTxData) {
+        utxo = await formatUtxo(utxo);
+      }
+      outs.push(utxo);
     }
-    outs.push(utxo);
+    return outs;
+  } catch (e) {
+    console.log("utxo fetch error", JSON.stringify(e));
+    throw e;
   }
-  return outs;
 };
 
 const getUtxo = async function(
@@ -282,18 +287,16 @@ const formatTransaction = function(tx: any) {
   delete tx.transaction.outputsList;
   // Set tokenMetadata
   if (tx.tokenMetadata) {
+    const fungibleMetadata =
+      tx.tokenMetadata.type1 || tx.tokenMetadata.v1Fungible;
     tx.tokenMetadata.tokenId = base64ToHex(tx.tokenMetadata.tokenId);
-    tx.tokenMetadata.type1.tokenTicker = base64ToUtf8(
-      tx.tokenMetadata.type1.tokenTicker
+    fungibleMetadata.tokenTicker = base64ToUtf8(fungibleMetadata.tokenTicker);
+    fungibleMetadata.tokenName = base64ToUtf8(fungibleMetadata.tokenName);
+    fungibleMetadata.tokenDucmentUrl = base64ToUtf8(
+      fungibleMetadata.tokenDocumentUrl
     );
-    tx.tokenMetadata.type1.tokenName = base64ToUtf8(
-      tx.tokenMetadata.type1.tokenName
-    );
-    tx.tokenMetadata.type1.tokenDucmentUrl = base64ToUtf8(
-      tx.tokenMetadata.type1.tokenDocumentUrl
-    );
-    tx.tokenMetadata.type1.tokenDocumentHash = base64ToHex(
-      tx.tokenMetadata.type1.tokenDocumentHash
+    fungibleMetadata.tokenDocumentHash = base64ToHex(
+      fungibleMetadata.tokenDocumentHash
     );
   }
 

@@ -39,6 +39,7 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { FullState } from "../data/store";
 
 import { getPostageRates } from "../api/pay.badger";
+import babelConfig from "../babel.config";
 
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
@@ -172,6 +173,7 @@ const SendConfirmScreen = ({
     const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
 
     let txParams = {} as TxParams;
+    let resultTx;
 
     try {
       if (tokenId) {
@@ -196,7 +198,7 @@ const SendConfirmScreen = ({
         if (usePostOffice && postOfficeData && postOfficeData !== true)
           txParams.postOfficeData = postOfficeData;
 
-        await signAndPublishSlpTransaction(
+        resultTx = await signAndPublishSlpTransaction(
           txParams,
           spendableUTXOS,
           {
@@ -212,8 +214,13 @@ const SendConfirmScreen = ({
           from: activeAccount.address,
           value: sendAmountParam
         };
-        await signAndPublishBchTransaction(txParams, spendableUTXOS);
+        resultTx = await signAndPublishBchTransaction(txParams, spendableUTXOS);
       }
+
+      txParams.transaction = {
+        inputs: resultTx.inputs.map(input => input.toJSON()),
+        outputs: resultTx.inputs.map(output => output.toJSON())
+      };
 
       navigation.replace("SendSuccess", {
         txParams

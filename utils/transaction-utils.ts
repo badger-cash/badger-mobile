@@ -33,6 +33,7 @@ export interface TxParams {
     tokenId: string;
   };
   postOfficeData?: object | null;
+  transaction?: typeof bcoin.MTX;
 }
 
 const getSLPTxType = (scriptASMArray: typeof bcoin.Script[]) => {
@@ -340,7 +341,7 @@ const signAndPublishBchTransaction = async (
     transactionBuilder.sign(inputUtxos[0].keypair);
     const hex = transactionBuilder.toRaw().toString("hex");
     const txid = await publishTx(hex);
-    return txid;
+    return transactionBuilder;
   } catch (err) {
     // TODO: Handle failures elegantly: transaction already in blockchain, mempool length, networking
     throw new Error(err.error || err);
@@ -632,7 +633,7 @@ const signAndPublishSlpTransaction = async (
     }
   }
 
-  return txid;
+  return transactionBuilder;
 };
 
 // Very similar to UTXO, but has `tokenQty`.  Ideally can consolidate to the same type
@@ -1015,7 +1016,7 @@ const sweepPaperWallet = async (
       throw new Error("Unknown sweep error, try again");
     }
 
-    return txid;
+    return transactionBuilder;
   } catch (e) {
     console.warn(e);
     throw e;

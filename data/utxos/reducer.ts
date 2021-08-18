@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
+  ADDREMOVE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
 
@@ -39,6 +40,7 @@ export type State = {
     [accountId: string]: string[];
   };
   updating: boolean;
+  timestamp?: number;
 };
 
 export const initialState: State = {
@@ -53,9 +55,12 @@ const addUtxos = (
   payload: {
     utxos: UTXO[];
     address: string;
+    timestamp?: number;
   }
 ) => {
-  const { address, utxos } = payload;
+  const { address, utxos, timestamp } = payload;
+
+  console.log("utxos.length", utxos.length);
 
   // Currently fully replaces all utxos with passed in set.
   // In future should only add then prune completely unused ones by account
@@ -74,8 +79,12 @@ const addUtxos = (
       ...state.byAccount,
       [address]: utxos.map(utxo => utxo._id)
     },
-    updating: false
+    updating: timestamp ? true : false,
+    timestamp: timestamp
   };
+
+  console.log("nextState.byId.length", Object.values(nextState.byId).length);
+  console.log("nextState.updating", nextState.updating);
 
   return nextState;
 };
@@ -89,6 +98,9 @@ const utxos = (state: State = initialState, action: AnyAction): State => {
       };
 
     case UPDATE_UTXO_SUCCESS:
+      return addUtxos(state, action.payload);
+
+    case ADDREMOVE_UTXO_SUCCESS:
       return addUtxos(state, action.payload);
 
     case UPDATE_UTXO_FAIL:
