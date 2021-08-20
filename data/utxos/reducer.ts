@@ -41,6 +41,7 @@ export type State = {
   };
   updating: boolean;
   timestamp?: number;
+  spentIds?: string[];
 };
 
 export const initialState: State = {
@@ -55,16 +56,29 @@ const addUtxos = (
   payload: {
     utxos: UTXO[];
     address: string;
-    timestamp?: number;
+    spentIds?: string[];
   }
 ) => {
-  const { address, utxos, timestamp } = payload;
+  const { address, utxos, spentIds } = payload;
 
-  console.log("utxos.length", utxos.length);
+  const timestamp = spentIds
+    ? Date.now()
+    : Date.now() - (state.timestamp || 0) < 180000
+    ? state.timestamp
+    : undefined;
+  const fullSpentIds = timestamp
+    ? spentIds
+      ? [...(state.spentIds || []), ...spentIds]
+      : state.spentIds || []
+    : [];
+
+  const filteredUtxos = utxos.filter(
+    utxoCurrent => !fullSpentIds.includes(utxoCurrent._id)
+  );
 
   // Currently fully replaces all utxos with passed in set.
   // In future should only add then prune completely unused ones by account
-  const nextById = Object.values(utxos).reduce((prev, curr) => {
+  const nextById = Object.values(filteredUtxos).reduce((prev, curr) => {
     return {
       ...prev,
       [curr._id]: curr
@@ -74,17 +88,15 @@ const addUtxos = (
   const nextState = {
     ...state,
     byId: nextById,
-    allIds: utxos.map(utxo => utxo._id),
+    allIds: filteredUtxos.map(utxo => utxo._id),
     byAccount: {
       ...state.byAccount,
-      [address]: utxos.map(utxo => utxo._id)
+      [address]: filteredUtxos.map(utxo => utxo._id)
     },
-    updating: timestamp ? true : false,
-    timestamp: timestamp
+    updating: false,
+    timestamp: timestamp,
+    spentIds: fullSpentIds
   };
-
-  console.log("nextState.byId.length", Object.values(nextState.byId).length);
-  console.log("nextState.updating", nextState.updating);
 
   return nextState;
 };

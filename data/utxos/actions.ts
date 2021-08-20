@@ -2,13 +2,15 @@ import { chunk } from "lodash";
 import uuidv5 from "uuid/v5";
 import bcoin from "bcash";
 
+import { toCashAddress, toSlpAddress, toLegacyAddress } from "bchaddrjs-slp";
+
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
   ADDREMOVE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
-import { UTXO } from "./reducer";
+import utxos, { UTXO } from "./reducer";
 
 import { activeAccountIdSelector } from "../accounts/selectors";
 
@@ -17,6 +19,7 @@ import { FullState } from "../store";
 import { decodeTxOut, getAllUtxoGrpc } from "../../utils/transaction-utils";
 
 import { getTransactions, UTXOResult } from "../../api/grpc";
+import { transactionsLatestBlockSelector } from "../selectors";
 
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -37,13 +40,13 @@ const updateUtxoSuccess = (utxos: UTXO[], address: string) => ({
 const addRemoveUtxoSuccess = (
   utxos: UTXO[],
   address: string,
-  timestamp: number
+  spentIds: string[]
 ) => ({
   type: ADDREMOVE_UTXO_SUCCESS,
   payload: {
     utxos,
     address,
-    timestamp
+    spentIds
   }
 });
 
@@ -56,17 +59,8 @@ const updateUtxoFail = () => ({
 const computeUtxoId = (utxo: UTXO | { txid: string; vout: number | string }) =>
   uuidv5(`${utxo.txid}_${utxo.vout}`, BADGER_UUID_NAMESPACE);
 
-const refreshUtxos = async (state: FullState, address: string) => {
-  const accountId = activeAccountIdSelector(state);
-  if (!accountId) return [];
-
-  // Get the existing UTXO's in store for account
-  const utxosSlice = state.utxos;
-  const accountUtxos = (utxosSlice.byAccount[accountId] || [])
-    .map(utxoId => utxosSlice.byId[utxoId])
-    .filter(Boolean);
-
-  // Get all UTXO for account
+const refreshUtxos = async (getState: Function, address: string) => {
+  // Get all UTXO for account (gRPC having serious delay)
   const utxosAll: UTXOResult[] = await getAllUtxoGrpc(address);
 
   const utxosAllWithId = utxosAll.map(utxo => ({
@@ -75,6 +69,23 @@ const refreshUtxos = async (state: FullState, address: string) => {
   }));
 
   const utxosAllIds = utxosAllWithId.map(utxo => utxo._id);
+
+  // Get state and account
+  const state: FullState = getState();
+  const accountId = activeAccountIdSelector(state);
+  if (!accountId) return [];
+
+  // Get the existing UTXO's in store for account
+  const utxosSlice = state.utxos;
+  const timeSinceLastSend = Date.now() - (utxosSlice.timestamp || 0);
+  const accountUtxos = (utxosSlice.byAccount[accountId] || [])
+    .map(utxoId => utxosSlice.byId[utxoId])
+    .filter(Boolean);
+
+  // Skip fetch (mitigate node slow processing/caching of node)
+  if (timeSinceLastSend < 120000) {
+    return accountUtxos.filter(u => u.address == address);
+  }
 
   // Remove spent and un-validated SLP txs
   const cachedUtxoFiltered = accountUtxos
@@ -85,6 +96,10 @@ const refreshUtxos = async (state: FullState, address: string) => {
     utxoCached => utxoCached._id
   );
 
+  console.log(
+    address + " cachedUtxoFilteredIds.length",
+    cachedUtxoFilteredIds.length
+  );
   // New utxos to get data for
   const utxosNew = utxosAllWithId.filter(
     utxoCurrent => !cachedUtxoFilteredIds.includes(utxoCurrent._id)
@@ -183,19 +198,42 @@ const updateUtxos = (address: string, addressSlp: string) => {
       return;
     }
 
+    dispatch(updateUtxoStart());
+    // const state: FullState = getState();
+
+    // const utxosUpdatedFull = await refreshUtxos(state, address);
+
+    // const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
+    // console.log('utxosUpdatedFullSlp', JSON.stringify(utxosUpdatedFullSlp[utxosUpdatedFullSlp.length - 2]))
+
+    const [utxosUpdatedFull, utxosUpdatedFullSlp] = await Promise.all([
+      refreshUtxos(getState, address),
+      refreshUtxos(getState, addressSlp)
+    ]);
+
+    // Get state and account
     const state: FullState = getState();
-    // Only update if passed timeout or no timestamp exists
-    if (
-      state.utxos.updating === false ||
-      !state.utxos.timestamp || Date.now() - state.utxos.timestamp > 90000
-    ) {
-      dispatch(updateUtxoStart());
+    const accountId = activeAccountIdSelector(state);
+    if (!accountId) return [];
 
-      const utxosUpdatedFull = await refreshUtxos(state, address);
+    // Get the existing UTXO's in store for account
+    const utxosSlice = state.utxos;
+    const timeSinceLastSend = Date.now() - (utxosSlice.timestamp || 0);
+    const accountUtxos = (utxosSlice.byAccount[accountId] || [])
+      .map(utxoId => utxosSlice.byId[utxoId])
+      .filter(Boolean);
 
-      const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
-      // console.log('utxosUpdatedFullSlp', JSON.stringify(utxosUpdatedFullSlp[utxosUpdatedFullSlp.length - 2]))
-
+    // Skip fetch (mitigate node slow processing/caching of node)
+    if (timeSinceLastSend < 120000) {
+      dispatch(
+        updateUtxoSuccess(
+          accountUtxos.filter(
+            u => u.address == address || u.address == addressSlp
+          ),
+          address
+        )
+      );
+    } else {
       dispatch(
         updateUtxoSuccess(
           [...utxosUpdatedFull, ...utxosUpdatedFullSlp],
@@ -208,12 +246,17 @@ const updateUtxos = (address: string, addressSlp: string) => {
 
 const addRemoveUtxos = (
   address: string,
-  outputsToAdd: typeof bcoin.Output[],
-  inputsToRemove: typeof bcoin.Input[]
+  slpAddress: string,
+  transaction: {
+    txid: string;
+    outputs: typeof bcoin.Output[];
+    inputs: typeof bcoin.Input[];
+  }
 ) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(updateUtxoStart());
     const state: FullState = getState();
+    const latestBlock = transactionsLatestBlockSelector(state);
     const accountId = activeAccountIdSelector(state);
     if (!accountId) return [];
 
@@ -222,31 +265,84 @@ const addRemoveUtxos = (
     const allUtxos = (utxosSlice.byAccount[accountId] || [])
       .map(utxoId => utxosSlice.byId[utxoId])
       .filter(Boolean);
+
     // Remove any UTXOs specified in utxosToRemove
-    const idsToRemove = inputsToRemove.map(input =>
+    const idsToRemove = transaction.inputs.map(input =>
       computeUtxoId({
         txid: input.prevout.hash,
         vout: input.prevout.index
       })
     );
-    console.log("utxos length before remove", allUtxos.length);
-    console.log("idsToRemove", idsToRemove);
-    // console.log('ids', allUtxos.map(utxo => utxo._id));
+
     const updatedUtxos = allUtxos.filter(
       utxo => !idsToRemove.includes(utxo._id)
     );
-    console.log("utxos length after remove", updatedUtxos.length);
-    // Add any UTXOs specified in utxosToAdd. Be sure SLP, address, and spendable properties have been assigned
-    // const utxosToAdd: UTXO[] = [];
-    // for (let i = 0; i < utxosToAdd.length; i++) {
-    //   const utxo = {
-    //     ...utxosToAdd[i],
-    //     _id: computeUtxoId(outputsToAdd[i]),
-    //   }
-    //   updatedUtxos.push(utxo);
-    // }
 
-    dispatch(addRemoveUtxoSuccess(updatedUtxos, address, Date.now()));
+    // TODO: Code below is for adding outputs as new, spendable UTXOs
+    // An array of properly ordered scriptPubKeys for the transaction
+    const txScripts = transaction.outputs.map(out => {
+      return { scriptPubKey: { hex: out.script } };
+    });
+    // Add any UTXOs specified in utxosToAdd. Be sure SLP, address, and spendable properties have been assigned
+    const utxosToAdd: UTXO[] = [];
+    const cashAddressArray = [address, toCashAddress(slpAddress)];
+    console.log("cashAddressArray", cashAddressArray);
+    for (let i = 0; i < transaction.outputs.length; i++) {
+      if (cashAddressArray.includes(transaction.outputs[i].address)) {
+        const id = computeUtxoId({ txid: transaction.txid, vout: i });
+
+        // If this UTXO is already in our set, skip processing
+        if (utxosSlice.allIds.includes(id)) {
+          console.log("utxo id already in set", id);
+          continue;
+        }
+
+        let utxo: UTXO = {
+          _id: id,
+          txid: transaction.txid,
+          confirmations: 0,
+          height: latestBlock,
+          satoshis: transaction.outputs[i].value,
+          amount: transaction.outputs[i].value / 10 ** 8,
+          vout: i,
+          tx: {
+            vout: txScripts
+          },
+          address: transaction.outputs[i].address,
+          cashAddress: transaction.outputs[i].address,
+          legacyAddress: toLegacyAddress(transaction.outputs[i].address)
+        };
+        // Check if is SLP
+        try {
+          const slpDecoded = decodeTxOut(utxo);
+          utxo = {
+            ...utxo,
+            slp: slpDecoded,
+            spendable: false,
+            validSlpTx: true
+          };
+        } catch (e) {
+          // Prevent spending of unknown SLP types
+          if (e.message === "Unknown token type") {
+            utxo = {
+              ...utxo,
+              spendable: false
+            };
+          }
+
+          utxo = {
+            ...utxo,
+            spendable: true
+          };
+        }
+
+        console.log("utxoToAdd", utxo);
+
+        updatedUtxos.push(utxo);
+      }
+    }
+
+    dispatch(addRemoveUtxoSuccess(updatedUtxos, address, idsToRemove));
   };
 };
 

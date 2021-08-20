@@ -151,7 +151,7 @@ const HomeScreen = ({
     updateUtxos(address, addressSlp);
     const utxoInterval = setInterval(
       () => updateUtxos(address, addressSlp),
-      15 * SECOND
+      30 * SECOND
     );
     return () => {
       clearInterval(utxoInterval);

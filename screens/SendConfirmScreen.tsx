@@ -218,8 +218,9 @@ const SendConfirmScreen = ({
       }
 
       txParams.transaction = {
+        txid: resultTx.txid(),
         inputs: resultTx.inputs.map(input => input.toJSON()),
-        outputs: resultTx.inputs.map(output => output.toJSON())
+        outputs: resultTx.outputs.map(output => output.toJSON())
       };
 
       navigation.replace("SendSuccess", {
