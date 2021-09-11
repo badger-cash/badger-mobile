@@ -454,7 +454,7 @@ const signAndPublishSlpTransaction = async (
         { P2PKH: tokenReceiverAddressArray.length + 1 }
       );
 
-      byteCount += sendOpReturn.length;
+      byteCount += 8 + 1 + sendOpReturn.length;
       byteCount += 546 * tokenReceiverAddressArray.length; // 546 sats for each output
 
       if (inputSatoshis >= byteCount) {
@@ -473,7 +473,7 @@ const signAndPublishSlpTransaction = async (
         { P2PKH: tokenReceiverAddressArray.length }
       );
 
-      byteCount += sendOpReturn.length;
+      byteCount += 8 + 1 + sendOpReturn.length;
       // Account for difference in inputs and outputs
       byteCount += 546 * (tokenReceiverAddressArray.length - inputUtxos.length);
 
@@ -793,7 +793,7 @@ const sweepPaperWallet = async (
         { P2PKH: tokenReceiverAddressArray.length + 1 }
       );
 
-      byteCount += sendOpReturn.length;
+      byteCount += 8 + 1 + sendOpReturn.length;
       byteCount += 546 * tokenReceiverAddressArray.length + 1; // 546 sats for each output
 
       let totalUtxoAmount = 0;

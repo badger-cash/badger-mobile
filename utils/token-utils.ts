@@ -14,6 +14,7 @@ import LEADTokenImage from "../assets/images/token-icons/29d353a3d19cdd7324f1c14
 import ZBCHTokenImage from "../assets/images/token-icons/f66c6d0ac6b8c5c4ed469234ec9734f6d3499b0351b22349f40e617d22254fec.png";
 import HonkHonkTokenImage from "../assets/images/token-icons/7f8889682d57369ed0e32336f8b7e0ffec625a35cca183f4e81fde4e71a538a1.png";
 import MiamiTokenImage from "../assets/images/token-icons/eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149.png";
+import BitgoudTokenImage from "../assets/images/token-icons/10db44eb221797d8015d55855edbec656b73559f2afb28da3f7d5d19529ae624.png";
 import TetherTokenImage from "../assets/images/token-icons/9fc89d6b7d5be2eac0b3787c5b8236bca5de641b5bafafc8f450727b63615c11.png";
 
 import BitcoinCashImage from "../assets/images/icon.png";
@@ -33,6 +34,7 @@ const tokenIdImageMap: { [tokenId: string]: any } = {
   f66c6d0ac6b8c5c4ed469234ec9734f6d3499b0351b22349f40e617d22254fec: ZBCHTokenImage,
   "7f8889682d57369ed0e32336f8b7e0ffec625a35cca183f4e81fde4e71a538a1": HonkHonkTokenImage,
   eebaa04d0e715b7bd21901cb60e10d7f71d219626daf24c57ce6ea9584333149: MiamiTokenImage,
+  "10db44eb221797d8015d55855edbec656b73559f2afb28da3f7d5d19529ae624": BitgoudTokenImage,
   "9fc89d6b7d5be2eac0b3787c5b8236bca5de641b5bafafc8f450727b63615c11": TetherTokenImage
 };
 

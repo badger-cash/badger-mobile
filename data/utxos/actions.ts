@@ -96,10 +96,6 @@ const refreshUtxos = async (getState: Function, address: string) => {
     utxoCached => utxoCached._id
   );
 
-  console.log(
-    address + " cachedUtxoFilteredIds.length",
-    cachedUtxoFilteredIds.length
-  );
   // New utxos to get data for
   const utxosNew = utxosAllWithId.filter(
     utxoCurrent => !cachedUtxoFilteredIds.includes(utxoCurrent._id)
