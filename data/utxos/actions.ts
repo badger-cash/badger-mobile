@@ -282,7 +282,6 @@ const addRemoveUtxos = (
     // Add any UTXOs specified in utxosToAdd. Be sure SLP, address, and spendable properties have been assigned
     const utxosToAdd: UTXO[] = [];
     const cashAddressArray = [address, toCashAddress(slpAddress)];
-    console.log("cashAddressArray", cashAddressArray);
     for (let i = 0; i < transaction.outputs.length; i++) {
       if (cashAddressArray.includes(transaction.outputs[i].address)) {
         const id = computeUtxoId({ txid: transaction.txid, vout: i });
@@ -331,8 +330,6 @@ const addRemoveUtxos = (
             spendable: true
           };
         }
-
-        console.log("utxoToAdd", utxo);
 
         updatedUtxos.push(utxo);
       }
