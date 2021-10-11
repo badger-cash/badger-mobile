@@ -1,12 +1,8 @@
 import PaymentProtocol from "bitcore-payment-protocol";
 import BigNumber from "bignumber.js";
 
-import {
-  getTransaction,
-  getUtxosByAddress,
-  sendTx,
-  UTXOResult
-} from "../api/grpc";
+import { UTXOResult } from "../api/grpc";
+import { sendTx, getTransaction, getUtxosByAddress } from "../api/bcash";
 import { UTXO } from "../data/utxos/reducer";
 import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";

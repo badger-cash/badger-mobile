@@ -2310,7 +2310,7 @@ bitcore-lib@0.14.0:
 
 "bitcore-payment-protocol@git+https://github.com/vinarmani/bitcore-payment-protocol.git#new_deps":
   version "1.8.0"
-  resolved "git+https://github.com/vinarmani/bitcore-payment-protocol.git#52cde5c9b1da4dd951e6dae487ceb4bfa5074163"
+  resolved "git+https://github.com/vinarmani/bitcore-payment-protocol.git#6a652d33533009e74e46d12013a6dd6422592e44"
   dependencies:
     asn1.js "=4.9.1"
     asn1.js-rfc3280 "=4.0.0"
