@@ -51,10 +51,7 @@ const getSLPTxType = (scriptASMArray: typeof bcoin.Script[]) => {
   return type;
 };
 
-const getAllUtxoGrpc = async (
-  address: string,
-  includeTxData: boolean = true
-) => {
+const getAllUtxos = async (address: string, includeTxData: boolean = true) => {
   const result = await getUtxosByAddress(address, includeTxData);
   return result;
 };
@@ -1023,7 +1020,7 @@ export {
   decodeTokenMetadata,
   decodeTxOut,
   getByteCount,
-  getAllUtxoGrpc,
+  getAllUtxos,
   getTransactionDetails,
   signAndPublishBchTransaction,
   signAndPublishSlpTransaction,

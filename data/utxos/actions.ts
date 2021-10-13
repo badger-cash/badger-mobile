@@ -16,7 +16,7 @@ import { activeAccountIdSelector } from "../accounts/selectors";
 
 import { FullState } from "../store";
 
-import { decodeTxOut, getAllUtxoGrpc } from "../../utils/transaction-utils";
+import { decodeTxOut, getAllUtxos } from "../../utils/transaction-utils";
 
 import { getTransactions, UTXOResult } from "../../api/grpc";
 import { transactionsLatestBlockSelector } from "../selectors";
@@ -61,7 +61,7 @@ const computeUtxoId = (utxo: UTXO | { txid: string; vout: number | string }) =>
 
 const refreshUtxos = async (getState: Function, address: string) => {
   // Get all UTXO for account (gRPC having serious delay)
-  const utxosAll: UTXOResult[] = await getAllUtxoGrpc(address);
+  const utxosAll: UTXOResult[] = await getAllUtxos(address);
 
   const utxosAllWithId = utxosAll.map(utxo => ({
     ...utxo,

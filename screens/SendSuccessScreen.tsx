@@ -91,9 +91,9 @@ const SendSuccessScreen = ({
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    addRemoveUtxos(address, addressSlp, transaction);
-    // _.delay(() => updateUtxos(address, addressSlp), 1750);
-    // _.delay(() => updateTransactions(address, addressSlp), 2000);
+    // addRemoveUtxos(address, addressSlp, transaction);
+    _.delay(() => updateUtxos(address, addressSlp), 1750);
+    _.delay(() => updateTransactions(address, addressSlp), 2000);
   }, [address, addressSlp]);
 
   const imageSource = getTokenImage(tokenId);

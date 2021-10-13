@@ -114,6 +114,18 @@ const formatUtxo = async function(utxo: any): Promise<UTXOResult> {
   return formattedUtxo;
 };
 
+const getTransactionsByAddress = async function(
+  address: string,
+  limit: number = 30,
+  reverse: boolean = true
+) {
+  const req = await fetch(
+    `${API}/tx/address/${address}?slp=true&limit=${limit}&reverse=${reverse}`
+  );
+  const resp = await req.json();
+  return resp;
+};
+
 const getTransaction = async function(txhash: string) {
   const req = await fetch(`${API}/tx/${txhash}?slp=true`);
   const resp = await req.json();
@@ -218,6 +230,7 @@ const sendTx = async (hex: string, log: Boolean = true): Promise<string> => {
     body: JSON.stringify({ tx: hex })
   });
   const resp = await req.json();
+  console.log("resp", resp);
   if (!resp.success) {
     throw new Error("Transaction broadcast error");
   }
@@ -227,4 +240,10 @@ const sendTx = async (hex: string, log: Boolean = true): Promise<string> => {
   return hash;
 };
 
-export { getCurrentBlockheight, getUtxosByAddress, getTransaction, sendTx };
+export {
+  getCurrentBlockheight,
+  getUtxosByAddress,
+  getTransaction,
+  sendTx,
+  getTransactionsByAddress
+};
