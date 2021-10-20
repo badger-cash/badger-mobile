@@ -572,7 +572,8 @@ const signAndPublishSlpTransaction = async (
 
   // Sign both BCH and SLP inputs
   transactionBuilder.sign(spendableTokenUtxos[0].keypair, sighashType);
-  transactionBuilder.sign(spendableUtxos[0].keypair, sighashType);
+  if (spendableUtxos[0])
+    transactionBuilder.sign(spendableUtxos[0].keypair, sighashType);
   const hex = transactionBuilder.toRaw().toString("hex");
 
   let txid = null;
