@@ -70,9 +70,9 @@ type Props = PropsFromParent;
 const Langs = require("../_locales/index.json");
 
 const SelectLanguagesScreen = ({ navigation }: Props) => {
-  var [currencyActive, setCurrencyActive] = useState();
+  var [languageActive, setLanguageActive] = useState();
 
-  getLang(setCurrencyActive);
+  getLang(setLanguageActive);
 
   return (
     <SafeAreaView>
@@ -82,7 +82,7 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
           <T center>{tran.getStr("Active_Languages")} :</T>
           <Spacer tiny />
           <T center weight="bold">
-            {` ${(getLang(setCurrencyActive), currencyActive)} `}
+            {` ${(getLang(setLanguageActive), languageActive)} `}
           </T>
           <Spacer />
         </ActiveSection>
@@ -93,10 +93,10 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
                 key={lang}
                 text={`${lang.name}`}
                 onPress={() => {
-                  setCurrencyActive(lang.name);
+                  setLanguageActive(lang.name);
                   setLang(lang);
                 }}
-                isActive={currencyActive === lang.name}
+                isActive={languageActive === lang.name}
               />
             );
           })}

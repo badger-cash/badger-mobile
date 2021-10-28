@@ -25,7 +25,7 @@ import { FullState } from "../data/store";
 import { getLang } from "../data/languages/index";
 
 import lang from "../_locales/index";
-let tran = new lang("WelcomeScreen");
+let tran = new lang("MenuScreen");
 
 const StyledScrollView = styled(ScrollView)`
   height: 100%;
