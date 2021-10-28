@@ -46,6 +46,9 @@ import { getType } from "../utils/schemeParser-utils";
 import { isCashAddress, isSlpAddress } from "bchaddrjs-slp";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+let tran = new lang("SendSetupScreen");
+
 type PropsFromParent = NavigationScreenProps & {
   route: {
     params: {
@@ -377,24 +380,20 @@ const SendSetupScreen = ({
     let hasErrors = false;
 
     if (tokenId && !["slpaddr"].includes(addressFormat)) {
-      setErrors([
-        "Can only send SLP tokens to Simpleledger addresses.  The to address should begin with 'simpleledger:'"
-      ]);
+      setErrors([tran.getStr("Msg_Error_Can_only_send_SLP_tokens")]);
       hasErrors = true;
     } else if (!tokenId && !["cashaddr"].includes(addressFormat)) {
-      setErrors([
-        "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with 'bitcoincash:'"
-      ]);
+      setErrors([tran.getStr("Msg_Error_Can_only_send_BCH")]);
       hasErrors = true;
     }
 
     if (!availableFunds || new BigNumber(sendAmountCrypto).gt(availableFunds)) {
-      setErrors(["Cannot send more funds than are available"]);
+      setErrors([tran.getStr("Msg_Error_Cannot_send_more_available")]);
       hasErrors = true;
     }
 
     if (!sendAmount || !sendAmountCrypto) {
-      setErrors(["Amount required"]);
+      setErrors([tran.getStr("Msg_Error_Amount_required")]);
       hasErrors = true;
     }
 
@@ -470,8 +469,9 @@ const SendSetupScreen = ({
       }
 
       if (amounts.length > 1) {
-        parseError =
-          "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
+        parseError = tran.getStr(
+          "Msg_Error_Badger_Wallet_currently_only_supports_sending"
+        );
       } else if (amounts.length === 1) {
         const target = amounts[0];
         uriTokenId = target.tokenId;
@@ -497,9 +497,7 @@ const SendSetupScreen = ({
 
       // Verify the type matches the screen we are on.
       if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
-        setErrors([
-          "Sending different coin or token than selected, go to the target coin screen and try again"
-        ]);
+        setErrors([tran.getStr("Msg_Error_Sending_different_coin_or_token")]);
         return;
       }
 
@@ -572,7 +570,7 @@ const SendSetupScreen = ({
         {qrOpen && (
           <QROverlayScreen>
             <Spacer small />
-            <H2 center>Scan QR Code</H2>
+            <H2 center>{tran.getStr("Scan_QR_Code")}</H2>
             <Spacer small />
 
             <View
@@ -606,7 +604,7 @@ const SendSetupScreen = ({
             <Button
               nature="cautionGhost"
               onPress={() => setQrOpen(false)}
-              text="Cancel Scan"
+              text={tran.getStr("Btn_Cancel_Scan")}
             />
           </QROverlayScreen>
         )}
@@ -661,7 +659,7 @@ const SendSetupScreen = ({
             )}
             <Spacer small />
 
-            <T>Send To:</T>
+            <T>{tran.getStr("Send_To")}:</T>
             <Spacer tiny />
             <View>
               <StyledTextInput
@@ -692,7 +690,8 @@ const SendSetupScreen = ({
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-clipboard" size={18} /> Paste
+                  <Ionicons name="ios-clipboard" size={18} />{" "}
+                  {tran.getStr("Paste")}
                 </T>
               </StyledButton>
               <StyledButton
@@ -701,14 +700,15 @@ const SendSetupScreen = ({
                 onPress={() => setQrOpen(true)}
               >
                 <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-qr-code-outline" size={18} /> Scan QR
+                  <Ionicons name="ios-qr-code-outline" size={18} />{" "}
+                  {tran.getStr("Btn_Scan_QR")}
                 </T>
               </StyledButton>
             </ButtonArea>
             <Spacer />
 
             <AmountRow>
-              <T>Amount:</T>
+              <T>{tran.getStr("Amount")}:</T>
               <View>
                 <T size="small" monospace right>
                   {sendAmountCryptoFormatted || "0"} {displaySymbol}
@@ -778,7 +778,8 @@ const SendSetupScreen = ({
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-color-wand" size={18} /> Send Max
+                  <Ionicons name="ios-color-wand" size={18} />{" "}
+                  {tran.getStr("Send_Max")}
                 </T>
               </StyledButton>
             </AmountButtonArea>
@@ -788,12 +789,12 @@ const SendSetupScreen = ({
           <Spacer fill />
           <Spacer small />
           <ActionButtonArea>
-            <Button onPress={goNextStep} text="Next Step" />
+            <Button onPress={goNextStep} text={tran.getStr("Btn_Next_Step")} />
             <Spacer small />
             <Button
               nature="cautionGhost"
               onPress={() => navigation.navigate("Home")}
-              text="Cancel"
+              text={tran.getStr("Btn_Cancel")}
             />
           </ActionButtonArea>
           <Spacer />

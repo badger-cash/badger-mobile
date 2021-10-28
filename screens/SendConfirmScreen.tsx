@@ -40,6 +40,9 @@ import { FullState } from "../data/store";
 
 import { getPostageRates } from "../api/pay.badger";
 
+import lang from "../_locales/index";
+let tran = new lang("SendConfirmScreen");
+
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
   padding: 0 16px;
@@ -337,7 +340,7 @@ const SendConfirmScreen = ({
         </IconArea>
 
         <Spacer small />
-        <H2 center>Sending</H2>
+        <H2 center>{tran.getStr("Sending")}</H2>
         <Spacer small />
         <H2 center weight="bold">
           {sendAmountBase.toFormat() || "--"} {displaySymbol}
@@ -348,7 +351,7 @@ const SendConfirmScreen = ({
           </T>
         )}
         <Spacer medium />
-        <H2 center>To Address</H2>
+        <H2 center>{tran.getStr("To_Address")}</H2>
         <Spacer />
         <T size="small" center>
           {protocol}:
@@ -362,7 +365,7 @@ const SendConfirmScreen = ({
         {postOfficeAvailable && <Spacer medium />}
         {postOfficeAvailable && (
           <PostOfficeArea>
-            <T weight="bold">Use Post Office?</T>
+            <T weight="bold">{tran.getStr("Qtext_use_post_office")}</T>
             <Switch
               trackColor={{ false: "#767577", true: "#11a87e" }}
               thumbColor={usePostOffice ? "#f5dd4b" : "#f4f3f4"}
@@ -374,9 +377,9 @@ const SendConfirmScreen = ({
         )}
         {usePostOffice && postOfficeData && (
           <T size="small" center>
-            Fee Rate: {postOfficeData.stamps[0].rateDecimal}{" "}
-            {postOfficeData.stamps[0].symbol} per each {postOfficeData.weight}{" "}
-            bytes
+            {tran.getStr("Fee_Rate")}: {postOfficeData.stamps[0].rateDecimal}{" "}
+            {postOfficeData.stamps[0].symbol} {tran.getStr("per_each")}{" "}
+            {postOfficeData.weight} {tran.getStr("bytes")}
           </T>
         )}
         <Spacer small />
@@ -397,7 +400,7 @@ const SendConfirmScreen = ({
             {!sendError && (
               <SwipeButton
                 swipeFn={() => signSendTransaction()}
-                labelAction="To Send"
+                labelAction={tran.getStr("SwipeButton_labelAction")}
               />
             )}
 
@@ -405,7 +408,7 @@ const SendConfirmScreen = ({
 
             <Button
               nature="cautionGhost"
-              text="Cancel Transaction"
+              text={tran.getStr("Button_Cancel")}
               onPress={() => navigation.goBack()}
             />
           </ButtonsContainer>

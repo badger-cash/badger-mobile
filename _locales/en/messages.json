@@ -17,9 +17,8 @@
       "SLPTokensFavorites": "SLP Tokens - Favorites",
       "SLPTokens": "SLP Tokens",
       "Title_WalletSection": "Bitcoin Cash Wallet",
-      "symbol": "BCH",
-      "name": "Bitcoin Cash",
-      "Please_backup": "Please backup your Seed Phrase",
+      "nameOfBitcoinCash": "Bitcoin Cash",
+      "Please_backup_Seed_Phrase": "Please backup your Seed Phrase",
       "Badger": "Badger",
       "BCH_and_SLP_wallet": "BCH and SLP wallet",
       "InitialSetup": "Initial Setup..."
@@ -33,7 +32,7 @@
     "RequestScreen": {
       "Requesting": "Requesting",
       "Copied_to_clipboard": "Copied to clipboard",
-      "Amount Required": "Amount Required"
+      "AmountRequired": "Amount Required"
     },
     "ReceiveScreen": {
       "Msg_Scan_public": "Scan a public key below to receive funds. Tap on a QR code to copy the address.",
@@ -50,7 +49,8 @@
       "Msg_Enter_your_12_word": "Enter your 12 word seed phrase or mnemonic to restore and access an existing wallet",
       "Msg_Enter_Backup_Phrase": "Enter Backup Phrase / Mnemonic",
       "btn_Cancel": "Cancel",
-      "erorrMsg": "Double check the recovery phrase and try again",
+      "erorrMsg_Double_check": "Double check the recovery phrase and try again.",
+      "mnemonicMessage": "Invalid mnemonic",
       "Msg_check_the_recovery": "check the recovery phrase and try again",
       "erorrMsg_Seed_Phrase": "Seed Phrase / Mnemonic cannot be empty",
       "btn_Restore": "Restore Wallet"
@@ -58,6 +58,8 @@
     "WalletDetailScreen": {
       "Msg_Token_copied": "Token ID copied to clipboard",
       "Balance": "Balance",
+      "Btn_Request": "Request",
+      "Btn_Send": "Send",
       "Transaction_History": "Transaction History (max 30)",
       "Transaction_history_updating": "Transaction history updating...",
       "Msg_take_few_minutes": "This may take a few minutes.",
@@ -65,9 +67,8 @@
     },
     "ContactUsScreen": {
       "Msg_we_hope": "We hope you are enjoying Badger Wallet",
-      "msg_if_you wish": "If you wish to give feedback, ask a question, or contact us for another reason, get in touch with the team through electronic mail or Telegram",
-      "Email": "Email",
-      "Email_badger@bitcoin.com": "badger@bitcoin.com",
+      "Msg_if_you_wish": "If you wish to give feedback, ask a question, or contact us for another reason, get in touch with the team through electronic mail or Telegram",
+      "Msg_Email": "Email",
       "Msg_Telegram": "Telegram",
       "Badger_Wallet_Group": "Badger Wallet Group"
     },
@@ -75,14 +76,14 @@
       "Payment_Amount": "Payment Amount",
       "Payment_URL": "Payment URL",
       "Msg_Memo": "Memo",
-      "Loading_Transaction_Details...": "Loading Transaction Details...",
+      "labelAction_ToSend": "To Send",
+      "Loading_Transaction_Details": "Loading Transaction Details...",
       "Sending_Payment": "Sending Payment",
       "This_payment_request": "This payment request is invalid, expired or already paid, please check with the merchant and try again.",
       "Error_while_sending_payment.": "Error while sending payment.",
-      "To_pay": "To pay",
-      "Release_to_pay": "Release to pay",
-      "Keep_going": "Keep going",
-      "Cancel_payment": "Cancel payment"
+      "Cancel_payment": "Cancel payment",
+      "Btn_Add_Amount": "Add Amount",
+      "Btn_Cancel": "Cancel"
     },
     "Bip70SuccessScreen": {
       "Payment_sent_to_merchant": "Payment sent to merchant",
@@ -94,9 +95,9 @@
       "Msg_Loading_Wallet": "Loading Wallet..."
     },
     "LogoutScreen": {
-      "about_to_logout": "You are about to logout of your wallet. You will need to use this wallets seed phrase to access the held funds again.",
-      "Make_sure": " Make sure you have the seed phrase backed up in a secure location before logging out.",
-      "If_the_seed": "If the seed phrase is lost, we are unable to recover the wallet for you.",
+      "Msg_about_to_logout": "You are about to logout of your wallet. You will need to use this wallets seed phrase to access the held funds again.",
+      "Msg_Make_sure": " Make sure you have the seed phrase backed up in a secure location before logging out.",
+      "Msg_If_the_seed": "If the seed phrase is lost, we are unable to recover the wallet for you.",
       "Btn_Cancel": "Cancel",
       "SwipeButton_labelAction": "To Logout",
       "SwipeButton_labelRelease": "Release to logout",
@@ -123,10 +124,12 @@
     "SendConfirmScreen": {
       "Sending": "Sending",
       "To_Address": "To Address",
+      "Qtext_use_post_office": "Use Post Office?",
       "SwipeButton_labelAction": "To Send",
-      "SwipeButton_labelRelease": "Release to send",
-      "labelHalfway": "Keep going",
-      "Button_Cancel": "Cancel Transaction"
+      "Button_Cancel": "Cancel Transaction",
+      "Fee_Rate": "Fee Rate",
+      "per_each": "per each",
+      "bytes": "bytes"
     },
     "SendSetupScreen": {
       "Scan_QR_Code": "Scan QR Code",
@@ -145,10 +148,11 @@
       "Msg_Error_Can_only_send_BCH": "Can only send Bitcoin Cash (BCH) to cash addresses, the to address should begin with 'bitcoincash:'",
       "Msg_Error_Cannot_send_more_available": "Cannot send more funds than are available",
       "Msg_Error_Amount_required": "Amount required",
+      "Msg_Error_Badger_Wallet_currently_only_supports_sending": "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.",
       "Msg_Error_Sending_different_coin_or_token": "Sending different coin or token than selected, go to the target coin screen and try again"
     },
     "SendSuccessScreen": {
-      "Success": "Success",
+      "Success": "Success!",
       "Sent": "Sent",
       "To": "To",
       "Btn_Finish": "Finish"
@@ -159,11 +163,11 @@
       "Scan_QR": "Scan QR",
       "Open_Camera": "Open Camera",
       "Text_To_recover": "To recover Bitcoin Cash (BCH) or SLP Tokens from a paper wallet, follow the steps below.",
-      "Text_1": "1. Scan the private QR code on the paper wallet.",
-      "Text_2": "2. Select a token if there are multiple.",
-      "Text_3": "3. Review details.",
-      "Text_4": "4. Sweep to your Badger Wallet.",
-      "Text_5": "5. Repeat until all BCH and tokens have been swept.",
+      "Text_1_step": "1. Scan the private QR code on the paper wallet.",
+      "Text_2_step": "2. Select a token if there are multiple.",
+      "Text_3_step": "3. Review details.",
+      "Text_4_step": "4. Sweep to your Badger Wallet.",
+      "Text_5_step": "5. Repeat until all BCH and tokens have been swept.",
       "Multiple_SLP_tokens_detected": "Multiple SLP tokens detected, select one to sweep first...",
       "Review_Details": "Review Details",
       "Wif": "Wif",
@@ -178,7 +182,8 @@
       "Sweep_Funds": "Sweep Funds",
       "Btn_Confirm_Sweep": "Confirm Sweep",
       "Msg_Error_scanning_paper_wallet": "Error scanning paper wallet",
-      "Msg_Error_Sweep_failed": "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee"
+      "Msg_Error_Sweep_failed": "Sweep failed, ensure your wallet or the paper wallet has BCH for the transaction fee",
+      "Btn_Open_QR_Scanner": "Open QR Scanner"
     },
     "FAQScreen": {
       "Frist_FAQ": {
@@ -239,7 +244,7 @@
           "No. You probably shouldn't store a lot of money on any mobile",
           "wallet."
         ],
-        "body_toice": [
+        "Second_body": [
           "Treat Badger similar to your regular wallet. Keep some BCH and",
           "tokens in it for spending, but store the rest of your crypto in a",
           "secure hardware wallet."
@@ -250,7 +255,7 @@
       "Request": "Request",
       "Receive": "Receive",
       "Menu": "Menu",
-      "Seed_Phrase": "Seed Phrase",
+      "View_Seed": "View Seed",
       "F.A.Q.": "F.A.Q.",
       "Sweep": "Sweep",
       "Contact_Us": "Contact Us",
@@ -259,12 +264,10 @@
       "Select_Languages": "Select Languages",
       "BottomTabNavigator_Home": "Home",
       "BottomTabNavigator_Menu": "Menu",
-      "BottomTabNavigator_Receive": "Receive"
-    },
-    "SendStack": {
+      "BottomTabNavigator_Receive": "Receive",
       "Setup_Transaction": "Setup Transaction",
-      "Confirm & Send": "Confirm & Send",
-      "Payment Request": "Payment Request"
+      "Confirm_and_Send": "Confirm & Send",
+      "Payment_Request": "Payment Request"
     }
   }
 }

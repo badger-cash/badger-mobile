@@ -34,7 +34,7 @@ class lang {
 
   getStr(str) {
     let data = this.getDBlang();
-    return data["pages"][this.screen][str].toString();
+    return data["pages"][this.screen][str];
   }
 }
 

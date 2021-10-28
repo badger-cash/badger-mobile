@@ -24,6 +24,9 @@ import {
 
 import { T, Spacer } from "../atoms";
 
+import lang from "../_locales/index";
+let tran = new lang("SelectCurrencyScreen");
+
 const ScreenWrapper = styled(View)`
   height: 100%;
 `;
@@ -97,7 +100,7 @@ const SelectCurrencyScreen = ({
       <ScreenWrapper>
         <ActiveSection>
           <Spacer />
-          <T center>Active Currency:</T>
+          <T center>{tran.getStr("Active_Currency")}:</T>
           <Spacer tiny />
           <T center weight="bold">
             {`${currencySymbolMap[currencyActive]} ${currencyActive} - ${currencyNameMap[currencyActive]} `}

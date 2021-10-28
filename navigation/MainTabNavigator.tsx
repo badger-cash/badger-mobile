@@ -11,6 +11,7 @@ import ReceiveScreen from "../screens/ReceiveScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import ContactUsScreen from "../screens/ContactUsScreen";
 import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
+import SelectLanguagesScreen from "../screens/SelectLanguagesScreen";
 import RequestScreen from "../screens/RequestScreen";
 import FAQScreen from "../screens/FAQScreen";
 import KeySweepScreen from "../screens/KeySweepScreen";
@@ -26,6 +27,9 @@ import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
+
+import lang from "../_locales/index";
+let tran = new lang("MainTabNavigator");
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -59,7 +63,7 @@ const HomeStack = () => {
       <Stack.Screen
         name="RequestSetup"
         component={RequestScreen}
-        options={{ title: "Request" }}
+        options={{ title: tran.getStr("Request") }}
       />
     </Stack.Navigator>
   );
@@ -83,37 +87,42 @@ const MenuStack = () => {
       <Stack.Screen
         name="Menu"
         component={MenuScreen}
-        options={{ title: "Menu" }}
+        options={{ title: tran.getStr("Menu") }}
       />
       <Stack.Screen
         name="ViewSeedPhrase"
         component={ViewSeedScreen}
-        options={{ title: "View Seed" }}
+        options={{ title: tran.getStr("View_Seed") }}
       />
       <Stack.Screen
         name="FAQScreen"
         component={FAQScreen}
-        options={{ title: "F.A.Q." }}
+        options={{ title: tran.getStr("F.A.Q.") }}
       />
       <Stack.Screen
         name="SweepScreen"
         component={KeySweepScreen}
-        options={{ title: "Sweep" }}
+        options={{ title: tran.getStr("Sweep") }}
       />
       <Stack.Screen
         name="ContactUsScreen"
         component={ContactUsScreen}
-        options={{ title: "Contact Us" }}
+        options={{ title: tran.getStr("Contact_Us") }}
       />
       <Stack.Screen
         name="LogoutScreen"
         component={LogoutScreen}
-        options={{ title: "Logout?" }}
+        options={{ title: tran.getStr("Logout?") }}
       />
       <Stack.Screen
         name="SelectCurrencyScreen"
         component={SelectCurrencyScreen}
-        options={{ title: "Select Currency" }}
+        options={{ title: tran.getStr("Select_Currency") }}
+      />
+      <Stack.Screen
+        name="SelectLanguagesScreen"
+        component={SelectLanguagesScreen}
+        options={{ title: tran.getStr("Select_Languages") }}
       />
     </Stack.Navigator>
   );
@@ -126,7 +135,7 @@ const ReceiveStack = () => {
         name="Receive"
         component={ReceiveScreen}
         options={{
-          title: "Receive",
+          title: tran.getStr("Receive"),
           headerShown: true,
           headerTitleAlign: "center"
         }}
@@ -168,9 +177,18 @@ const BottomTabNavigator = () => {
         }
       }}
     >
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Receive" component={ReceiveStack} />
-      <Tab.Screen name="Menu" component={MenuStack} />
+      <Tab.Screen
+        name={tran.getStr("BottomTabNavigator_Home")}
+        component={HomeStack}
+      />
+      <Tab.Screen
+        name={tran.getStr("BottomTabNavigator_Receive")}
+        component={ReceiveStack}
+      />
+      <Tab.Screen
+        name={tran.getStr("BottomTabNavigator_Menu")}
+        component={MenuStack}
+      />
     </Tab.Navigator>
   );
 };
@@ -194,21 +212,21 @@ const SendStack = () => {
         name="SendSetup"
         component={SendSetupScreen}
         options={{
-          title: "Setup Transaction"
+          title: tran.getStr("Setup_Transaction")
         }}
       />
       <Stack.Screen
         name="SendConfirm"
         component={SendConfirmScreen}
         options={{
-          title: "Confirm & Send"
+          title: tran.getStr("Confirm_and_Send")
         }}
       />
       <Stack.Screen
         name="Bip70Confirm"
         component={Bip70ConfirmScreen}
         options={{
-          title: "Payment Request"
+          title: tran.getStr("Payment_Request")
         }}
       />
       <Stack.Screen

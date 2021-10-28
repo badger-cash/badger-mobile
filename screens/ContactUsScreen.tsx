@@ -12,6 +12,9 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { T, Spacer } from "../atoms";
 
+import lang from "../_locales/index";
+let tran = new lang("ContactUsScreen");
+
 const ScreenWrapper = styled(ScrollView)`
   padding: 7px 16px;
 `;
@@ -31,16 +34,12 @@ const ContactUsScreen = (props: Props) => {
         }}
       >
         <Spacer />
-        <T center>We hope you are enjoying Badger Wallet</T>
+        <T center>{tran.getStr("Msg_we_hope")}</T>
         <Spacer small />
-        <T center>
-          If you wish to give feedback, ask a question, or contact us for
-          another reason, get in touch with the team through electronic mail or
-          Telegram
-        </T>
+        <T center>{tran.getStr("Msg_if_you_wish")}</T>
         <Spacer large />
         <T center>
-          <Ionicons name="ios-mail" size={22} /> Email
+          <Ionicons name="ios-mail" size={22} /> {tran.getStr("Msg_Email")}
         </T>
         <Spacer tiny />
         <TouchableOpacity
@@ -54,7 +53,8 @@ const ContactUsScreen = (props: Props) => {
         </TouchableOpacity>
         <Spacer />
         <T center>
-          <FontAwesome name="telegram" size={22} /> Telegram
+          <FontAwesome name="telegram" size={22} />{" "}
+          {tran.getStr("Msg_Telegram")}
         </T>
         <Spacer tiny />
         <TouchableOpacity
@@ -63,7 +63,7 @@ const ContactUsScreen = (props: Props) => {
           }
         >
           <T center size="large">
-            Badger Wallet Group
+            {tran.getStr("Badger_Wallet_Group")}
           </T>
         </TouchableOpacity>
         <Spacer />
