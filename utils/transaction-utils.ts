@@ -331,7 +331,8 @@ const signAndPublishBchTransaction = async (
       );
     }
 
-    transactionBuilder.sign(inputUtxos[0].keypair);
+    const keyringArray = [...new Set(inputUtxos.map(u => u.keypair))];
+    transactionBuilder.sign(keyringArray);
     const hex = transactionBuilder.toRaw().toString("hex");
     const txid = await publishTx(hex);
     return transactionBuilder;
@@ -455,6 +456,8 @@ const signAndPublishSlpTransaction = async (
       }
 
       inputSatoshis = inputSatoshis + utxo.satoshis;
+      // Be sure to add the additional bytes for the input in case last iteration
+      byteCount += 148;
       inputUtxos.push(utxo);
     }
   } else {
@@ -568,6 +571,11 @@ const signAndPublishSlpTransaction = async (
   if (spendableUtxos[0])
     transactionBuilder.sign(spendableUtxos[0].keypair, sighashType);
   const hex = transactionBuilder.toRaw().toString("hex");
+  console.log(
+    "fee = ",
+    transactionBuilder.getInputValue() - transactionBuilder.getOutputValue()
+  );
+  console.log(hex);
 
   let txid = null;
 
