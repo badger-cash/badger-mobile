@@ -13,7 +13,7 @@ import {
 import { tokensByIdSelector } from "../data/tokens/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { updateUtxos, addRemoveUtxos } from "../data/utxos/actions";
+import { updateUtxos } from "../data/utxos/actions";
 import { updateTransactions } from "../data/transactions/actions";
 
 import { Button, T, Spacer, H1, H2 } from "../atoms";
@@ -59,7 +59,6 @@ const mapStateToProps = (state: FullState) => ({
 
 const mapDispatchToProps = {
   updateUtxos,
-  addRemoveUtxos,
   updateTransactions
 };
 
@@ -77,7 +76,6 @@ const SendSuccessScreen = ({
   spotPrices,
   fiatCurrency,
   updateUtxos,
-  addRemoveUtxos,
   updateTransactions
 }: Props) => {
   const { txParams } = route.params;
@@ -91,7 +89,6 @@ const SendSuccessScreen = ({
 
   useEffect(() => {
     // Slight delay so api returns updated info.  Otherwise gets updated in standard interval
-    // addRemoveUtxos(address, addressSlp, transaction);
     _.delay(() => updateUtxos(address, addressSlp), 1750);
     _.delay(() => updateTransactions(address, addressSlp), 2000);
   }, [address, addressSlp]);

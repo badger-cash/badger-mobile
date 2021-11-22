@@ -1,7 +1,7 @@
 // Helper methods to communicate with the bcash REST API
 import bcoin from "bcash";
+import { UTXOJSON } from "../data/utxos/reducer";
 const bchaddr = require("bchaddrjs-slp");
-import { UTXOResult } from "./grpc";
 
 const API = `https://bcash.badger.cash:8332`;
 
@@ -30,95 +30,22 @@ const getTokenData = async (tokenId: string) => {
 const getUtxosByAddress = async (
   address: string,
   includeTxData: boolean = true
-): Promise<UTXOResult[]> => {
+): Promise<UTXOJSON[]> => {
   try {
     const req = await fetch(`${API}/coin/address/${address}?slp=true`);
     const utxos = await req.json();
-    const outs = [];
-    for (let i = 0; i < utxos.length; i++) {
-      let utxo = {
-        amount: utxos[i].value / 10 ** 8,
-        height: utxos[i].blockHeight,
-        satoshis: utxos[i].value,
-        txid: utxos[i].hash,
-        vout: utxos[i].index,
-        scriptPubKey: utxos[i].script,
-        cashAddress: utxos[i].address
-      };
-      if (utxos[i].slp) {
-        utxo.slp = utxos[i].slp;
-      }
-      if (includeTxData) {
-        utxo = await formatUtxo(utxo);
-      }
-      outs.push(utxo);
-    }
-    return outs;
+    return utxos;
   } catch (e) {
     console.log("utxo fetch error", JSON.stringify(e));
     throw e;
   }
 };
 
-const formatUtxo = async function(utxo: any): Promise<UTXOResult> {
-  const tx = await getTransaction(utxo.txid);
-  // Get SLP Info
-  let slpToken = tx.transaction.vout[utxo.vout].slpToken;
-  if (slpToken) {
-    utxo.slpToken = {
-      tokenId: utxo.slp.tokenId,
-      amount: utxo.slp.value,
-      isMintBaton: utxo.slp.type == "BATON",
-      address: utxo.cashAddress,
-      decimals: slpToken.decimals,
-      slpAction: utxo.slp.type == "SEND" ? 6 : utxo.slp.type == "MINT" ? 5 : 4,
-      tokenType: 1
-    };
-    utxo.tokenMetadata = {
-      tokenId: slpToken.tokenId,
-      tokenTicker: slpToken.ticker,
-      tokenName: slpToken.name,
-      tokenDocumentUrl: slpToken.uri,
-      tokenDocumentHash: slpToken.hash,
-      decimals: slpToken.decimals
-    };
-    // remove unformatted slp object
-    delete utxo.slp;
-  }
-  let formattedUtxo = {
-    ...utxo,
-    ...{
-      tx: tx.transaction,
-      confirmations: tx.transaction.confirmations,
-      legacyAddress: bchaddr.toLegacyAddress(
-        utxo.cashAddress.replace("bitcoincash:", "")
-      ),
-      address: utxo.cashAddress,
-      validSlpTx: utxo.slp ? true : false,
-      spendable: utxo.slp ? false : true
-    }
-  };
-  if (slpToken) {
-    formattedUtxo = {
-      ...formattedUtxo,
-      ...{
-        slp: {
-          token: utxo.slpToken.tokenId,
-          quantity: utxo.slpToken.amount,
-          baton: utxo.slpToken.isMintBaton
-        },
-        slpToken: utxo.slpToken
-      }
-    };
-  }
-  return formattedUtxo;
-};
-
-const getTransactionsByAddress = async function(
+const getTransactionsByAddress = async (
   address: string,
   limit: number = 30,
   reverse: boolean = true
-) {
+) => {
   const req = await fetch(
     `${API}/tx/address/${address}?slp=true&limit=${limit}&reverse=${reverse}`
   );
@@ -244,6 +171,7 @@ export {
   getCurrentBlockheight,
   getUtxosByAddress,
   getTransaction,
+  getTokenData,
   sendTx,
   getTransactionsByAddress
 };

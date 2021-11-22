@@ -31,9 +31,28 @@ export type UTXO = {
   keypair?: ECPair;
 };
 
+export type CoinJSON = {
+  vout: number;
+  tokenId: string;
+  value: string;
+  type: "SEND" | "MINT" | "BATON" | "GENESIS";
+};
+
+export type UTXOJSON = {
+  version: number;
+  height: number;
+  value: number;
+  script: string;
+  address: string;
+  coinbase: boolean;
+  hash: string;
+  index: number;
+  slp?: CoinJSON;
+};
+
 export type State = {
   byId: {
-    [utxoId: string]: UTXO;
+    [utxoId: string]: UTXOJSON;
   };
   allIds: string[];
   byAccount: {
@@ -54,7 +73,7 @@ export const initialState: State = {
 const addUtxos = (
   state: State,
   payload: {
-    utxos: UTXO[];
+    utxos: UTXOJSON[];
     address: string;
     spentIds?: string[];
   }
@@ -72,26 +91,21 @@ const addUtxos = (
       : state.spentIds || []
     : [];
 
-  const filteredUtxos = utxos.filter(
-    utxoCurrent => !fullSpentIds.includes(utxoCurrent._id)
-  );
-
-  // Currently fully replaces all utxos with passed in set.
-  // In future should only add then prune completely unused ones by account
-  const nextById = Object.values(filteredUtxos).reduce((prev, curr) => {
+  const allIds = utxos.map(utxo => `${utxo.hash}_${utxo.index}`);
+  const nextById = utxos.reduce((prev, curr, index) => {
     return {
       ...prev,
-      [curr._id]: curr
+      [allIds[index]]: curr
     };
   }, {});
 
   const nextState = {
     ...state,
     byId: nextById,
-    allIds: filteredUtxos.map(utxo => utxo._id),
+    allIds,
     byAccount: {
       ...state.byAccount,
-      [address]: filteredUtxos.map(utxo => utxo._id)
+      [address]: allIds
     },
     updating: false,
     timestamp: timestamp,

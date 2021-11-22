@@ -61,34 +61,32 @@ const balancesSelector = createSelector(utxosByAccountSelector, utxos => {
   const balances: Balances = utxos.reduce((prev, utxo) => {
     if (!utxo) return prev;
 
-    if (utxo.slp && utxo.validSlpTx) {
-      if (utxo.slp.baton) {
+    if (utxo.slp) {
+      if (utxo.slp.type == "BATON") {
         return {
           ...prev,
           satoshisLockedInMintingBaton: prev.satoshisLockedInMintingBaton.plus(
-            utxo.satoshis
+            utxo.value
           )
         };
       } else {
-        const { token, quantity } = utxo.slp;
-        const previousQuantity = prev.slpTokens[token] || new BigNumber(0);
+        const { tokenId, value } = utxo.slp;
+        const previousQuantity = prev.slpTokens[tokenId] || new BigNumber(0);
         return {
           ...prev,
-          satoshisLockedInTokens: prev.satoshisLockedInTokens.plus(
-            utxo.satoshis
-          ),
+          satoshisLockedInTokens: prev.satoshisLockedInTokens.plus(utxo.value),
           slpTokens: {
             ...prev.slpTokens,
-            [token]: previousQuantity.plus(quantity)
+            [tokenId]: previousQuantity.plus(value)
           }
         };
       }
     }
 
-    if (utxo.spendable) {
+    if (!utxo.slp) {
       return {
         ...prev,
-        satoshisAvailable: prev.satoshisAvailable.plus(utxo.satoshis)
+        satoshisAvailable: prev.satoshisAvailable.plus(utxo.value)
       };
     }
 

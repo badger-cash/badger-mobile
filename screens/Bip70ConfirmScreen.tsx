@@ -298,23 +298,19 @@ const Bip70ConfirmScreen = ({
       return null;
     }
     setStep("sending");
-    const utxoWithKeypair = utxos.map(utxo => ({
-      ...utxo,
-      keypair:
-        utxo.address === activeAccount.address ? keypair.bch : keypair.slp
-    }));
     let paymentResponse = null;
+
+    const keypairs = [keypair.bch, keypair.slp];
 
     try {
       if (paymentDetails.tokenId) {
         const { tokenId } = paymentDetails;
-        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
-        const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
+        const spendableUTXOS = utxos.filter(utxo => !utxo.slp);
+        const spendableTokenUtxos = utxos.filter(utxo => {
           return (
             utxo.slp &&
-            utxo.slp.baton === false &&
-            utxo.validSlpTx === true &&
-            utxo.slp.token === tokenId
+            utxo.slp.type !== "BATON" &&
+            utxo.slp.tokenId === tokenId
           );
         });
         paymentResponse = await signAndPublishPaymentRequestTransactionSLP(
@@ -325,10 +321,11 @@ const Bip70ConfirmScreen = ({
             decimals: coinInfo.decimals
           },
           spendableUTXOS,
-          spendableTokenUtxos
+          spendableTokenUtxos,
+          keypairs
         );
       } else {
-        const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+        const spendableUTXOS = utxos.filter(utxo => !utxo.slp);
         const refundKeypair = paymentDetails.tokenId
           ? keypair.slp
           : keypair.bch;
@@ -337,7 +334,8 @@ const Bip70ConfirmScreen = ({
           paymentDetails,
           activeAccount.address,
           refundKeypair,
-          spendableUTXOS
+          spendableUTXOS,
+          keypairs
         );
       }
     } catch (e) {
