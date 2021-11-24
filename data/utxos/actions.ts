@@ -10,8 +10,6 @@ import { UTXOJSON } from "./reducer";
 
 import { getAllUtxos } from "../../utils/transaction-utils";
 
-import { UTXOResult } from "../../api/grpc";
-
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
 
@@ -52,8 +50,8 @@ const computeUtxoId = (
 ) => uuidv5(`${utxo.hash}_${utxo.index}`, BADGER_UUID_NAMESPACE);
 
 const refreshUtxos = async (getState: Function, address: string) => {
-  // Get all UTXO for account (gRPC having serious delay)
-  const utxosAll: UTXOResult[] = await getAllUtxos(address);
+  // Get all UTXO for account
+  const utxosAll: UTXOJSON[] = await getAllUtxos(address);
   return utxosAll;
 };
 
