@@ -267,7 +267,7 @@ const SendSetupScreen = ({
     if (tokenId) {
       result = balances.slpTokens[tokenId];
     } else {
-      const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
+      const spendableUTXOS = utxos.filter(utxo => !utxo.slp);
       const allUTXOFee = getByteCount(
         {
           P2PKH: spendableUTXOS.length

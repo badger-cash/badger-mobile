@@ -79,7 +79,11 @@ const SendSuccessScreen = ({
   updateTransactions
 }: Props) => {
   const { txParams } = route.params;
-  const { to, from, value, data } = txParams;
+  const { to, from, value, data, transaction } = txParams;
+
+  // try {
+  //   console.log('transaction', transaction.inputs[0].prevout);
+  // } catch (e) { console.log(e); }
 
   const tokenId = txParams.sendTokenData && txParams.sendTokenData.tokenId;
 

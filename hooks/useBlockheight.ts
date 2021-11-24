@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getCurrentBlockheight } from "../api/rest.bitcoin";
+import { getCurrentBlockheight } from "../api/bcash";
 
 const useBlockheight = () => {
   const [blockheight, setBlockheight] = useState(0);

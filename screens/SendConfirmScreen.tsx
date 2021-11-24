@@ -39,6 +39,7 @@ import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { FullState } from "../data/store";
 
 import { getPostageRates } from "../api/pay.badger";
+import babelConfig from "../babel.config";
 
 const ScreenWrapper = styled(SafeAreaView)`
   height: 100%;
@@ -163,25 +164,20 @@ const SendConfirmScreen = ({
   const signSendTransaction = async () => {
     setTransactionState("signing");
 
-    const utxoWithKeypair = utxos.map(utxo => ({
-      ...utxo,
-      keypair:
-        utxo.address === activeAccount.address ? keypair.bch : keypair.slp
-    }));
-
-    const spendableUTXOS = utxoWithKeypair.filter(utxo => utxo.spendable);
+    const spendableUTXOS = utxos.filter(utxo => !utxo.slp);
+    const keypairs = [keypair.bch, keypair.slp];
 
     let txParams = {} as TxParams;
+    let resultTx;
 
     try {
       if (tokenId) {
         // Sign and send SLP Token tx
-        const spendableTokenUtxos = utxoWithKeypair.filter(utxo => {
+        const spendableTokenUtxos = utxos.filter(utxo => {
           return (
             utxo.slp &&
-            utxo.slp.baton === false &&
-            utxo.validSlpTx === true &&
-            utxo.slp.token === tokenId
+            utxo.slp.type !== "BATON" &&
+            utxo.slp.tokenId === tokenId
           );
         });
         txParams = {
@@ -196,14 +192,15 @@ const SendConfirmScreen = ({
         if (usePostOffice && postOfficeData && postOfficeData !== true)
           txParams.postOfficeData = postOfficeData;
 
-        await signAndPublishSlpTransaction(
+        resultTx = await signAndPublishSlpTransaction(
           txParams,
           spendableUTXOS,
           {
             decimals
           },
           spendableTokenUtxos,
-          activeAccount.addressSlp
+          activeAccount.addressSlp,
+          keypairs
         );
       } else {
         // Sign and send BCH tx
@@ -212,8 +209,18 @@ const SendConfirmScreen = ({
           from: activeAccount.address,
           value: sendAmountParam
         };
-        await signAndPublishBchTransaction(txParams, spendableUTXOS);
+        resultTx = await signAndPublishBchTransaction(
+          txParams,
+          spendableUTXOS,
+          keypairs
+        );
       }
+
+      txParams.transaction = {
+        txid: resultTx.txid(),
+        inputs: resultTx.inputs.map(input => input.toJSON()),
+        outputs: resultTx.outputs.map(output => output.toJSON())
+      };
 
       navigation.replace("SendSuccess", {
         txParams

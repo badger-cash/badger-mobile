@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
+  ADDREMOVE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
 
@@ -30,15 +31,36 @@ export type UTXO = {
   keypair?: ECPair;
 };
 
+export type CoinJSON = {
+  vout: number;
+  tokenId: string;
+  value: string;
+  type: "SEND" | "MINT" | "BATON" | "GENESIS";
+};
+
+export type UTXOJSON = {
+  version: number;
+  height: number;
+  value: number;
+  script: string;
+  address: string;
+  coinbase: boolean;
+  hash: string;
+  index: number;
+  slp?: CoinJSON;
+};
+
 export type State = {
   byId: {
-    [utxoId: string]: UTXO;
+    [utxoId: string]: UTXOJSON;
   };
   allIds: string[];
   byAccount: {
     [accountId: string]: string[];
   };
   updating: boolean;
+  timestamp?: number;
+  spentIds?: string[];
 };
 
 export const initialState: State = {
@@ -51,30 +73,43 @@ export const initialState: State = {
 const addUtxos = (
   state: State,
   payload: {
-    utxos: UTXO[];
+    utxos: UTXOJSON[];
     address: string;
+    spentIds?: string[];
   }
 ) => {
-  const { address, utxos } = payload;
+  const { address, utxos, spentIds } = payload;
 
-  // Currently fully replaces all utxos with passed in set.
-  // In future should only add then prune completely unused ones by account
-  const nextById = Object.values(utxos).reduce((prev, curr) => {
+  const timestamp = spentIds
+    ? Date.now()
+    : Date.now() - (state.timestamp || 0) < 180000
+    ? state.timestamp
+    : undefined;
+  const fullSpentIds = timestamp
+    ? spentIds
+      ? [...(state.spentIds || []), ...spentIds]
+      : state.spentIds || []
+    : [];
+
+  const allIds = utxos.map(utxo => `${utxo.hash}_${utxo.index}`);
+  const nextById = utxos.reduce((prev, curr, index) => {
     return {
       ...prev,
-      [curr._id]: curr
+      [allIds[index]]: curr
     };
   }, {});
 
   const nextState = {
     ...state,
     byId: nextById,
-    allIds: utxos.map(utxo => utxo._id),
+    allIds,
     byAccount: {
       ...state.byAccount,
-      [address]: utxos.map(utxo => utxo._id)
+      [address]: allIds
     },
-    updating: false
+    updating: false,
+    timestamp: timestamp,
+    spentIds: fullSpentIds
   };
 
   return nextState;
@@ -89,6 +124,9 @@ const utxos = (state: State = initialState, action: AnyAction): State => {
       };
 
     case UPDATE_UTXO_SUCCESS:
+      return addUtxos(state, action.payload);
+
+    case ADDREMOVE_UTXO_SUCCESS:
       return addUtxos(state, action.payload);
 
     case UPDATE_UTXO_FAIL:

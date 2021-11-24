@@ -8,10 +8,7 @@ import {
 
 import { TokenData } from "./reducer";
 
-import {
-  getTransactionDetails,
-  decodeTokenMetadata
-} from "../../utils/transaction-utils";
+import { getTokenMetadata } from "../../utils/transaction-utils";
 
 const updateTokensMetaStart = () => ({
   type: UPDATE_TOKENS_META_START,
@@ -34,25 +31,11 @@ const updateTokensMeta = (tokenIds: string[]) => {
   return async (dispatch: Function, getState: Function): Promise<void> => {
     dispatch(updateTokensMetaStart());
 
-    const transactionRequests = await Promise.all(
-      chunk(tokenIds, 20).map(tokenIdChunk =>
-        getTransactionDetails(tokenIdChunk)
-      )
-    );
-
-    // concat the chunked arrays
-    const tokenTxDetailsList = [].concat(...transactionRequests);
-
-    const tokenMetadataList = tokenTxDetailsList
-      .map(txDetails => {
-        try {
-          return decodeTokenMetadata(txDetails);
-        } catch (err) {
-          console.warn("Could not parse SLP genesis:", err);
-          return null;
-        }
+    const tokenMetadataList: TokenData[] = await Promise.all(
+      tokenIds.map((tokenIdChunk: string) => {
+        return getTokenMetadata(tokenIdChunk);
       })
-      .filter(Boolean);
+    );
 
     dispatch(updateTokensMetaSuccess(tokenMetadataList));
   };

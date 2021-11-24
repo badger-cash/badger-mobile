@@ -1,20 +1,16 @@
-import { chunk } from "lodash";
 import uuidv5 from "uuid/v5";
 
 import {
   UPDATE_UTXO_START,
   UPDATE_UTXO_SUCCESS,
+  ADDREMOVE_UTXO_SUCCESS,
   UPDATE_UTXO_FAIL
 } from "./constants";
-import { UTXO } from "./reducer";
+import { UTXOJSON } from "./reducer";
 
-import { activeAccountIdSelector } from "../accounts/selectors";
+import { getAllUtxos } from "../../utils/transaction-utils";
 
-import { FullState } from "../store";
-
-import { decodeTxOut, getAllUtxoGrpc } from "../../utils/transaction-utils";
-
-import { getTransactions, UTXOResult } from "../../api/grpc";
+import { UTXOResult } from "../../api/grpc";
 
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -24,11 +20,24 @@ const updateUtxoStart = () => ({
   payload: null
 });
 
-const updateUtxoSuccess = (utxos: UTXO[], address: string) => ({
+const updateUtxoSuccess = (utxos: UTXOJSON[], address: string) => ({
   type: UPDATE_UTXO_SUCCESS,
   payload: {
     utxos,
     address
+  }
+});
+
+const addRemoveUtxoSuccess = (
+  utxos: UTXOJSON[],
+  address: string,
+  spentIds: string[]
+) => ({
+  type: ADDREMOVE_UTXO_SUCCESS,
+  payload: {
+    utxos,
+    address,
+    spentIds
   }
 });
 
@@ -38,128 +47,14 @@ const updateUtxoFail = () => ({
 });
 
 // Simple unique ID for each utxo
-const computeUtxoId = (utxo: UTXO) =>
-  uuidv5(`${utxo.txid}_${utxo.vout}`, BADGER_UUID_NAMESPACE);
+const computeUtxoId = (
+  utxo: UTXOJSON | { txid: string; vout: number | string }
+) => uuidv5(`${utxo.hash}_${utxo.index}`, BADGER_UUID_NAMESPACE);
 
-const refreshUtxos = async (state: FullState, address: string) => {
-  const accountId = activeAccountIdSelector(state);
-  if (!accountId) return [];
-
-  // Get the existing UTXO's in store for account
-  const utxosSlice = state.utxos;
-  const accountUtxos = (utxosSlice.byAccount[accountId] || [])
-    .map(utxoId => utxosSlice.byId[utxoId])
-    .filter(Boolean);
-
-  // Get all UTXO for account
-  const utxosAll: UTXOResult[] = await getAllUtxoGrpc(address);
-
-  const utxosAllWithId = utxosAll.map(utxo => ({
-    ...utxo,
-    _id: computeUtxoId(utxo)
-  }));
-
-  const utxosAllIds = utxosAllWithId.map(utxo => utxo._id);
-
-  // Remove spent and un-validated SLP txs
-  const cachedUtxoFiltered = accountUtxos
-    .filter(utxoCached => utxosAllIds.includes(utxoCached._id))
-    .filter(utxoCached => !(utxoCached.slp && !utxoCached.validSlpTx));
-
-  const cachedUtxoFilteredIds = cachedUtxoFiltered.map(
-    utxoCached => utxoCached._id
-  );
-
-  // New utxos to get data for
-  const utxosNew = utxosAllWithId.filter(
-    utxoCurrent => !cachedUtxoFilteredIds.includes(utxoCurrent._id)
-  );
-
-  // // Update UTXOS with tx details before saving
-  // const newTxIds = utxosNew.map(utxo => utxo.txid);
-  // const txDetailChunks = await Promise.all(
-  //   chunk(newTxIds, 20).map(txIds => getTransactions(txIds, true))
-  // );
-
-  // const txDetails: any[] = [].concat(...txDetailChunks);
-  const utxosNewWithTxDetails = utxosNew.map((utxo, idx) => ({
-    ...utxo,
-    address
-  }));
-
-  // Decode SLP and set as spendable or not
-  const utxosSlpOrSpendable = utxosNewWithTxDetails.map(utxo => {
-    try {
-      const slpDecoded = decodeTxOut(utxo);
-      return {
-        ...utxo,
-        slp: slpDecoded,
-        spendable: false
-      };
-    } catch (e) {
-      // Prevent spending of unknown SLP types
-      if (e.message === "Unknown token type") {
-        return {
-          ...utxo,
-          spendable: false
-        };
-      }
-
-      return {
-        ...utxo,
-        spendable: true
-      };
-    }
-  });
-
-  const slpTxidsToValidate = [
-    ...new Set(
-      utxosSlpOrSpendable
-        .filter(utxo => utxo.slp !== undefined)
-        .map(utxo => utxo.txid)
-    )
-  ];
-  let utxosToAdd = null;
-
-  try {
-    const validSLPTx = await Promise.all(
-      chunk(slpTxidsToValidate, 20).map(async txIdsToValidate => {
-        const validatedTxs: {
-          valid: boolean;
-          txid: string;
-        }[] = txIdsToValidate.map(txId => {
-          return { valid: true, txid: txId };
-        });
-        const validSLPTxChunk = validatedTxs
-          .filter(chunkResult => chunkResult.valid === true)
-          .map(chunkResult => chunkResult.txid);
-        return validSLPTxChunk;
-      })
-    );
-    const validSlpTxs = ([] as string[]).concat(...validSLPTx);
-    const utxosValidSlpTx = utxosSlpOrSpendable.map(utxo =>
-      validSlpTxs.includes(utxo.txid)
-        ? {
-            ...utxo,
-            validSlpTx: true
-          }
-        : utxo
-    );
-    // Validation incomplete. Ignore all uncached SLP UTXOs
-    utxosToAdd = utxosValidSlpTx;
-  } catch (validateSLPTxException) {
-    const nonSLPUtxos = utxosSlpOrSpendable.filter(
-      utxo => utxo.slp === undefined
-    );
-
-    utxosToAdd = nonSLPUtxos;
-  }
-
-  // Update the UTXO's for a given account.
-  // Fetch all UTXOS, update them with relevant token metadata, and persist
-  const utxosUpdatedFull = [...cachedUtxoFiltered, ...utxosToAdd];
-  // console.log("utxosUpdatedFull", utxosUpdatedFull)
-  return utxosUpdatedFull;
+const refreshUtxos = async (getState: Function, address: string) => {
+  // Get all UTXO for account (gRPC having serious delay)
+  const utxosAll: UTXOResult[] = await getAllUtxos(address);
+  return utxosAll;
 };
 
 const updateUtxos = (address: string, addressSlp: string) => {
@@ -169,11 +64,11 @@ const updateUtxos = (address: string, addressSlp: string) => {
     }
 
     dispatch(updateUtxoStart());
-    const state: FullState = getState();
-    const utxosUpdatedFull = await refreshUtxos(state, address);
 
-    const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
-    // console.log('utxosUpdatedFullSlp', JSON.stringify(utxosUpdatedFullSlp[utxosUpdatedFullSlp.length - 2]))
+    const [utxosUpdatedFull, utxosUpdatedFullSlp] = await Promise.all([
+      refreshUtxos(getState, address),
+      refreshUtxos(getState, addressSlp)
+    ]);
 
     dispatch(
       updateUtxoSuccess([...utxosUpdatedFull, ...utxosUpdatedFullSlp], address)
@@ -181,4 +76,10 @@ const updateUtxos = (address: string, addressSlp: string) => {
   };
 };
 
-export { updateUtxos, updateUtxoStart, updateUtxoSuccess, updateUtxoFail };
+export {
+  updateUtxos,
+  updateUtxoStart,
+  addRemoveUtxoSuccess,
+  updateUtxoSuccess,
+  updateUtxoFail
+};
