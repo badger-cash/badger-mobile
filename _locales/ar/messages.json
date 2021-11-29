@@ -1,0 +1,277 @@
+{
+  "pages": {
+    "AuthLoadingScreen": {
+      "Herding_Badgers": "رعي البادجر",
+      "parseError1": "تدعم محفظة Badger حاليًا إرسال عملة واحدة فقط في كل مرة. لكن URI يطلب عملات متعددة.",
+      "parseError2": "لوحظ عنوان غير صالح"
+    },
+    "Bip70ConfirmScreen": {
+      "Btn_Add_Amount": "أضف مقدارا",
+      "Btn_Cancel": "ألغ",
+      "Cancel_payment": "ألغ الدفع",
+      "Error_while_sending_payment.": "خطأ عند إرسال الدفع",
+      "Loading_Transaction_Details": "يُحمّل تفاصيل المعاملة...",
+      "Msg_Memo": "خاطرة",
+      "Payment_Amount": "مبلغ الدفع",
+      "Payment_URL": "عنوان URL للدفع",
+      "Sending_Payment": "إرسال دفعة",
+      "This_payment_request": "طلب الدفع هذا غير صالح أو منتهي أو مدفوع مسبقا، رجاء تأكد من البائع ثم حاول مجددا.",
+      "labelAction_ToSend": "للإرسال"
+    },
+    "Bip70SuccessScreen": {
+      "Msg_Success!": "تمت!",
+      "Payment_sent_to_merchant": "أرسلت الدفعة إلى البائع",
+      "Transaction_ID": "رمز المعاملة",
+      "btn_Finish": "انتهى"
+    },
+    "ContactUsScreen": {
+      "Badger_Wallet_Group": "مجموعة محفظة بادجر",
+      "Msg_Email": "البريد",
+      "Msg_Telegram": "تلغرام",
+      "Msg_if_you_wish": "إن رغبت بطرح رأيك أو السؤال أو التواصل معنا لسبب آخر يمكنك التواصل مع الفريق عبر البريد الالكتروني أو تلغرام",
+      "Msg_we_hope": "نأمل أن تكون مستمتعًا بمحفظة بادجر"
+    },
+    "CreateWalletScreen": {
+      "Msg_Loading_Wallet": "تحميل المحفظة..."
+    },
+    "FAQScreen": {
+      "Fifth_FAQ": {
+        "body": [
+          "استقبال المصكوكات مجاني، لكن إرسالها يتطلب قليلا من",
+          "بيتكوين كاش (BCH) لدفع رسوم المعاملة - عادة",
+          "~0.00000400 BCH."
+        ],
+        "body_toice": [
+          "تأكد من امتلاكك قليلا من BCH في محفظتك ثم حاول مجددا."
+        ],
+        "title": "لم لا أستطيع إرسال مصكوكة؟"
+      },
+      "Fourth_FAQ": {
+        "body": [
+          "إن SLP هو نظام مصكوكات مبني على شبكة بيتكوين كاش. SLP",
+          "تسمح أي شخص أو مؤسسة بإنشاء وإرسال واستقبال",
+          "مصكوكاتهم الخاصة كيفما أرادوا."
+        ],
+        "body_toice": [
+          "تمكن مصكوكات SLP مئات الاستخدامات الجديدة على شبكة BCH. من",
+          "أنظمة التصويت، الجوائز ونقاط الولاء، أنظمة التذاكر، الدفع عند حدث ما",
+          "والكثير الكثير غيرها"
+        ],
+        "title": "ماهي مصكوكات ميفاق السجلات المبسط (SLP) ؟"
+      },
+      "Frist_FAQ": {
+        "body": [
+          "محفظة بادجر هي محفظة لبيتكوين كاش ومصكوكات SLP، صممت",
+          "مع أولوية للاستخدام اليومي المبسّط."
+        ],
+        "title": "ماهي محفظة بادجر؟"
+      },
+      "Second_FAQ": {
+        "body": [
+          "بيتكوين كاش (BCH) وآلاف من مصكوكات SLP."
+        ],
+        "title": "ماهي العملات التي تدعمها محفظة بادجر؟"
+      },
+      "Seventh_FAQ": {
+        "Second_body": [
+          "استخدم بادجر كما تستخدم محفظتك الاعتيادية. احتفظ بقليل من BCH",
+          "والمصكوكات بها للدفع، لكن احتفظ بالباقي في",
+          "محفظة عتادية آمنة"
+        ],
+        "body": [
+          "لا. لا ينصح بالاحتفاظ بكثير من المال في أي محفظة",
+          "جوال."
+        ],
+        "title": "هل أحتفظ بمبلغ كبير في بادجر؟"
+      },
+      "Sixth_FAQ": {
+        "body": [
+          "بادجر تستخدم عنوانا واحدا لكل المعاملات. هذا يعني",
+          "أن المعاملات من وإلى بادجر يمكن ربطها بأدوات التحليل",
+          "بسهولة نسبيا."
+        ],
+        "body_toice": [
+          "سنقدم تحديثات تركز على الخصوصية في المستقبل"
+        ],
+        "title": "ما درجة الخصوصية في بادجر؟"
+      },
+      "Third_FAQ": {
+        "body": [
+          "بيتكوين كاش (BCH) هي نظام نقد إلكتروني من الند إلى الند للعالم.",
+          "تمكن BCH الدفع بلا إذن للمعاملات الصغيرة،",
+          "والدفع اليومي وصفقات الأعمال وكل ما بين ذلك."
+        ],
+        "title": "ما هي بيتكوين كاش (BCH)؟"
+      }
+    },
+    "HomeScreen": {
+      "BCH_and_SLP_wallet": "محفظة BCH و SLP",
+      "Badger": "بادجر",
+      "InitialSetup": "الإعداد الأولي...",
+      "NoTokensFound": "لا مصكوكات SLP في حوزتك حتى الآن",
+      "Please_backup_Seed_Phrase": "انسخ عبارة البذور احتياطيا",
+      "SLPTokens": "مصكوكات SLP",
+      "SLPTokensFavorites": "مصكوكات SLP - المفضلة",
+      "Title_WalletSection": "محفظة بيتكوين كاش",
+      "nameOfBitcoinCash": "بيتكوين كاش"
+    },
+    "KeySweepScreen": {
+      "Balance_to_Sweep": "",
+      "Bitcoin_Cash": "بيتكوين كاش",
+      "Btn_Cancel_Scan": "ألغ الإرسال",
+      "Btn_Confirm_Sweep": "أكد السحب",
+      "Btn_Open_QR_Scanner": "افتح قارئ الرمز التربيعي",
+      "Msg_Error_Sweep_failed": "فشل السحب، تأكد من أن محفظتك أو المحفظة الورقية فيها BCH كافي لعمولة المعاملة",
+      "Msg_Error_scanning_paper_wallet": "خطأ في فحص المحفظة الورقية",
+      "Msg_If_the_funds_appear_on_a_block_explorer": "إن كان المبلغ يظهر في مستكشف المعاملات، انتظر لبضع دقائق ثم حاول مجددا.",
+      "Msg_No_balances_found": "لم يعثر على رصيد في هذه المحفظة الورقية.",
+      "Msg_Sweep_again": "اسحب مجددا إن كانت المحفظة الورقية تحوي أكثر من نوع من مصكوكات SLP.",
+      "Multiple_SLP_tokens_detected": "",
+      "Open_Camera": "",
+      "Please_try_again": "",
+      "Review_Details": "",
+      "SLP_Token": "",
+      "Scan_QR": "",
+      "Scan_QR_Code": "",
+      "Sweep_Funds": "",
+      "Sweep_Success": "",
+      "Text_1_step": "",
+      "Text_2_step": "",
+      "Text_3_step": "",
+      "Text_4_step": "",
+      "Text_5_step": "",
+      "Text_To_recover": "",
+      "Wif": ""
+    },
+    "LogoutScreen": {
+      "Btn_Cancel": "ألغ",
+      "Msg_If_the_seed": "إذا فقدت عبارة البذور، لن يمكننا استعادة محفظتك.",
+      "Msg_Make_sure": "تأكد من أنك حفظت عبارة البذور في مكان آمن قبل تسجيل الخروج.",
+      "Msg_about_to_logout": "أنت على وشك تسجيل الخروج من المحفظ. سيتعين عليك استخدام عبارة البذور للوصول للمبالغ المحفوظة تارة أخرى.",
+      "SwipeButton_labelAction": "لتسجيل الخروج",
+      "SwipeButton_labelHalfway": "استمر",
+      "SwipeButton_labelRelease": "أطلق لتسجيل الخروج"
+    },
+    "MainTabNavigator": {
+      "BottomTabNavigator_Home": "الرئيسية",
+      "BottomTabNavigator_Menu": "القائمة",
+      "BottomTabNavigator_Receive": "استقبال",
+      "Confirm_and_Send": "تأكد وأرسل",
+      "Contact_Us": "تواصل معنا",
+      "F.A.Q.": "الأسئلة الشائعة",
+      "Logout?": "تسجيل الخروج؟",
+      "Menu": "القائمة",
+      "Payment_Request": "طلب دفع",
+      "Receive": "استقبل",
+      "Request": "",
+      "Select_Currency": "",
+      "Select_Languages": "",
+      "Setup_Transaction": "",
+      "Sweep": "",
+      "View_Seed": ""
+    },
+    "MenuScreen": {
+      "Contact_Us": "",
+      "Currency": "عملة",
+      "FAQ": "أسئلة شائعة",
+      "Languages": "اللغات",
+      "Logout": "تسجيل الخروج",
+      "Paper_Wallet_Sweep": "سحب محفظة ورقية",
+      "Privacy_Policy": "سياسة الخصوصية",
+      "Terms_of_Use": "شروط الاستخدام",
+      "ViewSeedPhrase": "أظهر عبارة البذور"
+    },
+    "ReceiveScreen": {
+      "BCH": "BCH",
+      "Bitcoin_Cash": "بيتكوين كاش (BCH)",
+      "Copied_BCH_Address": "نُسخ عنوان BCH",
+      "Copied_SLP_Address": "نُسخ عنوان SLP",
+      "Msg_Scan_public": "امسح العنوان العام أدناه للحصول على مبالغ. انقر على الرمز التربيعي لنسخ العنوان.",
+      "SLP": "SLP",
+      "Simple_Token": "مصكوكات مبسطة (SLP)",
+      "Tap_to_show": "أنقر للإظهار"
+    },
+    "RequestScreen": {
+      "AmountRequired": "المبلغ المطلوب",
+      "Copied_to_clipboard": "انسخ إلى الحافظة",
+      "Requesting": "يطلب"
+    },
+    "RestoreWalletScreen": {
+      "Msg_Enter_Backup_Phrase": "أدخل عبارة النسخ الاحتياطي / التذكيرية",
+      "Msg_Enter_your_12_word": "أدخل ال 12 كلمة المشكلة لعبارة البذور لاستعادة محفظة سابقة",
+      "Msg_check_the_recovery": "تأكد من عبارة الاستعادة وحاول مجددا",
+      "Restore_Wallet": "استعد المحفظة",
+      "btn_Cancel": "ألغ",
+      "btn_Restore": "استعادة المحفظة",
+      "erorrMsg_Double_check": "تأكد مجددا من عبارة الاستعادة وحاول مرة أخرى",
+      "erorrMsg_Seed_Phrase": "عبارة البذور / التذكيرية لا يمكن أن تكون فارغة",
+      "mnemonicMessage": "عبارة تذكيرية غير صالحة"
+    },
+    "SelectCurrencyScreen": {
+      "Active_Currency": "العملة النشطة"
+    },
+    "SelectLanguagesScreen": {
+      "Active_Languages": "اللغة المفعلة"
+    },
+    "SendConfirmScreen": {
+      "Button_Cancel": "ألغ المعاملة",
+      "Fee_Rate": "نسبة العمولة",
+      "Qtext_use_post_office": "استخدم خدمة مركز البريد؟",
+      "Sending": "يُرسل",
+      "SwipeButton_labelAction": "للإرسال",
+      "To_Address": "للعنوان",
+      "bytes": "بايت",
+      "per_each": "لكل"
+    },
+    "SendSetupScreen": {
+      "Amount": "المبلغ",
+      "Balance": "الرصيد",
+      "Btn_Cancel": "ألغ",
+      "Btn_Cancel_Scan": "ألغ الإرسال",
+      "Btn_Next_Step": "الخطوة التالية",
+      "Btn_Scan_QR": "مسح الرمز التربيعي",
+      "Msg_Error_Amount_required": "المبلغ المطلوب",
+      "Msg_Error_Badger_Wallet_currently_only_supports_sending": "محفظة بادجر تدعم حاليا إرسال عملة أو مصكوكة في كل مرة. الـ URI يطلب إرسال أكثر من عملة.",
+      "Msg_Error_Can_only_send_BCH": "",
+      "Msg_Error_Can_only_send_SLP_tokens": "",
+      "Msg_Error_Cannot_send_more_available": "",
+      "Msg_Error_Invalid_address": "",
+      "Msg_Error_Sending_different_coin_or_token": "",
+      "Paste": "",
+      "Scan_QR": "",
+      "Scan_QR_Code": "",
+      "Send_Max": "",
+      "Send_To": ""
+    },
+    "SendSuccessScreen": {
+      "Btn_Finish": "انتهى",
+      "Sent": "أرسل",
+      "Success": "تم!",
+      "To": "إلى"
+    },
+    "ViewSeedScreen": {
+      "Btn_Reveal_Seed": "اكشف عبارة البذور",
+      "Text_I_am_in": "أنا في مكان خاص آمن وأريد رؤية عبارة البذور",
+      "Text_This_seed_phrase": "هذه العبارة هي المفتاح للمبالغ في هذه المحفظة.",
+      "Text_Write_the_12-word": "اكتب العبارة المكونة من 12 كلمة بالترتيب، احتفظ بها في مكان آمن ولا تشاركها مع أي أحد لا تأمنه على الوصول لمحفظتك.",
+      "Text_losing_this": "ضياع هذه العبارة يعني فقدان الوصول لهذه المحفظة. إذا أضعتها لن يمكننا استعادة عبارة البذور أو المحفظة."
+    },
+    "WalletDetailScreen": {
+      "Balance": "الرصيد",
+      "Btn_Request": "طلب",
+      "Btn_Send": "أرسل",
+      "Full_History": "التأريخ كاملا",
+      "Msg_Token_copied": "نُسخ رمز المصكوكة إلى الحافظة",
+      "Msg_take_few_minutes": "قد يأخذ هذا بضع دقائق",
+      "Transaction_History": "تأريخ المعاملات (أقصى 30)",
+      "Transaction_history_updating": "تحديث سجل المعاملات..."
+    },
+    "WelcomeScreen": {
+      "btn_new_wallet": "شاشة الترحيب",
+      "btn_restore_wallet": "استعد محفظة",
+      "des": "محفظة بيتكوين كاش (BCH) ومصكوكات (SLP)",
+      "msg_welcome": "بوابتك لعالم بيتكوين كاش (BCH)",
+      "name_wallet": "محفظة بادجر"
+    }
+  }
+}
