@@ -1,1 +1,4 @@
-[{ "code": "en", "name": "English" }]
+[
+  { "code": "en", "name": "English" },
+  { "code": "ar", "name": "Arabic" }
+]
