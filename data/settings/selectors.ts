@@ -7,4 +7,8 @@ const tokenFavoritesSelector = createSelector(settingsSelector, settings => {
   return settings.tokenFavorites;
 });
 
-export { settingsSelector, tokenFavoritesSelector };
+const codeLangSelector = createSelector(settingsSelector, settings => {
+  return settings.codeLang;
+});
+
+export { settingsSelector, tokenFavoritesSelector, codeLangSelector };
