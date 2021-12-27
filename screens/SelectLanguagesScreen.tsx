@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { connect, ConnectedProps } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { NavigationScreenProps } from "react-navigation";
 
-import { getLang, setLang } from "../data/languages/index";
+// import { getLang, setLang } from "../data/languages/index";
+
+import { FullState } from "../data/store";
+import { setCodeLang } from "../data/settings/actions";
+import { codeLangSelector } from "../data/settings/selectors";
 
 import {
   SafeAreaView,
@@ -63,16 +67,31 @@ const CurrencyRow = ({ text, onPress, isActive }: PropsCurrencyRow) => (
 
 type PropsFromParent = NavigationScreenProps & {};
 
-const connector = connect();
+const mapStateToProps = (state: FullState) => {
+  return {
+    languageActive: codeLangSelector(state)
+  };
+};
 
-type Props = PropsFromParent;
+const mapDispatchToProps = {
+  setCodeLang
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromParent & PropsFromRedux;
 
 const Langs = require("../_locales/index.json");
 
-const SelectLanguagesScreen = ({ navigation }: Props) => {
-  var [languageActive, setLanguageActive] = useState();
-
-  getLang(setLanguageActive);
+const SelectLanguagesScreen = ({
+  navigation,
+  languageActive,
+  setCodeLang
+}: Props) => {
+  const updateLang = (code: any) => {
+    setCodeLang(code);
+  };
 
   return (
     <SafeAreaView>
@@ -82,7 +101,7 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
           <T center>{tran.getStr("Active_Languages")} :</T>
           <Spacer tiny />
           <T center weight="bold">
-            {` ${(getLang(setLanguageActive), languageActive)} `}
+            {` ${Langs.find(e => e.code == languageActive).name} `}
           </T>
           <Spacer />
         </ActiveSection>
@@ -93,10 +112,9 @@ const SelectLanguagesScreen = ({ navigation }: Props) => {
                 key={lang}
                 text={`${lang.name}`}
                 onPress={() => {
-                  setLanguageActive(lang.name);
-                  setLang(lang);
+                  updateLang(lang.code);
                 }}
-                isActive={languageActive === lang.name}
+                isActive={languageActive === lang.code}
               />
             );
           })}
