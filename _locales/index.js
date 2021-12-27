@@ -26,6 +26,9 @@ class lang {
       case "en":
         return require("./en/messages.json");
         break;
+      case "ar":
+        return require("./ar/messages.json");
+        break;
       default:
         return require("./en/messages.json");
         break;
