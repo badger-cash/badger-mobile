@@ -18,6 +18,9 @@ import { hasMnemonicSelector } from "../data/accounts/selectors";
 import bcoin from "bcash";
 import { FullState } from "../data/store";
 
+import lang from "../_locales/index";
+let tran = new lang("RestoreWalletScreen");
+
 const Screen = styled(ScrollView)`
   padding: 0 16px;
   height: 100%;
@@ -82,19 +85,16 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         }}
       >
         <Spacer />
-        <H1 center>Restore Wallet</H1>
+        <H1 center>{tran.getStr("Restore_Wallet")}</H1>
         <Spacer />
-        <T center>
-          Enter your 12 word seed phrase or mnemonic to restore and access an
-          existing wallet
-        </T>
+        <T center>{tran.getStr("Msg_Enter_your_12_word")}</T>
         <Spacer large />
         <StyledTextInput
           multiline
           editable
           autoCompleteType="off"
           autoCorrect={false}
-          placeholder="Enter Backup Phrase / Mnemonic"
+          placeholder={tran.getStr("Msg_Enter_Backup_Phrase")}
           value={mnemonic}
           onChangeText={text => {
             const sanitized = formatMnemonic(text);
@@ -114,20 +114,20 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         <Spacer fill />
         <Button
           onPress={() => navigation.goBack()}
-          text="Cancel"
+          text={tran.getStr("btn_Cancel")}
           nature="cautionGhost"
         />
         <Spacer small />
 
         <Button
           onPress={() => {
-            let errorMessage = "Double check the recovery phrase and try again";
+            let errorMessage = tran.getStr("erorrMsg_Double_check");
 
-            let mnemonicMessage = "Invalid mnemonic";
+            let mnemonicMessage = tran.getStr("mnemonicMessage");
 
             try {
               new bcoin.Mnemonic(mnemonic);
-              mnemonicMessage = "Valid mnemonic";
+              mnemonicMessage = tran.getStr("mnemonicMessage");
             } catch (e) {
               console.error(e);
             }
@@ -138,18 +138,20 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
             }
 
             if (mnemonicMessage === "Invalid mnemonic") {
-              errorMessage = `${mnemonicMessage}, check the recovery phrase and try again`;
+              errorMessage = `${mnemonicMessage}, ${tran.getStr(
+                "Msg_check_the_recovery"
+              )}`;
             } else {
               errorMessage = mnemonicMessage;
             }
 
             if (!mnemonic.length) {
-              errorMessage = "Seed Phrase / Mnemonic cannot be empty";
+              errorMessage = tran.getStr("erorrMsg_Seed_Phrase");
             }
 
             setInputError(errorMessage);
           }}
-          text="Restore Wallet"
+          text={tran.getStr("btn_Restore")}
         />
         <Spacer />
       </Screen>

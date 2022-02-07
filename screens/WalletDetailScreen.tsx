@@ -19,6 +19,9 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import useBlockheight from "../hooks/useBlockheight";
 import useSimpleledgerFormat from "../hooks/useSimpleledgerFormat";
 
+import lang from "../_locales/index";
+let tran = new lang("WalletDetailScreen");
+
 import {
   getAddressSelector,
   getAddressSlpSelector
@@ -279,7 +282,7 @@ const WalletDetailScreen = ({
             <>
               <Spacer minimal />
               <T center size="small" type="primary">
-                Token ID copied to clipboard
+                {tran.getStr("Msg_Token_copied")}
               </T>
             </>
           )}
@@ -291,7 +294,7 @@ const WalletDetailScreen = ({
           </IconArea>
 
           <Spacer />
-          <T center>Balance</T>
+          <T center>{tran.getStr("Balance")}</T>
           <H1 center>
             {amountWhole}
             {amountDecimal ? <H2>.{amountDecimal}</H2> : null}
@@ -310,7 +313,7 @@ const WalletDetailScreen = ({
                   tokenId
                 })
               }
-              text="Request"
+              text={tran.getStr("Btn_Request")}
             />
             <Button
               onPress={() =>
@@ -319,7 +322,7 @@ const WalletDetailScreen = ({
                   params: { tokenId: tokenId }
                 })
               }
-              text="Send"
+              text={tran.getStr("Btn_Send")}
             />
           </ButtonGroup>
           <Spacer />
@@ -333,7 +336,7 @@ const WalletDetailScreen = ({
           size="small"
           type="muted"
         >
-          Transaction History (max 30)
+          {tran.getStr("Transaction_History")}
         </T>
         <TransactionArea>
           {transactions.map((tx: Transaction) => {
@@ -410,10 +413,10 @@ const WalletDetailScreen = ({
             <>
               <Spacer small />
               <T size="small" type="muted" center>
-                Transaction history updating...
+                {tran.getStr("Transaction_history_updating")}
               </T>
               <T size="xsmall" type="muted2" center>
-                This may take a few minutes.
+                {tran.getStr("Msg_take_few_minutes")}
               </T>
               <Spacer small />
             </>
@@ -425,7 +428,7 @@ const WalletDetailScreen = ({
               type="muted2"
               onPress={() => Linking.openURL(explorerUrl)}
             >
-              Full History
+              {tran.getStr("Full_History")}
             </T>
             <Spacer small />
           </ExplorerRow>

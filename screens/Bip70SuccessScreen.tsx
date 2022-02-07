@@ -6,6 +6,9 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import { Button, T, H1, Spacer } from "../atoms";
 
+import lang from "../_locales/index";
+let tran = new lang("Bip70SuccessScreen");
+
 const ScreenCover = styled(View)`
   flex: 1;
   background-color: ${props => props.theme.primary500};
@@ -45,11 +48,11 @@ const Bip70SuccessScreen = ({ navigation, route }: Props) => {
           <TopArea>
             <Spacer />
             <H1 center type="inverse" weight="bold">
-              Success!
+              {tran.getStr("Msg_Success")}
             </H1>
             <Spacer tiny />
             <T size="large" type="inverse" center>
-              Payment sent to merchant
+              {tran.getStr("Payment_sent_to_merchant")}
             </T>
           </TopArea>
           <ReceiptArea>
@@ -58,7 +61,7 @@ const Bip70SuccessScreen = ({ navigation, route }: Props) => {
             </T>
             <Spacer />
             <T center type="inverse" size="small" monospace>
-              Transaction ID
+              {tran.getStr("Transaction_ID")}
             </T>
             <Spacer tiny />
             <T center type="inverse" size="small" monospace>
@@ -74,7 +77,7 @@ const Bip70SuccessScreen = ({ navigation, route }: Props) => {
                 marginRight: 8
               }}
               onPress={() => navigation.navigate("Home")}
-              text="Finish"
+              text={tran.getStr("btn_Finish")}
             />
             <Spacer small />
           </BottomArea>
