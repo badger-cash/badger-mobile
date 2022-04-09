@@ -53,7 +53,7 @@
     "events": "^3.0.0",
     "https-browserify": "1.0.0",
     "lodash": "^4.17.15",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "process": "^0.11.10",
