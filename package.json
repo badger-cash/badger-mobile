@@ -68,7 +68,7 @@
     "react-native-qrcode-scanner": "^1.2.3",
     "react-native-qrcode-svg": "^6.0.3",
     "react-native-randombytes": "^3.5.3",
-    "react-native-reanimated": "^2.2.0",
+    "react-native-reanimated": "^2.10.0",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.4.0",
     "react-native-svg": "^9.13.2",
